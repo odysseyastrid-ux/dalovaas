@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-2f49ee3f-4611-4ccc-a4d6-fa681c365013/styles.css">
+  <script src="_ds/organic-2f49ee3f-4611-4ccc-a4d6-fa681c365013/_ds_bundle.js"></script>
+  <script src="./image-slot.js"></script>
+  <style>
+    body{margin:0;background:var(--color-neutral-200);}
+    .cs-scroll::-webkit-scrollbar{display:none}
+    .cs-scroll{-ms-overflow-style:none;scrollbar-width:none}
+    .cs-slogan-3d{
+      text-shadow: 1px 1px 0 var(--color-text), 2px 2px 0 var(--color-text), 3px 3px 6px rgba(0,0,0,0.4);
+      animation: cs-float 2.6s ease-in-out infinite;
+      display: inline-block;
+    }
+    @keyframes cs-float {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+    .cs-outer{height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font-body);box-sizing:border-box}
+    .cs-phone{width:390px;height:min(844px, calc(100vh - 40px));height:min(844px, calc(100dvh - 40px));max-height:844px;background:var(--color-bg);box-shadow:var(--shadow-lg);border-radius:36px;position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--color-text)}
+    @media (max-width:480px){
+      .cs-outer{padding:0}
+      .cs-phone{width:100vw;width:100dvw;height:100vh;height:100dvh;max-height:none;border-radius:0;box-shadow:none}
+    }
+  </style>
+</helmet>
+
+<div class="cs-outer">
+<div class="cs-phone">
+
+<sc-if value="{{ isSplash }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;inset:0;background:var(--color-accent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-6);padding:0 var(--space-6)">
+    <div style="text-align:center">
+      <img src="assets/chez-sanji-logo.png" alt="Chez Sanji" style="width:220px;height:220px;display:block;margin:0 auto"/>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;color:#fff;margin-top:var(--space-4);letter-spacing:0.01em"><span class="cs-slogan-3d">{{ t.slogan }}</span></div>
+    </div>
+    <button onClick="{{ enterApp }}" style="position:absolute;bottom:var(--space-8);left:var(--space-6);right:var(--space-6);background:#fff;color:var(--color-text);border:none;border-radius:var(--radius-lg);padding:16px 20px;font-family:var(--font-heading);font-weight:700;font-size:14px;letter-spacing:0.02em;text-align:left;cursor:pointer">{{ t.enter }}</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isPhoneAuth }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;padding:var(--space-6);justify-content:center">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:24px;margin-bottom:var(--space-3)">{{ t.loginTitle }}</div>
+    <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:var(--space-6)">{{ t.loginDesc }}</div>
+    <div class="field" style="margin-bottom:var(--space-4)">
+      <label>{{ t.phoneLabel }}</label>
+      <input class="input" type="tel" placeholder="6XX XX XX XX" value="{{ phoneNumber }}" onChange="{{ setPhoneNumber }}"/>
+    </div>
+    <button onClick="{{ sendCode }}" disabled="{{ phoneInvalid }}" class="btn btn-primary btn-block" style="text-align:left">{{ t.sendCode }}</button>
+    <div style="font-family:var(--font-body);font-size:11px;color:var(--color-neutral-700);margin-top:var(--space-3);text-align:center">{{ t.viaWhatsapp }}</div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isCodeVerify }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;padding:var(--space-6);justify-content:center">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:24px;margin-bottom:var(--space-3)">{{ t.verifyTitle }}</div>
+    <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:var(--space-6)">{{ t.verifyDesc }} {{ phoneNumber }}</div>
+    <div style="display:flex;gap:10px;margin-bottom:var(--space-4)">
+      <sc-for list="{{ codeDigits }}" as="d" hint-placeholder-count="4">
+        <input ref="{{ d.setRef }}" class="input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="{{ d.value }}" onChange="{{ d.onChange }}" onKeyDown="{{ d.onKeyDown }}" onPaste="{{ d.onPaste }}" style="text-align:center;font-size:20px;font-weight:700;width:100%"/>
+      </sc-for>
+    </div>
+    <sc-if value="{{ codeError }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-bottom:var(--space-4)">{{ t.codeError }}</div>
+    </sc-if>
+    <button onClick="{{ verifyCode }}" class="btn btn-primary btn-block" style="text-align:left">{{ t.verify }}</button>
+    <button onClick="{{ resendCode }}" style="background:none;border:none;margin-top:var(--space-4);font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);text-decoration:underline;cursor:pointer">{{ t.resendCode }}</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isAdminAuthLetters }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;padding:var(--space-6);justify-content:center">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-bottom:var(--space-3)">Accès sécurisé</div>
+    <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:var(--space-6)">Étape 1/3 — Mot de passe (lettres)</div>
+    <div class="field" style="margin-bottom:var(--space-4)">
+      <label>Mot de passe</label>
+      <input class="input" type="password" value="{{ adminPassLettersInput }}" onChange="{{ setAdminPassLettersInput }}"/>
+    </div>
+    <sc-if value="{{ adminAuthError }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-bottom:var(--space-4)">Mot de passe incorrect.</div>
+    </sc-if>
+    <button onClick="{{ submitAdminLetters }}" class="btn btn-primary btn-block" style="text-align:left">Continuer →</button>
+    <button onClick="{{ goHome }}" style="background:none;border:none;margin-top:var(--space-4);font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);text-decoration:underline;cursor:pointer">Annuler</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isAdminAuthDigits }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;padding:var(--space-6);justify-content:center">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-bottom:var(--space-3)">Accès sécurisé</div>
+    <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:var(--space-6)">Étape 2/3 — Code (chiffres)</div>
+    <div class="field" style="margin-bottom:var(--space-4)">
+      <label>Code numérique</label>
+      <input class="input" type="password" inputmode="numeric" value="{{ adminPassDigitsInput }}" onChange="{{ setAdminPassDigitsInput }}"/>
+    </div>
+    <sc-if value="{{ adminAuthError }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-bottom:var(--space-4)">Code incorrect.</div>
+    </sc-if>
+    <button onClick="{{ submitAdminDigits }}" class="btn btn-primary btn-block" style="text-align:left">Continuer →</button>
+    <button onClick="{{ goHome }}" style="background:none;border:none;margin-top:var(--space-4);font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);text-decoration:underline;cursor:pointer">Annuler</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isAdminAuthFingerprint }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:var(--space-6);justify-content:center;text-align:center">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-bottom:var(--space-3)">Accès sécurisé</div>
+    <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:var(--space-6)">Étape 3/3 — Empreinte digitale</div>
+    <button onClick="{{ submitFingerprint }}" style="width:100px;height:100px;border-radius:50%;background:var(--color-accent);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:var(--space-5);opacity:{{ fingerprintOpacity }};transform:{{ fingerprintScale }};transition:transform 0.15s ease,opacity 0.15s ease">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0 3.5-1 6-1 6M8 11a4 4 0 1 1 8 0c0 4-1.5 7-1.5 7M6 11a6 6 0 0 1 12 0c0 4.5-2 8-2 8M12 11v3"/></svg>
+    </button>
+    <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700)">{{ fingerprintStatusLabel }}</div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isAdminQuickUnlock }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:var(--space-6);justify-content:center;text-align:center">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-bottom:var(--space-3)">Accès rapide</div>
+    <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:var(--space-5)">Entrez votre PIN</div>
+    <div class="field" style="width:100%;margin-bottom:var(--space-3)">
+      <input class="input" type="password" inputmode="numeric" maxlength="4" placeholder="PIN à 4 chiffres" value="{{ adminQuickPinInput }}" onChange="{{ setAdminQuickPinInput }}" style="text-align:center"/>
+    </div>
+    <sc-if value="{{ adminAuthError }}" hint-placeholder-val="{{ false }}">
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-bottom:var(--space-3)">PIN incorrect.</div>
+    </sc-if>
+    <button onClick="{{ submitQuickPin }}" class="btn btn-primary btn-block" style="text-align:left">Déverrouiller →</button>
+    <button onClick="{{ goHome }}" style="background:none;border:none;margin-top:var(--space-4);font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);text-decoration:underline;cursor:pointer">Annuler</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:flex-end;padding:var(--space-4)">
+      <button onClick="{{ skipOnboarding }}" style="background:none;border:none;font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);cursor:pointer;text-decoration:underline">{{ t.skip }}</button>
+    </div>
+    <div class="cs-scroll" style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0 var(--space-6);overflow-y:auto">
+      <div style="width:100%;flex:1;min-height:140px;border-radius:var(--radius-lg);overflow:hidden;background:#fff">
+        <image-slot id="onboard-{{ onboardStep }}" shape="rect" fit="contain" placeholder="Drop a photo"></image-slot>
+      </div>
+      <div style="margin-top:var(--space-6);flex:none">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;letter-spacing:-0.01em">{{ onboardTitle }}</div>
+        <div style="font-family:var(--font-body);font-size:14px;line-height:1.5;color:var(--color-neutral-700);margin-top:var(--space-3)">{{ onboardDesc }}</div>
+      </div>
+    </div>
+    <div style="padding:var(--space-6);flex:none">
+      <div style="display:flex;gap:6px;margin-bottom:var(--space-4)">
+        <sc-for list="{{ onboardDots }}" as="dot" hint-placeholder-count="3">
+          <div style="height:5px;flex:1;border-radius:999px;background:{{ dot.color }}"></div>
+        </sc-for>
+      </div>
+      <button onClick="{{ onboardNext }}" class="btn btn-primary btn-block" style="text-align:left">{{ onboardCta }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isMainApp }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;height:100%">
+
+  <!-- HOME -->
+  <sc-if value="{{ viewIsHome }}" hint-placeholder-val="{{ false }}">
+    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ toggleLang }}" style="background:var(--color-surface);border:none;border-radius:999px;padding:6px 12px;font-family:var(--font-heading);font-weight:700;font-size:11px;color:var(--color-text);cursor:pointer">{{ langLabel }}</button>
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px">
+        <img src="assets/chez-sanji-logo.png" alt="Chez Sanji" style="width:56px;height:56px;border-radius:50%"/>
+      </div>
+      <button onClick="{{ goAccount }}" style="width:38px;height:38px;border-radius:50%;background:var(--color-surface);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto">
+      <div style="margin:0;aspect-ratio:3/4;position:relative;overflow:hidden;background:#fff">
+        <sc-for list="{{ promoSlots }}" as="slot" hint-placeholder-count="3">
+          <div style="position:absolute;inset:0;opacity:{{ slot.opacity }};transition:opacity 0.6s ease;pointer-events:{{ slot.pointerEvents }}">
+            <image-slot id="{{ slot.id }}" shape="rect" fit="contain" placeholder="Drop a promo photo"></image-slot>
+          </div>
+        </sc-for>
+        <div style="position:absolute;bottom:var(--space-3);left:0;right:0;display:flex;justify-content:center;gap:6px;pointer-events:none">
+          <sc-for list="{{ promoDots }}" as="dot" hint-placeholder-count="3">
+            <button onClick="{{ dot.select }}" style="width:8px;height:8px;border-radius:50%;border:none;padding:0;background:{{ dot.bg }};box-shadow:0 0 0 1.5px rgba(0,0,0,0.4);cursor:pointer;pointer-events:auto"></button>
+          </sc-for>
+        </div>
+      </div>
+      <div class="cs-scroll" style="display:flex;gap:10px;padding:var(--space-4) var(--space-4);overflow-x:auto">
+        <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+          <button onClick="{{ cat.select }}" style="background:{{ cat.bg }};color:{{ cat.color }};border-radius:999px;border:2px solid var(--color-text);box-shadow:3px 3px 0 var(--color-text);cursor:pointer;font-family:var(--font-heading);font-weight:700;font-size:15px;padding:10px 18px;white-space:nowrap">{{ cat.label }}</button>
+        </sc-for>
+      </div>
+      <div style="padding:0 var(--space-4) var(--space-8)">
+        <sc-for list="{{ menuItems }}" as="item" hint-placeholder-count="4">
+          <div onClick="{{ item.open }}" style="display:flex;gap:var(--space-4);padding:var(--space-4) 0;border-bottom:1px solid var(--color-divider);cursor:pointer">
+            <div style="width:76px;height:76px;flex:none;border-radius:var(--radius-md);overflow:hidden;background:#fff">
+              <image-slot id="product-{{ item.id }}" shape="rect" fit="cover" placeholder="Photo"></image-slot>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--font-heading);font-weight:700;font-size:15px">{{ item.name }}</div>
+              <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ item.desc }}</div>
+              <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;margin-top:6px">{{ item.priceLabel }}</div>
+            </div>
+            <button onClick="{{ item.quickAdd }}" style="width:32px;height:32px;border-radius:50%;flex:none;align-self:center;background:var(--color-accent);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- LOYALTY -->
+  <sc-if value="{{ viewIsLoyalty }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.rewards }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <div style="background:var(--color-accent);color:#fff;padding:var(--space-6)">
+        <div style="font-family:var(--font-body);font-size:12px;letter-spacing:0.04em;text-transform:uppercase;opacity:0.85">{{ t.yourPoints }}</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:40px;margin-top:4px">{{ loyaltyPoints }}</div>
+        <div style="margin-top:var(--space-4);height:6px;background:rgba(255,255,255,0.3);width:100%">
+          <div style="height:100%;background:#fff;width:{{ tierProgressPct }}%"></div>
+        </div>
+        <div style="font-family:var(--font-body);font-size:12px;margin-top:8px;opacity:0.9">{{ tierProgressLabel }}</div>
+      </div>
+      <div style="margin-top:var(--space-6)">
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:var(--space-3)">{{ t.redeem }}</div>
+        <sc-for list="{{ rewards }}" as="rw" hint-placeholder-count="4">
+          <div class="card" style="margin-bottom:var(--space-3);display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-family:var(--font-heading);font-weight:700;font-size:14px">{{ rw.name }}</div>
+              <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ rw.costLabel }}</div>
+            </div>
+            <button onClick="{{ rw.redeem }}" disabled="{{ rw.disabled }}" class="btn btn-secondary" style="font-size:12px;padding:8px 14px">{{ t.redeemBtn }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- CART -->
+  <sc-if value="{{ viewIsCart }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.yourCart }}</div>
+    </div>
+    <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-4);padding:var(--space-6)">
+        <div style="font-family:var(--font-body);font-size:14px;color:var(--color-neutral-700)">{{ t.emptyCart }}</div>
+        <button onClick="{{ goHome }}" class="btn btn-primary">{{ t.browseMenu }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ cartNotEmpty }}" hint-placeholder-val="{{ false }}">
+      <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:0 var(--space-4)">
+        <sc-for list="{{ cartLines }}" as="line" hint-placeholder-count="2">
+          <div style="padding:var(--space-4) 0;border-bottom:1px solid var(--color-divider)">
+            <div style="display:flex;justify-content:space-between;gap:var(--space-3)">
+              <div style="flex:1">
+                <div style="font-family:var(--font-heading);font-weight:700;font-size:14px">{{ line.name }}</div>
+                <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ line.optionsLabel }}</div>
+              </div>
+              <div style="font-family:var(--font-heading);font-weight:700;font-size:14px">{{ line.lineTotalLabel }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-3);margin-top:var(--space-3)">
+              <button onClick="{{ line.dec }}" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--color-divider);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>
+              </button>
+              <div style="font-family:var(--font-body);font-size:13px;min-width:16px;text-align:center">{{ line.qty }}</div>
+              <button onClick="{{ line.inc }}" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--color-divider);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+              <button onClick="{{ line.remove }}" style="margin-left:auto;background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);text-decoration:underline;cursor:pointer">{{ t.remove }}</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:var(--space-4);border-top:1px solid var(--color-divider)">
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);margin-bottom:4px">
+          <span>{{ t.subtotal }}</span><span>{{ subtotalLabel }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-heading);font-weight:800;font-size:16px;margin-bottom:var(--space-4)">
+          <span>{{ t.total }}</span><span>{{ cartTotalLabel }}</span>
+        </div>
+        <button onClick="{{ goCheckout }}" class="btn btn-primary btn-block" style="text-align:left">{{ t.sendOrder }}</button>      </div>
+    </sc-if>
+  </sc-if>
+
+  <!-- ACCOUNT -->
+  <sc-if value="{{ viewIsAccount }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.account }}</div>
+      <button onClick="{{ toggleLang }}" style="background:var(--color-surface);border:none;border-radius:999px;padding:6px 12px;font-family:var(--font-heading);font-weight:700;font-size:11px;color:var(--color-text);cursor:pointer">{{ langLabel }}</button>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto">
+      <div style="display:flex;align-items:center;gap:var(--space-4);padding:var(--space-6) var(--space-4);border-bottom:1px solid var(--color-divider)">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--color-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:700;font-size:18px;flex:none;cursor:pointer" onClick="{{ secretTap }}">{{ profileInitials }}</div>
+        <div>
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:15px">{{ profileDisplayName }}</div>
+          <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ profileDisplayPhone }}</div>
+        </div>
+      </div>
+      <div style="display:flex;padding:var(--space-4);gap:var(--space-3);border-bottom:1px solid var(--color-divider)">
+        <div class="card" style="flex:1;text-align:center;padding:var(--space-3)">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:20px">{{ myOrdersCount }}</div>
+          <div style="font-family:var(--font-body);font-size:11px;color:var(--color-neutral-700)">{{ t.myOrders }}</div>
+        </div>
+        <div class="card" style="flex:1;text-align:center;padding:var(--space-3)">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;color:var(--color-accent-700)">{{ loyaltyPoints }}</div>
+          <div style="font-family:var(--font-body);font-size:11px;color:var(--color-neutral-700)">{{ t.myPoints }}</div>
+        </div>
+      </div>
+      <sc-for list="{{ accountRows }}" as="row" hint-placeholder-count="6">
+        <div onClick="{{ row.action }}" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-4);border-bottom:1px solid var(--color-divider);cursor:pointer">
+          <div style="font-family:var(--font-body);font-size:14px;color:{{ row.color }}">{{ row.label }}</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-neutral-500)"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- SUB: ORDER HISTORY -->
+  <sc-if value="{{ viewIsSubHistory }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goAccount }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.orderHistoryTitle }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <sc-if value="{{ hasNoOrderHistory }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700)">{{ t.noOrdersYet }}</div>
+      </sc-if>
+      <sc-for list="{{ orderHistoryDisplay }}" as="oh" hint-placeholder-count="3">
+        <div onClick="{{ oh.open }}" class="card" style="margin-bottom:var(--space-3);display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+          <div>
+            <div style="font-family:var(--font-heading);font-weight:700;font-size:14px">{{ oh.ref }}</div>
+            <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ t.pickupCodeLabel }}: {{ oh.pickupCode }}</div>
+          </div>
+          <span class="tag {{ oh.statusTagCls }}" style="font-size:10px">{{ oh.statusLabel }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- SUB: PAYMENT METHODS -->
+  <sc-if value="{{ viewIsSubPayment }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goAccount }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.paymentMethodsTitle }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-bottom:var(--space-4)">{{ t.defaultPaymentDesc }}</div>
+      <sc-for list="{{ savedPaymentOptions }}" as="po" hint-placeholder-count="3">
+        <div onClick="{{ po.select }}" style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider);cursor:pointer">
+          <div style="width:18px;height:18px;flex:none;border-radius:50%;border:1.5px solid var(--color-neutral-700);background:{{ po.dotBg }}"></div>
+          <div style="font-family:var(--font-body);font-size:13px;flex:1">{{ po.label }}</div>
+          <sc-if value="{{ po.isDefault }}" hint-placeholder-val="{{ false }}">
+            <span class="tag tag-accent" style="font-size:9px">{{ t.defaultLabel }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- SUB: DELIVERY ADDRESS -->
+  <sc-if value="{{ viewIsSubAddresses }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goAccount }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.addressesTitle }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <div class="field">
+        <label>{{ t.deliveryAddress }}</label>
+        <input class="input" type="text" placeholder="123 Market Street" value="{{ savedAddress }}" onChange="{{ setSavedAddress }}"/>
+      </div>
+      <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:var(--space-3)">{{ t.addressAutoUse }}</div>
+    </div>
+  </sc-if>
+
+  <!-- SUB: NOTIFICATIONS -->
+  <sc-if value="{{ viewIsSubNotifications }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goAccount }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.notificationsTitle }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <sc-for list="{{ notifRows }}" as="nr" hint-placeholder-count="3">
+        <div onClick="{{ nr.toggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider);cursor:pointer">
+          <div style="font-family:var(--font-body);font-size:13px">{{ nr.label }}</div>
+          <div style="width:40px;height:24px;border-radius:999px;background:{{ nr.trackBg }};position:relative;flex:none">
+            <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ nr.knobLeft }}px;transition:left 0.15s ease"></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- SUB: HELP & SUPPORT -->
+  <sc-if value="{{ viewIsSubHelp }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goAccount }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.helpTitle }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <div class="card" style="margin-bottom:var(--space-3)">
+        <div class="card-title" style="font-size:14px">{{ t.helpWhatsappTitle }}</div>
+        <div class="card-body" style="font-size:12px">{{ t.helpWhatsappDesc }}</div>
+        <button onClick="{{ contactSupport }}" class="btn btn-primary btn-block" style="text-align:left;margin-top:var(--space-3)">{{ t.contactSupport }}</button>
+      </div>
+      <div class="card">
+        <div class="card-title" style="font-size:14px">{{ t.helpFaqTitle }}</div>
+        <div class="card-body" style="font-size:12px">{{ t.helpFaqDesc }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ADMIN: EDIT MENU -->
+  <sc-if value="{{ viewIsAdmin }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goAccount }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.manageMenu }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <div style="display:flex;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div onClick="{{ toggleAllOrdersRecap }}" class="card" style="flex:1;text-align:center;cursor:pointer">
+          <div class="card-kicker">{{ t.totalOrders }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;margin-top:4px">{{ totalOrdersCount }}</div>
+        </div>
+        <div class="card" style="flex:1;text-align:center">
+          <div class="card-kicker">{{ t.activeOrders }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;margin-top:4px;color:var(--color-accent-700)">{{ activeOrdersCount }}</div>
+        </div>
+      </div>
+      <sc-if value="{{ showAllOrdersRecap }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3)">
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;letter-spacing:0.04em;text-transform:uppercase">{{ t.allOrdersRecap }}</div>
+          <button onClick="{{ downloadAllOrdersPdf }}" class="btn btn-secondary" style="font-size:11px;padding:6px 12px">{{ t.downloadAllPdf }}</button>
+        </div>
+        <sc-for list="{{ allOrdersRecap }}" as="rc" hint-placeholder-count="4">
+          <div class="card" style="margin-bottom:var(--space-3)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div style="font-family:var(--font-heading);font-weight:700;font-size:14px">{{ rc.ref }}</div>
+                <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ rc.customerName }} — {{ rc.customerPhone }}</div>
+              </div>
+              <span class="tag {{ rc.statusTagCls }}" style="font-size:10px">{{ rc.statusLabel }}</span>
+            </div>
+            <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:6px">{{ rc.itemsSummary }}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+              <span style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700)">{{ rc.fulfillmentLabel }} · {{ t.pickupCodeLabel }}: {{ rc.pickupCode }}</span>
+              <span style="font-family:var(--font-heading);font-weight:700;font-size:13px">{{ rc.totalLabel }}</span>
+            </div>
+            <button onClick="{{ rc.remove }}" class="btn btn-ghost" style="font-size:11px;color:var(--color-accent-700);margin-top:8px">{{ t.deleteOrder }}</button>
+          </div>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{ pendingValidationCount }}" hint-placeholder-val="{{ false }}">
+        <div class="card" style="margin-bottom:var(--space-4);border:2px solid var(--color-accent);text-align:center">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent-700)">{{ pendingValidationCount }} {{ t.pendingValidationCountLabel }}</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ hasActiveOrders }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:var(--space-3)">{{ t.activeOrdersList }}</div>
+        <sc-for list="{{ activeOrdersDisplay }}" as="ao" hint-placeholder-count="2">
+          <div class="card" style="margin-bottom:var(--space-3);display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)">
+            <div>
+              <div style="font-family:var(--font-heading);font-weight:700;font-size:13px">{{ ao.ref }}</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:var(--color-neutral-700)">{{ t.pickupCodeLabel }}: {{ ao.pickupCode }}</div>
+              <div style="font-family:var(--font-body);font-size:11px;color:var(--color-neutral-700)">{{ ao.customerName }} — {{ ao.customerPhone }}</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+              <button onClick="{{ ao.contactWhatsapp }}" class="btn btn-secondary" style="font-size:11px;padding:8px 12px">WhatsApp</button>
+              <a href="{{ staffGroupLink }}" target="_blank" rel="noopener" onClick="{{ ao.sendToStaffGroup }}" class="btn btn-secondary" style="font-size:11px;padding:8px 12px;text-decoration:none;display:inline-flex;align-items:center">{{ t.sendToStaffGroup }}</a>
+              <button onClick="{{ ao.openReceipt }}" class="btn btn-secondary" style="font-size:11px;padding:8px 12px">{{ t.receiptPdf }}</button>
+              <sc-if value="{{ ao.canShareNative }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ ao.shareNative }}" class="btn btn-secondary" style="font-size:11px;padding:8px 12px">{{ t.shareNative }}</button>
+              </sc-if>
+              <sc-if value="{{ ao.hasLocation }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ ao.openLocation }}" class="btn btn-secondary" style="font-size:11px;padding:8px 12px">{{ t.viewLocation }}</button>
+              </sc-if>
+              <button onClick="{{ ao.markDelivered }}" disabled="{{ ao.pendingValidation }}" class="btn btn-primary" style="font-size:11px;padding:8px 12px;background:{{ ao.markDeliveredBg }}">{{ t.markDelivered }}</button>
+            </div>
+          </div>
+        </sc-for>
+      </sc-if>
+      <div class="card" style="margin-bottom:var(--space-4);border:2px solid var(--color-accent)">
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;margin-bottom:var(--space-2)">{{ t.validateByRefTitle }}</div>
+        <div style="display:flex;gap:8px">
+          <input class="input" type="text" inputmode="numeric" maxlength="4" placeholder="1234" value="{{ validateRefInput }}" onChange="{{ setValidateRefInput }}" style="flex:1"/>
+          <button onClick="{{ validateOrderByRef }}" class="btn btn-primary" style="min-width:90px">{{ validateBtnLabel }}</button>
+        </div>
+        <sc-if value="{{ validateRefError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-top:var(--space-2)">{{ t.validateRefError }}</div>
+        </sc-if>
+      </div>
+      <div class="card" style="margin-bottom:var(--space-4);border:2px solid var(--color-text)">
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;margin-bottom:var(--space-2)">Sécurité</div>
+        <div class="field" style="margin-bottom:var(--space-2)">
+          <label>Nouveau mot de passe (lettres)</label>
+          <input class="input" type="text" placeholder="{{ adminLetterPassMasked }}" value="{{ newLetterPassInput }}" onChange="{{ setNewLetterPassInput }}"/>
+        </div>
+        <div class="field" style="margin-bottom:var(--space-3)">
+          <label>Nouveau code (chiffres / PIN)</label>
+          <input class="input" type="text" inputmode="numeric" placeholder="{{ adminDigitPassMasked }}" value="{{ newDigitPassInput }}" onChange="{{ setNewDigitPassInput }}"/>
+        </div>
+        <button onClick="{{ saveSecurity }}" class="btn btn-secondary btn-block" style="text-align:left">Enregistrer</button>
+        <sc-if value="{{ securitySaved }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-top:var(--space-2)">Mots de passe mis à jour.</div>
+        </sc-if>
+      </div>
+      <div class="card" style="margin-bottom:var(--space-4);border:2px solid var(--color-text)">
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;margin-bottom:var(--space-2)">{{ t.addProduct }}</div>        <div class="field">
+          <label>{{ t.category }}</label>
+          <select class="input" value="{{ newProductCat }}" onChange="{{ setNewProductCat }}">
+            <sc-for list="{{ catOptions }}" as="co" hint-placeholder-count="6">
+              <option value="{{ co.value }}">{{ co.label }}</option>
+            </sc-for>
+          </select>
+        </div>
+        <div class="field" style="margin-top:var(--space-2)">
+          <label>{{ t.productName }}</label>
+          <input class="input" type="text" value="{{ newProductName }}" onChange="{{ setNewProductName }}"/>
+        </div>
+        <div class="field" style="margin-top:var(--space-2)">
+          <label>{{ t.productPrice }}</label>
+          <input class="input" type="number" value="{{ newProductPrice }}" onChange="{{ setNewProductPrice }}"/>
+        </div>
+        <button onClick="{{ addProduct }}" class="btn btn-primary btn-block" style="text-align:left">{{ t.addProduct }}</button>
+      </div>
+      <sc-for list="{{ adminItems }}" as="it" hint-placeholder-count="4">
+        <div class="card" style="margin-bottom:var(--space-3);opacity:{{ it.cardOpacity }}">
+          <div class="field">
+            <label>{{ t.productName }}</label>
+            <input class="input" type="text" value="{{ it.name }}" onChange="{{ it.setName }}"/>
+          </div>
+          <div class="field" style="margin-top:var(--space-2)">
+            <label>{{ t.productPrice }}</label>
+            <input class="input" type="number" value="{{ it.price }}" onChange="{{ it.setPrice }}"/>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:var(--space-3)">
+            <button onClick="{{ it.toggleStock }}" class="btn btn-secondary" style="flex:1;font-size:12px">{{ it.stockLabel }}</button>
+            <button onClick="{{ it.remove }}" class="btn btn-ghost" style="font-size:12px;color:var(--color-accent-700)">{{ t.deleteProduct }}</button>
+          </div>
+          <div style="margin-top:var(--space-3);border-top:1px solid var(--color-divider);padding-top:var(--space-3)">
+            <div style="font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:var(--space-2)">{{ t.addOnsLabel }}</div>
+            <sc-for list="{{ it.addOnsList }}" as="ai" hint-placeholder-count="2">
+              <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
+                <input class="input" type="text" value="{{ ai.label }}" onChange="{{ ai.setLabel }}" style="flex:1;font-size:12px"/>
+                <input class="input" type="number" value="{{ ai.price }}" onChange="{{ ai.setPrice }}" style="width:80px;font-size:12px"/>
+                <button onClick="{{ ai.remove }}" class="btn btn-ghost" style="font-size:11px;color:var(--color-accent-700);padding:6px 8px">✕</button>
+              </div>
+            </sc-for>
+            <button onClick="{{ it.addAddOn }}" class="btn btn-secondary" style="font-size:11px;padding:6px 10px">{{ t.addAddOnBtn }}</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{ viewIsItem }}" hint-placeholder-val="{{ false }}">
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding-bottom:100px">
+      <div style="position:relative">
+        <div style="width:100%;height:280px;background:#fff">
+          <image-slot id="product-{{ currentItem.id }}" shape="rect" fit="cover" placeholder="Drop a photo"></image-slot>
+        </div>
+        <button onClick="{{ goHome }}" style="position:absolute;top:var(--space-4);left:var(--space-4);width:38px;height:38px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+      </div>
+      <div style="padding:var(--space-4)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3)">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:22px">{{ currentItem.name }}</div>
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;white-space:nowrap">{{ itemUnitPriceLabel }}</div>
+        </div>
+        <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700);line-height:1.5;margin-top:var(--space-3)">{{ currentItem.desc }}</div>
+
+        <sc-if value="{{ hasSizes }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:var(--space-6)">
+            <div style="font-family:var(--font-heading);font-weight:700;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:var(--space-3)">{{ t.size }}</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ sizeOptions }}" as="sz" hint-placeholder-count="2">
+                <button onClick="{{ sz.select }}" style="flex:1;padding:12px;border-radius:var(--radius-md);border:1.5px solid var(--color-divider);background:{{ sz.bg }};color:{{ sz.color }};font-family:var(--font-body);font-size:13px;cursor:pointer">{{ sz.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ hasAddOns }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:var(--space-6)">
+            <div style="font-family:var(--font-heading);font-weight:700;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:var(--space-3)">{{ t.addOns }}</div>
+            <sc-for list="{{ addOnOptions }}" as="ao" hint-placeholder-count="3">
+              <div onClick="{{ ao.toggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider);cursor:pointer">
+                <div style="display:flex;align-items:center;gap:var(--space-3)">
+                  <sc-if value="{{ ao.hasIcon }}" hint-placeholder-val="{{ false }}">
+                    <div style="width:36px;height:36px;flex:none;border-radius:var(--radius-md);overflow:hidden;background:#fff">
+                      <image-slot id="addon-{{ ao.iconId }}" shape="rect" fit="cover" placeholder="Photo"></image-slot>
+                    </div>
+                  </sc-if>
+                  <div style="width:18px;height:18px;flex:none;border-radius:50%;border:1.5px solid var(--color-neutral-700);background:{{ ao.dotBg }}"></div>
+                  <div style="font-family:var(--font-body);font-size:13px">{{ ao.label }}</div>
+                </div>
+                <div style="font-family:var(--font-body);font-size:13px;color:var(--color-neutral-700)">{{ ao.priceLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="margin-top:var(--space-6);display:flex;align-items:center;gap:var(--space-4)">
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:12px;letter-spacing:0.04em;text-transform:uppercase">{{ t.qty }}</div>
+          <button onClick="{{ decQty }}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--color-divider);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+          <div style="font-family:var(--font-body);font-size:14px;min-width:20px;text-align:center">{{ itemQty }}</div>
+          <button onClick="{{ incQty }}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--color-divider);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:var(--space-4);background:var(--color-bg);border-top:1px solid var(--color-divider)">
+      <button onClick="{{ addToCart }}" class="btn btn-primary btn-block" style="text-align:left">{{ t.addToCart }} · {{ itemLineTotalLabel }}</button>
+    </div>
+  </sc-if>
+
+  <!-- CHECKOUT -->
+  <sc-if value="{{ viewIsCheckout }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ backToCart }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;flex:1">{{ t.checkoutTitle }}</div>
+      <button onClick="{{ toggleLang }}" style="background:var(--color-surface);border:none;border-radius:999px;padding:6px 12px;font-family:var(--font-heading);font-weight:700;font-size:11px;color:var(--color-text);cursor:pointer">{{ langLabel }}</button>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+
+      <sc-if value="{{ waIsSummary }}" hint-placeholder-val="{{ true }}">
+        <div class="card">
+          <div class="card-title" style="font-size:14px;margin-bottom:var(--space-3)">{{ t.orderSummary }}</div>
+          <sc-for list="{{ cartLines }}" as="line" hint-placeholder-count="2">
+            <div style="display:flex;justify-content:space-between;font-family:var(--font-body);font-size:12px;padding:4px 0;border-bottom:1px solid var(--color-divider)">
+              <span style="white-space:nowrap">{{ line.qty }}× {{ line.name }}</span><span>{{ line.lineTotalLabel }}</span>
+            </div>
+          </sc-for>
+          <div style="margin-top:var(--space-4);margin-bottom:var(--space-3)">
+            <div class="seg" style="display:flex">
+              <sc-for list="{{ fulfillmentOptions }}" as="fo" hint-placeholder-count="2">
+                <button onClick="{{ fo.select }}" class="seg-opt {{ fo.activeCls }}" style="flex:1;min-width:0;cursor:pointer;font-size:10.5px;padding-left:4px;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ fo.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ isDelivery }}" hint-placeholder-val="{{ false }}">
+            <div class="field" style="margin-bottom:var(--space-3)">
+              <label>{{ t.deliveryAddress }}</label>
+              <input class="input" type="text" placeholder="123 Market Street" value="{{ address }}" onChange="{{ setAddress }}"/>
+            </div>
+          </sc-if>
+          <div style="display:flex;gap:8px;margin-bottom:var(--space-3)">
+            <input class="input" type="text" placeholder="Promo: SANJ10" value="{{ promo }}" onChange="{{ setPromo }}" style="flex:1;font-size:12px"/>
+            <button onClick="{{ applyPromo }}" class="btn btn-secondary" style="font-size:12px;padding:8px 12px">{{ t.apply }}</button>
+          </div>
+          <div class="hr" style="margin-bottom:var(--space-3)"></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-bottom:4px"><span>{{ t.subtotal }}</span><span>{{ subtotalLabel }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-bottom:4px"><span>{{ t.deliveryFee }}</span><span>{{ deliveryFeeLabel }}</span></div>
+          <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;justify-content:space-between;font-family:var(--font-body);font-size:12px;color:var(--color-accent-700);margin-bottom:4px"><span>{{ t.promoLabel }}</span><span>-{{ discountLabel }}</span></div>
+          </sc-if>
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-heading);font-weight:800;font-size:15px;margin-top:6px"><span>{{ t.total }}</span><span>{{ cartTotalLabel }}</span></div>
+          <button onClick="{{ goToPayment }}" class="btn btn-primary btn-block" style="text-align:left;margin-top:var(--space-4)">{{ t.continuePayment }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ waIsPayment }}" hint-placeholder-val="{{ false }}">
+        <div class="card">
+          <div class="field" style="margin-bottom:var(--space-3)">
+            <label>{{ t.customerName }}</label>
+            <input class="input" type="text" value="{{ customerName }}" onChange="{{ setCustomerName }}"/>
+          </div>
+          <div class="field" style="margin-bottom:var(--space-4)">
+            <label>{{ t.customerPhone }}</label>
+            <input class="input" type="tel" placeholder="6XX XX XX XX" value="{{ customerPhone }}" onChange="{{ setCustomerPhone }}"/>
+          </div>
+          <div style="font-family:var(--font-body);font-size:13px;margin-bottom:var(--space-3)">{{ t.totalDue }} {{ cartTotalLabel }}. {{ t.choosePayment }}</div>
+          <sc-for list="{{ paymentOptions }}" as="po" hint-placeholder-count="3">
+            <div onClick="{{ po.select }}" style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider);cursor:pointer;opacity:{{ customerInfoOpacity }};pointer-events:{{ customerInfoPointerEvents }}">
+              <div style="width:32px;height:32px;flex:none">
+                <image-slot id="payicon-{{ po.key }}" shape="rounded" radius="8" placeholder="Logo"></image-slot>
+              </div>
+              <div style="font-family:var(--font-body);font-size:13px;flex:1">{{ po.label }}</div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ waIsResult }}" hint-placeholder-val="{{ false }}">
+        <div class="card">
+          <sc-if value="{{ isInstantPayment }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)">
+              <div style="width:26px;height:26px;border-radius:50%;background:var(--color-accent);color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <div style="font-family:var(--font-body);font-size:13px">{{ instantPaymentLabel }}</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ needsProof }}" hint-placeholder-val="{{ false }}">
+            <div style="font-family:var(--font-body);font-size:13px;margin-bottom:var(--space-3)">{{ t.scanTransfer }}</div>
+            <div style="border-radius:var(--radius-md);background:var(--color-neutral-200);padding:var(--space-4);margin-bottom:var(--space-3)">
+              <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;margin-bottom:4px">{{ payNumberLabel }}</div>
+              <div style="font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:0.02em">{{ payNumber }}</div>
+              <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:4px">{{ payName }}</div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:var(--space-3)">
+              <button onClick="{{ copyPayNumber }}" class="btn btn-secondary" style="flex:1;font-size:12px">{{ t.copyNumber }}</button>
+              <button onClick="{{ dialUssd }}" class="btn btn-secondary" style="flex:1;font-size:12px">{{ t.dialUssd }} {{ payUssdCode }}</button>
+            </div>
+            <input type="file" accept="image/*,.pdf" ref="{{ setProofInputRef }}" onChange="{{ onProofFileChange }}" style="display:none"/>
+            <button onClick="{{ uploadProof }}" class="btn btn-secondary btn-block" style="text-align:left;margin-bottom:var(--space-2)">{{ proofButtonLabel }}</button>
+            <sc-if value="{{ proofFileName }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:var(--font-body);font-size:11px;color:var(--color-neutral-700);margin-bottom:var(--space-3)">{{ proofFileName }}</div>
+            </sc-if>
+          </sc-if>
+          <button onClick="{{ placeOrder }}" disabled="{{ confirmDisabled }}" class="btn btn-primary btn-block" style="text-align:left">{{ confirmButtonLabel }}</button>
+        </div>
+      </sc-if>
+
+    </div>
+  </sc-if>
+
+  <!-- TRACKING -->
+  <sc-if value="{{ viewIsTracking }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--color-divider)">
+      <button onClick="{{ goHome }}" style="width:32px;height:32px;border-radius:50%;background:var(--color-surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">{{ t.orderStatus }}</div>
+    </div>
+    <div class="cs-scroll" style="flex:1;overflow-y:auto;padding:var(--space-4)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);margin-bottom:var(--space-4)">
+        <div>
+          <div style="font-family:var(--font-heading);font-weight:700;font-size:15px">{{ orderRef }}</div>
+          <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ lastOrderSummary }}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <span class="tag tag-outline" style="font-size:10px">{{ fulfillmentSummaryLabel }}</span>
+          <span class="tag {{ paidTagCls }}" style="font-size:10px">{{ paidLabel }}</span>
+        </div>
+      </div>
+      <sc-if value="{{ orderPendingValidation }}" hint-placeholder-val="{{ false }}">
+        <div class="card" style="margin-bottom:var(--space-4);border:2px solid var(--color-accent)">
+          <div class="card-title" style="font-size:14px">{{ t.pendingValidationTitle }}</div>
+          <div class="card-body" style="font-size:12px">{{ t.pendingValidationDesc }}</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ orderValidated }}" hint-placeholder-val="{{ true }}">
+      <sc-for list="{{ trackingSteps }}" as="step" hint-placeholder-count="4">
+        <div style="display:flex;gap:var(--space-4)">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div style="width:22px;height:22px;border-radius:50%;background:{{ step.dotBg }};color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+              <sc-if value="{{ step.done }}" hint-placeholder-val="{{ false }}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </sc-if>
+            </div>
+            <div style="width:2px;flex:1;background:{{ step.lineBg }};min-height:32px"></div>
+          </div>
+          <div style="padding-bottom:var(--space-6)">
+            <div style="font-family:var(--font-heading);font-weight:700;font-size:14px;color:{{ step.textColor }}">{{ step.label }}</div>
+            <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ step.time }}</div>
+          </div>
+        </div>
+      </sc-for>
+      <div class="card" style="margin-top:var(--space-2)">
+        <div class="card-meta">{{ t.estimated }} {{ etaLabel }}</div>
+        <sc-if value="{{ showCountdown }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin-top:6px;color:var(--color-accent-700)">{{ countdownLabel }}</div>
+        </sc-if>
+      </div>
+      <div class="card" style="margin-top:var(--space-3);border:2px solid var(--color-accent);text-align:center">
+        <div class="card-kicker">{{ t.pickupCodeLabel }}</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:32px;letter-spacing:0.08em;margin-top:4px">{{ pickupCode }}</div>
+        <div class="card-meta" style="margin-top:4px">{{ t.pickupCodeDesc }}</div>
+      </div>
+      <button onClick="{{ downloadMyReceipt }}" class="btn btn-secondary btn-block" style="text-align:left;margin-top:var(--space-3)">{{ t.receiptPdf }}</button>
+      <sc-if value="{{ showShareLocation }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ shareLocation }}" class="btn btn-secondary btn-block" style="text-align:left;margin-top:var(--space-3)">{{ shareLocationLabel }}</button>
+      </sc-if>
+      </sc-if>
+    </div>
+    <div style="padding:var(--space-4);border-top:1px solid var(--color-divider)">
+      <button onClick="{{ goHome }}" class="btn btn-secondary btn-block" style="text-align:left">{{ t.backHome }}</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;border-top:1px solid var(--color-divider);background:var(--color-bg)">
+      <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+        <button onClick="{{ tab.select }}" style="flex:1;background:none;border:none;padding:10px 0 12px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;position:relative">
+          <div style="position:relative;color:{{ tab.color }}">
+            <sc-if value="{{ tab.isHome }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></sc-if>
+            <sc-if value="{{ tab.isLoyalty }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></sc-if>
+            <sc-if value="{{ tab.isCart }}" hint-placeholder-val="{{ false }}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              <sc-if value="{{ tab.hasBadge }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:-6px;right:-8px;background:var(--color-accent);color:#fff;font-size:9px;font-family:var(--font-body);font-weight:700;min-width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0 3px">{{ cartCount }}</div>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ tab.isAccount }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></sc-if>
+          </div>
+          <div style="font-family:var(--font-body);font-size:10px;color:{{ tab.color }}">{{ tab.label }}</div>
+        </button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;bottom:100px;left:var(--space-4);right:var(--space-4);background:var(--color-text);color:#fff;padding:12px 16px;font-family:var(--font-body);font-size:13px;text-align:center;z-index:10">{{ toast }}</div>
+</sc-if>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 390, &quot;height&quot;: 844}
+}">
+const MENU = [
+  {id:'co1',cat:'Combo',name:'Combo Classique',descEn:'Classic Sanj burger, fries and a soft drink.',descFr:'Burger Classic Sanj, frites et une boisson.',price:5500,sizes:[],addOns:[]},
+  {id:'co2',cat:'Combo',name:'Combo Smoke Stack',descEn:'Smoke Stack burger, fries and a soft drink.',descFr:'Burger Smoke Stack, frites et une boisson.',price:6500,sizes:[],addOns:[]},
+  {id:'co3',cat:'Combo',name:'Combo Poutine',descEn:'Loaded poutine and a soft drink.',descFr:'Poutine garnie et une boisson.',price:4500,sizes:[],addOns:[]},
+  {id:'b1',cat:'Burgers',name:'The Classic Sanj',descEn:'Beef patty, cheddar, lettuce, pickles, house sauce.',descFr:'Steak de bœuf, cheddar, laitue, cornichons, sauce maison.',price:3500,sizes:[],addOns:[{label:'Extra Cheese',labelFr:'Fromage extra',price:500},{label:'Kilichi',labelFr:'Kilichi',price:750},{label:'Extra Patty',labelFr:'Steak supplémentaire',price:1200}]},
+  {id:'b2',cat:'Burgers',name:'Smoke Stack',descEn:'Double patty, smoked gouda, crispy onions, BBQ glaze.',descFr:'Double steak, gouda fumé, oignons croustillants, glaçage BBQ.',price:4500,sizes:[],addOns:[{label:'Extra Cheese',labelFr:'Fromage extra',price:500},{label:'Kilichi',labelFr:'Kilichi',price:750},{label:'Extra Patty',labelFr:'Steak supplémentaire',price:1200}]},
+  {id:'b3',cat:'Burgers',name:'Double Deluxe',descEn:'Two patties, double cheese, tomato, special sauce.',descFr:'Deux steaks, double fromage, tomate, sauce spéciale.',price:5000,sizes:[],addOns:[{label:'Extra Cheese',labelFr:'Fromage extra',price:500},{label:'Extra Patty',labelFr:'Steak supplémentaire',price:1200}]},
+  {id:'f1',cat:'Fries',catFr:'Frites',name:'Classic Fries',descEn:'Hand-cut, double-fried, sea salt.',descFr:'Coupées à la main, double cuisson, fleur de sel.',price:1500,sizes:[],addOns:[{label:'Ketchup',labelFr:'Ketchup',price:0,icon:'ketchup'},{label:'Mayo',labelFr:'Mayo',price:0,icon:'mayo'}]},
+  {id:'f2',cat:'Poutine',catFr:'Poutine',name:'Loaded Poutine',descEn:'Fries, cheese curds, house gravy.',descFr:'Frites, fromage en grains, sauce maison.',price:3000,sizes:[],addOns:[]},
+  {id:'f3',cat:'Poutine',catFr:'Poutine',name:'Truffle Poutine',descEn:'Fries, cheese curds, gravy, truffle oil.',descFr:'Frites, fromage en grains, sauce, huile de truffe.',price:4000,sizes:[],addOns:[]},
+  {id:'s1',cat:'Shakes',name:'Milky Mint',descEn:'Mint-infused soft serve, chocolate shavings.',descFr:'Glace à la menthe, copeaux de chocolat.',price:2500,sizes:[],addOns:[]},
+  {id:'s2',cat:'Shakes',name:'Vanilla Bean',descEn:'Madagascar vanilla, whipped cream.',descFr:'Vanille de Madagascar, chantilly.',price:2000,sizes:[],addOns:[]},
+  {id:'s3',cat:'Shakes',name:'Salted Caramel',descEn:'Caramel swirl, sea salt, whipped cream.',descFr:'Tourbillon de caramel, fleur de sel, chantilly.',price:2500,sizes:[],addOns:[]},
+  {id:'c1',cat:'Cocktails',name:'Vodka Sour',descEn:'House vodka, lemon, egg white. 21+.',descFr:'Vodka maison, citron, blanc d\u2019œuf. Réservé aux adultes.',price:5000,sizes:[],addOns:[{label:'Extra Vodka Shot',labelFr:'Shot de vodka supplémentaire',price:1500},{label:'Add Rum',labelFr:'Ajouter du rhum',price:1500}]},
+  {id:'c2',cat:'Cocktails',name:'Malta Mule',descEn:'Malta, ginger beer, lime. Non-alcoholic.',descFr:'Malta, ginger beer, citron vert. Sans alcool.',price:2500,sizes:[],addOns:[{label:'Add Vodka',labelFr:'Ajouter de la vodka',price:1500},{label:'Add Rum',labelFr:'Ajouter du rhum',price:1500}]},
+  {id:'c3',cat:'Cocktails',name:'Sanj Spritz',descEn:'Sparkling water, grenadine, orange. Non-alcoholic.',descFr:'Eau gazeuse, grenadine, orange. Sans alcool.',price:2000,sizes:[],addOns:[{label:'Add Vodka',labelFr:'Ajouter de la vodka',price:1500},{label:'Add Gin',labelFr:'Ajouter du gin',price:1500}]},
+  {id:'d1',cat:'Soft Drinks',catFr:'Boissons',name:'Coca-Cola',descEn:'Classic, ice cold.',descFr:'Classique, bien frais.',price:1000,sizes:[],addOns:[]},
+  {id:'d2',cat:'Soft Drinks',catFr:'Boissons',name:'Sprite',descEn:'Crisp and refreshing.',descFr:'Rafraîchissant et pétillant.',price:1000,sizes:[],addOns:[]},
+  {id:'d3',cat:'Soft Drinks',catFr:'Boissons',name:'Malta',descEn:'Rich malt soda.',descFr:'Soda au malt, riche en goût.',price:1200,sizes:[],addOns:[]},
+  {id:'d4',cat:'Soft Drinks',catFr:'Boissons',name:'Sparkling Water',descEn:'Still or sparkling.',descFr:'Plate ou gazeuse.',price:800,sizes:[],addOns:[]},
+];
+const CAT_KEYS = ['All','Combo','Burgers','Fries','Poutine','Shakes','Cocktails','Soft Drinks'];
+const CAT_FR = {'All':'Tout','Combo':'Combo','Burgers':'Burgers','Fries':'Frites','Poutine':'Poutine','Shakes':'Milkshakes','Cocktails':'Cocktails','Soft Drinks':'Boissons'};
+const ONBOARD = [
+  {titleEn:'Order in seconds',descEn:'Browse the full menu and customize every item exactly how you like it.',titleFr:'Commandez en quelques secondes',descFr:'Parcourez tout le menu et personnalisez chaque article comme vous voulez.'},
+  {titleEn:'Track it live',descEn:'Watch your order move from kitchen to counter to your hands.',titleFr:'Suivez en direct',descFr:'Suivez votre commande de la cuisine au comptoir jusqu\u2019à vous.'},
+  {titleEn:'Earn as you eat',descEn:'Every order stacks points toward free food and drinks.',titleFr:'Gagnez en mangeant',descFr:'Chaque commande cumule des points pour des plats et boissons offerts.'},
+];
+const REWARDS = [
+  {id:'r1',nameEn:'Free Cocktail',nameFr:'Cocktail offert',cost:100,itemId:'c3'},
+  {id:'r2',nameEn:'Free Mugi Burger',nameFr:'Mugi Burger offert',cost:100,itemId:'b1'},
+  {id:'r3',nameEn:'Free Combo',nameFr:'Combo offert',cost:500,itemId:'co1'},
+];
+const ACCOUNT_ROWS = [
+  {key:'history',labelEn:'Order History',labelFr:'Historique des commandes'},
+  {key:'payment',labelEn:'Payment Methods',labelFr:'Moyens de paiement'},
+  {key:'addresses',labelEn:'Delivery Addresses',labelFr:'Adresses de livraison'},
+  {key:'notifications',labelEn:'Notifications',labelFr:'Notifications'},
+  {key:'help',labelEn:'Help & Support',labelFr:'Aide & support'},
+  {key:'logout',labelEn:'Log Out',labelFr:'Déconnexion'},
+];
+const CCY = {'$':'$','€':'€','£':'£'};
+const WHATSAPP_NUMBER = '237652776763';
+const ADMIN_LETTER_PASS_DEFAULT = 'SANJI';
+const ADMIN_DIGIT_PASS_DEFAULT = '2468';
+const CODE_GENERATOR_NUMBER = '237658715397';
+const STAFF_WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/EBYzCNSmNwd920zMBvfz6s?s=cl&p=a&ilr=1';
+
+const I18N = {
+  en: {
+    slogan: 'Eat like at East Blue.', enter: 'Enter →', skip: 'Skip',
+    loginTitle: 'Log in', loginDesc: 'Enter your phone number to create or access your account.',
+    phoneLabel: 'Phone number', sendCode: 'Send code →',
+    viaWhatsapp: 'Code sent via WhatsApp',
+    verifyTitle: 'Verify your number', verifyDesc: 'Enter the 4-digit code sent via WhatsApp to',
+    codeError: 'Incorrect code, try again.', verify: 'Verify →', resendCode: 'Resend code',
+    heroTitle: 'Flame-grilled. Fast.', rewards: 'Rewards', yourPoints: 'Your points', redeem: 'Redeem', redeemBtn: 'Redeem',
+    yourCart: 'Your Cart', emptyCart: 'Your cart is empty.', browseMenu: 'Browse Menu', remove: 'Remove',
+    subtotal: 'Subtotal', total: 'Total', sendOrder: 'Proceed to Checkout →', checkoutTitle: 'Checkout',
+    account: 'Account', size: 'Size', addOns: 'Add-ons', qty: 'Qty', addToCart: 'Add to Cart',
+    whatsappOrder: 'WhatsApp order', hiOrder: 'Hi! I\u2019d like to order:', orderSummary: 'Here\u2019s your order summary:',
+    deliveryAddress: 'Delivery address', apply: 'Apply', deliveryFee: 'Delivery fee', promoLabel: 'Promo (SANJ10)',
+    continuePayment: 'Continue to Payment →', totalDue: 'Total due:', choosePayment: 'Choose a payment method:',
+    scanTransfer: 'Scan or transfer to confirm payment, then upload your receipt:', bankQr: 'Bank transfer QR',
+    orderStatus: 'Order Status', estimated: 'Estimated:', backHome: 'Back to Home',
+    pendingValidationTitle: 'Order received', pendingValidationDesc: 'We\u2019re confirming your payment. You\u2019ll see your order status shortly.',
+    validatePaymentBtn: 'Validate', validateByRefTitle: 'Validate payment by order number', validateRefError: 'Order not found.',
+    pickupCodeLabel: 'Pickup code', pickupCodeDesc: 'Show this code for payment disputes or to collect your order.',
+    copyNumber: 'Copy number', dialUssd: 'Dial', pendingValidationCountLabel: 'payment(s) waiting for validation',
+    receiptPdf: 'Receipt (PDF)', shareNative: 'Share…', allOrdersRecap: 'All orders — full recap', deleteOrder: 'Delete order', downloadAllPdf: 'Download all (PDF)',
+    addOnsLabel: 'Add-ons & prices', addAddOnBtn: '+ Add option',
+    totalOrders: 'Total orders', activeOrders: 'Active orders', activeOrdersList: 'Orders in progress', markDelivered: 'Mark delivered', viewLocation: 'View location', sendToStaffGroup: 'Send to staff group',
+    manageMenu: 'Manage Menu', productName: 'Product name', productPrice: 'Price (FCFA)',
+    customerName: 'Full name', customerPhone: 'Mobile number',
+    myOrders: 'My orders', myPoints: 'My points',
+    orderHistoryTitle: 'Order History', noOrdersYet: 'No orders yet.',
+    paymentMethodsTitle: 'Payment Methods', defaultPaymentDesc: 'Choose your default payment method.', defaultLabel: 'Default',
+    addressesTitle: 'Delivery Addresses', addressAutoUse: 'This address will be pre-filled at checkout.',
+    notificationsTitle: 'Notifications',
+    helpTitle: 'Help & Support', helpWhatsappTitle: 'Chat with us', helpWhatsappDesc: 'Reach our team directly on WhatsApp for any issue.', contactSupport: 'Contact support',
+    helpFaqTitle: 'FAQ', helpFaqDesc: 'Payment, delivery times and order issues — ask us anytime via WhatsApp.',
+    addProduct: 'Add product', category: 'Category', deleteProduct: 'Delete',
+  },
+  fr: {
+    slogan: 'Manger comme à East Blue.', enter: 'Entrer →', skip: 'Passer',
+    loginTitle: 'Connexion', loginDesc: 'Entrez votre numéro pour créer ou accéder à votre compte.',
+    phoneLabel: 'Numéro de téléphone', sendCode: 'Envoyer le code →',
+    viaWhatsapp: 'Code envoyé via WhatsApp',
+    verifyTitle: 'Vérifiez votre numéro', verifyDesc: 'Entrez le code à 4 chiffres envoyé via WhatsApp au',
+    codeError: 'Code incorrect, réessayez.', verify: 'Vérifier →', resendCode: 'Renvoyer le code',
+    heroTitle: 'Grillé au feu. Rapide.', rewards: 'Récompenses', yourPoints: 'Vos points', redeem: 'Échanger', redeemBtn: 'Échanger',
+    yourCart: 'Votre panier', emptyCart: 'Votre panier est vide.', browseMenu: 'Voir le menu', remove: 'Retirer',
+    subtotal: 'Sous-total', total: 'Total', sendOrder: 'Passer la commande →', checkoutTitle: 'Commande',
+    account: 'Compte', size: 'Taille', addOns: 'Suppléments', qty: 'Qté', addToCart: 'Ajouter au panier',
+    whatsappOrder: 'Commande WhatsApp', hiOrder: 'Bonjour ! Je voudrais commander :', orderSummary: 'Voici le résumé de votre commande :',
+    deliveryAddress: 'Adresse de livraison', apply: 'Appliquer', deliveryFee: 'Frais de livraison', promoLabel: 'Promo (SANJ10)',
+    continuePayment: 'Continuer vers le paiement →', totalDue: 'Total à payer :', choosePayment: 'Choisissez un mode de paiement :',
+    scanTransfer: 'Scannez ou transférez pour confirmer, puis envoyez votre reçu :', bankQr: 'QR code virement bancaire',
+    orderStatus: 'Statut de la commande', estimated: 'Estimation :', backHome: 'Retour à l\u2019accueil',
+    pendingValidationTitle: 'Commande reçue', pendingValidationDesc: 'Nous confirmons votre paiement. Le statut de votre commande s\u2019affichera très vite.',
+    validatePaymentBtn: 'Valider', validateByRefTitle: 'Valider un paiement par numéro de commande', validateRefError: 'Commande introuvable.',
+    pickupCodeLabel: 'Code de retrait', pickupCodeDesc: 'Montrez ce code en cas de litige de paiement ou pour récupérer votre commande.',
+    copyNumber: 'Copier le numéro', dialUssd: 'Composer', pendingValidationCountLabel: 'paiement(s) en attente de validation',
+    receiptPdf: 'Reçu (PDF)', shareNative: 'Partager…', allOrdersRecap: 'Toutes les commandes — récapitulatif complet', deleteOrder: 'Supprimer la commande', downloadAllPdf: 'Télécharger tout (PDF)',
+    addOnsLabel: 'Suppléments & prix', addAddOnBtn: '+ Ajouter un supplément',
+    totalOrders: 'Commandes totales', activeOrders: 'Commandes en cours', activeOrdersList: 'Commandes en cours', markDelivered: 'Marquer livrée', viewLocation: 'Voir la position', sendToStaffGroup: 'Envoyer au groupe staff',
+    manageMenu: 'Gérer le menu', productName: 'Nom du produit', productPrice: 'Prix (FCFA)',
+    customerName: 'Nom complet', customerPhone: 'Numéro de téléphone',
+    myOrders: 'Mes commandes', myPoints: 'Mes points',
+    orderHistoryTitle: 'Historique des commandes', noOrdersYet: 'Aucune commande pour l\u2019instant.',
+    paymentMethodsTitle: 'Moyens de paiement', defaultPaymentDesc: 'Choisissez votre mode de paiement par défaut.', defaultLabel: 'Par défaut',
+    addressesTitle: 'Adresses de livraison', addressAutoUse: 'Cette adresse sera pré-remplie lors de la commande.',
+    notificationsTitle: 'Notifications',
+    helpTitle: 'Aide & support', helpWhatsappTitle: 'Discutez avec nous', helpWhatsappDesc: 'Contactez notre équipe directement sur WhatsApp pour tout problème.', contactSupport: 'Contacter le support',
+    helpFaqTitle: 'FAQ', helpFaqDesc: 'Paiement, délais de livraison et problèmes de commande — écrivez-nous à tout moment via WhatsApp.',
+    addProduct: 'Ajouter un produit', category: 'Catégorie', deleteProduct: 'Supprimer',
+  },
+};
+
+class Component extends DCLogic {
+  state = {
+    view: 'splash',
+    lang: 'fr',
+    onboardStep: 0,
+    category: 'All',
+    selectedItemId: null,
+    itemSize: 0,
+    itemAddOns: [],
+    itemQty: 1,
+    cart: [],
+    fulfillment: 'Pickup',
+    payment: 'Card',
+    address: '',
+    promo: '',
+    promoApplied: false,
+    waStep: 'summary',
+    proofUploaded: false,
+    proofFileName: '',
+    orderStatusIndex: 0,
+    phoneNumber: '', devCode: '', codeInputs: ['', '', '', ''], codeError: false,
+    loyaltyPoints: this.props.startingPoints ?? 340,
+    toast: null,
+    lastOrder: null,
+    orderHistory: [],
+    menuOverrides: {},
+    customProducts: [],
+    outOfStock: {},
+    deletedProducts: {},
+    addOnOverrides: {},
+    newProductName: '',
+    newProductPrice: '',
+    newProductCat: 'Burgers',
+    customerName: '', customerPhone: '',
+    notifPrefs: { promos: true, orderUpdates: true, rewards: false },
+    savedAddress: '', defaultPaymentMethod: 'Cash', profileName: '',
+    adminLetterPass: ADMIN_LETTER_PASS_DEFAULT, adminDigitPass: ADMIN_DIGIT_PASS_DEFAULT,
+    newLetterPassInput: '', newDigitPassInput: '', securitySaved: false,
+    promoIndex: 0,
+  };
+
+  static PROMO_COUNT = 4;
+
+  getMenu() {
+    return [...MENU, ...this.state.customProducts]
+      .filter(item => !this.state.deletedProducts[item.id])
+      .map(item => {
+        const o = this.state.menuOverrides[item.id];
+        const addOns = this.state.addOnOverrides[item.id] ?? item.addOns;
+        return o ? { ...item, name: o.name ?? item.name, price: o.price ?? item.price, addOns } : { ...item, addOns };
+      });
+  }
+  setAddOnOverride(itemId, addOns) {
+    this.setState(s => ({ addOnOverrides: { ...s.addOnOverrides, [itemId]: addOns } }));
+  }
+  updateAddOnField(itemId, idx, field, value) {
+    const current = this.state.addOnOverrides[itemId] ?? this.getMenu().find(m => m.id === itemId).addOns;
+    const updated = current.map((ao, i) => i === idx ? { ...ao, [field]: field === 'price' ? (Number(value) || 0) : value, labelFr: field === 'label' ? value : ao.labelFr } : ao);
+    this.setAddOnOverride(itemId, updated);
+  }
+  addAddOnField(itemId) {
+    const current = this.state.addOnOverrides[itemId] ?? this.getMenu().find(m => m.id === itemId).addOns;
+    this.setAddOnOverride(itemId, [...current, { label: 'Nouveau supplément', labelFr: 'Nouveau supplément', price: 0 }]);
+  }
+  removeAddOnField(itemId, idx) {
+    const current = this.state.addOnOverrides[itemId] ?? this.getMenu().find(m => m.id === itemId).addOns;
+    this.setAddOnOverride(itemId, current.filter((_, i) => i !== idx));
+  }
+
+  componentWillUnmount() {
+    if (this._timer) clearInterval(this._timer);
+    if (this._tick) clearInterval(this._tick);
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+    if (this._promoTimer) clearInterval(this._promoTimer);
+    window.removeEventListener('storage', this.onStorageEvent);
+  }
+
+  goPromo(i) { this.setState({ promoIndex: i }); }
+  nextPromo = () => this.setState(s => ({ promoIndex: (s.promoIndex + 1) % Component.PROMO_COUNT }));
+
+  componentDidMount() {
+    this._promoTimer = setInterval(this.nextPromo, 4000);
+    this.hydrateFromStorage();
+    window.addEventListener('storage', this.onStorageEvent);
+  }
+
+  onStorageEvent = (e) => {
+    if (e.key === 'chez-sanji-app-state-v1') {
+      const prevCount = this.state.orderHistory.length;
+      this.hydrateFromStorage(true);
+      setTimeout(() => {
+        if (this.state.view === 'admin' && this.state.orderHistory.length > prevCount) {
+          const fr = this.state.lang === 'fr';
+          this.showToast(fr ? '🆕 Nouvelle commande reçue' : '🆕 New order received');
+        }
+      }, 50);
+    }
+  };
+
+  accountKey(phone) { return 'chez-sanji-account-' + (phone || '').replace(/\D/g, ''); }
+  loadAccountForPhone(phone) {
+    try {
+      const raw = localStorage.getItem(this.accountKey(phone));
+      const acc = raw ? JSON.parse(raw) : { loyaltyPoints: this.props.startingPoints ?? 340, savedAddress: '', defaultPaymentMethod: 'Cash', profileName: '' };
+      this.setState({ loyaltyPoints: acc.loyaltyPoints, savedAddress: acc.savedAddress || '', defaultPaymentMethod: acc.defaultPaymentMethod || 'Cash', profileName: acc.profileName || this.state.customerName || '' });
+    } catch (e) {}
+  }
+  saveAccountForPhone(phone) {
+    if (!phone) return;
+    try {
+      localStorage.setItem(this.accountKey(phone), JSON.stringify({
+        loyaltyPoints: this.state.loyaltyPoints, savedAddress: this.state.savedAddress, defaultPaymentMethod: this.state.defaultPaymentMethod, profileName: this.state.profileName,
+      }));
+    } catch (e) {}
+  }
+
+  hydrateFromStorage(externalOnly) {
+    try {
+      const raw = localStorage.getItem('chez-sanji-app-state-v1');
+      if (raw) {
+        const saved = JSON.parse(raw);
+        this._suppressSave = true;
+        this.setState(s => ({
+          lang: saved.lang ?? s.lang,
+          loyaltyPoints: saved.loyaltyPoints ?? s.loyaltyPoints,
+          menuOverrides: saved.menuOverrides ?? s.menuOverrides,
+          customProducts: saved.customProducts ?? s.customProducts,
+          outOfStock: saved.outOfStock ?? s.outOfStock,
+          deletedProducts: saved.deletedProducts ?? s.deletedProducts,
+          addOnOverrides: saved.addOnOverrides ?? s.addOnOverrides,
+          adminLetterPass: saved.adminLetterPass ?? s.adminLetterPass,
+          adminDigitPass: saved.adminDigitPass ?? s.adminDigitPass,
+          cart: externalOnly ? s.cart : (saved.cart ?? s.cart),
+          orderHistory: saved.orderHistory ?? s.orderHistory,
+          lastOrder: externalOnly ? (saved.lastOrder ?? s.lastOrder) : s.lastOrder,
+        }), () => { this._suppressSave = false; });
+      }
+    } catch (e) {}
+  }
+
+  componentDidUpdate() {
+    if (this._suppressSave) return;
+    if (this.state.phoneNumber) this.saveAccountForPhone(this.state.phoneNumber);
+    try {
+      localStorage.setItem('chez-sanji-app-state-v1', JSON.stringify({
+        lang: this.state.lang,
+        loyaltyPoints: this.state.loyaltyPoints,
+        menuOverrides: this.state.menuOverrides,
+        customProducts: this.state.customProducts,
+        outOfStock: this.state.outOfStock,
+        deletedProducts: this.state.deletedProducts,
+        addOnOverrides: this.state.addOnOverrides,
+        adminLetterPass: this.state.adminLetterPass,
+        adminDigitPass: this.state.adminDigitPass,
+        cart: this.state.cart,
+        orderHistory: this.state.orderHistory,
+        lastOrder: this.state.lastOrder,
+      }));
+    } catch (e) {}
+  }
+
+  componentWillUnmount2() {}
+
+  fmt(n) {
+    const ccy = this.props.currency || 'FCFA';
+    if (ccy === 'FCFA') return Math.round(n).toLocaleString('fr-FR') + ' FCFA';
+    const sym = CCY[ccy] || ccy;
+    return sym + n.toFixed(2);
+  }
+
+  showToast(msg) {
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({ toast: msg });
+    this._toastTimer = setTimeout(() => this.setState({ toast: null }), 1800);
+  }
+
+  toggleLang = () => this.setState(s => ({ lang: s.lang === 'fr' ? 'en' : 'fr' }));
+
+  enterApp = () => {
+    let savedPhone = null;
+    try { savedPhone = localStorage.getItem('chez-sanji-verified-phone'); } catch (e) {}
+    if (savedPhone) {
+      this.setState({ phoneNumber: savedPhone }, () => {
+        this.loadAccountForPhone(savedPhone);
+        if (this.props.skipOnboarding) this.setState({ view: 'home' });
+        else this.setState({ view: 'onboarding' });
+      });
+    } else {
+      this.setState({ view: 'phoneAuth' });
+    }
+  };
+  setPhoneNumber = (e) => this.setState({ phoneNumber: e.target.value });
+  sendCode = () => {
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    this.setState({ view: 'codeVerify', devCode: code, codeInputs: ['', '', '', ''], codeError: false });
+    const fr = this.state.lang === 'fr';
+    const msg = encodeURIComponent((fr ? 'Votre code de vérification Chez Sanji est : ' : 'Your Chez Sanji verification code is: ') + code);
+    window.open('https://wa.me/' + CODE_GENERATOR_NUMBER + '?text=' + msg, '_blank');
+    this.showToast(fr ? 'Code envoyé via WhatsApp : ' + code : 'Code sent via WhatsApp: ' + code);
+  };
+  resendCode = () => this.sendCode();
+  codeRefs = [];
+  setCodeRef(i, el) { this.codeRefs[i] = el; }
+  focusCodeInput(i) {
+    const el = this.codeRefs[i];
+    if (el) { el.focus(); if (el.select) el.select(); }
+  }
+  setCodeDigit(i, val) {
+    const digits = val.replace(/\D/g, '');
+    if (!digits) {
+      this.setState(s => {
+        const codeInputs = [...s.codeInputs];
+        codeInputs[i] = '';
+        return { codeInputs, codeError: false };
+      });
+      return;
+    }
+    this.setState(s => {
+      const codeInputs = [...s.codeInputs];
+      let idx = i;
+      for (const ch of digits) {
+        if (idx > 3) break;
+        codeInputs[idx] = ch;
+        idx++;
+      }
+      const nextEmpty = Math.min(idx, 3);
+      setTimeout(() => this.focusCodeInput(nextEmpty), 0);
+      return { codeInputs, codeError: false };
+    });
+  }
+  handleCodeKeyDown(i, e) {
+    if (e.key === 'Backspace' && !this.state.codeInputs[i] && i > 0) {
+      this.focusCodeInput(i - 1);
+    }
+  }
+  handleCodePaste(i, e) {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    this.setCodeDigit(i, text);
+  }
+  verifyCode = () => {
+    const entered = this.state.codeInputs.join('');
+    if (entered.length === 4 && entered === this.state.devCode) {
+      try { localStorage.setItem('chez-sanji-verified-phone', this.state.phoneNumber); } catch (e) {}
+      this.loadAccountForPhone(this.state.phoneNumber);
+      if (this.props.skipOnboarding) this.setState({ view: 'home' });
+      else this.setState({ view: 'onboarding' });
+    } else {
+      this.setState({ codeError: true });
+    }
+  };
+  skipOnboarding = () => this.setState({ view: 'home' });
+  onboardNext = () => {
+    if (this.state.onboardStep >= ONBOARD.length - 1) this.setState({ view: 'home' });
+    else this.setState(s => ({ onboardStep: s.onboardStep + 1 }));
+  };
+
+  selectCategory(cat) { this.setState({ category: cat }); }
+  goHome = () => this.setState({ view: 'home' });
+  goAccount = () => this.setState({ view: 'account' });
+  goAdmin = () => this.setState({ view: 'admin' });
+  secretTap = () => {
+    const now = Date.now();
+    if (!this._tapWindowStart || now - this._tapWindowStart > 2500) {
+      this._tapWindowStart = now;
+      this._tapCount = 1;
+    } else {
+      this._tapCount += 1;
+    }
+    if (this._tapCount >= 5) {
+      this._tapCount = 0;
+      let verified = false;
+      try { verified = localStorage.getItem('chez-sanji-admin-verified') === '1'; } catch (e) {}
+      if (verified) {
+        this.setState({ view: 'adminQuickUnlock', adminQuickPinInput: '', adminAuthError: false });
+      } else {
+        this.setState({ view: 'adminAuthLetters', adminPassLettersInput: '', adminPassDigitsInput: '', adminAuthError: false });
+      }
+    }
+  };
+  setAdminQuickPinInput = (e) => this.setState({ adminQuickPinInput: e.target.value, adminAuthError: false });
+  submitQuickPin = () => {
+    if (this.state.adminQuickPinInput.trim() === this.state.adminDigitPass) {
+      this.goAdmin();
+    } else {
+      this.setState({ adminAuthError: true });
+    }
+  };
+  submitQuickFingerprint = () => {
+    this.setState({ adminFingerprintChecking: true });
+    setTimeout(() => {
+      this.setState({ adminFingerprintChecking: false });
+      this.goAdmin();
+    }, 1000);
+  };
+  setAdminPassLettersInput = (e) => this.setState({ adminPassLettersInput: e.target.value, adminAuthError: false });
+  setAdminPassDigitsInput = (e) => this.setState({ adminPassDigitsInput: e.target.value, adminAuthError: false });
+  submitAdminLetters = () => {
+    if (this.state.adminPassLettersInput.trim().toUpperCase() === this.state.adminLetterPass.toUpperCase()) {
+      this.setState({ view: 'adminAuthDigits', adminAuthError: false });
+    } else {
+      this.setState({ adminAuthError: true });
+    }
+  };
+  submitAdminDigits = () => {
+    if (this.state.adminPassDigitsInput.trim() === this.state.adminDigitPass) {
+      this.setState({ view: 'adminAuthFingerprint', adminAuthError: false });
+    } else {
+      this.setState({ adminAuthError: true });
+    }
+  };
+  setNewLetterPassInput = (e) => this.setState({ newLetterPassInput: e.target.value, securitySaved: false });
+  setNewDigitPassInput = (e) => this.setState({ newDigitPassInput: e.target.value, securitySaved: false });
+  saveSecurity = () => {
+    this.setState(s => ({
+      adminLetterPass: s.newLetterPassInput.trim() ? s.newLetterPassInput.trim() : s.adminLetterPass,
+      adminDigitPass: s.newDigitPassInput.trim() ? s.newDigitPassInput.trim() : s.adminDigitPass,
+      newLetterPassInput: '', newDigitPassInput: '', securitySaved: true,
+    }));
+  };
+  submitFingerprint = () => {
+    this.setState({ adminFingerprintChecking: true });
+    setTimeout(() => {
+      try { localStorage.setItem('chez-sanji-admin-verified', '1'); } catch (e) {}
+      this.setState({ adminFingerprintChecking: false });
+      this.goAdmin();
+    }, 1200);
+  };
+  updateOverride(id, field, value) {
+    this.setState(s => ({
+      menuOverrides: {
+        ...s.menuOverrides,
+        [id]: { ...s.menuOverrides[id], [field]: field === 'price' ? (Number(value) || 0) : value },
+      },
+    }));
+  }
+  toggleStock(id) {
+    this.setState(s => ({ outOfStock: { ...s.outOfStock, [id]: !s.outOfStock[id] } }));
+  }
+  setNewProductField(field, value) { this.setState({ [field]: value }); }
+  toggleAllOrdersRecap = () => this.setState(s => ({ showAllOrdersRecap: !s.showAllOrdersRecap }));
+  deleteOrder(ref) {
+    this.setState(s => ({
+      orderHistory: s.orderHistory.filter(o => o.ref !== ref),
+      lastOrder: s.lastOrder && s.lastOrder.ref === ref ? null : s.lastOrder,
+    }));
+  }
+  downloadAllOrdersPdf() {
+    const rowsHtml = this.state.orderHistory.slice().reverse().map(o => {
+      const grouped = {};
+      (o.lines || []).forEach(l => {
+        const cat = l.cat || 'Autre';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(l.qty + 'x ' + l.name);
+      });
+      const items = Object.keys(grouped).map(cat => cat + ': ' + grouped[cat].join(', ')).join('<br>') || ((o.items || 0) + ' article(s)');
+      const status = o.status === 'done' ? 'Livrée' : (o.pendingValidation ? 'À valider' : 'En cours');
+      return '<tr><td>' + o.ref + '</td><td>' + (o.customerName || '—') + '<br>' + (o.customerPhone || '—') + '</td><td>' + items + '</td><td>' + (o.totalLabel || '—') + '</td><td>' + status + '</td></tr>';
+    }).join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Toutes les commandes</title>' +
+      '<style>body{font-family:Arial,sans-serif;padding:24px;color:#201e1d}' +
+      'h1{font-size:18px}table{width:100%;border-collapse:collapse;font-size:12px}' +
+      'th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top}' +
+      '@media print{body{padding:0}}</style></head><body>' +
+      '<h1>Chez Sanji — Récapitulatif de toutes les commandes</h1>' +
+      '<table><thead><tr><th>Réf.</th><th>Client</th><th>Articles</th><th>Total</th><th>Statut</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+      '</body></html>';
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => { try { win.print(); } catch (e) {} }, 300);
+    } else {
+      this.showToast('Pop-up bloquée — autorise les pop-ups pour télécharger');
+    }
+  }
+  addProduct = () => {
+    const name = this.state.newProductName.trim();
+    const price = Number(this.state.newProductPrice) || 0;
+    if (!name || !price) return;
+    const id = 'custom-' + Date.now();
+    const cat = this.state.newProductCat;
+    this.setState(s => ({
+      customProducts: [...s.customProducts, { id, cat, name, descEn: '', descFr: '', price, sizes: [], addOns: [] }],
+      newProductName: '', newProductPrice: '',
+    }));
+  };
+  openOrderTracking(ref) {
+    const order = this.state.orderHistory.find(o => o.ref === ref);
+    if (!order) return;
+    if (this._timer) clearInterval(this._timer);
+    if (this._tick) clearInterval(this._tick);
+    const isPreparing = !order.pendingValidation && order.status === 'active' && order.stepDeadline && order.stepDeadline > Date.now();
+    this.setState({
+      view: 'tracking',
+      lastOrder: { ...order, validated: !order.pendingValidation },
+      orderStatusIndex: order.status === 'done' ? 3 : (order.pendingValidation ? 0 : (isPreparing ? 1 : 2)),
+      stepDeadline: isPreparing ? order.stepDeadline : null,
+    });
+    if (isPreparing) {
+      this._tick = setInterval(() => this.forceUpdate(), 1000);
+      const remain = order.stepDeadline - Date.now();
+      this._timer = setTimeout(() => {
+        this.setState(s => ({ orderStatusIndex: 2, stepDeadline: null }));
+        clearInterval(this._tick);
+      }, Math.max(0, remain));
+    }
+  }
+  markOrderDelivered(ref) {
+    const fr = this.state.lang === 'fr';
+    this.setState(s => ({ orderHistory: s.orderHistory.map(o => o.ref === ref ? { ...o, status: 'done' } : o) }));
+    if (this.state.lastOrder && this.state.lastOrder.ref === ref) {
+      const label = this.state.fulfillment === 'Delivery' ? (fr ? 'Commande livrée. Bon appétit !' : 'Order delivered. Enjoy!') : (fr ? 'Commande récupérée. Bon appétit !' : 'Order picked up. Enjoy!');
+      this.showToast(label);
+    }
+  }
+  deleteProduct(id) {
+    this.setState(s => {
+      const { [id]: _o, ...restOverrides } = s.menuOverrides;
+      const { [id]: _s, ...restStock } = s.outOfStock;
+      const isCustom = s.customProducts.some(p => p.id === id);
+      return {
+        customProducts: isCustom ? s.customProducts.filter(p => p.id !== id) : s.customProducts,
+        deletedProducts: isCustom ? s.deletedProducts : { ...s.deletedProducts, [id]: true },
+        menuOverrides: restOverrides,
+        outOfStock: restStock,
+      };
+    });
+  }
+  goCheckout = () => this.setState({ view: 'checkout', waStep: 'summary', proofUploaded: false, proofFileName: '' });
+  backToCart = () => this.setState({ view: 'cart' });
+  goToPayment = () => this.setState({ waStep: 'payment', proofUploaded: false, proofFileName: '' });
+  setCustomerName = (e) => this.setState({ customerName: e.target.value, profileName: e.target.value });
+  setCustomerPhone = (e) => this.setState({ customerPhone: e.target.value });
+  selectPaymentMethod(method) {
+    if (!this.state.customerName.trim() || this.state.customerPhone.replace(/\D/g, '').length < 8) return;
+    this.setState({ payment: method, waStep: 'result' });
+  }
+  setProofInputRef = (el) => { this.proofInputEl = el; };
+  uploadProof = () => { if (this.proofInputEl) this.proofInputEl.click(); };
+  onProofFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) this.setState({ proofUploaded: true, proofFileName: file.name });
+  };
+  selectTab(view) { this.setState({ view }); }
+
+  openItem(id) {
+    this.setState({ view: 'item', selectedItemId: id, itemSize: 0, itemAddOns: [], itemQty: 1 });
+  }
+  quickAdd(item, e) {
+    e.stopPropagation();
+    if (item.sizes.length === 0 && item.addOns.length === 0) {
+      this.addLineToCart(item, 0, [], 1);
+      this.showToast((this.state.lang === 'fr' ? 'Ajouté au panier: ' : 'Added to cart: ') + item.name);
+    } else {
+      this.openItem(item.id);
+    }
+  }
+  setItemSize(idx) { this.setState({ itemSize: idx }); }
+  toggleAddOn(label) {
+    this.setState(s => {
+      const has = s.itemAddOns.includes(label);
+      return { itemAddOns: has ? s.itemAddOns.filter(l => l !== label) : [...s.itemAddOns, label] };
+    });
+  }
+  incQty = () => this.setState(s => ({ itemQty: s.itemQty + 1 }));
+  decQty = () => this.setState(s => ({ itemQty: Math.max(1, s.itemQty - 1) }));
+
+  computeUnitPrice(item, sizeIdx, addOns) {
+    let base = item.price + (item.sizes[sizeIdx] ? item.sizes[sizeIdx].delta : 0);
+    addOns.forEach(label => {
+      const ao = item.addOns.find(a => a.label === label);
+      if (ao) base += ao.price;
+    });
+    return base;
+  }
+
+  addLineToCart(item, sizeIdx, addOns, qty) {
+    const sizeLabel = item.sizes[sizeIdx] ? item.sizes[sizeIdx].label : '';
+    const key = item.id + '|' + sizeLabel + '|' + addOns.slice().sort().join(',');
+    const unitPrice = this.computeUnitPrice(item, sizeIdx, addOns);
+    this.setState(s => {
+      const existing = s.cart.find(l => l.key === key);
+      if (existing) {
+        return { cart: s.cart.map(l => l.key === key ? { ...l, qty: l.qty + qty } : l) };
+      }
+      return { cart: [...s.cart, { key, id: item.id, name: item.name, size: sizeLabel, addOns, unitPrice, qty }] };
+    });
+  }
+
+  addToCart = () => {
+    const item = this.getMenu().find(m => m.id === this.state.selectedItemId);
+    if (!item) return;
+    this.addLineToCart(item, this.state.itemSize, this.state.itemAddOns, this.state.itemQty);
+    this.showToast((this.state.lang === 'fr' ? 'Ajouté au panier: ' : 'Added to cart: ') + item.name);
+    this.setState({ view: 'home' });
+  };
+
+  incLine(key) { this.setState(s => ({ cart: s.cart.map(l => l.key === key ? { ...l, qty: l.qty + 1 } : l) })); }
+  decLine(key) { this.setState(s => ({ cart: s.cart.flatMap(l => l.key === key ? (l.qty <= 1 ? [] : [{ ...l, qty: l.qty - 1 }]) : [l]) })); }
+  removeLine(key) { this.setState(s => ({ cart: s.cart.filter(l => l.key !== key) })); }
+
+  selectFulfillment(v) { this.setState({ fulfillment: v }); }
+  setAddress = (e) => this.setState({ address: e.target.value });
+  setPromo = (e) => this.setState({ promo: e.target.value });
+  applyPromo = () => {
+    const fr = this.state.lang === 'fr';
+    if (this.state.promo.trim().toUpperCase() === 'SANJ10') {
+      this.setState({ promoApplied: true });
+      this.showToast(fr ? 'Promo appliquée : -10%' : 'Promo applied: 10% off');
+    } else {
+      this.showToast(fr ? 'Code promo invalide' : 'Invalid promo code');
+    }
+  };
+
+  placeOrder = () => {
+    const s0 = this.state;
+    const subtotal = s0.cart.reduce((sum, l) => sum + l.unitPrice * l.qty, 0);
+    const earned = Math.round((subtotal / 1500) * 25);
+    const orderNum = 'CSJ-' + Math.floor(1000 + Math.random() * 9000);
+    const pickupCode = String(Math.floor(2000 + Math.random() * 8000));
+    const paid = s0.payment !== 'Cash';
+    const needsValidation = true;
+    const linesSnapshot = s0.cart.map(l => {
+      const item = this.getMenu().find(m => m.id === l.id);
+      return { name: l.name, qty: l.qty, cat: item ? item.cat : '' };
+    });
+    const totalLabel = this.fmt(Math.max(0, subtotal + (s0.fulfillment === 'Delivery' ? 1500 : 0) - (s0.promoApplied ? subtotal * 0.1 : 0)));
+    const newOrder = {
+      ref: orderNum, pickupCode, status: 'active', customerName: s0.customerName, customerPhone: s0.customerPhone,
+      fulfillment: s0.fulfillment, items: s0.cart.length, lines: linesSnapshot, totalLabel, pendingValidation: true,
+    };
+    this.setState(s => ({
+      view: 'tracking',
+      orderStatusIndex: 0,
+      loyaltyPoints: s.loyaltyPoints + earned,
+      lastOrder: { ...newOrder, paid, validated: false },
+      orderHistory: [...s.orderHistory, newOrder],
+      cart: [],
+      promo: '',
+      promoApplied: false,
+    }));
+    if (this._timer) clearInterval(this._timer);
+    this.postOrderToStaffGroup(newOrder, 'new');
+  };
+
+  buildStaffOrderMsg(order, kind) {
+    const grouped = {};
+    (order.lines || []).forEach(l => {
+      const cat = l.cat || 'Autre';
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(l.qty + 'x ' + l.name);
+    });
+    const itemsText = Object.keys(grouped).map(cat => cat + ': ' + grouped[cat].join(', ')).join('\n') || (order.items ? order.items + ' article(s)' : '—');
+    const header = kind === 'validated' ? '✅ Commande validée' : '🆕 Nouvelle commande';
+    const fulfillmentLabels = { 'Pickup': 'À emporter', 'Delivery': 'Livraison', 'Dine In': 'Sur place' };
+    const fulfillment = fulfillmentLabels[order.fulfillment] || order.fulfillment || '—';
+    const total = order.totalLabel || '—';
+    return header + ' ' + order.ref + '\n' +
+      (order.customerName || '—') + ' — ' + (order.customerPhone || '—') + '\n' +
+      fulfillment + ' · Retrait: ' + order.pickupCode + '\n' +
+      itemsText + '\n' +
+      'Total: ' + total;
+  }
+  copyOrderMsgToClipboard(order, kind) {
+    const msg = this.buildStaffOrderMsg(order, kind);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(
+        () => this.showToast('Message copié — collez-le dans le groupe WhatsApp'),
+        () => this.copyFallback(msg)
+      );
+    } else {
+      this.copyFallback(msg);
+    }
+  }
+  copyFallback(msg) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = msg; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      this.showToast('Message copié — collez-le dans le groupe WhatsApp');
+    } catch (e) {
+      this.showToast('Impossible de copier — copiez le message manuellement');
+    }
+  }
+  postOrderToStaffGroup(order, kind) {
+    this.copyOrderMsgToClipboard(order, kind);
+  }
+
+  shareOrderNatively(order, kind) {
+    const msg = this.buildStaffOrderMsg(order, kind);
+    if (navigator.share) {
+      navigator.share({ title: 'Commande ' + order.ref, text: msg }).catch(() => {
+        this.copyOrderMsgToClipboard(order, kind);
+        const a = document.createElement('a');
+        a.href = STAFF_WHATSAPP_GROUP_LINK; a.target = '_blank'; a.rel = 'noopener';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      });
+    } else {
+      this.copyOrderMsgToClipboard(order, kind);
+      const a = document.createElement('a');
+      a.href = STAFF_WHATSAPP_GROUP_LINK; a.target = '_blank'; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+  }
+
+  openOrderReceipt(order) {
+    const fulfillmentLabels = { 'Pickup': 'À emporter', 'Delivery': 'Livraison', 'Dine In': 'Sur place' };
+    const fulfillment = fulfillmentLabels[order.fulfillment] || order.fulfillment || '—';
+    const rowsHtml = (order.lines && order.lines.length)
+      ? order.lines.map(l => '<tr><td>' + l.cat + '</td><td>' + l.name + '</td><td style="text-align:center">' + l.qty + '</td></tr>').join('')
+      : '<tr><td colspan="3">' + (order.items || 0) + ' article(s)</td></tr>';
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reçu ' + order.ref + '</title>' +
+      '<style>body{font-family:Arial,sans-serif;padding:32px;color:#201e1d;max-width:480px;margin:0 auto}' +
+      'h1{font-size:20px;margin-bottom:4px}.muted{color:#666;font-size:13px;margin-bottom:20px}' +
+      'table{width:100%;border-collapse:collapse;margin-bottom:20px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left;font-size:13px}' +
+      '.total{font-size:18px;font-weight:bold;text-align:right;margin-top:12px}' +
+      '@media print{body{padding:0}}</style></head><body>' +
+      '<h1>Chez Sanji — Reçu</h1>' +
+      '<div class="muted">Commande ' + order.ref + ' &middot; Code de retrait: ' + order.pickupCode + '</div>' +
+      '<div class="muted">Client: ' + (order.customerName || '—') + ' &middot; ' + (order.customerPhone || '—') + '</div>' +
+      '<div class="muted">' + fulfillment + '</div>' +
+      '<table><thead><tr><th>Catégorie</th><th>Article</th><th>Qté</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+      '<div class="total">Total: ' + (order.totalLabel || '—') + '</div>' +
+      '</body></html>';
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => { try { win.print(); } catch (e) {} }, 300);
+    } else {
+      this.showToast('Ouvre le reçu manuellement — pop-up bloquée');
+    }
+  }
+
+  static STEP_DURATION_MS = 7 * 60 * 1000;
+
+  startStatusTimer() {
+    const fr = this.state.lang === 'fr';
+    const deadline = Date.now() + Component.STEP_DURATION_MS;
+    this.setState(s => ({
+      orderStatusIndex: 1, stepDeadline: deadline,
+      orderHistory: s.orderHistory.map(o => (s.lastOrder && o.ref === s.lastOrder.ref) ? { ...o, stepDeadline: deadline } : o),
+    }));
+    this.showToast(fr ? 'Commande acceptée — en cours de préparation' : 'Order accepted — being prepared');
+    if (this._timer) clearInterval(this._timer);
+    if (this._tick) clearInterval(this._tick);
+    this._tick = setInterval(() => this.forceUpdate(), 1000);
+    this._timer = setInterval(() => {
+      this.setState(s => {
+        if (s.orderStatusIndex >= 2) { clearInterval(this._timer); clearInterval(this._tick); return {}; }
+        const readyMsg = s.fulfillment === 'Delivery' ? (fr ? 'Commande prête — en route !' : 'Order ready — on the way!') : (fr ? 'Commande prête — à récupérer !' : 'Order ready for pickup!');
+        this.showToast(readyMsg);
+        return { orderStatusIndex: 2, stepDeadline: null };
+      });
+    }, Component.STEP_DURATION_MS);
+  }
+
+  shareLocation = () => {
+    const fr = this.state.lang === 'fr';
+    if (!navigator.geolocation) { this.showToast(fr ? 'Géolocalisation indisponible' : 'Geolocation unavailable'); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        this.setState(s => ({
+          lastOrder: s.lastOrder ? { ...s.lastOrder, location: loc } : s.lastOrder,
+          orderHistory: s.orderHistory.map(o => (s.lastOrder && o.ref === s.lastOrder.ref) ? { ...o, location: loc } : o),
+        }));
+        this.showToast(fr ? 'Position partagée' : 'Location shared');
+      },
+      () => this.showToast(fr ? 'Impossible d\u2019obtenir la position' : 'Could not get location')
+    );
+  };
+
+  validatePayment = () => {
+    const fr = this.state.lang === 'fr';
+    this.setState(s => ({
+      lastOrder: s.lastOrder ? { ...s.lastOrder, pendingValidation: false, validated: true } : s.lastOrder,
+    }));
+    this.startStatusTimer();
+    this.showToast(fr ? 'Paiement validé — commande en cours' : 'Payment validated — order in progress');
+  };
+
+  setValidateRefInput = (e) => this.setState({ validateRefInput: e.target.value, validateRefError: false });
+  validateOrderByRef = () => {
+    const last4 = this.state.validateRefInput.trim();
+    const order = this.state.orderHistory.find(o => o.ref.slice(-4) === last4);
+    if (!order) { this.setState({ validateRefError: true }); return; }
+    this.setState({ validatingAnim: true, validateRefInput: '', validateRefError: false });
+    setTimeout(() => {
+      this.setState(s => ({
+        validatingAnim: false,
+        orderHistory: s.orderHistory.map(o => o.ref === order.ref ? { ...o, pendingValidation: false } : o),
+        lastOrder: s.lastOrder && s.lastOrder.ref === order.ref ? { ...s.lastOrder, pendingValidation: false, validated: true } : s.lastOrder,
+      }));
+      if (this.state.lastOrder && this.state.lastOrder.ref === order.ref) this.startStatusTimer();
+      this.postOrderToStaffGroup({ ...order, pendingValidation: false }, 'validated');
+      this.showToast('Commande ' + order.ref + ' validée');
+    }, 900);
+  };
+
+  redeemReward(reward) {
+    const fr = this.state.lang === 'fr';
+    if (this.state.loyaltyPoints < reward.cost) return;
+    const item = this.getMenu().find(m => m.id === reward.itemId);
+    if (!item) return;
+    const key = 'reward-' + reward.id + '-' + Date.now();
+    this.setState(s => ({
+      loyaltyPoints: s.loyaltyPoints - reward.cost,
+      cart: [...s.cart, { key, id: item.id, name: item.name + (fr ? ' (Récompense)' : ' (Reward)'), size: '', addOns: [], unitPrice: 0, qty: 1 }],
+    }));
+    this.showToast((fr ? reward.nameFr : reward.nameEn) + (fr ? ' ajouté au panier !' : ' added to cart!'));
+  }
+
+  accountAction(rowKey) {
+    if (rowKey === 'logout') {
+      try { localStorage.removeItem('chez-sanji-verified-phone'); } catch (e) {}
+      if (this._timer) clearInterval(this._timer);
+      this.setState({ view: 'splash', onboardStep: 0, phoneNumber: '' });
+    } else {
+      this.setState({ view: 'sub-' + rowKey });
+    }
+  }
+  toggleNotif(key) {
+    this.setState(s => ({ notifPrefs: { ...s.notifPrefs, [key]: !s.notifPrefs[key] } }));
+  }
+  setSavedAddress = (e) => this.setState({ savedAddress: e.target.value });
+  setDefaultPayment(method) { this.setState({ defaultPaymentMethod: method }); }
+
+  renderVals() {
+    const s = this.state;
+    const fr = s.lang === 'fr';
+    const t = I18N[s.lang];
+    const fmt = (n) => this.fmt(n);
+
+    const categories = CAT_KEYS.map(c => {
+      const active = c === s.category;
+      return {
+        label: fr ? CAT_FR[c] : c,
+        bg: active ? 'var(--color-accent)' : '#fff',
+        color: 'var(--color-text)',
+        select: () => this.selectCategory(c),
+      };
+    });
+
+    const effectiveMenu = this.getMenu();
+    const availableMenu = effectiveMenu.filter(m => !s.outOfStock[m.id]);
+    const filtered = s.category === 'All' ? availableMenu : availableMenu.filter(m => m.cat === s.category);
+    const menuItems = filtered.map(item => ({
+      id: item.id, name: item.name, desc: fr ? item.descFr : item.descEn,
+      priceLabel: fmt(item.price),
+      open: () => this.openItem(item.id),
+      quickAdd: (e) => this.quickAdd(item, e),
+    }));
+
+    const cartLines = s.cart.map(l => ({
+      key: l.key, name: l.name, qty: l.qty,
+      optionsLabel: [l.size, ...l.addOns].filter(Boolean).join(', ') || (fr ? 'Standard' : 'Standard'),
+      lineTotalLabel: fmt(l.unitPrice * l.qty),
+      inc: () => this.incLine(l.key),
+      dec: () => this.decLine(l.key),
+      remove: () => this.removeLine(l.key),
+    }));
+    const waOrderLine = s.cart.map(l => l.qty + 'x ' + l.name).join(', ') || '...';
+    const subtotal = s.cart.reduce((sum, l) => sum + l.unitPrice * l.qty, 0);
+    const deliveryFee = s.fulfillment === 'Delivery' ? 1500 : 0;
+    const discount = s.promoApplied ? subtotal * 0.1 : 0;
+    const total = Math.max(0, subtotal + deliveryFee - discount);
+    const cartCount = s.cart.reduce((n, l) => n + l.qty, 0);
+
+    const currentItem = effectiveMenu.find(m => m.id === s.selectedItemId) || effectiveMenu[0];
+    const promoSlots = Array.from({ length: Component.PROMO_COUNT }, (_, i) => ({
+      id: 'promo-' + (i + 1),
+      opacity: i === s.promoIndex ? 1 : 0,
+      pointerEvents: i === s.promoIndex ? 'auto' : 'none',
+    }));
+    const promoDots = Array.from({ length: Component.PROMO_COUNT }, (_, i) => ({
+      bg: i === s.promoIndex ? 'var(--color-accent)' : 'var(--color-neutral-300)',
+      select: () => this.goPromo(i),
+    }));
+
+    const isCustomId = (id) => id.startsWith('custom-');
+    const adminItems = effectiveMenu.map(item => {
+      const outStock = !!s.outOfStock[item.id];
+      return {
+        id: item.id, name: item.name, price: item.price,
+        isCustom: isCustomId(item.id),
+        setName: (e) => this.updateOverride(item.id, 'name', e.target.value),
+        setPrice: (e) => this.updateOverride(item.id, 'price', e.target.value),
+        toggleStock: () => this.toggleStock(item.id),
+        stockLabel: outStock ? (fr ? 'Remettre en vente' : 'Back in stock') : (fr ? 'Marquer en rupture' : 'Mark out of stock'),
+        outOfStock: outStock, cardOpacity: outStock ? 0.5 : 1,
+        remove: () => this.deleteProduct(item.id),
+        addOnsList: item.addOns.map((ao, idx) => ({
+          label: ao.label, price: ao.price,
+          setLabel: (e) => this.updateAddOnField(item.id, idx, 'label', e.target.value),
+          setPrice: (e) => this.updateAddOnField(item.id, idx, 'price', e.target.value),
+          remove: () => this.removeAddOnField(item.id, idx),
+        })),
+        addAddOn: () => this.addAddOnField(item.id),
+      };
+    });
+    const catOptions = CAT_KEYS.filter(c => c !== 'All').map(c => ({ value: c, label: fr ? CAT_FR[c] : c }));
+    const itemUnitPrice = this.computeUnitPrice(currentItem, s.itemSize, s.itemAddOns);
+    const sizeOptions = currentItem.sizes.map((sz, i) => ({
+      label: fr ? sz.labelFr : sz.label, select: () => this.setItemSize(i),
+      bg: i === s.itemSize ? 'var(--color-accent)' : 'transparent',
+      color: i === s.itemSize ? '#fff' : 'var(--color-text)',
+    }));
+    const addOnOptions = currentItem.addOns.map(ao => {
+      const on = s.itemAddOns.includes(ao.label);
+      return {
+        label: fr ? ao.labelFr : ao.label,
+        priceLabel: ao.price > 0 ? '+' + fmt(ao.price) : (fr ? 'Gratuit' : 'Free'),
+        toggle: () => this.toggleAddOn(ao.label), dotBg: on ? 'var(--color-accent)' : 'transparent',
+        hasIcon: !!ao.icon, iconId: ao.icon || '',
+      };
+    });
+
+    const fulfillmentOptions = [
+      { key: 'Pickup', en: 'Pickup', fr: 'À emporter' },
+      { key: 'Delivery', en: 'Delivery', fr: 'Livraison' },
+      { key: 'Dine In', en: 'Dine In', fr: 'Sur place' },
+    ].map(f => ({
+      label: fr ? f.fr : f.en, select: () => this.selectFulfillment(f.key), activeCls: f.key === s.fulfillment ? 'active' : '',
+    }));
+    const paymentOptions = [
+      { key: 'Orange Money', en: 'Orange Money', fr: 'Orange Money', logo: '🟠' },
+      { key: 'MTN MoMo', en: 'MTN MoMo', fr: 'MTN MoMo', logo: '🟡' },
+      { key: 'Cash', en: 'Cash', fr: 'Cash' },
+    ].map(p => ({
+      key: p.key, label: fr ? p.fr : p.en, logo: p.logo, select: () => this.selectPaymentMethod(p.key),
+    }));
+    const isInstantPayment = false;
+    const needsProof = s.payment === 'Orange Money' || s.payment === 'MTN MoMo';
+    const payNumbers = { 'Orange Money': '640 97 90 13', 'MTN MoMo': '652 77 67 63' };
+    const payUssd = { 'Orange Money': '#150*1*1#', 'MTN MoMo': '*126#' };
+    const payNumber = payNumbers[s.payment] || '';
+    const payName = 'Engome Yaovi De Miang Georgette Lydienne France';
+    const payUssdCode = payUssd[s.payment] || '';
+
+    const tierSize = 100;
+    const tierProgress = s.loyaltyPoints % tierSize;
+    const rewards = REWARDS.map(r => ({
+      name: fr ? r.nameFr : r.nameEn, costLabel: r.cost + (fr ? ' pts' : ' pts'),
+      disabled: s.loyaltyPoints < r.cost,
+      redeem: () => this.redeemReward(r),
+    }));
+
+    const statusKeys = s.fulfillment === 'Delivery'
+      ? [{en:'Order Received',fr:'Commande reçue'},{en:'Preparing',fr:'En préparation'},{en:'Out for Delivery',fr:'En livraison'},{en:'Delivered',fr:'Livrée'}]
+      : [{en:'Order Received',fr:'Commande reçue'},{en:'Preparing',fr:'En préparation'},{en:'Ready for Pickup',fr:'Prête à emporter'},{en:'Picked Up',fr:'Récupérée'}];
+    const trackingSteps = statusKeys.map((k, i) => {
+      const done = i <= s.orderStatusIndex;
+      return {
+        label: fr ? k.fr : k.en, done,
+        time: done ? (i === 0 ? (fr ? 'À l\u2019instant' : 'Just now') : '') : '',
+        dotBg: done ? 'var(--color-accent)' : 'var(--color-neutral-300)',
+        lineBg: i < s.orderStatusIndex ? 'var(--color-accent)' : 'var(--color-divider)',
+        textColor: done ? 'var(--color-text)' : 'var(--color-neutral-500)',
+      };
+    });
+
+    const tabs = [
+      { key: 'home', en: 'Home', fr: 'Accueil', isHome: true, select: () => this.selectTab('home') },
+      { key: 'loyalty', en: 'Rewards', fr: 'Récompenses', isLoyalty: true, select: () => this.selectTab('loyalty') },
+      { key: 'cart', en: 'Cart', fr: 'Panier', isCart: true, hasBadge: cartCount > 0, select: () => this.selectTab('cart') },
+      { key: 'account', en: 'Account', fr: 'Compte', isAccount: true, select: () => this.selectTab('account') },
+    ].map(tb => ({ ...tb, label: fr ? tb.fr : tb.en, color: s.view === tb.key ? 'var(--color-accent)' : 'var(--color-neutral-700)' }));
+
+    const accountRows = ACCOUNT_ROWS.map(row => ({
+      label: fr ? row.labelFr : row.labelEn,
+      color: row.key === 'logout' ? 'var(--color-accent-700)' : 'var(--color-text)',
+      action: () => this.accountAction(row.key),
+    }));
+
+    return {
+      lang: s.lang, langLabel: fr ? 'FR / EN' : 'EN / FR', toggleLang: this.toggleLang, t,
+      isSplash: s.view === 'splash',
+      isPhoneAuth: s.view === 'phoneAuth',
+      isCodeVerify: s.view === 'codeVerify',
+      isOnboarding: s.view === 'onboarding',
+      isMainApp: !['splash', 'phoneAuth', 'codeVerify', 'onboarding', 'adminAuthLetters', 'adminAuthDigits', 'adminAuthFingerprint', 'adminQuickUnlock'].includes(s.view),
+      orderHistoryDisplay: s.orderHistory.filter(o => !s.phoneNumber || o.customerPhone === s.phoneNumber).slice().reverse().map(o => ({
+        ref: o.ref, pickupCode: o.pickupCode,
+        statusLabel: o.status === 'done' ? (fr ? 'Livrée' : 'Delivered') : (fr ? 'En cours' : 'In progress'),
+        statusTagCls: o.status === 'done' ? 'tag-neutral' : 'tag-accent',
+        open: () => this.openOrderTracking(o.ref),
+      })),
+      hasNoOrderHistory: s.orderHistory.length === 0,
+      savedPaymentOptions: [
+        { key: 'Orange Money', fr: 'Orange Money', en: 'Orange Money' },
+        { key: 'MTN MoMo', fr: 'MTN MoMo', en: 'MTN MoMo' },
+        { key: 'Cash', fr: 'Cash', en: 'Cash' },
+      ].map(p => ({
+        label: fr ? p.fr : p.en, isDefault: s.defaultPaymentMethod === p.key,
+        dotBg: s.defaultPaymentMethod === p.key ? 'var(--color-accent)' : 'transparent',
+        select: () => this.setDefaultPayment(p.key),
+      })),
+      savedAddress: s.savedAddress, setSavedAddress: this.setSavedAddress,
+      notifRows: [
+        { key: 'promos', fr: 'Promotions et offres', en: 'Promotions and offers' },
+        { key: 'orderUpdates', fr: 'Statut de commande', en: 'Order status' },
+        { key: 'rewards', fr: 'Points de fidélité', en: 'Loyalty points' },
+      ].map(n => ({
+        label: fr ? n.fr : n.en, toggle: () => this.toggleNotif(n.key),
+        trackBg: s.notifPrefs[n.key] ? 'var(--color-accent)' : 'var(--color-neutral-300)',
+        knobLeft: s.notifPrefs[n.key] ? 19 : 3,
+      })),
+      contactSupport: () => window.open('https://wa.me/' + WHATSAPP_NUMBER, '_blank'),
+      isAdminQuickUnlock: s.view === 'adminQuickUnlock',
+      adminQuickPinInput: s.adminQuickPinInput || '', setAdminQuickPinInput: this.setAdminQuickPinInput,
+      submitQuickPin: this.submitQuickPin, submitQuickFingerprint: this.submitQuickFingerprint,
+      isAdminAuthLetters: s.view === 'adminAuthLetters',
+      isAdminAuthDigits: s.view === 'adminAuthDigits',
+      isAdminAuthFingerprint: s.view === 'adminAuthFingerprint',
+      adminPassLettersInput: s.adminPassLettersInput || '', setAdminPassLettersInput: this.setAdminPassLettersInput,
+      adminPassDigitsInput: s.adminPassDigitsInput || '', setAdminPassDigitsInput: this.setAdminPassDigitsInput,
+      adminAuthError: !!s.adminAuthError,
+      submitAdminLetters: this.submitAdminLetters, submitAdminDigits: this.submitAdminDigits, submitFingerprint: this.submitFingerprint,
+      fingerprintStatusLabel: s.adminFingerprintChecking ? 'Vérification…' : 'Touchez pour scanner',
+      fingerprintOpacity: s.adminFingerprintChecking ? 0.6 : 1,
+      fingerprintScale: s.adminFingerprintChecking ? 'scale(0.9)' : 'scale(1)',
+      secretTap: this.secretTap,
+      phoneNumber: s.phoneNumber, setPhoneNumber: this.setPhoneNumber,
+      phoneInvalid: s.phoneNumber.replace(/\D/g, '').length < 8,
+      sendCode: this.sendCode, resendCode: this.resendCode, verifyCode: this.verifyCode,
+      codeError: s.codeError,
+      codeDigits: s.codeInputs.map((v, i) => ({
+        value: v,
+        onChange: (e) => this.setCodeDigit(i, e.target.value),
+        onKeyDown: (e) => this.handleCodeKeyDown(i, e),
+        onPaste: (e) => this.handleCodePaste(i, e),
+        setRef: (el) => this.setCodeRef(i, el),
+      })),
+      view: s.view,
+      viewIsHome: s.view === 'home',
+      viewIsLoyalty: s.view === 'loyalty',
+      viewIsCart: s.view === 'cart',
+      viewIsAccount: s.view === 'account',
+      viewIsSubHistory: s.view === 'sub-history',
+      viewIsSubPayment: s.view === 'sub-payment',
+      viewIsSubAddresses: s.view === 'sub-addresses',
+      viewIsSubNotifications: s.view === 'sub-notifications',
+      viewIsSubHelp: s.view === 'sub-help',
+      promoSlots, promoDots,
+      viewIsAdmin: s.view === 'admin',
+      adminItems, goAdmin: this.goAdmin, catOptions,
+      newProductName: s.newProductName, newProductPrice: s.newProductPrice, newProductCat: s.newProductCat,
+      setNewProductName: (e) => this.setNewProductField('newProductName', e.target.value),
+      setNewProductPrice: (e) => this.setNewProductField('newProductPrice', e.target.value),
+      setNewProductCat: (e) => this.setNewProductField('newProductCat', e.target.value),
+      addProduct: this.addProduct,
+      newLetterPassInput: s.newLetterPassInput, setNewLetterPassInput: this.setNewLetterPassInput,
+      newDigitPassInput: s.newDigitPassInput, setNewDigitPassInput: this.setNewDigitPassInput,
+      saveSecurity: this.saveSecurity, securitySaved: s.securitySaved,
+      adminLetterPassMasked: '•'.repeat(s.adminLetterPass.length),
+      adminDigitPassMasked: '•'.repeat(s.adminDigitPass.length),
+      viewIsItem: s.view === 'item',
+      viewIsCheckout: s.view === 'checkout',
+      viewIsTracking: s.view === 'tracking',
+      showTabs: ['home', 'loyalty', 'cart', 'account'].includes(s.view),
+      enterApp: this.enterApp,
+      skipOnboarding: this.skipOnboarding,
+      onboardNext: this.onboardNext,
+      onboardStep: s.onboardStep,
+      onboardTitle: fr ? ONBOARD[s.onboardStep].titleFr : ONBOARD[s.onboardStep].titleEn,
+      onboardDesc: fr ? ONBOARD[s.onboardStep].descFr : ONBOARD[s.onboardStep].descEn,
+      onboardCta: s.onboardStep === ONBOARD.length - 1 ? (fr ? 'Commencer' : 'Get Started') : (fr ? 'Suivant' : 'Next'),
+      onboardDots: ONBOARD.map((_, i) => ({ color: i <= s.onboardStep ? 'var(--color-accent)' : 'var(--color-neutral-300)' })),
+      goHome: this.goHome,
+      goAccount: this.goAccount,
+      goCheckout: this.goCheckout,
+      backToCart: this.backToCart,
+      categories, menuItems,
+      cartLines, cartEmpty: s.cart.length === 0, cartNotEmpty: s.cart.length > 0,
+      cartCount, subtotalLabel: fmt(subtotal), cartTotalLabel: fmt(total),
+      waIsSummary: s.waStep === 'summary', waIsPayment: s.waStep === 'payment', waIsResult: s.waStep === 'result',
+      waOrderLine, goToPayment: this.goToPayment, isInstantPayment, needsProof,
+      payNumber, payName, payNumberLabel: fr ? 'Envoyer à ce numéro' : 'Send to this number',
+      payUssdCode, dialUssd: () => { window.location.href = 'tel:' + encodeURIComponent(payUssdCode); },
+      copyPayNumber: () => {
+        const clean = payNumber.replace(/\s/g, '');
+        const done = () => this.showToast(fr ? ('Numéro : ' + payNumber) : ('Number: ' + payNumber));
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(clean).then(done).catch(() => {
+            try {
+              const ta = document.createElement('textarea');
+              ta.value = clean; document.body.appendChild(ta); ta.select();
+              document.execCommand('copy'); document.body.removeChild(ta);
+            } catch (e) {}
+            done();
+          });
+        } else {
+          try {
+            const ta = document.createElement('textarea');
+            ta.value = clean; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+          } catch (e) {}
+          done();
+        }
+      },
+      instantPaymentLabel: fr ? 'Payez en cash à la réception' : 'Pay in cash when your order is ready',
+      proofUploaded: s.proofUploaded, proofButtonLabel: s.proofUploaded ? (fr ? 'Preuve envoyée ✓' : 'Payment proof uploaded ✓') : (fr ? 'Envoyer la preuve de paiement' : 'Upload payment proof'),
+      uploadProof: this.uploadProof, setProofInputRef: this.setProofInputRef, onProofFileChange: this.onProofFileChange,
+      proofFileName: s.proofFileName,
+      confirmDisabled: needsProof && !s.proofUploaded,
+      confirmButtonLabel: fr ? 'Confirmer la commande →' : 'Confirm Order →',
+      paidTagCls: s.lastOrder && s.lastOrder.paid ? 'tag-accent' : 'tag-neutral',
+      paidLabel: s.lastOrder && s.lastOrder.paid ? (fr ? 'PAYÉ' : 'PAID') : (fr ? 'NON PAYÉ' : 'UNPAID'),
+      currentItem, itemUnitPriceLabel: fmt(itemUnitPrice), itemQty: s.itemQty,
+      itemLineTotalLabel: fmt(itemUnitPrice * s.itemQty),
+      hasSizes: currentItem.sizes.length > 0, sizeOptions,
+      hasAddOns: currentItem.addOns.length > 0, addOnOptions,
+      incQty: this.incQty, decQty: this.decQty, addToCart: this.addToCart,
+      fulfillmentOptions, isDelivery: s.fulfillment === 'Delivery',
+      address: s.address, setAddress: this.setAddress,
+      paymentOptions,
+      promo: s.promo, setPromo: this.setPromo, applyPromo: this.applyPromo, promoApplied: s.promoApplied,
+      deliveryFeeLabel: fmt(deliveryFee), discountLabel: fmt(discount),
+      placeOrder: this.placeOrder,
+      loyaltyPoints: s.loyaltyPoints, tierProgressPct: Math.round((tierProgress / tierSize) * 100),
+      tierProgressLabel: (tierSize - tierProgress) + (fr ? ' pts avant le prochain palier' : ' pts to next reward tier'),
+      rewards,
+      trackingSteps,
+      totalOrdersCount: s.orderHistory.length,
+      activeOrdersCount: s.orderHistory.filter(o => o.status === 'active').length,
+      pendingValidationCount: s.orderHistory.filter(o => o.status === 'active' && o.pendingValidation).length,
+      toggleAllOrdersRecap: this.toggleAllOrdersRecap,
+      showAllOrdersRecap: !!s.showAllOrdersRecap,
+      allOrdersRecap: s.orderHistory.slice().reverse().map(o => {
+        const fulfillmentLabels = { 'Pickup': 'À emporter', 'Delivery': 'Livraison', 'Dine In': 'Sur place' };
+        const grouped = {};
+        (o.lines || []).forEach(l => {
+          const cat = l.cat || 'Autre';
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(l.qty + 'x ' + l.name);
+        });
+        return {
+          ref: o.ref, customerName: o.customerName || '—', customerPhone: o.customerPhone || '—',
+          statusLabel: o.status === 'done' ? 'Livrée' : (o.pendingValidation ? 'À valider' : 'En cours'),
+          statusTagCls: o.status === 'done' ? 'tag-neutral' : (o.pendingValidation ? 'tag-accent-2' : 'tag-accent'),
+          itemsSummary: Object.keys(grouped).map(cat => cat + ': ' + grouped[cat].join(', ')).join(' · ') || (o.items ? o.items + ' article(s)' : '—'),
+          fulfillmentLabel: fulfillmentLabels[o.fulfillment] || o.fulfillment || '—',
+          pickupCode: o.pickupCode, totalLabel: o.totalLabel || '—',
+          remove: () => this.deleteOrder(o.ref),
+        };
+      }),
+      downloadAllOrdersPdf: () => this.downloadAllOrdersPdf(),
+      hasActiveOrders: s.orderHistory.some(o => o.status === 'active'),
+      staffGroupLink: STAFF_WHATSAPP_GROUP_LINK,
+      activeOrdersDisplay: s.orderHistory.filter(o => o.status === 'active').map(o => ({
+        ...o, customerName: o.customerName || '—', customerPhone: o.customerPhone || '—',
+        markDelivered: () => this.markOrderDelivered(o.ref),
+        markDeliveredBg: o.pendingValidation ? 'var(--color-neutral-400)' : 'var(--color-accent-2)',
+        openReceipt: () => this.openOrderReceipt(o),
+        shareNative: () => this.shareOrderNatively(o, o.pendingValidation ? 'new' : 'validated'),
+        canShareNative: true,
+        contactWhatsapp: () => window.open('https://wa.me/' + (o.customerPhone || '').replace(/\D/g,''), '_blank'),
+        sendToStaffGroup: () => this.copyOrderMsgToClipboard(o, o.pendingValidation ? 'new' : 'validated'),
+        hasLocation: !!o.location,
+        openLocation: o.location ? () => window.open('https://maps.google.com/?q=' + o.location.lat + ',' + o.location.lng, '_blank') : undefined,
+      })),
+      customerName: s.customerName, setCustomerName: this.setCustomerName,
+      profileDisplayName: s.profileName || s.customerName || (fr ? 'Client Chez Sanji' : 'Chez Sanji Customer'),
+      profileDisplayPhone: s.phoneNumber || s.customerPhone || (fr ? 'Non connecté' : 'Not signed in'),
+      profileInitials: (() => {
+        const src = (s.profileName || s.customerName || '').trim();
+        return src ? src.split(/\s+/).map(w => w[0]).join('').slice(0,2).toUpperCase() : 'CS';
+      })(),
+      myOrdersCount: s.orderHistory.filter(o => !s.phoneNumber || o.customerPhone === s.phoneNumber).length,
+      customerPhone: s.customerPhone, setCustomerPhone: this.setCustomerPhone,
+      customerInfoOpacity: (s.customerName.trim() && s.customerPhone.replace(/\D/g,'').length >= 8) ? 1 : 0.45,
+      customerInfoPointerEvents: (s.customerName.trim() && s.customerPhone.replace(/\D/g,'').length >= 8) ? 'auto' : 'none',
+      validateBtnLabel: s.validatingAnim ? '✓ …' : t.validatePaymentBtn,
+      validateRefInput: s.validateRefInput || '', setValidateRefInput: this.setValidateRefInput,
+      validateOrderByRef: this.validateOrderByRef, validateRefError: !!s.validateRefError,
+      orderPendingValidation: !!(s.lastOrder && s.lastOrder.pendingValidation),
+      orderValidated: !!(s.lastOrder && s.lastOrder.validated),
+      validatePayment: this.validatePayment,
+      orderRef: s.lastOrder ? s.lastOrder.ref : '',
+      pickupCode: s.lastOrder ? s.lastOrder.pickupCode : '',
+      showCountdown: !!s.stepDeadline && s.orderStatusIndex === 1,
+      countdownLabel: s.stepDeadline ? (() => {
+        const remain = Math.max(0, s.stepDeadline - Date.now());
+        const m = Math.floor(remain / 60000), sec = Math.floor((remain % 60000) / 1000);
+        return (fr ? 'Prêt dans ' : 'Ready in ') + m + ':' + String(sec).padStart(2, '0');
+      })() : '',
+      showShareLocation: s.fulfillment === 'Delivery' && !(s.lastOrder && s.lastOrder.location),
+      shareLocation: this.shareLocation,
+      shareLocationLabel: fr ? 'Partager ma position →' : 'Share my location →',
+      downloadMyReceipt: () => { if (s.lastOrder) this.openOrderReceipt(s.lastOrder); },
+      fulfillmentSummaryLabel: s.lastOrder ? (s.lastOrder.fulfillment === 'Delivery' ? (fr ? 'Livraison' : 'Delivery') : (fr ? 'À emporter' : 'Pickup')) : '',
+      lastOrderSummary: s.lastOrder ? s.lastOrder.items + (fr ? ' article(s) — merci pour votre commande !' : ' item(s) — thanks for ordering!') : '',
+      etaLabel: s.fulfillment === 'Delivery' ? '25–35 min' : '10–15 min',
+      accountRows,
+      tabs,
+      toast: s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

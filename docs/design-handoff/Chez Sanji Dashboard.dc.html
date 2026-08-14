@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/organic-2f49ee3f-4611-4ccc-a4d6-fa681c365013/styles.css">
+  <script src="_ds/organic-2f49ee3f-4611-4ccc-a4d6-fa681c365013/_ds_bundle.js"></script>
+  <style>
+    body{margin:0;background:var(--color-bg);}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;font-family:var(--font-body);color:var(--color-text)">
+  <div class="nav">
+    <div class="nav-brand" style="font-family:var(--font-heading)">Chez Sanji — Dashboard</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="tag tag-outline">{{ syncStatusLabel }}</span>
+    </div>
+  </div>
+
+  <div style="max-width:1000px;margin:0 auto;padding:var(--space-6) var(--space-5)">
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin-bottom:var(--space-6)">
+      <div class="card" style="text-align:center">
+        <div class="card-kicker">Commandes totales</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:34px;margin-top:4px">{{ totalOrdersCount }}</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="card-kicker">Commandes en cours</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:34px;margin-top:4px;color:var(--color-accent-700)">{{ activeOrdersCount }}</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="card-kicker">Points fidélité en circulation</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:34px;margin-top:4px">{{ loyaltyPoints }}</div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin-bottom:var(--space-3)">Commandes en cours</div>
+    <sc-if value="{{ hasNoActiveOrders }}" hint-placeholder-val="{{ false }}">
+      <div class="card" style="margin-bottom:var(--space-6);color:var(--color-neutral-700)">Aucune commande en cours.</div>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-6)">
+      <sc-for list="{{ activeOrders }}" as="ao" hint-placeholder-count="2">
+        <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-4)">
+          <div>
+            <div style="font-family:var(--font-heading);font-weight:700;font-size:15px">{{ ao.ref }}</div>
+            <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">Code de retrait : {{ ao.pickupCode }}</div>
+            <div style="font-family:var(--font-body);font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ ao.customerName }} — {{ ao.customerPhone }}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <sc-if value="{{ ao.pendingValidation }}" hint-placeholder-val="{{ false }}">
+              <span class="tag tag-accent">Paiement à valider</span>
+              <button onClick="{{ ao.validate }}" class="btn btn-primary" style="font-size:12px;padding:8px 14px">Valider paiement</button>
+            </sc-if>
+            <button onClick="{{ ao.markDelivered }}" class="btn btn-secondary" style="font-size:12px;padding:8px 14px">Marquer livrée</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin-bottom:var(--space-3)">Historique récent</div>
+    <table class="table" style="margin-bottom:var(--space-6)">
+      <thead><tr><th>Réf.</th><th>Code</th><th>Statut</th></tr></thead>
+      <tbody>
+        <sc-for list="{{ recentOrders }}" as="ro" hint-placeholder-count="3">
+          <tr><td>{{ ro.ref }}</td><td>{{ ro.pickupCode }}</td><td>{{ ro.statusLabel }}</td></tr>
+        </sc-for>
+      </tbody>
+    </table>
+
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin-bottom:var(--space-3)">Menu — produits</div>
+    <div class="card" style="margin-bottom:var(--space-4);border:2px solid var(--color-text)">
+      <div style="font-family:var(--font-heading);font-weight:700;font-size:13px;margin-bottom:var(--space-3)">Ajouter un produit</div>
+      <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:8px;align-items:end">
+        <div class="field">
+          <label>Catégorie</label>
+          <select class="input" value="{{ newProductCat }}" onChange="{{ setNewProductCat }}">
+            <sc-for list="{{ catOptions }}" as="co" hint-placeholder-count="6">
+              <option value="{{ co.value }}">{{ co.label }}</option>
+            </sc-for>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nom</label>
+          <input class="input" type="text" value="{{ newProductName }}" onChange="{{ setNewProductName }}"/>
+        </div>
+        <div class="field">
+          <label>Prix (FCFA)</label>
+          <input class="input" type="number" value="{{ newProductPrice }}" onChange="{{ setNewProductPrice }}"/>
+        </div>
+        <button onClick="{{ addProduct }}" class="btn btn-primary">Ajouter</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-6)">
+      <sc-for list="{{ adminItems }}" as="it" hint-placeholder-count="4">
+        <div class="card" style="display:grid;grid-template-columns:2fr 1fr auto auto;gap:8px;align-items:center;opacity:{{ it.cardOpacity }}">
+          <input class="input" type="text" value="{{ it.name }}" onChange="{{ it.setName }}"/>
+          <input class="input" type="number" value="{{ it.price }}" onChange="{{ it.setPrice }}"/>
+          <button onClick="{{ it.toggleStock }}" class="btn btn-secondary" style="font-size:12px">{{ it.stockLabel }}</button>
+          <button onClick="{{ it.remove }}" class="btn btn-ghost" style="font-size:12px;color:var(--color-accent-700)">Supprimer</button>
+        </div>
+      </sc-for>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const STORAGE_KEY = 'chez-sanji-app-state-v1';
+
+const BASE_MENU = [
+  {id:'co1',cat:'Combo',name:'Combo Classique',price:5500},
+  {id:'co2',cat:'Combo',name:'Combo Smoke Stack',price:6500},
+  {id:'co3',cat:'Combo',name:'Combo Poutine',price:4500},
+  {id:'b1',cat:'Burgers',name:'The Classic Sanj',price:3500},
+  {id:'b2',cat:'Burgers',name:'Smoke Stack',price:4500},
+  {id:'b3',cat:'Burgers',name:'Double Deluxe',price:5000},
+  {id:'f1',cat:'Fries & Poutine',name:'Classic Fries',price:1500},
+  {id:'f2',cat:'Fries & Poutine',name:'Loaded Poutine',price:3000},
+  {id:'f3',cat:'Fries & Poutine',name:'Truffle Poutine',price:4000},
+  {id:'s1',cat:'Shakes',name:'Milky Mint',price:2500},
+  {id:'s2',cat:'Shakes',name:'Vanilla Bean',price:2000},
+  {id:'s3',cat:'Shakes',name:'Salted Caramel',price:2500},
+  {id:'c1',cat:'Cocktails',name:'Vodka Sour',price:5000},
+  {id:'c2',cat:'Cocktails',name:'Malta Mule',price:2500},
+  {id:'c3',cat:'Cocktails',name:'Sanj Spritz',price:2000},
+  {id:'d1',cat:'Soft Drinks',name:'Coca-Cola',price:1000},
+  {id:'d2',cat:'Soft Drinks',name:'Sprite',price:1000},
+  {id:'d3',cat:'Soft Drinks',name:'Malta',price:1200},
+  {id:'d4',cat:'Soft Drinks',name:'Sparkling Water',price:800},
+];
+const CAT_KEYS = ['Combo','Burgers','Fries & Poutine','Shakes','Cocktails','Soft Drinks'];
+
+class Component extends DCLogic {
+  state = {
+    loyaltyPoints: 0,
+    orderHistory: [],
+    menuOverrides: {},
+    customProducts: [],
+    outOfStock: {},
+    deletedProducts: {},
+    newProductName: '',
+    newProductPrice: '',
+    newProductCat: 'Burgers',
+    lastSync: null,
+  };
+
+  componentDidMount() {
+    this.hydrate();
+    window.addEventListener('storage', this.onStorageEvent);
+    this._poll = setInterval(() => this.hydrate(), 2000);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('storage', this.onStorageEvent);
+    if (this._poll) clearInterval(this._poll);
+  }
+  onStorageEvent = (e) => { if (e.key === STORAGE_KEY) this.hydrate(); };
+
+  hydrate() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      this._suppressSave = true;
+      this.setState({
+        loyaltyPoints: saved.loyaltyPoints ?? 0,
+        orderHistory: saved.orderHistory ?? [],
+        menuOverrides: saved.menuOverrides ?? {},
+        customProducts: saved.customProducts ?? [],
+        outOfStock: saved.outOfStock ?? {},
+        deletedProducts: saved.deletedProducts ?? {},
+        lastOrder: saved.lastOrder ?? null,
+        cart: saved.cart ?? [],
+        lang: saved.lang ?? 'fr',
+        lastSync: Date.now(),
+      }, () => { this._suppressSave = false; });
+    } catch (e) {}
+  }
+
+  persist() {
+    if (this._suppressSave) return;
+    try {
+      const s = this.state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        lang: s.lang, loyaltyPoints: s.loyaltyPoints, menuOverrides: s.menuOverrides,
+        customProducts: s.customProducts, outOfStock: s.outOfStock, deletedProducts: s.deletedProducts, cart: s.cart,
+        orderHistory: s.orderHistory, lastOrder: s.lastOrder,
+      }));
+    } catch (e) {}
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.orderHistory !== this.state.orderHistory || prevState.menuOverrides !== this.state.menuOverrides ||
+        prevState.customProducts !== this.state.customProducts || prevState.outOfStock !== this.state.outOfStock ||
+        prevState.deletedProducts !== this.state.deletedProducts || prevState.lastOrder !== this.state.lastOrder) {
+      this.persist();
+    }
+  }
+
+  getMenu() {
+    return [...BASE_MENU, ...this.state.customProducts]
+      .filter(item => !this.state.deletedProducts[item.id])
+      .map(item => {
+        const o = this.state.menuOverrides[item.id];
+        return o ? { ...item, name: o.name ?? item.name, price: o.price ?? item.price } : item;
+      });
+  }
+
+  validateOrder(ref) {
+    this.setState(s => ({
+      orderHistory: s.orderHistory.map(o => o.ref === ref ? { ...o, pendingValidation: false } : o),
+      lastOrder: s.lastOrder && s.lastOrder.ref === ref ? { ...s.lastOrder, pendingValidation: false, validated: true } : s.lastOrder,
+    }));
+  }
+  markDelivered(ref) {
+    this.setState(s => ({ orderHistory: s.orderHistory.map(o => o.ref === ref ? { ...o, status: 'done' } : o) }));
+  }
+  updateOverride(id, field, value) {
+    this.setState(s => ({
+      menuOverrides: { ...s.menuOverrides, [id]: { ...s.menuOverrides[id], [field]: field === 'price' ? (Number(value) || 0) : value } },
+    }));
+  }
+  toggleStock(id) {
+    this.setState(s => ({ outOfStock: { ...s.outOfStock, [id]: !s.outOfStock[id] } }));
+  }
+  setNewProductField(field, value) { this.setState({ [field]: value }); }
+  addProduct = () => {
+    const name = this.state.newProductName.trim();
+    const price = Number(this.state.newProductPrice) || 0;
+    if (!name || !price) return;
+    const id = 'custom-' + Date.now();
+    this.setState(s => ({
+      customProducts: [...s.customProducts, { id, cat: s.newProductCat, name, price }],
+      newProductName: '', newProductPrice: '',
+    }));
+  };
+  deleteProduct(id) {
+    this.setState(s => {
+      const { [id]: _o, ...restOverrides } = s.menuOverrides;
+      const { [id]: _s, ...restStock } = s.outOfStock;
+      const isCustom = s.customProducts.some(p => p.id === id);
+      return {
+        customProducts: isCustom ? s.customProducts.filter(p => p.id !== id) : s.customProducts,
+        deletedProducts: isCustom ? s.deletedProducts : { ...s.deletedProducts, [id]: true },
+        menuOverrides: restOverrides, outOfStock: restStock,
+      };
+    });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const effectiveMenu = this.getMenu();
+    const isCustomId = (id) => id.startsWith('custom-');
+    const adminItems = effectiveMenu.map(item => {
+      const outStock = !!s.outOfStock[item.id];
+      return {
+        id: item.id, name: item.name, price: item.price, isCustom: isCustomId(item.id),
+        cardOpacity: outStock ? 0.5 : 1,
+        setName: (e) => this.updateOverride(item.id, 'name', e.target.value),
+        setPrice: (e) => this.updateOverride(item.id, 'price', e.target.value),
+        toggleStock: () => this.toggleStock(item.id),
+        stockLabel: outStock ? 'Remettre en vente' : 'Marquer en rupture',
+        remove: () => this.deleteProduct(item.id),
+      };
+    });
+    const catOptions = CAT_KEYS.map(c => ({ value: c, label: c }));
+
+    const activeOrders = s.orderHistory.filter(o => o.status === 'active').map(o => ({
+      ref: o.ref, pickupCode: o.pickupCode, pendingValidation: !!o.pendingValidation,
+      customerName: o.customerName || '—', customerPhone: o.customerPhone || '—',
+      validate: () => this.validateOrder(o.ref),
+      markDelivered: () => this.markDelivered(o.ref),
+    }));
+    const recentOrders = s.orderHistory.slice(-8).reverse().map(o => ({
+      ref: o.ref, pickupCode: o.pickupCode,
+      statusLabel: o.status === 'done' ? 'Livrée' : (o.pendingValidation ? 'En attente de validation' : 'En cours'),
+    }));
+
+    return {
+      syncStatusLabel: s.lastSync ? 'Synchronisé' : 'En attente de données',
+      totalOrdersCount: s.orderHistory.length,
+      activeOrdersCount: s.orderHistory.filter(o => o.status === 'active').length,
+      hasNoActiveOrders: s.orderHistory.filter(o => o.status === 'active').length === 0,
+      activeOrders, recentOrders,
+      loyaltyPoints: s.loyaltyPoints,
+      adminItems, catOptions,
+      newProductName: s.newProductName, newProductPrice: s.newProductPrice, newProductCat: s.newProductCat,
+      setNewProductName: (e) => this.setNewProductField('newProductName', e.target.value),
+      setNewProductPrice: (e) => this.setNewProductField('newProductPrice', e.target.value),
+      setNewProductCat: (e) => this.setNewProductField('newProductCat', e.target.value),
+      addProduct: this.addProduct,
+    };
+  }
+}
+</script>
+</body>
+</html>

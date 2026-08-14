@@ -1,0 +1,48 @@
+# Supabase CLI project config. Run `supabase init` once locally if you want
+# to regenerate this fully; this is a hand-trimmed version wired to match
+# the functions in supabase/functions/.
+
+project_id = "chez-sanji"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+# Wire up a real SMS/OTP provider here — Twilio, MessageBird, Vonage, or a
+# Cameroon-reaching aggregator. See docs/SETUP.md. Never ship with the test
+# OTP provider enabled.
+# [auth.sms.twilio]
+# enabled = true
+# account_sid = "env(TWILIO_ACCOUNT_SID)"
+# auth_token = "env(TWILIO_AUTH_TOKEN)"
+# message_service_sid = "env(TWILIO_MESSAGE_SERVICE_SID)"
+
+[functions.notify-order-event]
+verify_jwt = false
+
+[functions.advance-order-status]
+verify_jwt = false
+
+[functions.create-staff]
+verify_jwt = true

@@ -1,0 +1,23 @@
+import { useI18n } from '@/i18n/I18nContext'
+
+export function SplashScreen({ onEnter }: { onEnter: () => void }) {
+  const { t } = useI18n()
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[var(--color-accent)] px-6">
+      <div className="text-center">
+        <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[var(--color-ink)] text-4xl font-black text-[var(--color-accent)]">
+          CS
+        </div>
+        <div className="mt-4 font-[var(--font-heading)] text-2xl font-extrabold text-white">
+          <span className="animate-float">{t.slogan}</span>
+        </div>
+      </div>
+      <button
+        onClick={onEnter}
+        className="absolute bottom-8 left-6 right-6 rounded-xl bg-white px-5 py-4 text-left font-[var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)]"
+      >
+        {t.enter}
+      </button>
+    </div>
+  )
+}

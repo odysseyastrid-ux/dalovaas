@@ -80,10 +80,19 @@ implemented:
 
 ## Status
 
-The schema, RLS, RPCs, and Edge Functions are complete and ready to
-deploy against a Supabase project. The frontend covers the full customer
-flow (login → browse → cart → checkout → live tracking → loyalty →
-account) and staff flow (login → live orders board → validate/deliver →
-menu management → CSV export → staff invites). Swapping in real product
-photos and a live WhatsApp/SMS provider are the only pieces that need your
-own credentials — see docs/SETUP.md.
+The schema, RLS, RPCs, Edge Functions, and Database Webhook have been
+deployed against a real Supabase project and verified end-to-end via the
+same API calls the frontend makes: phone OTP login → `create_order` (price
+recomputed server-side, loyalty points credited) → `event_outbox` →
+`notify-order-event` fired and processed → staff `validate_order_payment`
+(sets a real 7-minute `step_deadline`) → the status-advance cron flips
+Preparing→Ready → `mark_order_delivered`. A manager account was bootstrapped
+for the staff dashboard.
+
+The frontend covers the full customer flow (login → browse → cart →
+checkout → live tracking → loyalty → account) and staff flow (login → live
+orders board → validate/deliver → menu management → CSV export → staff
+invites). What's still needed before real customers use it: a live
+SMS/OTP provider (phone login currently runs on a Test OTP number for
+demos — see docs/SETUP.md), a WhatsApp Business Cloud API token, VAPID
+keys for push, and real product photos.

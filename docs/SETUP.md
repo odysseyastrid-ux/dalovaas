@@ -26,6 +26,19 @@ calls (`create_order`, `validate_order_payment`, `mark_order_delivered`,
 `upsert_menu_item`, `redeem_reward`, …). It also seeds the menu, rewards and
 the `SANJ10` promo code from the original prototype.
 
+> **No direct network access to Postgres?** (locked-down CI runner, corporate
+> proxy that only allows HTTP/S, etc.) — `supabase db push` and `functions
+> deploy` both dial the database/Docker directly and will hang or fail in
+> that case. Everything can be done over plain HTTPS instead, using
+> Supabase's [Management API](https://api.supabase.com/api/v1):
+> - Run each `.sql` file's contents through `POST /v1/projects/{ref}/database/query`
+>   (`{"query": "<file contents>"}`, `Authorization: Bearer <personal-access-token>`)
+>   instead of `db push`.
+> - Deploy each function with `POST /v1/projects/{ref}/functions`
+>   (`{"slug": "...", "name": "...", "body": "<index.ts contents>", "verify_jwt": false}`)
+>   instead of `functions deploy` — this is how the reference deployment for
+>   this app was actually stood up.
+
 `0002_functions.sql` tries to schedule `run_order_status_cron()` every
 minute via `pg_cron`. If your project doesn't have `pg_cron` enabled
 (Database → Extensions), skip it and use the scheduled Edge Function
@@ -46,6 +59,16 @@ you're managing config-as-code instead of the dashboard.
 A new `accounts` row is created automatically for every new phone-auth
 user (`handle_new_customer()` trigger in `0001_init.sql`) — nothing else to
 wire up.
+
+**Demoing without a real SMS provider yet:** enable Phone auth
+(`external_phone_enabled: true`) and set a Test OTP number so you can
+exercise the full login → order → tracking loop before paying for SMS —
+Dashboard → Authentication → Providers → Phone → Advanced → Test OTPs, or
+via the Management API:
+`PATCH /v1/projects/{ref}/config/auth` with
+`{"external_phone_enabled": true, "sms_test_otp": "237699000001=123456", "sms_test_otp_valid_until": "2027-01-01T00:00:00Z"}`.
+Any sign-in for that exact number accepts that exact code without sending
+real SMS. Remove it (or let it expire) before going live.
 
 ## 3. Configure staff accounts (replaces "Mode développeur")
 
@@ -91,11 +114,46 @@ Generate a VAPID key pair once with `npx web-push generate-vapid-keys`.
 
 `notify-order-event` fires on inserts into `event_outbox` (which `create_order`,
 `validate_order_payment` and the status-advance cron populate automatically).
-Connect the two with a **Database Webhook**:
+Connect the two with a **Database Webhook** — either via the dashboard, or
+directly in SQL (this is exactly what the dashboard generates under the
+hood, and is easy to script/reproduce):
 
 Dashboard → Database → Webhooks → Create a new webhook
 - Table: `event_outbox`, Events: `INSERT`
 - Type: Supabase Edge Function → `notify-order-event`
+
+**Or via SQL** (SQL editor / Management API `database/query`), which is what
+was used to stand up the reference deployment — requires the `pg_net`
+extension (Database → Extensions):
+
+```sql
+create extension if not exists pg_net;
+
+create or replace function notify_order_event() returns trigger
+language plpgsql security definer set search_path = public, net as $$
+begin
+  perform net.http_post(
+    url := 'https://<your-project-ref>.supabase.co/functions/v1/notify-order-event',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer <your-service-role-or-secret-key>'
+    ),
+    body := jsonb_build_object('type', 'INSERT', 'table', 'event_outbox', 'record', row_to_json(new))
+  );
+  return new;
+end;
+$$;
+
+create trigger event_outbox_notify
+  after insert on event_outbox
+  for each row execute function notify_order_event();
+```
+
+Note the service-role key ends up embedded in the trigger function body,
+readable to anyone with SQL access to the project (i.e. you, via the
+dashboard) — fine for a single-location deployment, but move it into
+[Supabase Vault](https://supabase.com/docs/guides/database/vault) if you
+want it out of `pg_proc` entirely.
 
 ### Schedule the status-advance cron
 

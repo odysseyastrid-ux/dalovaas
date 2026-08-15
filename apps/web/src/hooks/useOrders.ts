@@ -131,9 +131,25 @@ export function useActiveOrders() {
         if (status === 'SUBSCRIBED') load()
       })
 
+    // Belt-and-suspenders on top of realtime: mobile browsers routinely
+    // suspend a backgrounded tab/PWA (screen lock, app switch) and can kill
+    // the websocket without ever firing a reconnect the client can react
+    // to. Re-fetch whenever the tab regains focus/visibility, and on a
+    // short timer regardless, so the board can't get stuck needing a
+    // manual page refresh.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', load)
+    const pollId = setInterval(load, 20000)
+
     return () => {
       cancelled = true
       supabase.removeChannel(channel)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', load)
+      clearInterval(pollId)
     }
   }, [instanceId])
 
@@ -144,17 +160,32 @@ export function useActiveOrders() {
 export function useAllOrders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const instanceId = useId()
 
   useEffect(() => {
-    supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
+    let cancelled = false
+
+    const load = async () => {
+      const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+      if (!cancelled) {
         setOrders((data as Order[]) ?? [])
         setLoading(false)
+      }
+    }
+    load()
+
+    const channel = supabase
+      .channel(`all_orders_${instanceId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load())
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
       })
-  }, [])
+
+    return () => {
+      cancelled = true
+      supabase.removeChannel(channel)
+    }
+  }, [instanceId])
 
   return { orders, loading }
 }

@@ -41,9 +41,20 @@ export function useOtpRelayQueue() {
         if (status === 'SUBSCRIBED') load()
       })
 
+    // Belt-and-suspenders on top of realtime -- see useActiveOrders for why.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', load)
+    const pollId = setInterval(load, 20000)
+
     return () => {
       cancelled = true
       supabase.removeChannel(channel)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', load)
+      clearInterval(pollId)
     }
   }, [instanceId])
 

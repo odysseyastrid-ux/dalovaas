@@ -3,6 +3,7 @@ import { useAllOrders } from '@/hooks/useOrders'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/state/authStore'
+import { useToastStore } from '@/state/toastStore'
 import type { Order } from '@/types/domain'
 
 function toCsv(orders: Order[]): string {
@@ -29,9 +30,16 @@ export function Reports() {
   const { t } = useI18n()
   const { orders, loading } = useAllOrders()
   const staff = useAuthStore((s) => s.staff)
+  const showToast = useToastStore((s) => s.show)
 
   const deleteOrder = async (ref: string) => {
-    await supabase.rpc('delete_order', { p_ref: ref })
+    if (!window.confirm(`Supprimer définitivement la commande ${ref} ?`)) return
+    const { error } = await supabase.rpc('delete_order', { p_ref: ref })
+    if (error) {
+      showToast(error.message)
+      return
+    }
+    showToast(`${ref} supprimée`)
   }
 
   return (

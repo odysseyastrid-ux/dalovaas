@@ -1,27 +1,51 @@
+import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
-import { useRewards } from '@/hooks/useMenu'
+import { useRewards, useMenu } from '@/hooks/useMenu'
 import { useAuthStore } from '@/state/authStore'
+import { useCartStore } from '@/state/cartStore'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 
 export function RewardsScreen() {
   const { t, lang } = useI18n()
+  const navigate = useNavigate()
   const rewards = useRewards()
+  const { items: menuItems } = useMenu()
   const account = useAuthStore((s) => s.account)
   const refreshAccount = useAuthStore((s) => s.refreshAccount)
+  const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
   const points = account?.loyalty_points ?? 0
   const tierProgress = Math.min(100, (points / 500) * 100)
 
   const redeem = async (rewardId: string) => {
-    const { error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId })
-    if (error) {
+    const reward = rewards.find((r) => r.id === rewardId)
+    const item = reward?.item_id ? menuItems.find((m) => m.id === reward.item_id) : null
+    if (!reward || !item) {
+      showToast(lang === 'fr' ? 'Article indisponible' : 'Item unavailable')
+      return
+    }
+
+    const { data: redemption, error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId })
+    if (error || !redemption) {
       showToast(t.notEnoughPoints)
       return
     }
+
+    addLine({
+      itemId: item.id,
+      name: item.name,
+      nameFr: item.name_fr,
+      cat: item.cat,
+      unitPrice: 0,
+      qty: 1,
+      addOns: [],
+      redemptionId: redemption.id,
+    })
     await refreshAccount()
-    showToast(lang === 'fr' ? 'Récompense échangée !' : 'Reward redeemed!')
+    showToast(lang === 'fr' ? 'Récompense ajoutée au panier !' : 'Reward added to cart!')
+    navigate('/cart')
   }
 
   return (

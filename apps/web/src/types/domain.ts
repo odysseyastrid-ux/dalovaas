@@ -134,4 +134,5 @@ export interface CartLine {
   unitPrice: number
   qty: number
   addOns: CartAddOn[]
+  redemptionId?: number
 }

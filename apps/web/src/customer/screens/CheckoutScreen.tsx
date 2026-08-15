@@ -75,6 +75,7 @@ export function CheckoutScreen() {
         item_id: l.itemId,
         qty: l.qty,
         add_on_labels: l.addOns.map((a) => a.label),
+        redemption_id: l.redemptionId ?? null,
       })),
     [lines],
   )

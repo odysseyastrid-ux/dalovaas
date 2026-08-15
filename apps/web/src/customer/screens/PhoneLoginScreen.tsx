@@ -5,6 +5,8 @@ import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 
+const OTP_WHATSAPP_NUMBER = import.meta.env.VITE_OTP_WHATSAPP_NUMBER as string | undefined
+
 function toE164(raw: string): string | null {
   const digits = raw.replace(/\D/g, '')
   if (!digits) return null
@@ -55,7 +57,10 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (phone: string) =
       <Button block disabled={!e164 || sending} onClick={sendCode}>
         {sending ? '…' : t.sendCode}
       </Button>
-      <div className="mt-3 text-center text-[11px] text-[var(--color-ink)]/50">{t.viaSms}</div>
+      <div className="mt-3 text-center text-[11px] text-[var(--color-ink)]/50">
+        {t.viaSms}
+        {OTP_WHATSAPP_NUMBER && ` (+${OTP_WHATSAPP_NUMBER})`}
+      </div>
     </div>
   )
 }

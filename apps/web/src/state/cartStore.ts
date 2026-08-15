@@ -21,7 +21,8 @@ interface CartState {
   setPromoApplied: (v: boolean) => void
 }
 
-function lineKey(itemId: string, addOns: CartLine['addOns']) {
+function lineKey(itemId: string, addOns: CartLine['addOns'], redemptionId?: number) {
+  if (redemptionId) return `redeemed-${redemptionId}`
   return itemId + '::' + addOns.map((a) => a.label).sort().join(',')
 }
 
@@ -37,7 +38,11 @@ export const useCartStore = create<CartState>()(
 
       addLine: (line) =>
         set((state) => {
-          const key = lineKey(line.itemId, line.addOns)
+          const key = lineKey(line.itemId, line.addOns, line.redemptionId)
+          if (line.redemptionId) {
+            // a reward redemption is single-use -- never merges, always qty 1
+            return { lines: [...state.lines, { ...line, qty: 1, key }] }
+          }
           const existing = state.lines.find((l) => l.key === key)
           if (existing) {
             return {
@@ -48,7 +53,9 @@ export const useCartStore = create<CartState>()(
         }),
 
       incLine: (key) =>
-        set((state) => ({ lines: state.lines.map((l) => (l.key === key ? { ...l, qty: l.qty + 1 } : l)) })),
+        set((state) => ({
+          lines: state.lines.map((l) => (l.key === key && !l.redemptionId ? { ...l, qty: l.qty + 1 } : l)),
+        })),
 
       decLine: (key) =>
         set((state) => ({

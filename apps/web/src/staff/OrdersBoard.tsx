@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { useActiveOrders } from '@/hooks/useOrders'
 import { useOtpRelayQueue } from '@/hooks/useOtpRelayQueue'
+import { useTodayStats } from '@/hooks/useTodayStats'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
+import { playAlertBeep } from '@/lib/sound'
 import type { Order } from '@/types/domain'
 
 const FULFILLMENT_LABEL: Record<string, string> = { pickup: 'À emporter', delivery: 'Livraison', dine_in: 'Sur place' }
@@ -75,12 +77,33 @@ export function OrdersBoard() {
   const { t } = useI18n()
   const { orders, loading } = useActiveOrders()
   const otpQueue = useOtpRelayQueue()
+  const todayStats = useTodayStats()
   const showToast = useToastStore((s) => s.show)
   const [refInput, setRefInput] = useState('')
   const [refError, setRefError] = useState(false)
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({})
 
   const pendingCount = orders.filter((o) => o.pending_validation).length
+
+  // Alert sound for anything a staff member needs to act on, so a busy fair
+  // booth doesn't have to keep staring at the screen: new orders, new
+  // pending-payment validations, new OTP codes to relay.
+  const knownOrderIds = useRef<Set<string> | null>(null)
+  const knownOtpIds = useRef<Set<number> | null>(null)
+  useEffect(() => {
+    const ids = new Set(orders.map((o) => o.id))
+    if (knownOrderIds.current && [...ids].some((id) => !knownOrderIds.current!.has(id))) {
+      playAlertBeep()
+    }
+    knownOrderIds.current = ids
+  }, [orders])
+  useEffect(() => {
+    const ids = new Set(otpQueue.map((r) => r.id))
+    if (knownOtpIds.current && [...ids].some((id) => !knownOtpIds.current!.has(id))) {
+      playAlertBeep()
+    }
+    knownOtpIds.current = ids
+  }, [otpQueue])
 
   const validate = async (ref: string) => {
     const { data, error } = await supabase.rpc('validate_order_payment', { p_ref: ref })
@@ -127,7 +150,7 @@ export function OrdersBoard() {
 
   return (
     <div>
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.activeOrders}</div>
           <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
@@ -137,6 +160,14 @@ export function OrdersBoard() {
           <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold text-[var(--color-accent-700)]">
             {pendingCount}
           </div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">Commandes aujourd'hui</div>
+          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{todayStats.orderCount}</div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">Ventes aujourd'hui</div>
+          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
         </div>
       </div>
 

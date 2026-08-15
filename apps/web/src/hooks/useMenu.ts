@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import type { MenuItem, Reward } from '@/types/domain'
+import type { AddOn, MenuCategory, MenuItem, Reward } from '@/types/domain'
 
 export function useMenu() {
   const [items, setItems] = useState<MenuItem[]>([])
@@ -54,6 +54,36 @@ export function useAllMenuItems() {
   }, [instanceId])
 
   return { items, loading, reload }
+}
+
+/** Staff-only: add-ons are shared per category, one row per category, realtime. */
+export function useCategoryAddOns() {
+  const [byCategory, setByCategory] = useState<Record<string, AddOn[]>>({})
+  const [loading, setLoading] = useState(true)
+  const instanceId = useId()
+
+  const reload = async () => {
+    const { data } = await supabase.from('category_add_ons').select('cat, add_ons')
+    const next: Record<string, AddOn[]> = {}
+    for (const row of (data as { cat: MenuCategory; add_ons: AddOn[] }[]) ?? []) {
+      next[row.cat] = row.add_ons
+    }
+    setByCategory(next)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    reload()
+    const channel = supabase
+      .channel(`category_add_ons_changes_${instanceId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'category_add_ons' }, () => reload())
+      .subscribe()
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [instanceId])
+
+  return { byCategory, loading, reload }
 }
 
 export function useRewards() {

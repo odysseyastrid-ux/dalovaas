@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { CATEGORY_LABELS } from '@/i18n/strings'
-import { CATEGORY_ORDER, type MenuCategory, type MenuItem } from '@/types/domain'
-import { useAllMenuItems } from '@/hooks/useMenu'
+import { CATEGORY_ORDER, type AddOn, type MenuCategory, type MenuItem } from '@/types/domain'
+import { useAllMenuItems, useCategoryAddOns } from '@/hooks/useMenu'
 import { supabase } from '@/lib/supabaseClient'
 import { formatFCFA } from '@/lib/format'
 
 export function MenuManager({ canEdit }: { canEdit: boolean }) {
   const { t, lang } = useI18n()
   const { items, reload } = useAllMenuItems()
+  const { byCategory, reload: reloadAddOns } = useCategoryAddOns()
   const [newCat, setNewCat] = useState<MenuCategory>('burgers')
   const [newName, setNewName] = useState('')
   const [newPrice, setNewPrice] = useState('')
@@ -74,41 +75,6 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
     reload()
   }
 
-  const addAddOn = async (item: MenuItem) => {
-    await supabase.rpc('upsert_menu_item', {
-      p_id: item.id,
-      p_cat: item.cat,
-      p_name: item.name,
-      p_name_fr: item.name_fr,
-      p_description: item.description,
-      p_description_fr: item.description_fr,
-      p_price: item.price,
-      p_add_ons: [...item.add_ons, { label: 'New option', label_fr: 'Nouveau supplément', price: 0 }],
-      p_sizes: item.sizes,
-    })
-    reload()
-  }
-
-  const updateAddOn = async (item: MenuItem, idx: number, field: 'label' | 'price', value: string) => {
-    const addOns = item.add_ons.map((a, i) =>
-      i === idx
-        ? { ...a, label: field === 'label' ? value : a.label, label_fr: field === 'label' ? value : a.label_fr, price: field === 'price' ? Number(value) || 0 : a.price }
-        : a,
-    )
-    await supabase.rpc('upsert_menu_item', {
-      p_id: item.id,
-      p_cat: item.cat,
-      p_name: item.name,
-      p_name_fr: item.name_fr,
-      p_description: item.description,
-      p_description_fr: item.description_fr,
-      p_price: item.price,
-      p_add_ons: addOns,
-      p_sizes: item.sizes,
-    })
-    reload()
-  }
-
   const uploadPhoto = async (item: MenuItem, file: File) => {
     const ext = file.name.split('.').pop() || 'jpg'
     const path = `${item.id}-${Date.now()}.${ext}`
@@ -119,40 +85,44 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
     reload()
   }
 
-  const uploadAddOnIcon = async (item: MenuItem, idx: number, file: File) => {
-    const ext = file.name.split('.').pop() || 'jpg'
-    const path = `addon-${item.id}-${idx}-${Date.now()}.${ext}`
-    const { error: uploadErr } = await supabase.storage.from('menu-photos').upload(path, file, { upsert: true })
-    if (uploadErr) return
-    const { data: pub } = supabase.storage.from('menu-photos').getPublicUrl(path)
-    const addOns = item.add_ons.map((a, i) => (i === idx ? { ...a, icon_url: pub.publicUrl } : a))
-    await supabase.rpc('upsert_menu_item', {
-      p_id: item.id,
-      p_cat: item.cat,
-      p_name: item.name,
-      p_name_fr: item.name_fr,
-      p_description: item.description,
-      p_description_fr: item.description_fr,
-      p_price: item.price,
-      p_add_ons: addOns,
-      p_sizes: item.sizes,
-    })
+  // Add-ons belong to the category, not to any single item -- every item in
+  // a category always shares the exact same list and prices. Editing one
+  // updates every product in that category at once.
+  const saveCategoryAddOns = async (cat: MenuCategory, addOns: AddOn[]) => {
+    await supabase.rpc('set_category_add_ons', { p_cat: cat, p_add_ons: addOns })
+    reloadAddOns()
     reload()
   }
 
-  const removeAddOn = async (item: MenuItem, idx: number) => {
-    await supabase.rpc('upsert_menu_item', {
-      p_id: item.id,
-      p_cat: item.cat,
-      p_name: item.name,
-      p_name_fr: item.name_fr,
-      p_description: item.description,
-      p_description_fr: item.description_fr,
-      p_price: item.price,
-      p_add_ons: item.add_ons.filter((_, i) => i !== idx),
-      p_sizes: item.sizes,
-    })
-    reload()
+  const addCategoryAddOn = (cat: MenuCategory) => {
+    const current = byCategory[cat] ?? []
+    saveCategoryAddOns(cat, [...current, { label: 'New option', label_fr: 'Nouveau supplément', price: 0 }])
+  }
+
+  const updateCategoryAddOn = (cat: MenuCategory, idx: number, field: 'label' | 'price', value: string) => {
+    const current = byCategory[cat] ?? []
+    const addOns = current.map((a, i) =>
+      i === idx
+        ? { ...a, label: field === 'label' ? value : a.label, label_fr: field === 'label' ? value : a.label_fr, price: field === 'price' ? Number(value) || 0 : a.price }
+        : a,
+    )
+    saveCategoryAddOns(cat, addOns)
+  }
+
+  const uploadCategoryAddOnIcon = async (cat: MenuCategory, idx: number, file: File) => {
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `addon-${cat}-${idx}-${Date.now()}.${ext}`
+    const { error: uploadErr } = await supabase.storage.from('menu-photos').upload(path, file, { upsert: true })
+    if (uploadErr) return
+    const { data: pub } = supabase.storage.from('menu-photos').getPublicUrl(path)
+    const current = byCategory[cat] ?? []
+    const addOns = current.map((a, i) => (i === idx ? { ...a, icon_url: pub.publicUrl } : a))
+    saveCategoryAddOns(cat, addOns)
+  }
+
+  const removeCategoryAddOn = (cat: MenuCategory, idx: number) => {
+    const current = byCategory[cat] ?? []
+    saveCategoryAddOns(cat, current.filter((_, i) => i !== idx))
   }
 
   if (!canEdit) {
@@ -251,9 +221,24 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
                 {t.deleteProduct}
               </button>
             </div>
-            <div className="mt-3 border-t border-[var(--color-divider)] pt-3">
-              <div className="mb-2 text-[11px] font-bold uppercase text-[var(--color-ink)]/60">{t.addOnsLabel}</div>
-              {item.add_ons.map((ao, idx) => (
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8">
+        <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">{t.addOnsLabel}</div>
+        <div className="mb-4 text-xs text-[var(--color-ink)]/60">
+          {lang === 'fr'
+            ? 'Les suppléments sont partagés par catégorie : une modification ici s\'applique à tous les produits de la catégorie.'
+            : 'Add-ons are shared per category: a change here applies to every product in that category.'}
+        </div>
+        <div className="flex flex-col gap-4">
+          {CATEGORY_ORDER.filter((c) => visible.some((i) => i.cat === c)).map((cat) => (
+            <div key={cat} className="rounded-xl border border-[var(--color-divider)] bg-white p-4">
+              <div className="mb-2 text-xs font-bold uppercase text-[var(--color-ink)]/60">
+                {lang === 'fr' ? CATEGORY_LABELS[cat].fr : CATEGORY_LABELS[cat].en}
+              </div>
+              {(byCategory[cat] ?? []).map((ao, idx) => (
                 <div key={idx} className="mb-1.5 flex items-center gap-2">
                   <div className="h-8 w-8 flex-none overflow-hidden rounded-md bg-[var(--color-surface)]">
                     {ao.icon_url && <img src={ao.icon_url} alt="" className="h-full w-full object-cover" />}
@@ -266,33 +251,33 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0]
-                        if (file) uploadAddOnIcon(item, idx, file)
+                        if (file) uploadCategoryAddOnIcon(cat, idx, file)
                         e.target.value = ''
                       }}
                     />
                   </label>
                   <input
                     defaultValue={ao.label}
-                    onBlur={(e) => e.target.value !== ao.label && updateAddOn(item, idx, 'label', e.target.value)}
+                    onBlur={(e) => e.target.value !== ao.label && updateCategoryAddOn(cat, idx, 'label', e.target.value)}
                     className="flex-1 rounded-lg border border-[var(--color-divider)] px-2.5 py-1.5 text-xs"
                   />
                   <input
                     type="number"
                     defaultValue={ao.price}
-                    onBlur={(e) => Number(e.target.value) !== ao.price && updateAddOn(item, idx, 'price', e.target.value)}
+                    onBlur={(e) => Number(e.target.value) !== ao.price && updateCategoryAddOn(cat, idx, 'price', e.target.value)}
                     className="w-24 rounded-lg border border-[var(--color-divider)] px-2.5 py-1.5 text-xs"
                   />
-                  <button onClick={() => removeAddOn(item, idx)} className="px-2 text-xs text-red-600">
+                  <button onClick={() => removeCategoryAddOn(cat, idx)} className="px-2 text-xs text-red-600">
                     ✕
                   </button>
                 </div>
               ))}
-              <button onClick={() => addAddOn(item)} className="mt-1 rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
+              <button onClick={() => addCategoryAddOn(cat)} className="mt-1 rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
                 {t.addAddOnBtn}
               </button>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

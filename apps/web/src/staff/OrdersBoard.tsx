@@ -105,6 +105,16 @@ export function OrdersBoard() {
     knownOtpIds.current = ids
   }, [otpQueue])
 
+  // Keep nagging every 15s while something is still waiting on staff -- a
+  // single beep is easy to miss in a loud fair crowd, so anything unhandled
+  // (a payment not yet validated, an OTP not yet relayed) re-alerts until
+  // it's actually cleared.
+  useEffect(() => {
+    if (pendingCount === 0 && otpQueue.length === 0) return
+    const id = setInterval(() => playAlertBeep(), 15000)
+    return () => clearInterval(id)
+  }, [pendingCount, otpQueue.length])
+
   const validate = async (ref: string) => {
     const { data, error } = await supabase.rpc('validate_order_payment', { p_ref: ref })
     if (error) {

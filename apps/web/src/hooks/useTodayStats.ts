@@ -38,7 +38,9 @@ export function useTodayStats() {
     const channel = supabase
       .channel(`today_stats_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load())
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
+      })
 
     return () => {
       cancelled = true

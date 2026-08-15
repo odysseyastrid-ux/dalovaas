@@ -37,7 +37,21 @@ export function useOrderByRef(ref: string | null) {
           else setOrder(payload.new as Order)
         },
       )
-      .subscribe()
+      .subscribe((status) => {
+        // Reconnecting after a dropped connection replays no missed events,
+        // so re-fetch to make sure the customer's tracking screen can't get
+        // stuck on a stale status.
+        if (status === 'SUBSCRIBED') {
+          supabase
+            .from('orders')
+            .select('*')
+            .eq('ref', ref)
+            .maybeSingle()
+            .then(({ data }) => {
+              if (!cancelled) setOrder(data as Order | null)
+            })
+        }
+      })
 
     return () => {
       cancelled = true
@@ -73,7 +87,9 @@ export function useMyOrders(customerId: string | null) {
         { event: '*', schema: 'public', table: 'orders', filter: `customer_id=eq.${customerId}` },
         () => load(),
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
+      })
 
     return () => {
       cancelled = true
@@ -109,7 +125,11 @@ export function useActiveOrders() {
     const channel = supabase
       .channel(`active_orders_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load())
-      .subscribe()
+      // Refetch on every (re)connect so a dropped websocket during a flaky
+      // connection can't leave the board silently missing an order.
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
+      })
 
     return () => {
       cancelled = true

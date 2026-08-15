@@ -55,18 +55,6 @@ export function CustomerApp() {
     )
   }
 
-  if (!session) {
-    return (
-      <AppShell>
-        {pendingPhone ? (
-          <VerifyCodeScreen phone={pendingPhone} onBack={() => setPendingPhone('')} />
-        ) : (
-          <PhoneLoginScreen onCodeSent={(phone) => setPendingPhone(phone)} />
-        )}
-      </AppShell>
-    )
-  }
-
   if (!onboarded) {
     return (
       <AppShell>
@@ -76,6 +64,18 @@ export function CustomerApp() {
             setOnboarded(true)
           }}
         />
+      </AppShell>
+    )
+  }
+
+  if (!session) {
+    return (
+      <AppShell>
+        {pendingPhone ? (
+          <VerifyCodeScreen phone={pendingPhone} onBack={() => setPendingPhone('')} />
+        ) : (
+          <PhoneLoginScreen onCodeSent={(phone) => setPendingPhone(phone)} />
+        )}
       </AppShell>
     )
   }

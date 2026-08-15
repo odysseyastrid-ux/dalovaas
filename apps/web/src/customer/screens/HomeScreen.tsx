@@ -16,6 +16,7 @@ export function HomeScreen() {
   const { items, loading } = useMenu()
   const { settings } = useAppSettings()
   const [category, setCategory] = useState<MenuCategory | 'all'>('all')
+  const [logoFailed, setLogoFailed] = useState(false)
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
@@ -48,8 +49,13 @@ export function HomeScreen() {
           {lang.toUpperCase()} / {lang === 'fr' ? 'EN' : 'FR'}
         </button>
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2">
-          {settings.logo_url ? (
-            <img src={settings.logo_url} alt="Chez Sanji" className="h-10 w-10 rounded-full object-cover" />
+          {settings.logo_url && !logoFailed ? (
+            <img
+              src={settings.logo_url}
+              alt="Chez Sanji"
+              onError={() => setLogoFailed(true)}
+              className="h-10 w-10 rounded-full object-cover"
+            />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-ink)] text-xs font-black text-[var(--color-accent)]">
               CS

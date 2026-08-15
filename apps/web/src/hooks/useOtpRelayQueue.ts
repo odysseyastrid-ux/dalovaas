@@ -34,7 +34,12 @@ export function useOtpRelayQueue() {
     const channel = supabase
       .channel(`otp_relay_queue_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'otp_relay_queue' }, () => load())
-      .subscribe()
+      // Fires on first connect AND every reconnect (e.g. after flaky fair
+      // wifi drops the websocket) -- refetching here means a missed event
+      // during the outage can't leave the dashboard silently stale.
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
+      })
 
     return () => {
       cancelled = true

@@ -5,6 +5,7 @@ import { BackHeader } from '@/components/AppShell'
 import { Button } from '@/components/Button'
 import { useOrderByRef } from '@/hooks/useOrders'
 import { formatFCFA, formatCountdown } from '@/lib/format'
+import { downloadReceipt } from '@/lib/receipt'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 
@@ -130,7 +131,10 @@ export function TrackingScreen() {
           </>
         )}
 
-        <div className="mt-3">
+        <div className="mt-3 flex flex-col gap-2">
+          <Button block variant="secondary" onClick={() => downloadReceipt(order, lang)}>
+            {lang === 'fr' ? 'Télécharger le reçu' : 'Download receipt'}
+          </Button>
           <Button block variant="secondary" onClick={() => navigate('/')}>
             {t.backHome}
           </Button>

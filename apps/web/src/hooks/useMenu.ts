@@ -22,7 +22,9 @@ export function useMenu() {
     const channel = supabase
       .channel(`menu_items_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_items' }, () => reload())
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') reload()
+      })
     return () => {
       supabase.removeChannel(channel)
     }
@@ -47,7 +49,9 @@ export function useAllMenuItems() {
     const channel = supabase
       .channel(`menu_items_admin_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_items' }, () => reload())
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') reload()
+      })
     return () => {
       supabase.removeChannel(channel)
     }
@@ -77,7 +81,9 @@ export function useCategoryAddOns() {
     const channel = supabase
       .channel(`category_add_ons_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'category_add_ons' }, () => reload())
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') reload()
+      })
     return () => {
       supabase.removeChannel(channel)
     }

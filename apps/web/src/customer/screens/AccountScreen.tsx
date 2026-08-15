@@ -18,7 +18,6 @@ export function AccountScreen() {
     { key: 'addresses', label: t.addressesTitle, action: () => navigate('/account/addresses') },
     { key: 'notifications', label: t.notificationsTitle, action: () => navigate('/account/notifications') },
     { key: 'help', label: t.helpTitle, action: () => navigate('/account/help') },
-    { key: 'staff', label: lang === 'fr' ? 'Accès staff' : 'Staff access', action: () => navigate('/staff') },
     { key: 'logout', label: t.logout, action: signOut, danger: true },
   ]
 

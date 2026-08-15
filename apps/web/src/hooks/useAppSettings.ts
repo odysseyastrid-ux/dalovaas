@@ -49,7 +49,9 @@ export function useAppSettings() {
     const channel = supabase
       .channel(`app_settings_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, () => reload())
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') reload()
+      })
     return () => {
       supabase.removeChannel(channel)
     }

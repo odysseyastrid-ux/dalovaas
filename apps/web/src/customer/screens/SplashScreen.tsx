@@ -1,17 +1,20 @@
+import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { useAppSettings } from '@/hooks/useAppSettings'
 
 export function SplashScreen({ onEnter }: { onEnter: () => void }) {
   const { t } = useI18n()
   const { settings } = useAppSettings()
+  const [imgFailed, setImgFailed] = useState(false)
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[var(--color-accent)] px-6">
       <div className="text-center">
-        {settings.logo_url ? (
+        {settings.logo_url && !imgFailed ? (
           <img
             src={settings.logo_url}
             alt="Chez Sanji"
+            onError={() => setImgFailed(true)}
             className="mx-auto h-auto w-[88%] max-w-[340px] [clip-path:circle(40.5%)] drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
           />
         ) : (

@@ -150,6 +150,37 @@ export function OrdersBoard() {
 
   return (
     <div>
+      {otpQueue.length > 0 && (
+        <div className="mb-6 rounded-xl border-2 border-red-600 bg-red-50 p-4">
+          <div className="mb-2 text-sm font-bold text-red-700">
+            🔴 Codes OTP en attente — envoyez-les vite (valides 30 min)
+          </div>
+          <div className="flex flex-col gap-2">
+            {otpQueue.map((row) => (
+              <div key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white p-2.5">
+                <div className="text-xs">
+                  <span className="font-mono text-base font-bold">{row.code}</span> → {row.phone}
+                </div>
+                <div className="flex gap-2">
+                  <a
+                    href={`https://wa.me/${row.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Votre code Chez Sanji : ${row.code}`)}`}
+                    target="_blank"
+                    rel="noopener"
+                    onClick={() => markOtpSent(row.id)}
+                    className="rounded-lg bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold"
+                  >
+                    Envoyer via WhatsApp
+                  </a>
+                  <button onClick={() => markOtpSent(row.id)} className="rounded-lg border border-[var(--color-divider)] px-2.5 py-1 text-[11px] font-bold">
+                    Marquer envoyé
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.activeOrders}</div>
@@ -190,35 +221,6 @@ export function OrdersBoard() {
         </div>
         {refError && <div className="mt-2 text-xs text-red-600">{t.validateRefError}</div>}
       </div>
-
-      {otpQueue.length > 0 && (
-        <div className="mb-6 rounded-xl border-2 border-[var(--color-ink)] bg-white p-4">
-          <div className="mb-2 text-sm font-bold">Codes OTP en attente</div>
-          <div className="flex flex-col gap-2">
-            {otpQueue.map((row) => (
-              <div key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--color-surface)] p-2.5">
-                <div className="text-xs">
-                  <span className="font-mono font-bold">{row.code}</span> → {row.phone}
-                </div>
-                <div className="flex gap-2">
-                  <a
-                    href={`https://wa.me/${row.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Votre code Chez Sanji : ${row.code}`)}`}
-                    target="_blank"
-                    rel="noopener"
-                    onClick={() => markOtpSent(row.id)}
-                    className="rounded-lg bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold"
-                  >
-                    Envoyer via WhatsApp
-                  </a>
-                  <button onClick={() => markOtpSent(row.id)} className="rounded-lg border border-[var(--color-divider)] px-2.5 py-1 text-[11px] font-bold">
-                    Marquer envoyé
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="mb-3 font-[var(--font-heading)] text-sm font-bold uppercase tracking-wide">{t.activeOrdersList}</div>
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}

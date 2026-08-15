@@ -1,6 +1,7 @@
 import { NavLink, Navigate, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
 import { useAuthStore } from '@/state/authStore'
+import { useOtpRelayQueue } from '@/hooks/useOtpRelayQueue'
 import { StaffLogin } from './StaffLogin'
 import { StaffResetPassword } from './StaffResetPassword'
 import { OrdersBoard } from './OrdersBoard'
@@ -18,6 +19,7 @@ export function StaffApp() {
   const signOut = useAuthStore((s) => s.signOut)
   const navigate = useNavigate()
   const location = useLocation()
+  const otpQueue = useOtpRelayQueue()
 
   // Reached via the password-reset email link, which establishes a
   // recovery session -- must be reachable regardless of staff-role gating.
@@ -42,6 +44,14 @@ export function StaffApp() {
 
   return (
     <div className="min-h-dvh bg-[var(--color-surface)]">
+      {otpQueue.length > 0 && location.pathname !== '/staff' && (
+        <button
+          onClick={() => navigate('/staff')}
+          className="block w-full animate-pulse bg-red-600 px-6 py-2 text-center text-sm font-bold text-white"
+        >
+          🔴 {otpQueue.length} code{otpQueue.length > 1 ? 's' : ''} OTP en attente d'envoi — cliquez pour relayer
+        </button>
+      )}
       <div className="flex items-center justify-between border-b border-[var(--color-divider)] bg-white px-6 py-4">
         <div className="font-[var(--font-heading)] text-lg font-extrabold">Chez Sanji — Dashboard</div>
         <div className="flex items-center gap-4">

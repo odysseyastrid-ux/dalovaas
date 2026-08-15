@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { Order } from '@/types/domain'
 
@@ -88,6 +88,7 @@ export function useMyOrders(customerId: string | null) {
 export function useActiveOrders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const instanceId = useId()
 
   useEffect(() => {
     let cancelled = false
@@ -106,7 +107,7 @@ export function useActiveOrders() {
     load()
 
     const channel = supabase
-      .channel('active_orders')
+      .channel(`active_orders_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load())
       .subscribe()
 
@@ -114,7 +115,7 @@ export function useActiveOrders() {
       cancelled = true
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [instanceId])
 
   return { orders, loading }
 }

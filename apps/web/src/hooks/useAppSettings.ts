@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
 export interface PromoSlide {
@@ -32,6 +32,7 @@ const DEFAULTS: AppSettings = {
 
 export function useAppSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULTS)
+  const instanceId = useId()
 
   const reload = async () => {
     const { data } = await supabase.from('app_settings').select('key, value')
@@ -46,13 +47,13 @@ export function useAppSettings() {
   useEffect(() => {
     reload()
     const channel = supabase
-      .channel('app_settings_changes')
+      .channel(`app_settings_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, () => reload())
       .subscribe()
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [instanceId])
 
   return { settings, reload }
 }

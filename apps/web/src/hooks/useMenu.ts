@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { MenuItem, Reward } from '@/types/domain'
 
 export function useMenu() {
   const [items, setItems] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
+  const instanceId = useId()
 
   const reload = async () => {
     const { data } = await supabase
@@ -19,13 +20,13 @@ export function useMenu() {
   useEffect(() => {
     reload()
     const channel = supabase
-      .channel('menu_items_changes')
+      .channel(`menu_items_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_items' }, () => reload())
       .subscribe()
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [instanceId])
 
   return { items, loading, reload }
 }
@@ -33,6 +34,7 @@ export function useMenu() {
 export function useAllMenuItems() {
   const [items, setItems] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
+  const instanceId = useId()
 
   const reload = async () => {
     const { data } = await supabase.from('menu_items').select('*').order('sort_order', { ascending: true })
@@ -43,13 +45,13 @@ export function useAllMenuItems() {
   useEffect(() => {
     reload()
     const channel = supabase
-      .channel('menu_items_admin_changes')
+      .channel(`menu_items_admin_changes_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_items' }, () => reload())
       .subscribe()
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [instanceId])
 
   return { items, loading, reload }
 }

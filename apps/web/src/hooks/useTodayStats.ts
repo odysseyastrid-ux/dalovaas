@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
 export interface TodayStats {
@@ -15,6 +15,7 @@ function startOfTodayISO() {
 /** Staff-only: today's order count + revenue (validated/non-pending orders only). */
 export function useTodayStats() {
   const [stats, setStats] = useState<TodayStats>({ orderCount: 0, revenue: 0 })
+  const instanceId = useId()
 
   useEffect(() => {
     let cancelled = false
@@ -35,7 +36,7 @@ export function useTodayStats() {
     load()
 
     const channel = supabase
-      .channel('today_stats')
+      .channel(`today_stats_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load())
       .subscribe()
 
@@ -43,7 +44,7 @@ export function useTodayStats() {
       cancelled = true
       supabase.removeChannel(channel)
     }
-  }, [])
+  }, [instanceId])
 
   return stats
 }

@@ -36,3 +36,19 @@ body {
   animation: float-slogan 2.6s ease-in-out infinite;
   display: inline-block;
 }
+
+.text-3d {
+  text-shadow:
+    1px 1px 0 var(--color-ink),
+    2px 2px 0 var(--color-ink),
+    3px 3px 0 var(--color-ink),
+    4px 4px 0 var(--color-ink),
+    5px 5px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Blends a white-background logo seamlessly into a colored page
+   background -- multiply keeps the artwork's dark linework and makes any
+   white fill disappear into whatever sits behind it. */
+.blend-into-bg {
+  mix-blend-mode: multiply;
+}

@@ -9,14 +9,18 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[var(--color-accent)] px-6">
       <div className="text-center">
         {settings.logo_url ? (
-          <img src={settings.logo_url} alt="Chez Sanji" className="mx-auto h-40 w-40 rounded-full object-cover" />
+          <img
+            src={settings.logo_url}
+            alt="Chez Sanji"
+            className="blend-into-bg mx-auto h-auto w-[78%] max-w-[300px]"
+          />
         ) : (
           <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[var(--color-ink)] text-4xl font-black text-[var(--color-accent)]">
             CS
           </div>
         )}
-        <div className="mt-4 font-[var(--font-heading)] text-2xl font-extrabold text-white">
-          <span className="animate-float">{t.slogan}</span>
+        <div className="mt-2 font-[var(--font-heading)] text-2xl font-extrabold text-white">
+          <span className="text-3d animate-float">{t.slogan}</span>
         </div>
       </div>
       <button

@@ -100,6 +100,14 @@ export function BrandingManager() {
     if (url) setSetting('payment_icons', { ...settings.payment_icons, [method]: url })
   }
 
+  const setPaymentField = async (
+    key: 'payment_orange_money' | 'payment_mtn_momo',
+    field: 'number' | 'name' | 'ussd',
+    value: string,
+  ) => {
+    setSetting(key, { ...settings[key], [field]: value })
+  }
+
   const ordered = [...settings.promo_slides].sort((a, b) => a.sort_order - b.sort_order)
 
   return (
@@ -162,6 +170,49 @@ export function BrandingManager() {
               onUpload={(file) => setOnboardingImage(step, file)}
             />
           ))}
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <div className="mb-2 text-xs font-bold uppercase text-[var(--color-ink)]/50">Comptes de paiement (Orange Money / MTN MoMo)</div>
+        <div className="flex flex-col gap-3">
+          {(['payment_orange_money', 'payment_mtn_momo'] as const).map((key) => {
+            const acc = settings[key]
+            const label = key === 'payment_orange_money' ? 'Orange Money' : 'MTN MoMo'
+            return (
+              <div key={key} className="rounded-xl border border-[var(--color-divider)] bg-white p-3">
+                <div className="mb-2 text-sm font-bold">{label}</div>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <label className="text-xs">
+                    <div className="mb-1 text-[10px] font-bold uppercase text-[var(--color-ink)]/50">Numéro</div>
+                    <input
+                      defaultValue={acc.number}
+                      placeholder="6XX XXX XXX"
+                      onBlur={(e) => e.target.value !== acc.number && setPaymentField(key, 'number', e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-divider)] px-2.5 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-xs">
+                    <div className="mb-1 text-[10px] font-bold uppercase text-[var(--color-ink)]/50">Nom du compte</div>
+                    <input
+                      defaultValue={acc.name}
+                      placeholder="Chez Sanji"
+                      onBlur={(e) => e.target.value !== acc.name && setPaymentField(key, 'name', e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-divider)] px-2.5 py-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-xs">
+                    <div className="mb-1 text-[10px] font-bold uppercase text-[var(--color-ink)]/50">Code USSD</div>
+                    <input
+                      defaultValue={acc.ussd}
+                      onBlur={(e) => e.target.value !== acc.ussd && setPaymentField(key, 'ussd', e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-divider)] px-2.5 py-2 text-sm"
+                    />
+                  </label>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 

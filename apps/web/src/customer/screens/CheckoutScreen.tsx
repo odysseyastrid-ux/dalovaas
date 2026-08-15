@@ -49,6 +49,16 @@ export function CheckoutScreen() {
   const discount = promoApplied ? Math.round(subtotal * 0.1) : 0
   const total = Math.max(0, subtotal + deliveryFee - discount)
   const needsProof = paymentMethod !== 'cash'
+  const payAccount = paymentMethod === 'orange_money' ? settings.payment_orange_money : settings.payment_mtn_momo
+
+  const copyPayNumber = async () => {
+    try {
+      await navigator.clipboard.writeText(payAccount.number)
+      showToast(lang === 'fr' ? 'Numéro copié' : 'Number copied')
+    } catch {
+      showToast(lang === 'fr' ? 'Impossible de copier' : 'Could not copy')
+    }
+  }
 
   const applyPromo = () => {
     if (promoCode.trim().toUpperCase() === 'SANJ10') {
@@ -239,11 +249,31 @@ export function CheckoutScreen() {
               <>
                 <div className="mb-3 text-sm">{t.scanTransfer}</div>
                 <div className="mb-3 rounded-lg bg-[var(--color-surface)] p-4">
-                  <div className="font-[var(--font-heading)] text-sm font-bold">
-                    {paymentMethod === 'orange_money' ? 'Orange Money' : 'MTN MoMo'}
+                  <div className="flex items-center gap-3">
+                    {settings.payment_icons[paymentMethod] && (
+                      <img src={settings.payment_icons[paymentMethod]} alt="" className="h-8 w-8 rounded-md object-cover" />
+                    )}
+                    <div className="font-[var(--font-heading)] text-sm font-bold">
+                      {paymentMethod === 'orange_money' ? 'Orange Money' : 'MTN MoMo'}
+                    </div>
                   </div>
-                  <div className="mt-1 text-base font-bold tracking-wide">6XX XXX XXX</div>
-                  <div className="mt-1 text-xs text-[var(--color-ink)]/60">Chez Sanji</div>
+                  <div className="mt-2 text-lg font-bold tracking-wide">{payAccount.number || '—'}</div>
+                  <div className="mt-1 text-xs text-[var(--color-ink)]/60">{payAccount.name || 'Chez Sanji'}</div>
+                </div>
+                <div className="mb-3 flex gap-2">
+                  <button
+                    onClick={copyPayNumber}
+                    disabled={!payAccount.number}
+                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-3 py-2.5 text-xs font-bold disabled:opacity-40"
+                  >
+                    {t.copyNumber}
+                  </button>
+                  <a
+                    href={`tel:${encodeURIComponent(payAccount.ussd)}`}
+                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-3 py-2.5 text-center text-xs font-bold"
+                  >
+                    {t.dialUssd} {payAccount.ussd}
+                  </a>
                 </div>
                 <input
                   ref={fileInputRef}

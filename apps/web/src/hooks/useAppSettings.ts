@@ -6,11 +6,19 @@ export interface PromoSlide {
   sort_order: number
 }
 
+export interface PaymentAccount {
+  number: string
+  name: string
+  ussd: string
+}
+
 export interface AppSettings {
   logo_url: string | null
   promo_slides: PromoSlide[]
   onboarding_images: Record<string, string>
   payment_icons: Record<string, string>
+  payment_orange_money: PaymentAccount
+  payment_mtn_momo: PaymentAccount
 }
 
 const DEFAULTS: AppSettings = {
@@ -18,6 +26,8 @@ const DEFAULTS: AppSettings = {
   promo_slides: [],
   onboarding_images: {},
   payment_icons: {},
+  payment_orange_money: { number: '', name: '', ussd: '#150#' },
+  payment_mtn_momo: { number: '', name: '', ussd: '*126#' },
 }
 
 export function useAppSettings() {

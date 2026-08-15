@@ -37,5 +37,7 @@ insert into app_settings (key, value) values
   ('logo_url', 'null'),
   ('promo_slides', '[]'),
   ('onboarding_images', '{}'),
-  ('payment_icons', '{}')
+  ('payment_icons', '{}'),
+  ('payment_orange_money', '{"number":"","name":"","ussd":"#150#"}'),
+  ('payment_mtn_momo', '{"number":"","name":"","ussd":"*126#"}')
 on conflict (key) do nothing;

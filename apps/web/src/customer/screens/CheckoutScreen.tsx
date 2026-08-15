@@ -80,7 +80,29 @@ export function CheckoutScreen() {
   )
 
   const placeOrder = async () => {
+    // The customer must not be able to place a non-cash order without a
+    // receipt attached -- staff validation depends on being able to check it.
+    if (needsProof && !proofFile) {
+      showToast(lang === 'fr' ? 'Envoyez votre reçu avant de confirmer' : 'Upload your receipt before confirming')
+      return
+    }
+
     setPlacing(true)
+
+    // Upload the receipt first, before creating the order, so a failed
+    // upload blocks the order instead of silently leaving it unproven.
+    let proofPath: string | null = null
+    if (proofFile) {
+      const uid = (await supabase.auth.getUser()).data.user?.id
+      proofPath = `${uid}/${Date.now()}-${proofFile.name}`
+      const { error: uploadErr } = await supabase.storage.from('payment-proofs').upload(proofPath, proofFile)
+      if (uploadErr) {
+        setPlacing(false)
+        showToast(lang === 'fr' ? "Échec de l'envoi du reçu — réessayez" : 'Receipt upload failed — try again')
+        return
+      }
+    }
+
     const { data: order, error } = await supabase.rpc('create_order', {
       p_customer_name: customerName,
       p_customer_phone: customerPhone,
@@ -97,13 +119,12 @@ export function CheckoutScreen() {
       return
     }
 
-    if (proofFile) {
-      // payment-proofs is a private bucket — we store the object path, not a
-      // public URL, and mint short-lived signed URLs on read (see staff dashboard).
-      const path = `${(await supabase.auth.getUser()).data.user?.id}/${order.ref}-${proofFile.name}`
-      const { error: uploadErr } = await supabase.storage.from('payment-proofs').upload(path, proofFile)
-      if (!uploadErr) {
-        await supabase.rpc('attach_payment_proof', { p_ref: order.ref, p_proof_url: path })
+    if (proofPath) {
+      const { error: attachErr } = await supabase.rpc('attach_payment_proof', { p_ref: order.ref, p_proof_url: proofPath })
+      if (attachErr) {
+        // Order already exists at this point; surface it so the customer
+        // knows to show staff their receipt manually rather than assume it's linked.
+        showToast(lang === 'fr' ? 'Commande créée mais le reçu n’a pas pu être lié — montrez-le au staff' : 'Order created but receipt could not be linked — show it to staff')
       }
     }
 
@@ -286,10 +307,15 @@ export function CheckoutScreen() {
                   {proofFile ? t.proofUploaded : t.uploadProof}
                 </Button>
                 {proofFile && <div className="mt-2 text-[11px] text-[var(--color-ink)]/60">{proofFile.name}</div>}
+                {!proofFile && (
+                  <div className="mt-2 text-[11px] text-[var(--color-accent-700)]">
+                    {lang === 'fr' ? 'Envoyez votre reçu pour pouvoir confirmer' : 'Upload your receipt to confirm'}
+                  </div>
+                )}
                 <div className="my-3" />
               </>
             )}
-            <Button block disabled={placing} onClick={placeOrder}>
+            <Button block disabled={placing || (needsProof && !proofFile)} onClick={placeOrder}>
               {placing ? '…' : t.placeOrder}
             </Button>
           </div>

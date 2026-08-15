@@ -210,6 +210,11 @@ export function OrdersBoard() {
                   {t.staffPendingValidation}
                 </span>
               )}
+              {order.pending_validation && order.payment_method !== 'cash' && !order.payment_proof_url && (
+                <span className="rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold text-red-700">
+                  Reçu manquant
+                </span>
+              )}
               <a
                 href={`https://wa.me/${order.customer_phone.replace(/\D/g, '')}`}
                 target="_blank"
@@ -235,7 +240,11 @@ export function OrdersBoard() {
                 </button>
               )}
               {order.pending_validation && (
-                <button onClick={() => validate(order.ref)} className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-bold">
+                <button
+                  disabled={order.payment_method !== 'cash' && !order.payment_proof_url}
+                  onClick={() => validate(order.ref)}
+                  className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-bold disabled:opacity-30"
+                >
                   {t.validate}
                 </button>
               )}

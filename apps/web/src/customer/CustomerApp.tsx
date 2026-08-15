@@ -21,7 +21,6 @@ import { NotificationsScreen } from './screens/account/NotificationsScreen'
 import { HelpScreen } from './screens/account/HelpScreen'
 
 const TAB_PATHS = new Set(['/', '/rewards', '/cart', '/account'])
-const ENTERED_KEY = 'chez-sanji-entered'
 const ONBOARDED_KEY = 'chez-sanji-onboarded'
 
 export function CustomerApp() {
@@ -29,7 +28,10 @@ export function CustomerApp() {
   const authLoading = useAuthStore((s) => s.loading)
   const location = useLocation()
 
-  const [entered, setEntered] = useState(() => localStorage.getItem(ENTERED_KEY) === '1')
+  // The splash screen (logo + slogan) is shown on every fresh load, not
+  // just the first-ever visit -- it's brand presentation, not a one-time
+  // tutorial, so it isn't persisted like onboarding is.
+  const [entered, setEntered] = useState(false)
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem(ONBOARDED_KEY) === '1')
   const [pendingPhone, setPendingPhone] = useState('')
 
@@ -48,12 +50,7 @@ export function CustomerApp() {
   if (!entered) {
     return (
       <AppShell>
-        <SplashScreen
-          onEnter={() => {
-            localStorage.setItem(ENTERED_KEY, '1')
-            setEntered(true)
-          }}
-        />
+        <SplashScreen onEnter={() => setEntered(true)} />
       </AppShell>
     )
   }

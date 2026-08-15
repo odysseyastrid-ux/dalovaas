@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { Button } from '@/components/Button'
+import { useAppSettings } from '@/hooks/useAppSettings'
 
 const SLIDES = [
   {
@@ -19,9 +20,11 @@ const SLIDES = [
 
 export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const { t, lang } = useI18n()
+  const { settings } = useAppSettings()
   const [step, setStep] = useState(0)
   const slide = SLIDES[step]
   const isLast = step === SLIDES.length - 1
+  const image = settings.onboarding_images[String(step)]
 
   return (
     <div className="flex flex-1 flex-col">
@@ -31,8 +34,8 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
         </button>
       </div>
       <div className="flex flex-1 flex-col px-6">
-        <div className="flex flex-1 items-center justify-center rounded-2xl bg-[var(--color-surface)] text-6xl">
-          {['⚡', '📍', '🎁'][step]}
+        <div className="flex flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[var(--color-surface)] text-6xl">
+          {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : ['⚡', '📍', '🎁'][step]}
         </div>
         <div className="mt-6">
           <div className="font-[var(--font-heading)] text-2xl font-extrabold">

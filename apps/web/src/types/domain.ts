@@ -21,6 +21,7 @@ export interface AddOn {
   label: string
   label_fr: string
   price: number
+  icon_url?: string | null
 }
 
 export interface SizeOption {

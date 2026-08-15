@@ -6,6 +6,7 @@ import { OrdersBoard } from './OrdersBoard'
 import { MenuManager } from './MenuManager'
 import { Reports } from './Reports'
 import { StaffManager } from './StaffManager'
+import { BrandingManager } from './BrandingManager'
 import clsx from 'clsx'
 
 export function StaffApp() {
@@ -57,6 +58,7 @@ export function StaffApp() {
           { to: '/staff', label: t.staffOrdersBoard, end: true },
           { to: '/staff/menu', label: t.manageMenu },
           { to: '/staff/reports', label: 'Reports' },
+          ...(staff.role === 'manager' ? [{ to: '/staff/branding', label: 'Image de marque' }] : []),
           ...(staff.role === 'manager' ? [{ to: '/staff/team', label: 'Staff' }] : []),
         ].map((tab) => (
           <NavLink
@@ -79,6 +81,7 @@ export function StaffApp() {
           <Route path="/" element={<OrdersBoard />} />
           <Route path="/menu" element={<MenuManager canEdit={staff.role === 'manager'} />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/branding" element={staff.role === 'manager' ? <BrandingManager /> : <Navigate to="/staff" replace />} />
           <Route path="/team" element={staff.role === 'manager' ? <StaffManager /> : <Navigate to="/staff" replace />} />
           <Route path="*" element={<Navigate to="/staff" replace />} />
         </Routes>

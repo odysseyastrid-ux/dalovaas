@@ -6,6 +6,7 @@ import { Button } from '@/components/Button'
 import { Field, Input } from '@/components/Field'
 import { useCartStore, cartSubtotal } from '@/state/cartStore'
 import { useAuthStore } from '@/state/authStore'
+import { useAppSettings } from '@/hooks/useAppSettings'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
@@ -21,6 +22,7 @@ export function CheckoutScreen() {
   const navigate = useNavigate()
   const showToast = useToastStore((s) => s.show)
   const account = useAuthStore((s) => s.account)
+  const { settings } = useAppSettings()
 
   const lines = useCartStore((s) => s.lines)
   const fulfillment = useCartStore((s) => s.fulfillment)
@@ -209,13 +211,16 @@ export function CheckoutScreen() {
               <div
                 key={p}
                 onClick={() => setPaymentMethod(p)}
-                className="flex cursor-pointer items-center justify-between border-b border-[var(--color-divider)] py-3"
+                className="flex cursor-pointer items-center gap-3 border-b border-[var(--color-divider)] py-3"
               >
-                <div className="text-sm">
+                {settings.payment_icons[p] && (
+                  <img src={settings.payment_icons[p]} alt="" className="h-8 w-8 flex-none rounded-md object-cover" />
+                )}
+                <div className="flex-1 text-sm">
                   {p === 'orange_money' ? t.paymentOrangeMoney : p === 'mtn_momo' ? t.paymentMtnMomo : t.paymentCash}
                 </div>
                 <div
-                  className="h-[18px] w-[18px] rounded-full border-[1.5px] border-[var(--color-ink)]/60"
+                  className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-[var(--color-ink)]/60"
                   style={{ background: paymentMethod === p ? 'var(--color-accent)' : 'transparent' }}
                 />
               </div>

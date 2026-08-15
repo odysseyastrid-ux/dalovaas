@@ -4,14 +4,17 @@ import { useI18n } from '@/i18n/I18nContext'
 import { CATEGORY_LABELS, type Lang } from '@/i18n/strings'
 import { CATEGORY_ORDER, type MenuCategory } from '@/types/domain'
 import { useMenu } from '@/hooks/useMenu'
+import { useAppSettings } from '@/hooks/useAppSettings'
 import { formatFCFA } from '@/lib/format'
 import { useCartStore } from '@/state/cartStore'
 import { useToastStore } from '@/state/toastStore'
+import { PromoCarousel } from '@/components/PromoCarousel'
 
 export function HomeScreen() {
   const { t, lang, toggleLang } = useI18n()
   const navigate = useNavigate()
   const { items, loading } = useMenu()
+  const { settings } = useAppSettings()
   const [category, setCategory] = useState<MenuCategory | 'all'>('all')
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
@@ -20,8 +23,6 @@ export function HomeScreen() {
     () => (category === 'all' ? items : items.filter((i) => i.cat === category)),
     [items, category],
   )
-
-  const featured = items[0]
 
   const quickAdd = (item: (typeof items)[number], e: React.MouseEvent) => {
     e.stopPropagation()
@@ -47,9 +48,13 @@ export function HomeScreen() {
           {lang.toUpperCase()} / {lang === 'fr' ? 'EN' : 'FR'}
         </button>
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-ink)] text-xs font-black text-[var(--color-accent)]">
-            CS
-          </div>
+          {settings.logo_url ? (
+            <img src={settings.logo_url} alt="Chez Sanji" className="h-10 w-10 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-ink)] text-xs font-black text-[var(--color-accent)]">
+              CS
+            </div>
+          )}
         </div>
         <button
           onClick={() => navigate('/account')}
@@ -63,19 +68,7 @@ export function HomeScreen() {
       </div>
 
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-        {featured && (
-          <div className="relative flex aspect-[4/3] flex-col justify-between bg-[var(--color-accent)] p-6">
-            <div className="text-center font-[var(--font-heading)] text-xs font-extrabold uppercase tracking-widest">
-              {lang === 'fr' ? 'Nouveau' : 'New'}
-            </div>
-            <div className="text-center">
-              <div className="font-[var(--font-heading)] text-3xl font-black uppercase leading-tight">
-                {lang === 'fr' ? featured.name_fr : featured.name}
-              </div>
-              <div className="mt-3 font-[var(--font-heading)] text-lg font-black">{formatFCFA(featured.price)}</div>
-            </div>
-          </div>
-        )}
+        <PromoCarousel slides={settings.promo_slides} />
 
         <div className="no-scrollbar flex gap-2.5 overflow-x-auto px-4 py-4">
           <CategoryChip active={category === 'all'} onClick={() => setCategory('all')}>

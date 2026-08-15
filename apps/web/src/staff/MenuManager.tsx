@@ -103,6 +103,27 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
     reload()
   }
 
+  const uploadAddOnIcon = async (item: MenuItem, idx: number, file: File) => {
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `addon-${item.id}-${idx}-${Date.now()}.${ext}`
+    const { error: uploadErr } = await supabase.storage.from('menu-photos').upload(path, file, { upsert: true })
+    if (uploadErr) return
+    const { data: pub } = supabase.storage.from('menu-photos').getPublicUrl(path)
+    const addOns = item.add_ons.map((a, i) => (i === idx ? { ...a, icon_url: pub.publicUrl } : a))
+    await supabase.rpc('upsert_menu_item', {
+      p_id: item.id,
+      p_cat: item.cat,
+      p_name: item.name,
+      p_name_fr: item.name_fr,
+      p_description: item.description,
+      p_description_fr: item.description_fr,
+      p_price: item.price,
+      p_add_ons: addOns,
+      p_sizes: item.sizes,
+    })
+    reload()
+  }
+
   const removeAddOn = async (item: MenuItem, idx: number) => {
     await supabase.rpc('upsert_menu_item', {
       p_id: item.id,
@@ -213,6 +234,22 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
               <div className="mb-2 text-[11px] font-bold uppercase text-[var(--color-ink)]/60">{t.addOnsLabel}</div>
               {item.add_ons.map((ao, idx) => (
                 <div key={idx} className="mb-1.5 flex items-center gap-2">
+                  <div className="h-8 w-8 flex-none overflow-hidden rounded-md bg-[var(--color-surface)]">
+                    {ao.icon_url && <img src={ao.icon_url} alt="" className="h-full w-full object-cover" />}
+                  </div>
+                  <label className="flex-none cursor-pointer rounded-lg border border-[var(--color-divider)] px-2 py-1.5 text-[10px] font-bold">
+                    📷
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) uploadAddOnIcon(item, idx, file)
+                        e.target.value = ''
+                      }}
+                    />
+                  </label>
                   <input
                     defaultValue={ao.label}
                     onBlur={(e) => e.target.value !== ao.label && updateAddOn(item, idx, 'label', e.target.value)}

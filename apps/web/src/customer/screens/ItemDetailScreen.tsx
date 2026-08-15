@@ -102,6 +102,11 @@ export function ItemDetailScreen() {
                     className="flex cursor-pointer items-center justify-between border-b border-[var(--color-divider)] py-3"
                   >
                     <div className="flex items-center gap-3">
+                      {ao.icon_url && (
+                        <div className="h-9 w-9 flex-none overflow-hidden rounded-lg bg-[var(--color-surface)]">
+                          <img src={ao.icon_url} alt="" className="h-full w-full object-cover" />
+                        </div>
+                      )}
                       <div
                         className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-[var(--color-ink)]/60"
                         style={{ background: checked ? 'var(--color-accent)' : 'transparent' }}

@@ -45,10 +45,3 @@ body {
     4px 4px 0 var(--color-ink),
     5px 5px 12px rgba(0, 0, 0, 0.4);
 }
-
-/* Blends a white-background logo seamlessly into a colored page
-   background -- multiply keeps the artwork's dark linework and makes any
-   white fill disappear into whatever sits behind it. */
-.blend-into-bg {
-  mix-blend-mode: multiply;
-}

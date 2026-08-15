@@ -12,7 +12,7 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
           <img
             src={settings.logo_url}
             alt="Chez Sanji"
-            className="blend-into-bg mx-auto h-auto w-[78%] max-w-[300px]"
+            className="mx-auto h-auto w-[78%] max-w-[300px] drop-shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
           />
         ) : (
           <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[var(--color-ink)] text-4xl font-black text-[var(--color-accent)]">

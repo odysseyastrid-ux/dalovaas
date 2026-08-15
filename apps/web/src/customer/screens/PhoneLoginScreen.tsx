@@ -6,6 +6,14 @@ import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 
 const OTP_WHATSAPP_NUMBER = import.meta.env.VITE_OTP_WHATSAPP_NUMBER as string | undefined
+const OTP_WHATSAPP_NUMBER_2 = import.meta.env.VITE_OTP_WHATSAPP_NUMBER_2 as string | undefined
+
+function otpNumbersLabel(lang: 'fr' | 'en') {
+  const numbers = [OTP_WHATSAPP_NUMBER, OTP_WHATSAPP_NUMBER_2].filter(Boolean)
+  if (numbers.length === 0) return ''
+  const joiner = lang === 'fr' ? ' ou +' : ' or +'
+  return ` (+${numbers.join(joiner)})`
+}
 
 function toE164(raw: string): string | null {
   const digits = raw.replace(/\D/g, '')
@@ -17,7 +25,7 @@ function toE164(raw: string): string | null {
 }
 
 export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (phone: string) => void }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const [phone, setPhone] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +67,7 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (phone: string) =
       </Button>
       <div className="mt-3 text-center text-[11px] text-[var(--color-ink)]/50">
         {t.viaSms}
-        {OTP_WHATSAPP_NUMBER && ` (+${OTP_WHATSAPP_NUMBER})`}
+        {otpNumbersLabel(lang)}
       </div>
     </div>
   )

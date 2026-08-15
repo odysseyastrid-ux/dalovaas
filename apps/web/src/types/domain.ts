@@ -81,6 +81,7 @@ export interface Order {
   subtotal: number
   delivery_fee: number
   discount: number
+  donation_amount: number
   total: number
   promo_code: string | null
   payment_method: PaymentMethod

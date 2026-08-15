@@ -62,6 +62,15 @@ function buildRows(order: Order, lang: 'fr' | 'en'): Row[] {
   if (order.discount) {
     rows.push({ kind: 'kv', label: lang === 'fr' ? 'Réduction' : 'Discount', value: `-${formatFCFA(order.discount)}`, bold: false, h: 24 })
   }
+  if (order.donation_amount) {
+    rows.push({
+      kind: 'kv',
+      label: lang === 'fr' ? '🤍 Don caritatif' : '🤍 Charity donation',
+      value: `+${formatFCFA(order.donation_amount)}`,
+      bold: false,
+      h: 24,
+    })
+  }
   rows.push({ kind: 'kv', label: lang === 'fr' ? 'Total' : 'Total', value: formatFCFA(order.total), bold: true, h: 32 })
   rows.push({ kind: 'divider', h: 20 })
 

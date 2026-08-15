@@ -77,6 +77,14 @@ export function TrackingScreen() {
           </div>
         </div>
 
+        {order.donation_amount > 0 && (
+          <div className="mb-4 rounded-xl border border-[var(--color-divider)] bg-[var(--color-surface)] p-3 text-center text-xs">
+            🤍 {lang === 'fr'
+              ? `Merci ! ${formatFCFA(order.donation_amount)} de votre commande ira à une association caritative.`
+              : `Thank you! ${formatFCFA(order.donation_amount)} from your order will go to a charity.`}
+          </div>
+        )}
+
         {order.pending_validation ? (
           <div className="rounded-xl border-2 border-[var(--color-accent)] p-4 text-center">
             <div className="font-[var(--font-heading)] text-sm font-extrabold">{t.pendingValidationTitle}</div>

@@ -9,6 +9,7 @@ interface CartState {
   address: string
   promoCode: string
   promoApplied: boolean
+  roundUpDonation: boolean
   addLine: (line: Omit<CartLine, 'key'>) => void
   incLine: (key: string) => void
   decLine: (key: string) => void
@@ -19,6 +20,7 @@ interface CartState {
   setAddress: (a: string) => void
   setPromoCode: (c: string) => void
   setPromoApplied: (v: boolean) => void
+  setRoundUpDonation: (v: boolean) => void
 }
 
 function lineKey(itemId: string, addOns: CartLine['addOns'], redemptionId?: number) {
@@ -35,6 +37,7 @@ export const useCartStore = create<CartState>()(
       address: '',
       promoCode: '',
       promoApplied: false,
+      roundUpDonation: false,
 
       addLine: (line) =>
         set((state) => {
@@ -67,13 +70,14 @@ export const useCartStore = create<CartState>()(
 
       removeLine: (key) => set((state) => ({ lines: state.lines.filter((l) => l.key !== key) })),
 
-      clear: () => set({ lines: [], promoCode: '', promoApplied: false }),
+      clear: () => set({ lines: [], promoCode: '', promoApplied: false, roundUpDonation: false }),
 
       setFulfillment: (f) => set({ fulfillment: f }),
       setPaymentMethod: (p) => set({ paymentMethod: p }),
       setAddress: (a) => set({ address: a }),
       setPromoCode: (c) => set({ promoCode: c }),
       setPromoApplied: (v) => set({ promoApplied: v }),
+      setRoundUpDonation: (v) => set({ roundUpDonation: v }),
     }),
     { name: 'chez-sanji-cart-v1' },
   ),

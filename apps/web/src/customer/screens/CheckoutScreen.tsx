@@ -35,6 +35,8 @@ export function CheckoutScreen() {
   const setPromoCode = useCartStore((s) => s.setPromoCode)
   const promoApplied = useCartStore((s) => s.promoApplied)
   const setPromoApplied = useCartStore((s) => s.setPromoApplied)
+  const roundUpDonation = useCartStore((s) => s.roundUpDonation)
+  const setRoundUpDonation = useCartStore((s) => s.setRoundUpDonation)
   const clearCart = useCartStore((s) => s.clear)
 
   const [step, setStep] = useState<Step>('summary')
@@ -47,7 +49,11 @@ export function CheckoutScreen() {
   const subtotal = cartSubtotal(lines)
   const deliveryFee = fulfillment === 'delivery' ? 1500 : 0
   const discount = promoApplied ? Math.round(subtotal * 0.1) : 0
-  const total = Math.max(0, subtotal + deliveryFee - discount)
+  const preDonationTotal = Math.max(0, subtotal + deliveryFee - discount)
+  // Preview only -- the server recomputes this from the real total when the
+  // order is created, same as every other price on the order.
+  const donationPreview = roundUpDonation && preDonationTotal > 0 ? Math.ceil(preDonationTotal / 100) * 100 - preDonationTotal : 0
+  const total = preDonationTotal + donationPreview
   const needsProof = paymentMethod !== 'cash'
   const payAccount = paymentMethod === 'orange_money' ? settings.payment_orange_money : settings.payment_mtn_momo
 
@@ -112,6 +118,7 @@ export function CheckoutScreen() {
       p_lines: cartLinesPayload,
       p_payment_method: paymentMethod,
       p_promo_code: promoApplied ? promoCode.trim().toUpperCase() : null,
+      p_round_up_donation: roundUpDonation,
     })
 
     if (error || !order) {
@@ -195,6 +202,28 @@ export function CheckoutScreen() {
               </button>
             </div>
 
+            {preDonationTotal % 100 !== 0 && (
+              <div
+                onClick={() => setRoundUpDonation(!roundUpDonation)}
+                className="mb-3 flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-[var(--color-divider)] p-3"
+              >
+                <div className="text-xs">
+                  <div className="font-bold">
+                    🤍 {lang === 'fr' ? 'Arrondir pour la charité' : 'Round up for charity'}
+                  </div>
+                  <div className="mt-0.5 text-[var(--color-ink)]/60">
+                    {lang === 'fr'
+                      ? `Arrondir à ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} et donner la différence à une association caritative.`
+                      : `Round up to ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} and give the difference to charity.`}
+                  </div>
+                </div>
+                <div
+                  className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-[var(--color-ink)]/60"
+                  style={{ background: roundUpDonation ? 'var(--color-accent)' : 'transparent' }}
+                />
+              </div>
+            )}
+
             <div className="border-t border-[var(--color-divider)] pt-3 text-xs text-[var(--color-ink)]/70">
               <div className="mb-1 flex justify-between">
                 <span>{t.subtotal}</span>
@@ -208,6 +237,12 @@ export function CheckoutScreen() {
                 <div className="mb-1 flex justify-between text-[var(--color-accent-700)]">
                   <span>{t.promoLabel}</span>
                   <span>-{formatFCFA(discount)}</span>
+                </div>
+              )}
+              {donationPreview > 0 && (
+                <div className="mb-1 flex justify-between text-[var(--color-accent-700)]">
+                  <span>🤍 {lang === 'fr' ? 'Don caritatif' : 'Charity donation'}</span>
+                  <span>+{formatFCFA(donationPreview)}</span>
                 </div>
               )}
               <div className="mt-1 flex justify-between font-[var(--font-heading)] text-sm font-extrabold text-[var(--color-ink)]">

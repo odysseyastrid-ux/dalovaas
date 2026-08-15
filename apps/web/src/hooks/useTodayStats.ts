@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient'
 export interface TodayStats {
   orderCount: number
   revenue: number
+  donations: number
 }
 
 function startOfTodayISO() {
@@ -14,7 +15,7 @@ function startOfTodayISO() {
 
 /** Staff-only: today's order count + revenue (validated/non-pending orders only). */
 export function useTodayStats() {
-  const [stats, setStats] = useState<TodayStats>({ orderCount: 0, revenue: 0 })
+  const [stats, setStats] = useState<TodayStats>({ orderCount: 0, revenue: 0, donations: 0 })
   const instanceId = useId()
 
   useEffect(() => {
@@ -23,13 +24,14 @@ export function useTodayStats() {
     const load = async () => {
       const { data } = await supabase
         .from('orders')
-        .select('total, pending_validation')
+        .select('total, donation_amount, pending_validation')
         .gte('created_at', startOfTodayISO())
       if (!cancelled && data) {
         const validated = data.filter((o) => !o.pending_validation)
         setStats({
           orderCount: data.length,
           revenue: validated.reduce((sum, o) => sum + o.total, 0),
+          donations: validated.reduce((sum, o) => sum + (o.donation_amount ?? 0), 0),
         })
       }
     }

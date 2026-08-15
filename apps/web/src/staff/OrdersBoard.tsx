@@ -194,7 +194,7 @@ export function OrdersBoard() {
         </div>
       )}
 
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.activeOrders}</div>
           <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
@@ -212,6 +212,10 @@ export function OrdersBoard() {
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Ventes aujourd'hui</div>
           <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">🤍 Dons aujourd'hui</div>
+          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
         </div>
       </div>
 

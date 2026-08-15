@@ -4,6 +4,7 @@ import { useI18n } from '@/i18n/I18nContext'
 import { BackHeader } from '@/components/AppShell'
 import { Button } from '@/components/Button'
 import { useOrderByRef } from '@/hooks/useOrders'
+import { useAppSettings } from '@/hooks/useAppSettings'
 import { formatFCFA, formatCountdown } from '@/lib/format'
 import { downloadReceipt } from '@/lib/receipt'
 import { supabase } from '@/lib/supabaseClient'
@@ -15,6 +16,7 @@ export function TrackingScreen() {
   const { t, lang } = useI18n()
   const showToast = useToastStore((s) => s.show)
   const { order, loading } = useOrderByRef(ref ?? null)
+  const { settings } = useAppSettings()
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -78,10 +80,21 @@ export function TrackingScreen() {
         </div>
 
         {order.donation_amount > 0 && (
-          <div className="mb-4 rounded-xl border border-[var(--color-divider)] bg-[var(--color-surface)] p-3 text-center text-xs">
-            🤍 {lang === 'fr'
-              ? `Merci ! ${formatFCFA(order.donation_amount)} de votre commande ira à « Je lis, je m'épanouis ».`
-              : `Thank you! ${formatFCFA(order.donation_amount)} from your order will go to "Je lis, je m'épanouis".`}
+          <div className="mb-4 flex items-center gap-3 rounded-xl border border-[var(--color-divider)] bg-[var(--color-surface)] p-3 text-xs">
+            {settings.charity_logo_url ? (
+              <img
+                src={settings.charity_logo_url}
+                alt="Je lis, je m'épanouis"
+                className="h-10 w-10 flex-none rounded-lg border border-[var(--color-divider)] bg-white object-contain p-1"
+              />
+            ) : (
+              <span className="flex-none text-lg">🤍</span>
+            )}
+            <div>
+              {lang === 'fr'
+                ? `Merci ! ${formatFCFA(order.donation_amount)} de votre commande ira à « Je lis, je m'épanouis ».`
+                : `Thank you! ${formatFCFA(order.donation_amount)} from your order will go to "Je lis, je m'épanouis".`}
+            </div>
           </div>
         )}
 

@@ -19,6 +19,7 @@ export interface AppSettings {
   payment_icons: Record<string, string>
   payment_orange_money: PaymentAccount
   payment_mtn_momo: PaymentAccount
+  charity_logo_url: string | null
 }
 
 const DEFAULTS: AppSettings = {
@@ -28,6 +29,7 @@ const DEFAULTS: AppSettings = {
   payment_icons: {},
   payment_orange_money: { number: '', name: '', ussd: '#150#' },
   payment_mtn_momo: { number: '', name: '', ussd: '*126#' },
+  charity_logo_url: null,
 }
 
 export function useAppSettings() {

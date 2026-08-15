@@ -205,11 +205,18 @@ export function CheckoutScreen() {
             {preDonationTotal % 100 !== 0 && (
               <div
                 onClick={() => setRoundUpDonation(!roundUpDonation)}
-                className="mb-3 flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-[var(--color-divider)] p-3"
+                className="mb-3 flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--color-divider)] p-3"
               >
-                <div className="text-xs">
+                {settings.charity_logo_url && (
+                  <img
+                    src={settings.charity_logo_url}
+                    alt="Je lis, je m'épanouis"
+                    className="h-9 w-9 flex-none rounded-lg border border-[var(--color-divider)] object-contain bg-white p-1"
+                  />
+                )}
+                <div className="flex-1 text-xs">
                   <div className="font-bold">
-                    🤍 {lang === 'fr' ? 'Arrondir pour la charité' : 'Round up for charity'}
+                    {!settings.charity_logo_url && '🤍 '}{lang === 'fr' ? 'Arrondir pour la charité' : 'Round up for charity'}
                   </div>
                   <div className="mt-0.5 text-[var(--color-ink)]/60">
                     {lang === 'fr'

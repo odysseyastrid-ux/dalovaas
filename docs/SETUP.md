@@ -60,6 +60,20 @@ A new `accounts` row is created automatically for every new phone-auth
 user (`handle_new_customer()` trigger in `0001_init.sql`) — nothing else to
 wire up.
 
+**Manual relay instead of a real SMS provider:** if you'd rather not pay
+for an SMS gateway yet, `supabase/functions/relay-otp-sms` can be
+registered as Supabase Auth's **Send SMS Hook** instead of a real provider.
+The server still generates and verifies the OTP exactly as normal — the
+hook just queues it (`otp_relay_queue` table) instead of dispatching it to
+a carrier, and the staff dashboard shows pending codes with a one-click
+"Envoyer via WhatsApp" link so a human forwards it to the customer. This
+is a deliberate manual step, not real automated delivery — swap in a real
+SMS provider (previous section) once you're ready to remove the human
+from that loop. To wire it up: deploy the function, set
+`SEND_SMS_HOOK_SECRET` (format `v1,whsec_<base64>`) as a function secret,
+then `PATCH /v1/projects/{ref}/config/auth` with
+`{"hook_send_sms_enabled": true, "hook_send_sms_uri": "https://<ref>.supabase.co/functions/v1/relay-otp-sms", "hook_send_sms_secrets": "<same secret>"}`.
+
 **Demoing without a real SMS provider yet:** enable Phone auth
 (`external_phone_enabled: true`) and set a Test OTP number so you can
 exercise the full login → order → tracking loop before paying for SMS —
@@ -94,6 +108,7 @@ tab, which calls the `create-staff` Edge Function (creates the Auth user +
 supabase functions deploy notify-order-event --no-verify-jwt
 supabase functions deploy advance-order-status --no-verify-jwt
 supabase functions deploy create-staff
+supabase functions deploy relay-otp-sms --no-verify-jwt
 ```
 
 Set secrets (WhatsApp + Web Push are optional but recommended for production):

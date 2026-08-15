@@ -1,12 +1,19 @@
 // Fires on inserts into `event_outbox` (wired up as a Supabase Database
-// Webhook — see docs/SETUP.md). Sends the WhatsApp Business Cloud API
-// message that replaces the prototype's "copy message, paste into WhatsApp
-// group" flow, and a Web Push notification to the customer if they opted in.
+// Webhook — see docs/SETUP.md). Sends WhatsApp Business Cloud API messages
+// to individual staff numbers, and a Web Push notification to the customer
+// if they opted in.
+//
+// Note: the official Cloud API can only message individual numbers, not
+// post into a regular WhatsApp group chat — there is no supported way to
+// automate that. The frontend's semi-automated group flow (copy the order
+// message, open the group invite link, a human pastes/sends) is the
+// alternative for an actual shared group thread — see OrdersBoard.tsx and
+// VITE_STAFF_WHATSAPP_GROUP_LINK.
 //
 // Required secrets (supabase secrets set ...):
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (auto-provided on Supabase)
 //   WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID  (Meta WhatsApp Business Cloud API)
-//   WHATSAPP_STAFF_NUMBERS                    (comma-separated E.164 numbers, or a group via a template)
+//   WHATSAPP_STAFF_NUMBERS                    (comma-separated E.164 numbers -- individual staff, not a group)
 //   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (Web Push)
 
 import { createClient } from "npm:@supabase/supabase-js@2";

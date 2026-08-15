@@ -1,12 +1,43 @@
 import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { useActiveOrders } from '@/hooks/useOrders'
+import { useOtpRelayQueue } from '@/hooks/useOtpRelayQueue'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 import type { Order } from '@/types/domain'
 
 const FULFILLMENT_LABEL: Record<string, string> = { pickup: 'À emporter', delivery: 'Livraison', dine_in: 'Sur place' }
+const STAFF_GROUP_LINK = import.meta.env.VITE_STAFF_WHATSAPP_GROUP_LINK as string | undefined
+
+function buildStaffGroupMessage(order: Order, kind: 'created' | 'validated') {
+  const grouped: Record<string, string[]> = {}
+  for (const line of order.lines) {
+    const cat = line.cat || 'Autre'
+    ;(grouped[cat] ??= []).push(`${line.qty}x ${line.name}`)
+  }
+  const itemsText = Object.entries(grouped).map(([cat, items]) => `${cat}: ${items.join(', ')}`).join('\n')
+  const header = kind === 'validated' ? '✅ Commande validée' : '🆕 Nouvelle commande'
+  return [
+    `${header} ${order.ref}`,
+    `${order.customer_name} — ${order.customer_phone}`,
+    `${FULFILLMENT_LABEL[order.fulfillment]} · Retrait: ${order.pickup_code}`,
+    itemsText,
+    `Total: ${formatFCFA(order.total)}`,
+  ].join('\n')
+}
+
+async function sendToStaffGroup(order: Order, kind: 'created' | 'validated', showToast: (m: string) => void) {
+  if (!STAFF_GROUP_LINK) return
+  const msg = buildStaffGroupMessage(order, kind)
+  try {
+    await navigator.clipboard.writeText(msg)
+    showToast('Message copié — collez-le dans le groupe WhatsApp')
+  } catch {
+    showToast('Impossible de copier — copiez le message manuellement')
+  }
+  window.open(STAFF_GROUP_LINK, '_blank', 'noopener')
+}
 
 function buildReceiptHtml(order: Order) {
   const rows = order.lines
@@ -43,6 +74,7 @@ function openReceipt(order: Order) {
 export function OrdersBoard() {
   const { t } = useI18n()
   const { orders, loading } = useActiveOrders()
+  const otpQueue = useOtpRelayQueue()
   const showToast = useToastStore((s) => s.show)
   const [refInput, setRefInput] = useState('')
   const [refError, setRefError] = useState(false)
@@ -51,9 +83,17 @@ export function OrdersBoard() {
   const pendingCount = orders.filter((o) => o.pending_validation).length
 
   const validate = async (ref: string) => {
-    const { error } = await supabase.rpc('validate_order_payment', { p_ref: ref })
-    if (error) showToast(error.message)
-    else showToast(`${ref} validée`)
+    const { data, error } = await supabase.rpc('validate_order_payment', { p_ref: ref })
+    if (error) {
+      showToast(error.message)
+      return
+    }
+    showToast(`${ref} validée`)
+    if (data) sendToStaffGroup(data as Order, 'validated', showToast)
+  }
+
+  const markOtpSent = async (id: number) => {
+    await supabase.rpc('mark_otp_relayed', { p_id: id })
   }
 
   const markDelivered = async (ref: string) => {
@@ -120,6 +160,35 @@ export function OrdersBoard() {
         {refError && <div className="mt-2 text-xs text-red-600">{t.validateRefError}</div>}
       </div>
 
+      {otpQueue.length > 0 && (
+        <div className="mb-6 rounded-xl border-2 border-[var(--color-ink)] bg-white p-4">
+          <div className="mb-2 text-sm font-bold">Codes OTP en attente</div>
+          <div className="flex flex-col gap-2">
+            {otpQueue.map((row) => (
+              <div key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--color-surface)] p-2.5">
+                <div className="text-xs">
+                  <span className="font-mono font-bold">{row.code}</span> → {row.phone}
+                </div>
+                <div className="flex gap-2">
+                  <a
+                    href={`https://wa.me/${row.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Votre code Chez Sanji : ${row.code}`)}`}
+                    target="_blank"
+                    rel="noopener"
+                    onClick={() => markOtpSent(row.id)}
+                    className="rounded-lg bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold"
+                  >
+                    Envoyer via WhatsApp
+                  </a>
+                  <button onClick={() => markOtpSent(row.id)} className="rounded-lg border border-[var(--color-divider)] px-2.5 py-1 text-[11px] font-bold">
+                    Marquer envoyé
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mb-3 font-[var(--font-heading)] text-sm font-bold uppercase tracking-wide">{t.activeOrdersList}</div>
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
       {!loading && orders.length === 0 && <div className="text-sm text-[var(--color-ink)]/50">—</div>}
@@ -157,6 +226,14 @@ export function OrdersBoard() {
               <button onClick={() => openReceipt(order)} className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
                 {t.receiptPdf}
               </button>
+              {STAFF_GROUP_LINK && (
+                <button
+                  onClick={() => sendToStaffGroup(order, order.pending_validation ? 'created' : 'validated', showToast)}
+                  className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold"
+                >
+                  {t.sendToStaffGroup}
+                </button>
+              )}
               {order.pending_validation && (
                 <button onClick={() => validate(order.ref)} className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-xs font-bold">
                   {t.validate}

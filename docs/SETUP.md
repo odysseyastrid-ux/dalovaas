@@ -176,7 +176,19 @@ npm run dev
 
 Deploy `apps/web` (Vite build, `npm run build` → `dist/`) to Vercel,
 Netlify, Cloudflare Pages, or any static host — it only talks to Supabase,
-there's no separate app server to run.
+there's no separate app server to run. Set the same four `VITE_*` variables
+from `.env` in the host's environment variable settings (not just in a
+local `.env` file, which never gets deployed).
+
+**SPA routing**: this is a client-side-routed React app, so the host needs
+a catch-all rewrite to `index.html` for any path that isn't a real static
+file, or a deep link (`/staff`, `/account/history`, a page refresh) 404s.
+`apps/web/vercel.json` has the Vercel version of this rule already;
+Netlify needs an equivalent `_redirects` file (`/*  /index.html  200`).
+
+After deploying, update Supabase Auth's `site_url` (Dashboard →
+Authentication → URL Configuration, or `PATCH /v1/projects/{ref}/config/auth`)
+to your real production domain — it defaults to `http://localhost:3000`.
 
 ## 6. Payment proofs & menu photos
 

@@ -92,7 +92,12 @@ for the staff dashboard.
 The frontend covers the full customer flow (login → browse → cart →
 checkout → live tracking → loyalty → account) and staff flow (login → live
 orders board → validate/deliver → menu management → CSV export → staff
-invites). What's still needed before real customers use it: a live
-SMS/OTP provider (phone login currently runs on a Test OTP number for
-demos — see docs/SETUP.md), a WhatsApp Business Cloud API token, VAPID
-keys for push, and real product photos.
+invites). It's deployed and live on Vercel, with Web Push (VAPID) keys
+generated and wired end-to-end (subscribe on the client, deliver from
+`notify-order-event`).
+
+**What's still needed before real customers use it:** a live SMS/OTP
+provider — phone login currently runs on a Test OTP number
+(`699000001` / code `123456`) for demos, see docs/SETUP.md — and, if
+wanted, a WhatsApp Business Cloud API token (skipped for now; nothing else
+depends on it) and real product photos.

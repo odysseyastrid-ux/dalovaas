@@ -1,7 +1,8 @@
-import { NavLink, Navigate, Routes, Route, useNavigate } from 'react-router-dom'
+import { NavLink, Navigate, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
 import { useAuthStore } from '@/state/authStore'
 import { StaffLogin } from './StaffLogin'
+import { StaffResetPassword } from './StaffResetPassword'
 import { OrdersBoard } from './OrdersBoard'
 import { MenuManager } from './MenuManager'
 import { Reports } from './Reports'
@@ -16,6 +17,11 @@ export function StaffApp() {
   const loading = useAuthStore((s) => s.loading)
   const signOut = useAuthStore((s) => s.signOut)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Reached via the password-reset email link, which establishes a
+  // recovery session -- must be reachable regardless of staff-role gating.
+  if (location.pathname === '/staff/reset-password') return <StaffResetPassword />
 
   if (loading) return <div className="flex min-h-dvh items-center justify-center text-sm text-[var(--color-ink)]/50">…</div>
 

@@ -80,8 +80,8 @@ export function TrackingScreen() {
         {order.donation_amount > 0 && (
           <div className="mb-4 rounded-xl border border-[var(--color-divider)] bg-[var(--color-surface)] p-3 text-center text-xs">
             🤍 {lang === 'fr'
-              ? `Merci ! ${formatFCFA(order.donation_amount)} de votre commande ira à une association caritative.`
-              : `Thank you! ${formatFCFA(order.donation_amount)} from your order will go to a charity.`}
+              ? `Merci ! ${formatFCFA(order.donation_amount)} de votre commande ira à « Je lis, je m'épanouis ».`
+              : `Thank you! ${formatFCFA(order.donation_amount)} from your order will go to "Je lis, je m'épanouis".`}
           </div>
         )}
 

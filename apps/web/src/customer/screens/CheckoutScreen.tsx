@@ -213,8 +213,8 @@ export function CheckoutScreen() {
                   </div>
                   <div className="mt-0.5 text-[var(--color-ink)]/60">
                     {lang === 'fr'
-                      ? `Arrondir à ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} et donner la différence à une association caritative.`
-                      : `Round up to ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} and give the difference to charity.`}
+                      ? `Arrondir à ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} et donner la différence à « Je lis, je m'épanouis ».`
+                      : `Round up to ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} and give the difference to "Je lis, je m'épanouis".`}
                   </div>
                 </div>
                 <div

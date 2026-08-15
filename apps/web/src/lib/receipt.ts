@@ -70,6 +70,11 @@ function buildRows(order: Order, lang: 'fr' | 'en'): Row[] {
       bold: false,
       h: 24,
     })
+    rows.push({
+      kind: 'footer',
+      text: lang === 'fr' ? 'pour « Je lis, je m\'épanouis »' : 'for "Je lis, je m\'épanouis"',
+      h: 18,
+    })
   }
   rows.push({ kind: 'kv', label: lang === 'fr' ? 'Total' : 'Total', value: formatFCFA(order.total), bold: true, h: 32 })
   rows.push({ kind: 'divider', h: 20 })

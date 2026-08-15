@@ -6,7 +6,7 @@ import { useTodayStats } from '@/hooks/useTodayStats'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
-import { playAlertBeep } from '@/lib/sound'
+import { playOrderAlert, playOtpAlert } from '@/lib/sound'
 import type { Order } from '@/types/domain'
 
 const FULFILLMENT_LABEL: Record<string, string> = { pickup: 'À emporter', delivery: 'Livraison', dine_in: 'Sur place' }
@@ -93,14 +93,14 @@ export function OrdersBoard() {
   useEffect(() => {
     const ids = new Set(orders.map((o) => o.id))
     if (knownOrderIds.current && [...ids].some((id) => !knownOrderIds.current!.has(id))) {
-      playAlertBeep()
+      playOrderAlert()
     }
     knownOrderIds.current = ids
   }, [orders])
   useEffect(() => {
     const ids = new Set(otpQueue.map((r) => r.id))
     if (knownOtpIds.current && [...ids].some((id) => !knownOtpIds.current!.has(id))) {
-      playAlertBeep()
+      playOtpAlert()
     }
     knownOtpIds.current = ids
   }, [otpQueue])
@@ -108,10 +108,13 @@ export function OrdersBoard() {
   // Keep nagging every 15s while something is still waiting on staff -- a
   // single beep is easy to miss in a loud fair crowd, so anything unhandled
   // (a payment not yet validated, an OTP not yet relayed) re-alerts until
-  // it's actually cleared.
+  // it's actually cleared. Each kind of wait re-uses its own distinct sound.
   useEffect(() => {
     if (pendingCount === 0 && otpQueue.length === 0) return
-    const id = setInterval(() => playAlertBeep(), 15000)
+    const id = setInterval(() => {
+      if (pendingCount > 0) playOrderAlert()
+      if (otpQueue.length > 0) playOtpAlert()
+    }, 15000)
     return () => clearInterval(id)
   }, [pendingCount, otpQueue.length])
 

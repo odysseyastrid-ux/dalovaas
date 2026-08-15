@@ -3,9 +3,11 @@ import { useI18n } from '@/i18n/I18nContext'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 
+const CODE_LENGTH = 6
+
 export function VerifyCodeScreen({ phone, onBack }: { phone: string; onBack: () => void }) {
   const { t } = useI18n()
-  const [digits, setDigits] = useState(['', '', '', ''])
+  const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''))
   const [error, setError] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const refs = useRef<Array<HTMLInputElement | null>>([])
@@ -13,17 +15,25 @@ export function VerifyCodeScreen({ phone, onBack }: { phone: string; onBack: () 
   const setDigit = (i: number, value: string) => {
     const v = value.replace(/\D/g, '').slice(-1)
     setDigits((d) => d.map((old, idx) => (idx === i ? v : old)))
-    if (v && i < 3) refs.current[i + 1]?.focus()
+    if (v && i < CODE_LENGTH - 1) refs.current[i + 1]?.focus()
   }
 
   const onKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !digits[i] && i > 0) refs.current[i - 1]?.focus()
   }
 
+  const onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, CODE_LENGTH)
+    if (!pasted) return
+    e.preventDefault()
+    setDigits((d) => d.map((old, idx) => pasted[idx] ?? old))
+    refs.current[Math.min(pasted.length, CODE_LENGTH - 1)]?.focus()
+  }
+
   const code = digits.join('')
 
   const verify = async () => {
-    if (code.length !== 4) return
+    if (code.length !== CODE_LENGTH) return
     setVerifying(true)
     setError(false)
     const { error: err } = await supabase.auth.verifyOtp({ phone, token: code, type: 'sms' })
@@ -54,12 +64,13 @@ export function VerifyCodeScreen({ phone, onBack }: { phone: string; onBack: () 
             value={d}
             onChange={(e) => setDigit(i, e.target.value)}
             onKeyDown={(e) => onKeyDown(i, e)}
+            onPaste={onPaste}
             className="w-full rounded-lg border border-[var(--color-divider)] py-3 text-center text-xl font-bold outline-none focus:border-[var(--color-accent)]"
           />
         ))}
       </div>
       {error && <div className="mb-4 text-xs text-red-600">{t.codeError}</div>}
-      <Button block disabled={code.length !== 4 || verifying} onClick={verify}>
+      <Button block disabled={code.length !== CODE_LENGTH || verifying} onClick={verify}>
         {verifying ? '…' : t.verify}
       </Button>
       <button onClick={resend} className="mt-4 text-center text-xs text-[var(--color-ink)]/60 underline">

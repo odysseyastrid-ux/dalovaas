@@ -4,8 +4,8 @@ const RAW_STRINGS = {
   en: {
     slogan: 'Eat like at East Blue.', enter: 'Enter →', skip: 'Skip',
     loginTitle: 'Log in', loginDesc: 'Enter your phone number to create or access your account.',
-    phoneLabel: 'Phone number', sendCode: 'Send code →', viaSms: 'A 4-digit code will be sent by SMS',
-    verifyTitle: 'Verify your number', verifyDesc: 'Enter the 4-digit code sent to',
+    phoneLabel: 'Phone number', sendCode: 'Send code →', viaSms: 'A 6-digit code will be sent by SMS',
+    verifyTitle: 'Verify your number', verifyDesc: 'Enter the 6-digit code sent to',
     codeError: 'Incorrect code, try again.', verify: 'Verify →', resendCode: 'Resend code',
     rewards: 'Rewards', yourPoints: 'Your points', redeem: 'Redeem', redeemBtn: 'Redeem', notEnoughPoints: 'Not enough points',
     yourCart: 'Your Cart', emptyCart: 'Your cart is empty.', browseMenu: 'Browse Menu', remove: 'Remove',
@@ -45,8 +45,8 @@ const RAW_STRINGS = {
   fr: {
     slogan: 'Manger comme à East Blue.', enter: 'Entrer →', skip: 'Passer',
     loginTitle: 'Connexion', loginDesc: 'Entrez votre numéro pour créer ou accéder à votre compte.',
-    phoneLabel: 'Numéro de téléphone', sendCode: 'Envoyer le code →', viaSms: 'Un code à 4 chiffres sera envoyé par SMS',
-    verifyTitle: 'Vérifiez votre numéro', verifyDesc: 'Entrez le code à 4 chiffres envoyé au',
+    phoneLabel: 'Numéro de téléphone', sendCode: 'Envoyer le code →', viaSms: 'Un code à 6 chiffres sera envoyé par SMS',
+    verifyTitle: 'Vérifiez votre numéro', verifyDesc: 'Entrez le code à 6 chiffres envoyé au',
     codeError: 'Code incorrect, réessayez.', verify: 'Vérifier →', resendCode: 'Renvoyer le code',
     rewards: 'Récompenses', yourPoints: 'Vos points', redeem: 'Échanger', redeemBtn: 'Échanger', notEnoughPoints: 'Points insuffisants',
     yourCart: 'Votre panier', emptyCart: 'Votre panier est vide.', browseMenu: 'Voir le menu', remove: 'Retirer',

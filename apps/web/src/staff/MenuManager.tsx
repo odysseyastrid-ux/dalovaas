@@ -34,6 +34,22 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
   }
 
   const updateField = async (item: MenuItem, field: 'name' | 'price', value: string) => {
+    if (field === 'price') {
+      const newPriceVal = Number(value) || 0
+      // A typo or an accidental extra digit going live to real customers is
+      // expensive and easy to miss on a small mobile screen -- confirm any
+      // jump of 3x or more (either direction) before it actually saves.
+      const ratio = item.price > 0 ? newPriceVal / item.price : Infinity
+      if (item.price > 0 && (ratio >= 3 || ratio <= 1 / 3)) {
+        const ok = window.confirm(
+          `Le prix passe de ${formatFCFA(item.price)} à ${formatFCFA(newPriceVal)} pour "${item.name}". Confirmer ?`,
+        )
+        if (!ok) {
+          reload() // resets the input back to the real stored value
+          return
+        }
+      }
+    }
     await supabase.rpc('upsert_menu_item', {
       p_id: item.id,
       p_cat: item.cat,
@@ -213,13 +229,18 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-[2fr_1fr_auto_auto] sm:items-center">
               <input
+                key={item.name}
                 defaultValue={item.name}
+                autoComplete="off"
                 onBlur={(e) => e.target.value !== item.name && updateField(item, 'name', e.target.value)}
                 className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-sm"
               />
               <input
+                key={item.price}
                 type="number"
+                inputMode="numeric"
                 defaultValue={item.price}
+                autoComplete="off"
                 onBlur={(e) => Number(e.target.value) !== item.price && updateField(item, 'price', e.target.value)}
                 className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-sm"
               />

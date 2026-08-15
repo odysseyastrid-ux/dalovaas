@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { formatFCFA } from '@/lib/format'
 
 export function MenuManager({ canEdit }: { canEdit: boolean }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const { items, reload } = useAllMenuItems()
   const [newCat, setNewCat] = useState<MenuCategory>('burgers')
   const [newName, setNewName] = useState('')
@@ -93,6 +93,16 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
     reload()
   }
 
+  const uploadPhoto = async (item: MenuItem, file: File) => {
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `${item.id}-${Date.now()}.${ext}`
+    const { error: uploadErr } = await supabase.storage.from('menu-photos').upload(path, file, { upsert: true })
+    if (uploadErr) return
+    const { data: pub } = supabase.storage.from('menu-photos').getPublicUrl(path)
+    await supabase.rpc('set_menu_item_image', { p_id: item.id, p_image_url: pub.publicUrl })
+    reload()
+  }
+
   const removeAddOn = async (item: MenuItem, idx: number) => {
     await supabase.rpc('upsert_menu_item', {
       p_id: item.id,
@@ -162,6 +172,24 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
       <div className="flex flex-col gap-3">
         {visible.map((item) => (
           <div key={item.id} className="rounded-xl border border-[var(--color-divider)] bg-white p-4" style={{ opacity: item.out_of_stock ? 0.55 : 1 }}>
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-16 w-16 flex-none overflow-hidden rounded-lg bg-[var(--color-surface)]">
+                {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
+              </div>
+              <label className="cursor-pointer rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold">
+                {item.image_url ? (lang === 'fr' ? 'Changer la photo' : 'Change photo') : (lang === 'fr' ? 'Ajouter une photo' : 'Add photo')}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) uploadPhoto(item, file)
+                    e.target.value = ''
+                  }}
+                />
+              </label>
+            </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-[2fr_1fr_auto_auto] sm:items-center">
               <input
                 defaultValue={item.name}

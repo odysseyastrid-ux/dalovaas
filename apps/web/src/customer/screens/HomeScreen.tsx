@@ -96,7 +96,9 @@ export function HomeScreen() {
               onClick={() => navigate(`/item/${item.id}`)}
               className="flex cursor-pointer gap-4 border-b border-[var(--color-divider)] py-4"
             >
-              <div className="h-[76px] w-[76px] flex-none rounded-lg bg-[var(--color-surface)]" />
+              <div className="h-[76px] w-[76px] flex-none overflow-hidden rounded-lg bg-[var(--color-surface)]">
+                {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="font-[var(--font-heading)] text-[15px] font-bold">
                   {lang === 'fr' ? item.name_fr : item.name}

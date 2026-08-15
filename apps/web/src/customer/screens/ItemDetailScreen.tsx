@@ -63,7 +63,9 @@ export function ItemDetailScreen() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-28">
         <div className="relative">
-          <div className="h-[280px] w-full bg-[var(--color-surface)]" />
+          <div className="h-[280px] w-full overflow-hidden bg-[var(--color-surface)]">
+            {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
+          </div>
           <button
             onClick={() => navigate(-1)}
             className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white"

@@ -1,10 +1,13 @@
 import { useI18n } from '@/i18n/I18nContext'
 import { useAllOrders } from '@/hooks/useOrders'
+import { useTodayStats } from '@/hooks/useTodayStats'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/state/authStore'
 import { useToastStore } from '@/state/toastStore'
 import type { Order } from '@/types/domain'
+
+const DELETE_PIN = '1910'
 
 function toCsv(orders: Order[]): string {
   const header = ['ref', 'pickup_code', 'customer_name', 'customer_phone', 'fulfillment', 'total', 'payment_method', 'paid', 'status', 'created_at']
@@ -29,11 +32,17 @@ function downloadCsv(orders: Order[]) {
 export function Reports() {
   const { t } = useI18n()
   const { orders, loading } = useAllOrders()
+  const todayStats = useTodayStats()
   const staff = useAuthStore((s) => s.staff)
   const showToast = useToastStore((s) => s.show)
 
   const deleteOrder = async (ref: string) => {
-    if (!window.confirm(`Supprimer définitivement la commande ${ref} ?`)) return
+    const pin = window.prompt(`Code PIN requis pour supprimer ${ref} :`)
+    if (pin === null) return
+    if (pin !== DELETE_PIN) {
+      showToast('Code PIN incorrect')
+      return
+    }
     const { error } = await supabase.rpc('delete_order', { p_ref: ref })
     if (error) {
       showToast(error.message)
@@ -50,9 +59,23 @@ export function Reports() {
           {t.downloadAllCsv}
         </button>
       </div>
-      <div className="mb-4 rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
-        <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.totalOrders}</div>
-        <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
+      <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.totalOrders}</div>
+          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">Commandes aujourd'hui</div>
+          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{todayStats.orderCount}</div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">Ventes aujourd'hui</div>
+          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
+        </div>
+        <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
+          <div className="text-xs uppercase text-[var(--color-ink)]/50">🤍 Dons aujourd'hui</div>
+          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
+        </div>
       </div>
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
       <div className="flex flex-col gap-3">

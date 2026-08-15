@@ -3,6 +3,8 @@ import { useI18n } from '@/i18n/I18nContext'
 import { BackHeader } from '@/components/AppShell'
 import { useAuthStore } from '@/state/authStore'
 import { supabase } from '@/lib/supabaseClient'
+import { enablePushForAccount, disablePushForAccount, pushSupported } from '@/lib/push'
+import { useToastStore } from '@/state/toastStore'
 import type { Account } from '@/types/domain'
 
 const ROWS: { key: keyof Pick<Account, 'notif_promos' | 'notif_order_updates' | 'notif_rewards'>; labelKey: 'notifPromos' | 'notifOrderUpdates' | 'notifRewards' }[] = [
@@ -12,14 +14,27 @@ const ROWS: { key: keyof Pick<Account, 'notif_promos' | 'notif_order_updates' | 
 ]
 
 export function NotificationsScreen() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const navigate = useNavigate()
   const account = useAuthStore((s) => s.account)
   const refreshAccount = useAuthStore((s) => s.refreshAccount)
+  const showToast = useToastStore((s) => s.show)
 
   const toggle = async (key: string, current: boolean) => {
     if (!account) return
-    await supabase.from('accounts').update({ [key]: !current }).eq('id', account.id)
+    const next = !current
+    await supabase.from('accounts').update({ [key]: next }).eq('id', account.id)
+
+    // Order-update pushes need an actual browser subscription, not just the flag.
+    if (key === 'notif_order_updates' && pushSupported()) {
+      if (next) {
+        const granted = await enablePushForAccount(account.id)
+        if (!granted) showToast(lang === 'fr' ? 'Notifications refusées par le navigateur' : 'Notifications denied by browser')
+      } else {
+        await disablePushForAccount(account.id)
+      }
+    }
+
     await refreshAccount()
   }
 

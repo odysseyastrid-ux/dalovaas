@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import type { Employee, OvertimeRequest, ShiftBreak, TimeEntry } from '@/types/domain'
+import type { Employee, OvertimeRequest, ShiftBreak, StaffMeal, TimeEntry } from '@/types/domain'
 
 function daysAgoISO(days: number) {
   const d = new Date()
@@ -113,4 +113,62 @@ export function useOvertimeRequests() {
   }, [instanceId])
 
   return { requests, loading }
+}
+
+function startOfTodayISO() {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  return d.toISOString()
+}
+
+/**
+ * Staff-only: today's staff meal orders (break benefit), realtime. Kept
+ * separate from payroll on purpose -- these are food comped/discounted to
+ * staff, not hours or wages.
+ */
+export function useStaffMeals() {
+  const [meals, setMeals] = useState<StaffMeal[]>([])
+  const [loading, setLoading] = useState(true)
+  const instanceId = useId()
+
+  useEffect(() => {
+    let cancelled = false
+
+    const load = async () => {
+      const { data } = await supabase
+        .from('staff_meals')
+        .select('*')
+        .gte('created_at', startOfTodayISO())
+        .order('created_at', { ascending: false })
+      if (!cancelled) {
+        setMeals((data as StaffMeal[]) ?? [])
+        setLoading(false)
+      }
+    }
+    load()
+
+    const channel = supabase
+      .channel(`staff_meals_${instanceId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_meals' }, () => load())
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
+      })
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', load)
+    const pollId = setInterval(load, 20000)
+
+    return () => {
+      cancelled = true
+      supabase.removeChannel(channel)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', load)
+      clearInterval(pollId)
+    }
+  }, [instanceId])
+
+  return { meals, loading }
 }

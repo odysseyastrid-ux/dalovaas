@@ -6,6 +6,8 @@ import { useToastStore } from '@/state/toastStore'
 import { ApprovalsPanel } from './ApprovalsPanel'
 import { PayrollPanel } from './PayrollPanel'
 import { TimeClockSettings } from './TimeClockSettings'
+import { StaffMealPicker } from './StaffMealPicker'
+import { StaffMealsPanel } from './StaffMealsPanel'
 import type { Employee } from '@/types/domain'
 
 function fmtTime(iso: string) {
@@ -40,6 +42,7 @@ function EquipeView({ canManage }: { canManage: boolean }) {
   const showToast = useToastStore((s) => s.show)
   const [newName, setNewName] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  const [mealFor, setMealFor] = useState<string | null>(null)
 
   const openEntryFor = (employeeId: string) =>
     entries.find((e) => e.employee_id === employeeId && e.clock_out === null)
@@ -139,47 +142,58 @@ function EquipeView({ canManage }: { canManage: boolean }) {
           const openBreak = open ? openBreakFor(open.id) : undefined
           const breaksUsed = open ? breaksUsedFor(open.id) : 0
           return (
-            <div key={employee.id} className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-divider)] bg-white p-4">
-              <div>
-                <div className="font-[var(--font-heading)] text-sm font-bold">{employee.name}</div>
-                {open ? (
-                  openBreak ? (
-                    <div className="mt-0.5 text-xs font-bold text-[var(--color-accent-700)]">
-                      En pause depuis {fmtTime(openBreak.break_start)} · {fmtDuration(openBreak.break_start, null)}
-                    </div>
+            <div key={employee.id} className="flex flex-col rounded-xl border border-[var(--color-divider)] bg-white p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-[var(--font-heading)] text-sm font-bold">{employee.name}</div>
+                  {open ? (
+                    openBreak ? (
+                      <div className="mt-0.5 text-xs font-bold text-[var(--color-accent-700)]">
+                        En pause depuis {fmtTime(openBreak.break_start)} · {fmtDuration(openBreak.break_start, null)}
+                      </div>
+                    ) : (
+                      <div className="mt-0.5 text-xs text-[var(--color-accent-700)]">
+                        En service depuis {fmtTime(open.clock_in)} · {fmtDuration(open.clock_in, null)}
+                        {employee.max_breaks > 0 && ` · Pauses ${breaksUsed}/${employee.max_breaks}`}
+                      </div>
+                    )
                   ) : (
-                    <div className="mt-0.5 text-xs text-[var(--color-accent-700)]">
-                      En service depuis {fmtTime(open.clock_in)} · {fmtDuration(open.clock_in, null)}
-                      {employee.max_breaks > 0 && ` · Pauses ${breaksUsed}/${employee.max_breaks}`}
-                    </div>
-                  )
-                ) : (
-                  <div className="mt-0.5 text-xs text-[var(--color-ink)]/50">Hors service</div>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {open && employee.max_breaks > 0 && (
+                    <div className="mt-0.5 text-xs text-[var(--color-ink)]/50">Hors service</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {openBreak && (
+                    <button
+                      onClick={() => setMealFor(mealFor === employee.id ? null : employee.id)}
+                      className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold"
+                    >
+                      🍽️ Repas
+                    </button>
+                  )}
+                  {open && employee.max_breaks > 0 && (
+                    <button
+                      onClick={() => toggleBreak(employee, open.id)}
+                      disabled={busy === employee.id || (!openBreak && breaksUsed >= employee.max_breaks)}
+                      className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold disabled:opacity-40"
+                    >
+                      {openBreak ? 'Fin de pause' : 'Pause'}
+                    </button>
+                  )}
                   <button
-                    onClick={() => toggleBreak(employee, open.id)}
-                    disabled={busy === employee.id || (!openBreak && breaksUsed >= employee.max_breaks)}
-                    className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold disabled:opacity-40"
+                    onClick={() => toggleClock(employee)}
+                    disabled={busy === employee.id || !!openBreak}
+                    className={`rounded-lg px-4 py-2 text-xs font-bold disabled:opacity-40 ${open ? 'bg-[var(--color-ink)] text-white' : 'bg-[var(--color-accent)]'}`}
                   >
-                    {openBreak ? 'Fin de pause' : 'Pause'}
+                    {busy === employee.id ? '…' : open ? 'Pointer le départ' : "Pointer l'arrivée"}
                   </button>
-                )}
-                <button
-                  onClick={() => toggleClock(employee)}
-                  disabled={busy === employee.id || !!openBreak}
-                  className={`rounded-lg px-4 py-2 text-xs font-bold disabled:opacity-40 ${open ? 'bg-[var(--color-ink)] text-white' : 'bg-[var(--color-accent)]'}`}
-                >
-                  {busy === employee.id ? '…' : open ? 'Pointer le départ' : "Pointer l'arrivée"}
-                </button>
-                {canManage && (
-                  <button onClick={() => removeEmployee(employee)} className="px-2 text-xs text-red-600">
-                    ✕
-                  </button>
-                )}
+                  {canManage && (
+                    <button onClick={() => removeEmployee(employee)} className="px-2 text-xs text-red-600">
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
+              {mealFor === employee.id && <StaffMealPicker employee={employee} onClose={() => setMealFor(null)} />}
             </div>
           )
         })}
@@ -207,7 +221,7 @@ function EquipeView({ canManage }: { canManage: boolean }) {
   )
 }
 
-type ManagerView = 'approbations' | 'paie' | 'reglages'
+type ManagerView = 'approbations' | 'paie' | 'repas' | 'reglages'
 
 export function TimeClock({ canManage }: { canManage: boolean }) {
   const { employees } = useTimeClock()
@@ -238,6 +252,7 @@ export function TimeClock({ canManage }: { canManage: boolean }) {
               ['equipe', 'Équipe'],
               ['approbations', `Approbations${pendingCount > 0 ? ` (${pendingCount})` : ''}`],
               ['paie', 'Paie'],
+              ['repas', 'Repas'],
               ['reglages', 'Réglages'],
             ] as const
           ).map(([key, label]) => (
@@ -254,6 +269,7 @@ export function TimeClock({ canManage }: { canManage: boolean }) {
         </div>
         {view === 'approbations' && <ApprovalsPanel employees={employees} />}
         {view === 'paie' && <PayrollPanel canEditRates={canManage} />}
+        {view === 'repas' && <StaffMealsPanel employees={employees} />}
         {view === 'reglages' && <TimeClockSettings employees={employees} />}
       </div>
     )

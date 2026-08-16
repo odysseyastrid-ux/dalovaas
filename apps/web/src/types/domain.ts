@@ -150,6 +150,17 @@ export interface ShiftBreak {
   created_at: string
 }
 
+export interface StaffMeal {
+  id: number
+  employee_id: string
+  item_id: string
+  item_name: string
+  original_price: number
+  discount_percent: number
+  paid_price: number
+  created_at: string
+}
+
 export interface OvertimeRequest {
   id: number
   employee_id: string

@@ -42,6 +42,7 @@ const RAW_STRINGS = {
     uploadProof: 'Upload receipt', proofUploaded: 'Receipt uploaded', placeOrder: 'Confirm order',
     outOfStock: 'Out of stock', backInStock: 'Back in stock', markOutOfStock: 'Mark out of stock',
     home: 'Home', cart: 'Cart',
+    aboutTitle: 'About Us',
   },
   fr: {
     slogan: 'Manger comme à East Blue.', enter: 'Entrer →', skip: 'Passer',
@@ -84,6 +85,7 @@ const RAW_STRINGS = {
     uploadProof: 'Envoyer le reçu', proofUploaded: 'Reçu envoyé', placeOrder: 'Confirmer la commande',
     outOfStock: 'Rupture de stock', backInStock: 'Remettre en vente', markOutOfStock: 'Marquer en rupture',
     home: 'Accueil', cart: 'Panier',
+    aboutTitle: 'À propos de nous',
   },
 } satisfies Record<Lang, Record<string, string>>
 

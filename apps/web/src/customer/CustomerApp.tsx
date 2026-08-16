@@ -20,6 +20,7 @@ import { PaymentMethodsScreen } from './screens/account/PaymentMethodsScreen'
 import { AddressesScreen } from './screens/account/AddressesScreen'
 import { NotificationsScreen } from './screens/account/NotificationsScreen'
 import { HelpScreen } from './screens/account/HelpScreen'
+import { AboutScreen } from './screens/account/AboutScreen'
 
 const TAB_PATHS = new Set(['/', '/rewards', '/cart', '/account'])
 const ONBOARDED_KEY = 'chez-sanji-onboarded'
@@ -100,6 +101,7 @@ export function CustomerApp() {
           <Route path="/account/addresses" element={<AddressesScreen />} />
           <Route path="/account/notifications" element={<NotificationsScreen />} />
           <Route path="/account/help" element={<HelpScreen />} />
+          <Route path="/account/about" element={<AboutScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

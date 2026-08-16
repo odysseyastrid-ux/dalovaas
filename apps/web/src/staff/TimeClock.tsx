@@ -102,6 +102,12 @@ function EquipeView({ canManage }: { canManage: boolean }) {
     setBusy(null)
   }
 
+  const deleteEntry = async (entryId: number) => {
+    if (!window.confirm('Supprimer ce pointage ? Cette action est définitive.')) return
+    const { error } = await supabase.rpc('delete_time_entry', { p_id: entryId })
+    if (error) showToast(error.message)
+  }
+
   const finishedToday = entries.filter((e) => e.clock_out !== null && new Date(e.clock_in).toDateString() === new Date().toDateString())
 
   return (
@@ -208,9 +214,16 @@ function EquipeView({ canManage }: { canManage: boolean }) {
               return (
                 <div key={entry.id} className="flex items-center justify-between rounded-xl border border-[var(--color-divider)] bg-white p-3.5 text-sm">
                   <span>{employee?.name ?? '—'}</span>
-                  <span className="text-xs text-[var(--color-ink)]/60">
-                    {fmtTime(entry.clock_in)} – {fmtTime(entry.clock_out!)} · {fmtDuration(entry.clock_in, entry.clock_out)}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-[var(--color-ink)]/60">
+                      {fmtTime(entry.clock_in)} – {fmtTime(entry.clock_out!)} · {fmtDuration(entry.clock_in, entry.clock_out)}
+                    </span>
+                    {canManage && (
+                      <button onClick={() => deleteEntry(entry.id)} className="text-xs text-red-600">
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
               )
             })}

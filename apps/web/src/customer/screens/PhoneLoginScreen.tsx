@@ -5,6 +5,8 @@ import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 
+const LAST_PHONE_KEY = 'chez_sanji_last_phone'
+
 const OTP_WHATSAPP_NUMBER = import.meta.env.VITE_OTP_WHATSAPP_NUMBER as string | undefined
 const OTP_WHATSAPP_NUMBER_2 = import.meta.env.VITE_OTP_WHATSAPP_NUMBER_2 as string | undefined
 
@@ -26,7 +28,10 @@ function toE164(raw: string): string | null {
 
 export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (phone: string) => void }) {
   const { t, lang } = useI18n()
-  const [phone, setPhone] = useState('')
+  // Pre-fill with the last phone number used on this device, so reconnecting
+  // (new session, cleared cache, another visit) doesn't rely on the customer
+  // retyping it from memory -- a typo there would land on a different account.
+  const [phone, setPhone] = useState(() => localStorage.getItem(LAST_PHONE_KEY) ?? '')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const showToast = useToastStore((s) => s.show)
@@ -43,6 +48,7 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (phone: string) =
       setError(err.message)
       return
     }
+    localStorage.setItem(LAST_PHONE_KEY, phone)
     showToast(t.viaSms)
     onCodeSent(e164)
   }

@@ -120,9 +120,12 @@ export interface StaffMember {
   active: boolean
 }
 
+export type EmployeeCategory = 'bar' | 'counter' | 'kitchen' | 'dressing' | 'service'
+
 export interface Employee {
   id: string
   name: string
+  category: EmployeeCategory
   active: boolean
   created_at: string
 }
@@ -132,7 +135,20 @@ export interface TimeEntry {
   employee_id: string
   clock_in: string
   clock_out: string | null
+  clock_in_lat: number | null
+  clock_in_lng: number | null
   created_at: string
+}
+
+export interface OvertimeRequest {
+  id: number
+  employee_id: string
+  hours: number | null
+  note: string | null
+  status: 'pending' | 'approved' | 'dismissed'
+  auto: boolean
+  created_at: string
+  resolved_at: string | null
 }
 
 export interface CartAddOn {

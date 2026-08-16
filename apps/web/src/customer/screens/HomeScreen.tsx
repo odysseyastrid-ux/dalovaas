@@ -10,20 +10,22 @@ import { useCartStore } from '@/state/cartStore'
 import { useToastStore } from '@/state/toastStore'
 import { PromoCarousel } from '@/components/PromoCarousel'
 
+// "Tout" and "Combo" are deliberately not customer-browsable categories --
+// combos are now offered dynamically via the add-to-cart upsell popup
+// instead of as their own standalone products.
+const CUSTOMER_CATEGORIES = CATEGORY_ORDER.filter((c) => c !== 'combo')
+
 export function HomeScreen() {
   const { t, lang, toggleLang } = useI18n()
   const navigate = useNavigate()
   const { items, loading } = useMenu()
   const { settings } = useAppSettings()
-  const [category, setCategory] = useState<MenuCategory | 'all'>('all')
+  const [category, setCategory] = useState<MenuCategory>(CUSTOMER_CATEGORIES[0])
   const [logoFailed, setLogoFailed] = useState(false)
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
-  const filtered = useMemo(
-    () => (category === 'all' ? items : items.filter((i) => i.cat === category)),
-    [items, category],
-  )
+  const filtered = useMemo(() => items.filter((i) => i.cat === category), [items, category])
 
   const quickAdd = (item: (typeof items)[number], e: React.MouseEvent) => {
     e.stopPropagation()
@@ -77,10 +79,7 @@ export function HomeScreen() {
         <PromoCarousel slides={settings.promo_slides} />
 
         <div className="no-scrollbar flex gap-2.5 overflow-x-auto px-4 py-4">
-          <CategoryChip active={category === 'all'} onClick={() => setCategory('all')}>
-            {lang === 'fr' ? 'Tout' : 'All'}
-          </CategoryChip>
-          {CATEGORY_ORDER.map((cat) => (
+          {CUSTOMER_CATEGORIES.map((cat) => (
             <CategoryChip key={cat} active={category === cat} onClick={() => setCategory(cat)}>
               {CATEGORY_LABELS[cat][lang as Lang]}
             </CategoryChip>

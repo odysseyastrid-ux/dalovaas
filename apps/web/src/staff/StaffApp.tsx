@@ -9,6 +9,7 @@ import { MenuManager } from './MenuManager'
 import { Reports } from './Reports'
 import { StaffManager } from './StaffManager'
 import { BrandingManager } from './BrandingManager'
+import { TimeClock } from './TimeClock'
 import clsx from 'clsx'
 
 export function StaffApp() {
@@ -73,6 +74,7 @@ export function StaffApp() {
         {[
           { to: '/staff', label: t.staffOrdersBoard, end: true },
           { to: '/staff/menu', label: t.manageMenu },
+          { to: '/staff/pointage', label: 'Pointage' },
           { to: '/staff/reports', label: 'Reports' },
           ...(staff.role === 'manager' ? [{ to: '/staff/branding', label: 'Image de marque' }] : []),
           ...(staff.role === 'manager' ? [{ to: '/staff/team', label: 'Staff' }] : []),
@@ -96,6 +98,7 @@ export function StaffApp() {
         <Routes>
           <Route path="/" element={<OrdersBoard />} />
           <Route path="/menu" element={<MenuManager canEdit={staff.role === 'manager'} />} />
+          <Route path="/pointage" element={<TimeClock canManage={staff.role === 'manager'} />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/branding" element={staff.role === 'manager' ? <BrandingManager /> : <Navigate to="/staff" replace />} />
           <Route path="/team" element={staff.role === 'manager' ? <StaffManager /> : <Navigate to="/staff" replace />} />

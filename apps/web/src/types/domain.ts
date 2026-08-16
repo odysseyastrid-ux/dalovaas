@@ -120,6 +120,21 @@ export interface StaffMember {
   active: boolean
 }
 
+export interface Employee {
+  id: string
+  name: string
+  active: boolean
+  created_at: string
+}
+
+export interface TimeEntry {
+  id: number
+  employee_id: string
+  clock_in: string
+  clock_out: string | null
+  created_at: string
+}
+
 export interface CartAddOn {
   label: string
   labelFr: string

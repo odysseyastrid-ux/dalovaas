@@ -25,6 +25,7 @@ export function useTodayStats() {
       const { data } = await supabase
         .from('orders')
         .select('total, donation_amount, pending_validation, is_staff_meal')
+        .eq('deleted', false)
         .gte('created_at', startOfTodayISO())
       if (!cancelled && data) {
         // Comped/discounted staff meals aren't a sale -- keep them out of

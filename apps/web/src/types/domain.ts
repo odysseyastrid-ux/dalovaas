@@ -76,6 +76,7 @@ export interface Order {
   customer_name: string
   customer_phone: string
   is_staff_meal: boolean
+  deleted: boolean
   fulfillment: Fulfillment
   delivery_address: string | null
   lines: OrderLine[]

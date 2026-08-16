@@ -114,6 +114,7 @@ export function useActiveOrders() {
         .from('orders')
         .select('*')
         .eq('status', 'active')
+        .eq('deleted', false)
         .order('created_at', { ascending: true })
       if (!cancelled) {
         setOrders((data as Order[]) ?? [])
@@ -166,7 +167,11 @@ export function useAllOrders() {
     let cancelled = false
 
     const load = async () => {
-      const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+      const { data } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('deleted', false)
+        .order('created_at', { ascending: false })
       if (!cancelled) {
         setOrders((data as Order[]) ?? [])
         setLoading(false)

@@ -102,6 +102,7 @@ export interface Account {
   id: string
   phone: string
   profile_name: string
+  avatar_url: string | null
   loyalty_points: number
   saved_address: string | null
   default_payment_method: PaymentMethod

@@ -48,7 +48,7 @@ function buildRows(order: Order, lang: 'fr' | 'en'): Row[] {
       rows.push({
         kind: 'addon',
         label: `  + ${lang === 'fr' ? addOn.label_fr : addOn.label}`,
-        value: formatFCFA(addOn.price),
+        value: addOn.price > 0 ? formatFCFA(addOn.price) : lang === 'fr' ? 'Gratuit' : 'Free',
         h: 20,
       })
     }

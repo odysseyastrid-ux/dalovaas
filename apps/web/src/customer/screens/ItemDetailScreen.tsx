@@ -114,7 +114,7 @@ export function ItemDetailScreen() {
                       <div className="text-sm">{lang === 'fr' ? ao.label_fr : ao.label}</div>
                     </div>
                     <div className="text-sm text-[var(--color-ink)]/60">
-                      {ao.price > 0 ? '+' + formatFCFA(ao.price) : '—'}
+                      {ao.price > 0 ? '+' + formatFCFA(ao.price) : lang === 'fr' ? 'Gratuit' : 'Free'}
                     </div>
                   </div>
                 )

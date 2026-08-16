@@ -33,14 +33,26 @@ export function AccountScreen() {
         </button>
       </div>
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-        <div className="flex items-center gap-4 border-b border-[var(--color-divider)] p-4">
-          <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[var(--color-accent)] font-[var(--font-heading)] text-lg font-bold">
-            {initials}
+        <div
+          onClick={() => navigate('/account/profile')}
+          className="flex cursor-pointer items-center justify-between gap-4 border-b border-[var(--color-divider)] p-4"
+        >
+          <div className="flex items-center gap-4">
+            {account?.avatar_url ? (
+              <img src={account.avatar_url} alt="" className="h-14 w-14 flex-none rounded-full object-cover" />
+            ) : (
+              <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[var(--color-accent)] font-[var(--font-heading)] text-lg font-bold">
+                {initials}
+              </div>
+            )}
+            <div>
+              <div className="font-[var(--font-heading)] text-[15px] font-bold">{account?.profile_name || '—'}</div>
+              <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{account?.phone}</div>
+            </div>
           </div>
-          <div>
-            <div className="font-[var(--font-heading)] text-[15px] font-bold">{account?.profile_name || '—'}</div>
-            <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{account?.phone}</div>
-          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" className="flex-none text-[var(--color-ink)]/30">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </div>
         <div className="flex gap-3 border-b border-[var(--color-divider)] p-4">
           <div className="flex-1 rounded-xl border border-[var(--color-divider)] p-3 text-center">

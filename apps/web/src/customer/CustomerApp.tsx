@@ -15,6 +15,7 @@ import { TrackingScreen } from './screens/TrackingScreen'
 import { RewardsScreen } from './screens/RewardsScreen'
 import { AccountScreen } from './screens/AccountScreen'
 import { OrderHistoryScreen } from './screens/account/OrderHistoryScreen'
+import { ProfileScreen } from './screens/account/ProfileScreen'
 import { PaymentMethodsScreen } from './screens/account/PaymentMethodsScreen'
 import { AddressesScreen } from './screens/account/AddressesScreen'
 import { NotificationsScreen } from './screens/account/NotificationsScreen'
@@ -93,6 +94,7 @@ export function CustomerApp() {
           <Route path="/tracking/:ref" element={<TrackingScreen />} />
           <Route path="/rewards" element={<RewardsScreen />} />
           <Route path="/account" element={<AccountScreen />} />
+          <Route path="/account/profile" element={<ProfileScreen />} />
           <Route path="/account/history" element={<OrderHistoryScreen />} />
           <Route path="/account/payment" element={<PaymentMethodsScreen />} />
           <Route path="/account/addresses" element={<AddressesScreen />} />

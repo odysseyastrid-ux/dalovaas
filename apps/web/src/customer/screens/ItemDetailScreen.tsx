@@ -31,8 +31,13 @@ export function ItemDetailScreen() {
 
   // Combo upsell: burgers get frites + a drink at -15%, poutine gets just a
   // drink at -15%. Offered once, right before the item is added to cart.
+  // Drink choice is deliberately just Coca-Cola or Soda, per the owner.
+  const COMBO_DRINK_IDS = ['d1', 'itm_9b8fc4d6c5']
   const friesItem = useMemo(() => items.find((i) => i.cat === 'fries' && !i.out_of_stock) ?? null, [items])
-  const drinkOptions = useMemo(() => items.filter((i) => i.cat === 'soft_drinks' && !i.out_of_stock), [items])
+  const drinkOptions = useMemo(
+    () => items.filter((i) => i.cat === 'soft_drinks' && !i.out_of_stock && COMBO_DRINK_IDS.includes(i.id)),
+    [items],
+  )
   const comboEligible =
     !!item &&
     (item.cat === 'burgers' || item.cat === 'poutine') &&

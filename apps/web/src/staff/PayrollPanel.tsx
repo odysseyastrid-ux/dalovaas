@@ -4,7 +4,7 @@ import { useAppSettings, type HourlyRates } from '@/hooks/useAppSettings'
 import { formatFCFA } from '@/lib/format'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
-import type { TimeEntry } from '@/types/domain'
+import type { ShiftBreak, TimeEntry } from '@/types/domain'
 
 const CATEGORY_LABEL: Record<keyof HourlyRates, string> = {
   bar: 'Bar',
@@ -14,11 +14,19 @@ const CATEGORY_LABEL: Record<keyof HourlyRates, string> = {
   service: 'Service',
 }
 
-function hoursFor(employeeId: string, entries: TimeEntry[], periodStart: string) {
+// Breaks are unpaid, so payroll hours are shift duration minus any break
+// time taken during that shift.
+function hoursFor(employeeId: string, entries: TimeEntry[], breaks: ShiftBreak[], periodStart: string) {
   const cutoff = new Date(periodStart).getTime()
   const ms = entries
     .filter((e) => e.employee_id === employeeId && new Date(e.clock_in).getTime() >= cutoff)
-    .reduce((sum, e) => sum + ((e.clock_out ? new Date(e.clock_out).getTime() : Date.now()) - new Date(e.clock_in).getTime()), 0)
+    .reduce((sum, e) => {
+      const shiftMs = (e.clock_out ? new Date(e.clock_out).getTime() : Date.now()) - new Date(e.clock_in).getTime()
+      const breakMs = breaks
+        .filter((b) => b.time_entry_id === e.id)
+        .reduce((bSum, b) => bSum + ((b.break_end ? new Date(b.break_end).getTime() : Date.now()) - new Date(b.break_start).getTime()), 0)
+      return sum + Math.max(0, shiftMs - breakMs)
+    }, 0)
   return ms / 3600000
 }
 
@@ -51,18 +59,18 @@ function printDoc(title: string, bodyHtml: string) {
 }
 
 export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
-  const { employees, entries, loading } = useTimeClock()
+  const { employees, entries, breaks, loading } = useTimeClock()
   const { settings, reload } = useAppSettings()
   const showToast = useToastStore((s) => s.show)
 
   const rows = useMemo(
     () =>
       employees.map((emp) => {
-        const hours = hoursFor(emp.id, entries, settings.payroll_period_start)
+        const hours = hoursFor(emp.id, entries, breaks, settings.payroll_period_start)
         const rate = settings.hourly_rates[emp.category]
         return { employee: emp, hours, rate, total: hours * rate }
       }),
-    [employees, entries, settings.payroll_period_start, settings.hourly_rates],
+    [employees, entries, breaks, settings.payroll_period_start, settings.hourly_rates],
   )
 
   const totalHours = rows.reduce((s, r) => s + r.hours, 0)

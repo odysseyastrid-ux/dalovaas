@@ -35,7 +35,7 @@ function getGpsPosition(): Promise<{ lat: number; lng: number } | null> {
 }
 
 function EquipeView({ canManage }: { canManage: boolean }) {
-  const { employees, entries, loading } = useTimeClock()
+  const { employees, entries, breaks, loading } = useTimeClock()
   const { settings } = useAppSettings()
   const showToast = useToastStore((s) => s.show)
   const [newName, setNewName] = useState('')
@@ -43,6 +43,8 @@ function EquipeView({ canManage }: { canManage: boolean }) {
 
   const openEntryFor = (employeeId: string) =>
     entries.find((e) => e.employee_id === employeeId && e.clock_out === null)
+  const openBreakFor = (entryId: number) => breaks.find((b) => b.time_entry_id === entryId && b.break_end === null)
+  const breaksUsedFor = (entryId: number) => breaks.filter((b) => b.time_entry_id === entryId).length
   const onShiftCount = employees.filter((e) => openEntryFor(e.id)).length
 
   const addEmployee = async () => {
@@ -87,6 +89,16 @@ function EquipeView({ canManage }: { canManage: boolean }) {
     setBusy(null)
   }
 
+  const toggleBreak = async (employee: Employee, entryId: number) => {
+    setBusy(employee.id)
+    const openBreak = openBreakFor(entryId)
+    const { error } = openBreak
+      ? await supabase.rpc('end_break', { p_employee_id: employee.id })
+      : await supabase.rpc('start_break', { p_employee_id: employee.id })
+    if (error) showToast(error.message)
+    setBusy(null)
+  }
+
   const finishedToday = entries.filter((e) => e.clock_out !== null && new Date(e.clock_in).toDateString() === new Date().toDateString())
 
   return (
@@ -124,22 +136,40 @@ function EquipeView({ canManage }: { canManage: boolean }) {
       <div className="flex flex-col gap-3">
         {employees.map((employee) => {
           const open = openEntryFor(employee.id)
+          const openBreak = open ? openBreakFor(open.id) : undefined
+          const breaksUsed = open ? breaksUsedFor(open.id) : 0
           return (
             <div key={employee.id} className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-divider)] bg-white p-4">
               <div>
                 <div className="font-[var(--font-heading)] text-sm font-bold">{employee.name}</div>
                 {open ? (
-                  <div className="mt-0.5 text-xs text-[var(--color-accent-700)]">
-                    En service depuis {fmtTime(open.clock_in)} · {fmtDuration(open.clock_in, null)}
-                  </div>
+                  openBreak ? (
+                    <div className="mt-0.5 text-xs font-bold text-[var(--color-accent-700)]">
+                      En pause depuis {fmtTime(openBreak.break_start)} · {fmtDuration(openBreak.break_start, null)}
+                    </div>
+                  ) : (
+                    <div className="mt-0.5 text-xs text-[var(--color-accent-700)]">
+                      En service depuis {fmtTime(open.clock_in)} · {fmtDuration(open.clock_in, null)}
+                      {employee.max_breaks > 0 && ` · Pauses ${breaksUsed}/${employee.max_breaks}`}
+                    </div>
+                  )
                 ) : (
                   <div className="mt-0.5 text-xs text-[var(--color-ink)]/50">Hors service</div>
                 )}
               </div>
               <div className="flex items-center gap-2">
+                {open && employee.max_breaks > 0 && (
+                  <button
+                    onClick={() => toggleBreak(employee, open.id)}
+                    disabled={busy === employee.id || (!openBreak && breaksUsed >= employee.max_breaks)}
+                    className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold disabled:opacity-40"
+                  >
+                    {openBreak ? 'Fin de pause' : 'Pause'}
+                  </button>
+                )}
                 <button
                   onClick={() => toggleClock(employee)}
-                  disabled={busy === employee.id}
+                  disabled={busy === employee.id || !!openBreak}
                   className={`rounded-lg px-4 py-2 text-xs font-bold disabled:opacity-40 ${open ? 'bg-[var(--color-ink)] text-white' : 'bg-[var(--color-accent)]'}`}
                 >
                   {busy === employee.id ? '…' : open ? 'Pointer le départ' : "Pointer l'arrivée"}

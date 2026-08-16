@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import type { Employee, OvertimeRequest, TimeEntry } from '@/types/domain'
+import type { Employee, OvertimeRequest, ShiftBreak, TimeEntry } from '@/types/domain'
 
 function daysAgoISO(days: number) {
   const d = new Date()
@@ -18,6 +18,7 @@ function daysAgoISO(days: number) {
 export function useTimeClock() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [entries, setEntries] = useState<TimeEntry[]>([])
+  const [breaks, setBreaks] = useState<ShiftBreak[]>([])
   const [loading, setLoading] = useState(true)
   const instanceId = useId()
 
@@ -29,9 +30,14 @@ export function useTimeClock() {
         supabase.from('employees').select('*').eq('active', true).order('name'),
         supabase.from('time_entries').select('*').gte('clock_in', daysAgoISO(14)).order('clock_in', { ascending: false }),
       ])
+      const entryIds = ((ents as TimeEntry[]) ?? []).map((e) => e.id)
+      const { data: brks } = entryIds.length
+        ? await supabase.from('shift_breaks').select('*').in('time_entry_id', entryIds)
+        : { data: [] }
       if (!cancelled) {
         setEmployees((emps as Employee[]) ?? [])
         setEntries((ents as TimeEntry[]) ?? [])
+        setBreaks((brks as ShiftBreak[]) ?? [])
         setLoading(false)
       }
     }
@@ -41,6 +47,7 @@ export function useTimeClock() {
       .channel(`time_clock_${instanceId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => load())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'time_entries' }, () => load())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'shift_breaks' }, () => load())
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') load()
       })
@@ -61,7 +68,7 @@ export function useTimeClock() {
     }
   }, [instanceId])
 
-  return { employees, entries, loading }
+  return { employees, entries, breaks, loading }
 }
 
 /** Staff-only: overtime alerts + manual overtime requests, realtime. */

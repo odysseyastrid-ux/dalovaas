@@ -37,6 +37,15 @@ export function TimeClockSettings({ employees }: { employees: Employee[] }) {
     if (error) showToast(error.message)
   }
 
+  const setBreaks = async (employee: Employee, maxBreaks: string, breakMinutes: string) => {
+    const { error } = await supabase.rpc('set_employee_breaks', {
+      p_id: employee.id,
+      p_max_breaks: Number(maxBreaks) || 0,
+      p_break_minutes: Number(breakMinutes) || 0,
+    })
+    if (error) showToast(error.message)
+  }
+
   const toggleGps = async () => {
     const { error } = await supabase.rpc('set_app_setting', { p_key: 'require_gps_checkin', p_value: !settings.require_gps_checkin })
     if (error) showToast(error.message)
@@ -129,20 +138,41 @@ export function TimeClockSettings({ employees }: { employees: Employee[] }) {
       <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">Réglages du pointage</div>
 
       <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
-        <div className="mb-3 text-sm font-bold">Poste de chaque employé</div>
-        <div className="flex flex-col gap-2">
+        <div className="mb-3 text-sm font-bold">Poste et pauses par employé</div>
+        <div className="flex flex-col gap-3">
           {employees.map((emp) => (
-            <div key={emp.id} className="flex items-center justify-between gap-3">
+            <div key={emp.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-divider)] pb-3 last:border-0 last:pb-0">
               <span className="text-sm">{emp.name}</span>
-              <select
-                defaultValue={emp.category}
-                onChange={(e) => setCategory(emp, e.target.value)}
-                className="rounded-lg border border-[var(--color-divider)] px-2 py-1.5 text-xs"
-              >
-                {CATEGORY_OPTIONS.map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  defaultValue={emp.category}
+                  onChange={(e) => setCategory(emp, e.target.value)}
+                  className="rounded-lg border border-[var(--color-divider)] px-2 py-1.5 text-xs"
+                >
+                  {CATEGORY_OPTIONS.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+                <label className="flex items-center gap-1 text-xs text-[var(--color-ink)]/60">
+                  <input
+                    type="number"
+                    defaultValue={emp.max_breaks}
+                    min={0}
+                    onBlur={(e) => Number(e.target.value) !== emp.max_breaks && setBreaks(emp, e.target.value, String(emp.break_minutes))}
+                    className="w-12 rounded-lg border border-[var(--color-divider)] px-1.5 py-1.5 text-center"
+                  />
+                  pauses ×
+                  <input
+                    type="number"
+                    defaultValue={emp.break_minutes}
+                    min={0}
+                    step={5}
+                    onBlur={(e) => Number(e.target.value) !== emp.break_minutes && setBreaks(emp, String(emp.max_breaks), e.target.value)}
+                    className="w-14 rounded-lg border border-[var(--color-divider)] px-1.5 py-1.5 text-center"
+                  />
+                  min
+                </label>
+              </div>
             </div>
           ))}
           {employees.length === 0 && <div className="text-xs text-[var(--color-ink)]/50">Aucun employé pour l'instant.</div>}

@@ -6,6 +6,8 @@ import { formatFCFA } from '@/lib/format'
 import { useCartStore } from '@/state/cartStore'
 import { useToastStore } from '@/state/toastStore'
 import { Button } from '@/components/Button'
+import { ComboOfferModal } from './ComboOfferModal'
+import type { MenuItem } from '@/types/domain'
 
 export function ItemDetailScreen() {
   const { id } = useParams()
@@ -19,12 +21,23 @@ export function ItemDetailScreen() {
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [qty, setQty] = useState(1)
   const [zoomed, setZoomed] = useState(false)
+  const [showCombo, setShowCombo] = useState(false)
 
   const unitPrice = useMemo(() => {
     if (!item) return 0
     const addOnsTotal = item.add_ons.filter((a) => selectedAddOns.has(a.label)).reduce((sum, a) => sum + a.price, 0)
     return item.price + addOnsTotal
   }, [item, selectedAddOns])
+
+  // Combo upsell: burgers get frites + a drink at -15%, poutine gets just a
+  // drink at -15%. Offered once, right before the item is added to cart.
+  const friesItem = useMemo(() => items.find((i) => i.cat === 'fries' && !i.out_of_stock) ?? null, [items])
+  const drinkOptions = useMemo(() => items.filter((i) => i.cat === 'soft_drinks' && !i.out_of_stock), [items])
+  const comboEligible =
+    !!item &&
+    (item.cat === 'burgers' || item.cat === 'poutine') &&
+    drinkOptions.length > 0 &&
+    (item.cat !== 'burgers' || !!friesItem)
 
   if (!item) {
     return (
@@ -44,20 +57,33 @@ export function ItemDetailScreen() {
     })
   }
 
-  const add = () => {
+  const doAdd = (combo?: MenuItem) => {
+    const bundlePrice = combo
+      ? unitPrice + (item.cat === 'burgers' ? friesItem?.price ?? 0 : 0) + combo.price
+      : unitPrice
+    const comboDiscount = combo ? Math.round(bundlePrice * 0.15) : 0
     addLine({
       itemId: item.id,
       name: item.name,
       nameFr: item.name_fr,
       cat: item.cat,
-      unitPrice,
+      unitPrice: bundlePrice - comboDiscount,
       qty,
       addOns: item.add_ons
         .filter((a) => selectedAddOns.has(a.label))
         .map((a) => ({ label: a.label, labelFr: a.label_fr, price: a.price })),
+      combo: combo ? { drinkItemId: combo.id, drinkName: combo.name, drinkNameFr: combo.name_fr } : undefined,
     })
     showToast((lang === 'fr' ? 'Ajouté au panier : ' : 'Added to cart: ') + (lang === 'fr' ? item.name_fr : item.name))
     navigate('/')
+  }
+
+  const add = () => {
+    if (comboEligible) {
+      setShowCombo(true)
+      return
+    }
+    doAdd()
   }
 
   return (
@@ -164,6 +190,24 @@ export function ItemDetailScreen() {
             </svg>
           </button>
         </div>
+      )}
+      {showCombo && (
+        <ComboOfferModal
+          item={item}
+          baseUnitPrice={unitPrice}
+          qty={qty}
+          friesItem={friesItem}
+          drinkOptions={drinkOptions}
+          lang={lang}
+          onAccept={(drink) => {
+            setShowCombo(false)
+            doAdd(drink)
+          }}
+          onDecline={() => {
+            setShowCombo(false)
+            doAdd()
+          }}
+        />
       )}
     </div>
   )

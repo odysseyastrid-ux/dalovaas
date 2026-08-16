@@ -59,6 +59,13 @@ export function CartScreen() {
                         {line.addOns.map((a) => (lang === 'fr' ? a.labelFr : a.label)).join(', ')}
                       </div>
                     )}
+                    {line.combo && (
+                      <div className="mt-0.5 text-xs font-bold text-[var(--color-accent-700)]">
+                        {lang === 'fr'
+                          ? `Combo (-15%) : ${line.cat === 'burgers' ? 'frites + ' : ''}${line.combo.drinkNameFr}`
+                          : `Combo (-15%): ${line.cat === 'burgers' ? 'fries + ' : ''}${line.combo.drinkName}`}
+                      </div>
+                    )}
                   </div>
                   <div className="font-[var(--font-heading)] text-sm font-bold">
                     {line.redemptionId && line.addOns.length === 0

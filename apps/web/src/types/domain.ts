@@ -181,6 +181,12 @@ export interface CartAddOn {
   price: number
 }
 
+export interface CartCombo {
+  drinkItemId: string
+  drinkName: string
+  drinkNameFr: string
+}
+
 export interface CartLine {
   key: string
   itemId: string
@@ -191,4 +197,5 @@ export interface CartLine {
   qty: number
   addOns: CartAddOn[]
   redemptionId?: number
+  combo?: CartCombo
 }

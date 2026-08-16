@@ -23,9 +23,9 @@ interface CartState {
   setRoundUpDonation: (v: boolean) => void
 }
 
-function lineKey(itemId: string, addOns: CartLine['addOns'], redemptionId?: number) {
+function lineKey(itemId: string, addOns: CartLine['addOns'], redemptionId?: number, comboDrinkId?: string) {
   if (redemptionId) return `redeemed-${redemptionId}`
-  return itemId + '::' + addOns.map((a) => a.label).sort().join(',')
+  return itemId + '::' + addOns.map((a) => a.label).sort().join(',') + (comboDrinkId ? `::combo-${comboDrinkId}` : '')
 }
 
 export const useCartStore = create<CartState>()(
@@ -41,7 +41,7 @@ export const useCartStore = create<CartState>()(
 
       addLine: (line) =>
         set((state) => {
-          const key = lineKey(line.itemId, line.addOns, line.redemptionId)
+          const key = lineKey(line.itemId, line.addOns, line.redemptionId, line.combo?.drinkItemId)
           if (line.redemptionId) {
             // a reward redemption is single-use -- never merges, always qty 1
             return { lines: [...state.lines, { ...line, qty: 1, key }] }

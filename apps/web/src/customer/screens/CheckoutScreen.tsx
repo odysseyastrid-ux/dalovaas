@@ -82,6 +82,8 @@ export function CheckoutScreen() {
         qty: l.qty,
         add_on_labels: l.addOns.map((a) => a.label),
         redemption_id: l.redemptionId ?? null,
+        combo: !!l.combo,
+        combo_drink_id: l.combo?.drinkItemId ?? null,
       })),
     [lines],
   )

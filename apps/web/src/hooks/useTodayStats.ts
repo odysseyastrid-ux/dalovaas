@@ -24,12 +24,15 @@ export function useTodayStats() {
     const load = async () => {
       const { data } = await supabase
         .from('orders')
-        .select('total, donation_amount, pending_validation')
+        .select('total, donation_amount, pending_validation, is_staff_meal')
         .gte('created_at', startOfTodayISO())
       if (!cancelled && data) {
-        const validated = data.filter((o) => !o.pending_validation)
+        // Comped/discounted staff meals aren't a sale -- keep them out of
+        // order count and revenue so the day's real numbers stay clean.
+        const real = data.filter((o) => !o.is_staff_meal)
+        const validated = real.filter((o) => !o.pending_validation)
         setStats({
-          orderCount: data.length,
+          orderCount: real.length,
           revenue: validated.reduce((sum, o) => sum + o.total, 0),
           donations: validated.reduce((sum, o) => sum + (o.donation_amount ?? 0), 0),
         })

@@ -73,6 +73,8 @@ function openReceipt(order: Order) {
   }, 300)
 }
 
+const ONE_MINUTE_MS = 60000
+
 export function OrdersBoard() {
   const { t } = useI18n()
   const { orders, loading } = useActiveOrders()
@@ -82,21 +84,45 @@ export function OrdersBoard() {
   const [refInput, setRefInput] = useState('')
   const [refError, setRefError] = useState(false)
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({})
+  const [now, setNow] = useState(Date.now())
 
   const pendingCount = orders.filter((o) => o.pending_validation).length
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   // Alert sound for anything a staff member needs to act on, so a busy fair
   // booth doesn't have to keep staring at the screen: new orders, new
   // pending-payment validations, new OTP codes to relay.
   const knownOrderIds = useRef<Set<string> | null>(null)
   const knownOtpIds = useRef<Set<number> | null>(null)
+  const deadlineFlagged = useRef<Set<string>>(new Set())
+
+  // A new order or an order about to blow its prep deadline rings loudly
+  // and continuously -- not just a periodic nag -- until a staff member
+  // explicitly silences it. Each order id, once flagged, only rings once
+  // per event (arriving / crossing the 1-minute mark); "Arrêter l'alarme"
+  // clears the currently-ringing set without suppressing future events.
+  const [ringingNew, setRingingNew] = useState<Set<string>>(new Set())
+  const [ringingDeadline, setRingingDeadline] = useState<Set<string>>(new Set())
+
   useEffect(() => {
     const ids = new Set(orders.map((o) => o.id))
-    if (knownOrderIds.current && [...ids].some((id) => !knownOrderIds.current!.has(id))) {
-      playOrderAlert()
+    if (knownOrderIds.current) {
+      const arrived = [...ids].filter((id) => !knownOrderIds.current!.has(id))
+      if (arrived.length > 0) {
+        setRingingNew((prev) => new Set([...prev, ...arrived]))
+      }
     }
     knownOrderIds.current = ids
+    // An order that left the active list (delivered, deleted) shouldn't
+    // keep counting toward a ringing alarm.
+    setRingingNew((prev) => new Set([...prev].filter((id) => ids.has(id))))
+    setRingingDeadline((prev) => new Set([...prev].filter((id) => ids.has(id))))
   }, [orders])
+
   useEffect(() => {
     const ids = new Set(otpQueue.map((r) => r.id))
     if (knownOtpIds.current && [...ids].some((id) => !knownOtpIds.current!.has(id))) {
@@ -104,6 +130,40 @@ export function OrdersBoard() {
     }
     knownOtpIds.current = ids
   }, [otpQueue])
+
+  // Scan for orders that just crossed the "1 minute left" mark on their
+  // prep countdown.
+  useEffect(() => {
+    const justCrossed: string[] = []
+    for (const order of orders) {
+      if (order.order_status_index !== 1 || !order.step_deadline) continue
+      const remaining = new Date(order.step_deadline).getTime() - now
+      if (remaining <= ONE_MINUTE_MS && remaining > -ONE_MINUTE_MS * 5 && !deadlineFlagged.current.has(order.id)) {
+        deadlineFlagged.current.add(order.id)
+        justCrossed.push(order.id)
+      }
+    }
+    if (justCrossed.length > 0) {
+      setRingingDeadline((prev) => new Set([...prev, ...justCrossed]))
+    }
+  }, [orders, now])
+
+  const isRinging = ringingNew.size > 0 || ringingDeadline.size > 0
+  useEffect(() => {
+    if (!isRinging) return
+    playOrderAlert()
+    const id = setInterval(() => {
+      if (ringingNew.size > 0) playOrderAlert()
+      if (ringingDeadline.size > 0) playOtpAlert()
+    }, 4000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRinging])
+
+  const stopAlarm = () => {
+    setRingingNew(new Set())
+    setRingingDeadline(new Set())
+  }
 
   // Keep nagging every 15s while something is still waiting on staff -- a
   // single beep is easy to miss in a loud fair crowd, so anything unhandled
@@ -163,6 +223,22 @@ export function OrdersBoard() {
 
   return (
     <div>
+      {isRinging && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-red-600 bg-red-50 p-4">
+          <div className="text-sm font-bold text-red-700">
+            🔔{' '}
+            {ringingNew.size > 0 && ringingDeadline.size > 0
+              ? `${ringingNew.size} nouvelle(s) commande(s) et ${ringingDeadline.size} en fin de délai !`
+              : ringingNew.size > 0
+                ? `${ringingNew.size} nouvelle(s) commande(s) !`
+                : `${ringingDeadline.size} commande(s) à moins d'1 minute de la fin du délai !`}
+          </div>
+          <button onClick={stopAlarm} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white">
+            Arrêter l'alarme
+          </button>
+        </div>
+      )}
+
       {otpQueue.length > 0 && (
         <div className="mb-6 rounded-xl border-2 border-red-600 bg-red-50 p-4">
           <div className="mb-2 text-sm font-bold text-red-700">
@@ -244,17 +320,29 @@ export function OrdersBoard() {
       {!loading && orders.length === 0 && <div className="text-sm text-[var(--color-ink)]/50">—</div>}
       <div className="flex flex-col gap-3">
         {orders.map((order) => (
-          <div key={order.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-divider)] bg-white p-4">
+          <div
+            key={order.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4"
+            style={{ borderColor: ringingNew.has(order.id) || ringingDeadline.has(order.id) ? '#dc2626' : 'var(--color-divider)', borderWidth: ringingNew.has(order.id) || ringingDeadline.has(order.id) ? 2 : 1 }}
+          >
             <div>
-              <div className="font-[var(--font-heading)] text-sm font-bold">{order.ref}</div>
+              <div className="font-[var(--font-heading)] text-sm font-bold">
+                {order.is_staff_meal ? order.customer_name : order.ref}
+              </div>
               <div className="text-xs text-[var(--color-ink)]/60">
-                {t.pickupCodeLabel}: {order.pickup_code} · {order.customer_name} — {order.customer_phone}
+                {t.pickupCodeLabel}: {order.pickup_code}
+                {!order.is_staff_meal && ` · ${order.customer_name} — ${order.customer_phone}`}
               </div>
               <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">
                 {FULFILLMENT_LABEL[order.fulfillment]} · {formatFCFA(order.total)}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              {order.is_staff_meal && (
+                <span className="rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold">
+                  🍽️ Repas staff
+                </span>
+              )}
               {order.pending_validation && (
                 <span className="rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold">
                   {t.staffPendingValidation}
@@ -265,14 +353,16 @@ export function OrdersBoard() {
                   Reçu manquant
                 </span>
               )}
-              <a
-                href={`https://wa.me/${order.customer_phone.replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noopener"
-                className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold"
-              >
-                WhatsApp
-              </a>
+              {!order.is_staff_meal && (
+                <a
+                  href={`https://wa.me/${order.customer_phone.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener"
+                  className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold"
+                >
+                  WhatsApp
+                </a>
+              )}
               {order.payment_proof_url && (
                 <button onClick={() => viewProof(order)} className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
                   {order.payment_method === 'cash' ? '' : 'Reçu'}
@@ -281,7 +371,7 @@ export function OrdersBoard() {
               <button onClick={() => openReceipt(order)} className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
                 {t.receiptPdf}
               </button>
-              {STAFF_GROUP_LINK && (
+              {STAFF_GROUP_LINK && !order.is_staff_meal && (
                 <button
                   onClick={() => sendToStaffGroup(order, order.pending_validation ? 'created' : 'validated', showToast)}
                   className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold"

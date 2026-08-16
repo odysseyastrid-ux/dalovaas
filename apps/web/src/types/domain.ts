@@ -72,9 +72,10 @@ export interface Order {
   id: string
   ref: string
   pickup_code: string
-  customer_id: string
+  customer_id: string | null
   customer_name: string
   customer_phone: string
+  is_staff_meal: boolean
   fulfillment: Fulfillment
   delivery_address: string | null
   lines: OrderLine[]

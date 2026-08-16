@@ -18,6 +18,7 @@ export function ItemDetailScreen() {
   const item = items.find((i) => i.id === id)
   const [selectedAddOns, setSelectedAddOns] = useState<Set<string>>(new Set())
   const [qty, setQty] = useState(1)
+  const [zoomed, setZoomed] = useState(false)
 
   const unitPrice = useMemo(() => {
     if (!item) return 0
@@ -63,7 +64,10 @@ export function ItemDetailScreen() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-28">
         <div className="relative">
-          <div className="h-[280px] w-full overflow-hidden bg-[var(--color-surface)]">
+          <div
+            className={`h-[280px] w-full overflow-hidden bg-[var(--color-surface)] ${item.image_url ? 'cursor-zoom-in' : ''}`}
+            onClick={() => item.image_url && setZoomed(true)}
+          >
             {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
           </div>
           <button
@@ -145,6 +149,22 @@ export function ItemDetailScreen() {
           {t.addToCart} · {formatFCFA(unitPrice * qty)}
         </Button>
       </div>
+      {zoomed && item.image_url && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setZoomed(false)}
+        >
+          <img src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain" />
+          <button
+            onClick={() => setZoomed(false)}
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   )
 }

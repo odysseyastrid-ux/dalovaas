@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import type { Employee, OvertimeRequest, ShiftBreak, StaffMeal, TimeEntry } from '@/types/domain'
+import type { Employee, OvertimeRequest, PayrollAdjustment, ShiftBreak, StaffMeal, TimeEntry } from '@/types/domain'
 
 function daysAgoISO(days: number) {
   const d = new Date()
@@ -69,6 +69,46 @@ export function useTimeClock() {
   }, [instanceId])
 
   return { employees, entries, breaks, loading }
+}
+
+/** Staff-only: manager corrections to computed payroll hours, realtime. */
+export function usePayrollAdjustments() {
+  const [adjustments, setAdjustments] = useState<PayrollAdjustment[]>([])
+  const instanceId = useId()
+
+  useEffect(() => {
+    let cancelled = false
+
+    const load = async () => {
+      const { data } = await supabase.from('payroll_adjustments').select('*')
+      if (!cancelled) setAdjustments((data as PayrollAdjustment[]) ?? [])
+    }
+    load()
+
+    const channel = supabase
+      .channel(`payroll_adjustments_${instanceId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payroll_adjustments' }, () => load())
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') load()
+      })
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', load)
+    const pollId = setInterval(load, 20000)
+
+    return () => {
+      cancelled = true
+      supabase.removeChannel(channel)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', load)
+      clearInterval(pollId)
+    }
+  }, [instanceId])
+
+  return { adjustments }
 }
 
 /** Staff-only: overtime alerts + manual overtime requests, realtime. */

@@ -176,6 +176,16 @@ export interface OvertimeRequest {
   resolved_at: string | null
 }
 
+export interface PayrollAdjustment {
+  id: number
+  employee_id: string
+  period_start: string
+  hours_override: number | null
+  note: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface CartAddOn {
   label: string
   labelFr: string

@@ -7,7 +7,7 @@ export function StaffManager() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [role, setRole] = useState<'cashier' | 'manager'>('cashier')
-  const [result, setResult] = useState<{ email: string; tempPassword: string } | null>(null)
+  const [result, setResult] = useState<{ email: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [inviting, setInviting] = useState(false)
 
@@ -67,8 +67,7 @@ export function StaffManager() {
         {error && <div className="mt-3 text-xs text-red-600">{error}</div>}
         {result && (
           <div className="mt-3 rounded-lg bg-[var(--color-surface)] p-3 text-xs">
-            Account created for <strong>{result.email}</strong>. Temporary password: <code>{result.tempPassword}</code>
-            <br />Share this securely — they should change it after first sign-in.
+            Invitation email sent to <strong>{result.email}</strong>. They'll get a link to set their own password and sign in.
           </div>
         )}
       </div>

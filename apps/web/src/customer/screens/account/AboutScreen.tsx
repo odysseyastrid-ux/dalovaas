@@ -42,7 +42,7 @@ export function AboutScreen() {
 
         <div className="mb-4 rounded-xl border border-[var(--color-divider)] p-4">
           <div className="mb-2 font-[var(--font-heading)] text-sm font-bold">
-            {lang === 'fr' ? 'Fondatrice' : 'Founder'}
+            {lang === 'fr' ? 'Fondateur' : 'Founder'}
           </div>
           <div className="text-sm leading-relaxed text-[var(--color-ink)]/70">{FOUNDER_NAME}</div>
         </div>

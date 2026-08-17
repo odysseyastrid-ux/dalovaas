@@ -1,6 +1,8 @@
-// Manager-only staff invitation. Creates a real Supabase Auth user (email +
-// temporary password) and the matching `staff` row — this is what replaces
-// the prototype's single shared "Mode développeur" password.
+// Manager-only staff invitation. Creates a real Supabase Auth user and sends
+// them Supabase's built-in "invite" email (a real email to their inbox with
+// a link to set their own password) — this is what replaces the prototype's
+// single shared "Mode développeur" password, and needs no external email
+// provider since Supabase's own auth email sending covers it.
 //
 // Called from the dashboard as:
 //   supabase.functions.invoke('create-staff', { body: { email, name, role } })
@@ -42,15 +44,14 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "email, name and a valid role are required" }), { status: 400 });
   }
 
-  const tempPassword = crypto.randomUUID().slice(0, 12);
+  const redirectTo = Deno.env.get("STAFF_APP_URL") ?? "https://chezsanji.com/staff";
 
-  const { data: created, error: createErr } = await admin.auth.admin.createUser({
-    email,
-    password: tempPassword,
-    email_confirm: true,
+  const { data: created, error: createErr } = await admin.auth.admin.inviteUserByEmail(email, {
+    redirectTo,
+    data: { name, role },
   });
   if (createErr || !created?.user) {
-    return new Response(JSON.stringify({ error: createErr?.message ?? "failed to create user" }), { status: 400 });
+    return new Response(JSON.stringify({ error: createErr?.message ?? "failed to invite user" }), { status: 400 });
   }
 
   const { error: staffErr } = await admin.from("staff").insert({
@@ -64,5 +65,5 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: staffErr.message }), { status: 400 });
   }
 
-  return new Response(JSON.stringify({ email, tempPassword }), { status: 200 });
+  return new Response(JSON.stringify({ email, invited: true }), { status: 200 });
 });

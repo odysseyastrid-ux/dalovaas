@@ -25,6 +25,8 @@ import { AboutScreen } from './screens/account/AboutScreen'
 const TAB_PATHS = new Set(['/', '/rewards', '/cart', '/account'])
 const ONBOARDED_KEY = 'chez-sanji-onboarded'
 
+export type PendingLogin = { mode: 'email'; email: string } | { mode: 'phone'; phone: string }
+
 export function CustomerApp() {
   const session = useAuthStore((s) => s.session)
   const authLoading = useAuthStore((s) => s.loading)
@@ -35,7 +37,7 @@ export function CustomerApp() {
   // tutorial, so it isn't persisted like onboarding is.
   const [entered, setEntered] = useState(false)
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem(ONBOARDED_KEY) === '1')
-  const [pendingEmail, setPendingEmail] = useState('')
+  const [pendingLogin, setPendingLogin] = useState<PendingLogin | null>(null)
 
   useEffect(() => {
     if (session) setOnboarded((prev) => prev)
@@ -73,10 +75,10 @@ export function CustomerApp() {
   if (!session) {
     return (
       <AppShell>
-        {pendingEmail ? (
-          <VerifyCodeScreen email={pendingEmail} onBack={() => setPendingEmail('')} />
+        {pendingLogin ? (
+          <VerifyCodeScreen pending={pendingLogin} onBack={() => setPendingLogin(null)} />
         ) : (
-          <PhoneLoginScreen onCodeSent={(email) => setPendingEmail(email)} />
+          <PhoneLoginScreen onCodeSent={(pending) => setPendingLogin(pending)} />
         )}
       </AppShell>
     )

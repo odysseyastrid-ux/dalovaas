@@ -4,8 +4,10 @@ const RAW_STRINGS = {
   en: {
     slogan: 'Eat like at East Blue.', enter: 'Enter →', skip: 'Skip',
     loginTitle: 'Log in', loginDesc: 'Enter your email address to create or access your account.',
+    loginDescPhone: 'Enter your phone number to create or access your account.',
     phoneLabel: 'Phone number', emailLabel: 'Email address', sendCode: 'Send code →', viaSms: 'Your 6-digit code will be sent to you by email',
-    verifyTitle: 'Verify your email', verifyDesc: 'Enter the 6-digit code sent to',
+    viaWhatsapp: 'Your 6-digit code will be sent to you via WhatsApp',
+    verifyTitle: 'Verify your email', verifyTitlePhone: 'Verify your number', verifyDesc: 'Enter the 6-digit code sent to',
     emailNotEditable: "Your email address can't be changed here — contact support if you need to update it.",
     codeError: 'Incorrect code, try again.', verify: 'Verify →', resendCode: 'Resend code',
     rewards: 'Rewards', yourPoints: 'Your points', redeem: 'Redeem', redeemBtn: 'Redeem', notEnoughPoints: 'Not enough points',
@@ -48,8 +50,10 @@ const RAW_STRINGS = {
   fr: {
     slogan: 'Manger comme à East Blue.', enter: 'Entrer →', skip: 'Passer',
     loginTitle: 'Connexion', loginDesc: 'Entrez votre adresse email pour créer ou accéder à votre compte.',
+    loginDescPhone: 'Entrez votre numéro pour créer ou accéder à votre compte.',
     phoneLabel: 'Numéro de téléphone', emailLabel: 'Adresse email', sendCode: 'Envoyer le code →', viaSms: 'Votre code à 6 chiffres vous sera envoyé par email',
-    verifyTitle: 'Vérifiez votre email', verifyDesc: 'Entrez le code à 6 chiffres envoyé à',
+    viaWhatsapp: 'Votre code à 6 chiffres vous sera envoyé via WhatsApp',
+    verifyTitle: 'Vérifiez votre email', verifyTitlePhone: 'Vérifiez votre numéro', verifyDesc: 'Entrez le code à 6 chiffres envoyé à',
     emailNotEditable: 'Votre adresse email ne peut pas être modifiée ici — contactez le support si besoin.',
     codeError: 'Code incorrect, réessayez.', verify: 'Vérifier →', resendCode: 'Renvoyer le code',
     rewards: 'Récompenses', yourPoints: 'Vos points', redeem: 'Échanger', redeemBtn: 'Échanger', notEnoughPoints: 'Points insuffisants',

@@ -2,16 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
+import type { PendingLogin } from '../CustomerApp'
 
 const CODE_LENGTH = 6
 
-export function VerifyCodeScreen({ email, onBack }: { email: string; onBack: () => void }) {
+export function VerifyCodeScreen({ pending, onBack }: { pending: PendingLogin; onBack: () => void }) {
   const { t } = useI18n()
   const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''))
   const [focused, setFocused] = useState(false)
   const [error, setError] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const hiddenRef = useRef<HTMLInputElement | null>(null)
+  const identifier = pending.mode === 'email' ? pending.email : pending.phone
 
   useEffect(() => {
     hiddenRef.current?.focus()
@@ -33,20 +35,26 @@ export function VerifyCodeScreen({ email, onBack }: { email: string; onBack: () 
     if (code.length !== CODE_LENGTH) return
     setVerifying(true)
     setError(false)
-    const { error: err } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
+    const { error: err } =
+      pending.mode === 'email'
+        ? await supabase.auth.verifyOtp({ email: pending.email, token: code, type: 'email' })
+        : await supabase.auth.verifyOtp({ phone: pending.phone, token: code, type: 'sms' })
     setVerifying(false)
     if (err) setError(true)
   }
 
   const resend = async () => {
-    await supabase.auth.signInWithOtp({ email })
+    if (pending.mode === 'email') await supabase.auth.signInWithOtp({ email: pending.email })
+    else await supabase.auth.signInWithOtp({ phone: pending.phone })
   }
 
   return (
     <div className="flex flex-1 flex-col justify-center px-6">
-      <div className="mb-3 font-[var(--font-heading)] text-2xl font-extrabold">{t.verifyTitle}</div>
+      <div className="mb-3 font-[var(--font-heading)] text-2xl font-extrabold">
+        {pending.mode === 'email' ? t.verifyTitle : t.verifyTitlePhone}
+      </div>
       <div className="mb-6 text-sm text-[var(--color-ink)]/70">
-        {t.verifyDesc} {email}
+        {t.verifyDesc} {identifier}
       </div>
       <div className="relative mb-4 flex gap-2.5">
         <input

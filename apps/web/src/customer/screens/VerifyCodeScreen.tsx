@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 
 const CODE_LENGTH = 6
 
-export function VerifyCodeScreen({ phone, onBack }: { phone: string; onBack: () => void }) {
+export function VerifyCodeScreen({ email, onBack }: { email: string; onBack: () => void }) {
   const { t } = useI18n()
   const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''))
   const [focused, setFocused] = useState(false)
@@ -33,20 +33,20 @@ export function VerifyCodeScreen({ phone, onBack }: { phone: string; onBack: () 
     if (code.length !== CODE_LENGTH) return
     setVerifying(true)
     setError(false)
-    const { error: err } = await supabase.auth.verifyOtp({ phone, token: code, type: 'sms' })
+    const { error: err } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
     setVerifying(false)
     if (err) setError(true)
   }
 
   const resend = async () => {
-    await supabase.auth.signInWithOtp({ phone })
+    await supabase.auth.signInWithOtp({ email })
   }
 
   return (
     <div className="flex flex-1 flex-col justify-center px-6">
       <div className="mb-3 font-[var(--font-heading)] text-2xl font-extrabold">{t.verifyTitle}</div>
       <div className="mb-6 text-sm text-[var(--color-ink)]/70">
-        {t.verifyDesc} {phone}
+        {t.verifyDesc} {email}
       </div>
       <div className="relative mb-4 flex gap-2.5">
         <input

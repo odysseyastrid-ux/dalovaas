@@ -15,14 +15,22 @@ export function ProfileScreen() {
   const refreshAccount = useAuthStore((s) => s.refreshAccount)
   const showToast = useToastStore((s) => s.show)
   const [name, setName] = useState(account?.profile_name ?? '')
+  const [phone, setPhone] = useState(account?.phone ?? '')
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const initials = (account?.profile_name || account?.phone || '??').slice(0, 2).toUpperCase()
+  const initials = (account?.profile_name || account?.email || '??').slice(0, 2).toUpperCase()
 
   const saveName = async () => {
     if (!account) return
     await supabase.from('accounts').update({ profile_name: name.trim() }).eq('id', account.id)
+    await refreshAccount()
+    showToast(t.save)
+  }
+
+  const savePhone = async () => {
+    if (!account) return
+    await supabase.from('accounts').update({ phone: phone.trim() || null }).eq('id', account.id)
     await refreshAccount()
     showToast(t.save)
   }
@@ -85,10 +93,16 @@ export function ProfileScreen() {
         </div>
 
         <div className="mb-4">
-          <Field label={t.phoneLabel}>
-            <Input value={account?.phone ?? ''} disabled />
+          <Field label={t.emailLabel}>
+            <Input value={account?.email ?? ''} disabled />
           </Field>
-          <div className="mt-1.5 text-xs text-[var(--color-ink)]/50">{t.phoneNotEditable}</div>
+          <div className="mt-1.5 text-xs text-[var(--color-ink)]/50">{t.emailNotEditable}</div>
+        </div>
+
+        <div className="mb-4">
+          <Field label={t.phoneLabel}>
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={savePhone} placeholder="6XX XX XX XX" />
+          </Field>
         </div>
 
         <div className="mt-4">

@@ -102,7 +102,8 @@ export interface Order {
 
 export interface Account {
   id: string
-  phone: string
+  phone: string | null
+  email: string | null
   profile_name: string
   avatar_url: string | null
   loyalty_points: number

@@ -35,7 +35,7 @@ export function CustomerApp() {
   // tutorial, so it isn't persisted like onboarding is.
   const [entered, setEntered] = useState(false)
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem(ONBOARDED_KEY) === '1')
-  const [pendingPhone, setPendingPhone] = useState('')
+  const [pendingEmail, setPendingEmail] = useState('')
 
   useEffect(() => {
     if (session) setOnboarded((prev) => prev)
@@ -73,10 +73,10 @@ export function CustomerApp() {
   if (!session) {
     return (
       <AppShell>
-        {pendingPhone ? (
-          <VerifyCodeScreen phone={pendingPhone} onBack={() => setPendingPhone('')} />
+        {pendingEmail ? (
+          <VerifyCodeScreen email={pendingEmail} onBack={() => setPendingEmail('')} />
         ) : (
-          <PhoneLoginScreen onCodeSent={(phone) => setPendingPhone(phone)} />
+          <PhoneLoginScreen onCodeSent={(email) => setPendingEmail(email)} />
         )}
       </AppShell>
     )

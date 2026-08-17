@@ -10,7 +10,7 @@ export function AccountScreen() {
   const signOut = useAuthStore((s) => s.signOut)
   const orders = useMyOrders(account?.id ?? null)
 
-  const initials = (account?.profile_name || account?.phone || '??').slice(0, 2).toUpperCase()
+  const initials = (account?.profile_name || account?.email || '??').slice(0, 2).toUpperCase()
 
   const rows = [
     { key: 'history', label: t.orderHistoryTitle, action: () => navigate('/account/history') },
@@ -48,7 +48,7 @@ export function AccountScreen() {
             )}
             <div>
               <div className="font-[var(--font-heading)] text-[15px] font-bold">{account?.profile_name || '—'}</div>
-              <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{account?.phone}</div>
+              <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{account?.email}</div>
             </div>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" className="flex-none text-[var(--color-ink)]/30">

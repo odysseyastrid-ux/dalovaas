@@ -6,18 +6,18 @@ import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
 import type { PendingLogin } from '../CustomerApp'
 
-const LAST_EMAIL_KEY = 'chez_sanji_last_email'
-
 function isValidEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw.trim())
 }
 
 export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: PendingLogin) => void }) {
   const { t, lang } = useI18n()
-  // Pre-fill with the last email used on this device, so reconnecting (new
-  // session, cleared cache, another visit) doesn't rely on the customer
-  // retyping it from memory -- a typo there would land on a different account.
-  const [email, setEmail] = useState(() => localStorage.getItem(LAST_EMAIL_KEY) ?? '')
+  // Deliberately never pre-filled: this app is often used on a shared
+  // counter device where multiple customers order in turn. Pre-filling the
+  // last email typed on the device meant every next customer saw the
+  // previous person's address and, if they didn't notice and change it,
+  // their OTP code silently went to someone else's inbox instead of theirs.
+  const [email, setEmail] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const showToast = useToastStore((s) => s.show)
@@ -39,7 +39,6 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: Pending
       setError(err.message)
       return
     }
-    localStorage.setItem(LAST_EMAIL_KEY, trimmedEmail)
     showToast(t.viaSms)
     onCodeSent({ mode: 'email', email: trimmedEmail })
   }

@@ -48,3 +48,21 @@ body {
     4px 4px 0 var(--color-ink),
     5px 5px 12px rgba(0, 0, 0, 0.4);
 }
+
+/* Subtle hexagonal line texture layered over the brand gradients -- three
+   repeating line families 60deg apart tile into a hex/triangle grid, no
+   image asset needed. */
+.bg-pattern-gold {
+  background-image:
+    repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 42px),
+    var(--gradient-gold);
+}
+.bg-pattern-ink {
+  background-image:
+    repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 42px),
+    var(--gradient-ink);
+}

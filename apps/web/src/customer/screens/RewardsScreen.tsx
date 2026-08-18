@@ -66,7 +66,7 @@ export function RewardsScreen() {
         <div className="mt-6">
           <div className="mb-3 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.redeem}</div>
           {rewards.map((r) => (
-            <div key={r.id} className="mb-3 flex items-center justify-between rounded-xl border border-[var(--color-divider)] p-3.5">
+            <div key={r.id} className="mb-3 flex items-center justify-between rounded-2xl bg-[var(--color-card)] p-3.5 shadow-[0_2px_10px_rgba(26,21,18,0.06)]">
               <div>
                 <div className="font-[var(--font-heading)] text-sm font-bold">{lang === 'fr' ? r.name_fr : r.name}</div>
                 <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{r.cost} pts</div>

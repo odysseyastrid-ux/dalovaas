@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: 'Poppins', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
 
   --color-accent: #f5c518;
   --color-accent-600: #e0b010;
   --color-accent-700: #c99400;
   --color-ink: #1a1512;
-  --color-surface: #f7f6f2;
-  --color-divider: #ece9e2;
-  --color-bg: #ffffff;
+  --color-surface: #ece6d8;
+  --color-divider: #e2dbc9;
+  --color-bg: #f4f1ea;
+  --color-card: #fdfcf9;
 
   --gradient-gold: linear-gradient(135deg, #ffe066 0%, #f5c518 45%, #c99400 100%);
   --gradient-ink: linear-gradient(135deg, #34281b 0%, #1a1512 55%, #000000 100%);

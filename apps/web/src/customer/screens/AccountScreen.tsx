@@ -33,10 +33,10 @@ export function AccountScreen() {
           {lang.toUpperCase()}
         </button>
       </div>
-      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div
           onClick={() => navigate('/account/profile')}
-          className="flex cursor-pointer items-center justify-between gap-4 border-b border-[var(--color-divider)] p-4"
+          className="mb-3 flex cursor-pointer items-center justify-between gap-4 rounded-2xl bg-[var(--color-card)] p-4 shadow-[0_2px_10px_rgba(26,21,18,0.06)]"
         >
           <div className="flex items-center gap-4">
             {account?.avatar_url ? (
@@ -55,30 +55,32 @@ export function AccountScreen() {
             <path d="M9 18l6-6-6-6" />
           </svg>
         </div>
-        <div className="flex gap-3 border-b border-[var(--color-divider)] p-4">
-          <div className="flex-1 rounded-xl border border-[var(--color-divider)] p-3 text-center">
+        <div className="mb-3 flex gap-3">
+          <div className="flex-1 rounded-2xl bg-[var(--color-card)] p-3 text-center shadow-[0_2px_10px_rgba(26,21,18,0.06)]">
             <div className="font-[var(--font-heading)] text-xl font-extrabold">{orders.length}</div>
             <div className="text-[11px] text-[var(--color-ink)]/60">{t.myOrders}</div>
           </div>
-          <div className="flex-1 rounded-xl bg-pattern-gold p-3 text-center">
+          <div className="flex-1 rounded-2xl bg-pattern-gold p-3 text-center">
             <div className="font-[var(--font-heading)] text-xl font-extrabold">{account?.loyalty_points ?? 0}</div>
             <div className="text-[11px] opacity-70">{t.myPoints}</div>
           </div>
         </div>
-        {rows.map((row) => (
-          <div
-            key={row.key}
-            onClick={row.action}
-            className="flex cursor-pointer items-center justify-between border-b border-[var(--color-divider)] p-4"
-          >
-            <div className="text-sm" style={{ color: row.danger ? '#dc2626' : undefined }}>
-              {row.label}
+        <div className="overflow-hidden rounded-2xl bg-[var(--color-card)] shadow-[0_2px_10px_rgba(26,21,18,0.06)]">
+          {rows.map((row, i) => (
+            <div
+              key={row.key}
+              onClick={row.action}
+              className={`flex cursor-pointer items-center justify-between p-4 ${i > 0 ? 'border-t border-[var(--color-divider)]' : ''}`}
+            >
+              <div className="text-sm" style={{ color: row.danger ? '#dc2626' : undefined }}>
+                {row.label}
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-ink)]/30">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-ink)]/30">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

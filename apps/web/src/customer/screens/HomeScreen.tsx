@@ -86,15 +86,15 @@ export function HomeScreen() {
           ))}
         </div>
 
-        <div className="px-4 pb-8">
+        <div className="flex flex-col gap-3 px-4 pb-8">
           {loading && <div className="py-8 text-center text-sm text-[var(--color-ink)]/50">…</div>}
           {filtered.map((item) => (
             <div
               key={item.id}
               onClick={() => navigate(`/item/${item.id}`)}
-              className="flex cursor-pointer gap-4 border-b border-[var(--color-divider)] py-4"
+              className="flex cursor-pointer gap-4 rounded-2xl bg-[var(--color-card)] p-3 shadow-[0_2px_10px_rgba(26,21,18,0.06)]"
             >
-              <div className="h-[76px] w-[76px] flex-none overflow-hidden rounded-lg bg-[var(--color-surface)]">
+              <div className="h-[76px] w-[76px] flex-none overflow-hidden rounded-xl bg-[var(--color-surface)]">
                 {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
               </div>
               <div className="min-w-0 flex-1">

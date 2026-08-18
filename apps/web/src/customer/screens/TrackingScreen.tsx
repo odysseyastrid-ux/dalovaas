@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
 import { BackHeader } from '@/components/AppShell'
@@ -18,6 +18,8 @@ export function TrackingScreen() {
   const { order, loading } = useOrderByRef(ref ?? null)
   const { settings } = useAppSettings()
   const [now, setNow] = useState(Date.now())
+  const [uploadingProof, setUploadingProof] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000)
@@ -53,6 +55,25 @@ export function TrackingScreen() {
       },
       () => showToast(lang === 'fr' ? 'Impossible d’obtenir la position' : 'Could not get location'),
     )
+  }
+
+  const uploadProof = async (file: File) => {
+    setUploadingProof(true)
+    const uid = (await supabase.auth.getUser()).data.user?.id
+    const path = `${uid}/${order.ref}-${Date.now()}-${file.name}`
+    const { error: uploadErr } = await supabase.storage.from('payment-proofs').upload(path, file)
+    if (uploadErr) {
+      setUploadingProof(false)
+      showToast(lang === 'fr' ? "Échec de l'envoi — réessayez" : 'Upload failed — try again')
+      return
+    }
+    const { error: attachErr } = await supabase.rpc('attach_payment_proof', { p_ref: order.ref, p_proof_url: path })
+    setUploadingProof(false)
+    if (attachErr) {
+      showToast(attachErr.message)
+      return
+    }
+    showToast(lang === 'fr' ? 'Preuve envoyée' : 'Proof uploaded')
   }
 
   return (
@@ -102,6 +123,32 @@ export function TrackingScreen() {
           <div className="rounded-xl border-2 border-[var(--color-accent)] p-4 text-center">
             <div className="font-[var(--font-heading)] text-sm font-extrabold">{t.pendingValidationTitle}</div>
             <div className="mt-1 text-xs text-[var(--color-ink)]/70">{t.pendingValidationDesc}</div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) uploadProof(file)
+                e.target.value = ''
+              }}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingProof}
+              className="mt-3 rounded-lg border border-[var(--color-divider)] bg-white px-4 py-2 text-xs font-bold disabled:opacity-40"
+            >
+              {uploadingProof
+                ? '…'
+                : order.payment_proof_url
+                  ? lang === 'fr'
+                    ? 'Renvoyer une preuve de paiement'
+                    : 'Re-upload payment proof'
+                  : lang === 'fr'
+                    ? 'Envoyer une preuve de paiement'
+                    : 'Upload payment proof'}
+            </button>
           </div>
         ) : (
           <>
@@ -153,9 +200,11 @@ export function TrackingScreen() {
         )}
 
         <div className="mt-3 flex flex-col gap-2">
-          <Button block variant="secondary" onClick={() => downloadReceipt(order, lang)}>
-            {lang === 'fr' ? 'Télécharger le reçu' : 'Download receipt'}
-          </Button>
+          {!order.pending_validation && (
+            <Button block variant="secondary" onClick={() => downloadReceipt(order, lang)}>
+              {lang === 'fr' ? 'Télécharger le reçu' : 'Download receipt'}
+            </Button>
+          )}
           <Button block variant="secondary" onClick={() => navigate('/')}>
             {t.backHome}
           </Button>

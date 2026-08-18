@@ -36,18 +36,20 @@ export function OrderHistoryScreen() {
               <span className="rounded-full border border-[var(--color-divider)] px-2 py-0.5 text-[10px]">
                 {statusLabel(o, lang)}
               </span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  downloadReceipt(o, lang)
-                }}
-                title={lang === 'fr' ? 'Télécharger le reçu' : 'Download receipt'}
-                className="flex h-7 w-7 flex-none items-center justify-center rounded-full border border-[var(--color-divider)] text-[var(--color-ink)]/70"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16" />
-                </svg>
-              </button>
+              {!o.pending_validation && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    downloadReceipt(o, lang)
+                  }}
+                  title={lang === 'fr' ? 'Télécharger le reçu' : 'Download receipt'}
+                  className="flex h-7 w-7 flex-none items-center justify-center rounded-full border border-[var(--color-divider)] text-[var(--color-ink)]/70"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         ))}

@@ -15,6 +15,7 @@
 
   --gradient-gold: linear-gradient(135deg, #ffe066 0%, #f5c518 45%, #c99400 100%);
   --gradient-ink: linear-gradient(135deg, #34281b 0%, #1a1512 55%, #000000 100%);
+  --gradient-coral: linear-gradient(135deg, #ffab8a 0%, #ff7a52 50%, #e34f2c 100%);
 }
 
 html, body, #root {
@@ -66,4 +67,11 @@ body {
     repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 42px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 42px),
     var(--gradient-ink);
+}
+.bg-pattern-coral {
+  background-image:
+    repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 42px),
+    var(--gradient-coral);
 }

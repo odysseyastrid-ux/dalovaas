@@ -131,7 +131,7 @@ function CategoryChip({ active, onClick, children }: { active: boolean; onClick:
     <button
       onClick={onClick}
       className="flex-none whitespace-nowrap rounded-full border-2 border-[var(--color-ink)] px-4 py-2 font-[var(--font-heading)] text-sm font-bold"
-      style={{ background: active ? 'var(--color-ink)' : 'transparent', color: active ? 'var(--color-accent)' : 'var(--color-ink)' }}
+      style={{ backgroundImage: active ? 'var(--gradient-ink)' : 'none', color: active ? 'var(--color-accent)' : 'var(--color-ink)' }}
     >
       {children}
     </button>

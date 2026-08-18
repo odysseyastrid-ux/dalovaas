@@ -11,6 +11,9 @@
   --color-surface: #f7f6f2;
   --color-divider: #ece9e2;
   --color-bg: #ffffff;
+
+  --gradient-gold: linear-gradient(135deg, #ffe066 0%, #f5c518 45%, #c99400 100%);
+  --gradient-ink: linear-gradient(135deg, #34281b 0%, #1a1512 55%, #000000 100%);
 }
 
 html, body, #root {

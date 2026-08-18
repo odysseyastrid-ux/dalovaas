@@ -56,7 +56,7 @@ export function RewardsScreen() {
         {t.rewards}
       </div>
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
-        <div className="rounded-xl bg-[var(--color-accent)] p-6">
+        <div className="rounded-xl bg-[image:var(--gradient-gold)] p-6">
           <div className="text-xs uppercase tracking-wide opacity-80">{t.yourPoints}</div>
           <div className="mt-1 font-[var(--font-heading)] text-4xl font-extrabold">{points}</div>
           <div className="mt-4 h-1.5 w-full rounded-full bg-white/30">

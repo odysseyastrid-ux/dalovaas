@@ -8,7 +8,7 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
   const [imgFailed, setImgFailed] = useState(false)
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[var(--color-accent)] px-6">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[image:var(--gradient-gold)] px-6">
       <div className="text-center">
         {settings.logo_url && !imgFailed ? (
           <img

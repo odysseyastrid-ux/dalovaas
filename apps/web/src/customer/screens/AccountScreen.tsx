@@ -60,11 +60,9 @@ export function AccountScreen() {
             <div className="font-[var(--font-heading)] text-xl font-extrabold">{orders.length}</div>
             <div className="text-[11px] text-[var(--color-ink)]/60">{t.myOrders}</div>
           </div>
-          <div className="flex-1 rounded-xl border border-[var(--color-divider)] p-3 text-center">
-            <div className="font-[var(--font-heading)] text-xl font-extrabold text-[var(--color-accent-700)]">
-              {account?.loyalty_points ?? 0}
-            </div>
-            <div className="text-[11px] text-[var(--color-ink)]/60">{t.myPoints}</div>
+          <div className="flex-1 rounded-xl bg-[image:var(--gradient-gold)] p-3 text-center">
+            <div className="font-[var(--font-heading)] text-xl font-extrabold">{account?.loyalty_points ?? 0}</div>
+            <div className="text-[11px] opacity-70">{t.myPoints}</div>
           </div>
         </div>
         {rows.map((row) => (

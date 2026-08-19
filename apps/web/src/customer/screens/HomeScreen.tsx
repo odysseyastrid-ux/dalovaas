@@ -25,9 +25,9 @@ export function HomeScreen() {
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
-  // Most expensive first, cheapest last, within each category.
+  // Cheapest first, most expensive last, within each category.
   const filtered = useMemo(
-    () => items.filter((i) => i.cat === category).sort((a, b) => b.price - a.price),
+    () => items.filter((i) => i.cat === category).sort((a, b) => a.price - b.price),
     [items, category],
   )
 

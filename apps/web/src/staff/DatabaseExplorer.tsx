@@ -1,9 +1,13 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useAllOrders } from '@/hooks/useOrders'
 import { useAllAccounts } from '@/hooks/useAccounts'
 import { useAllMenuItems } from '@/hooks/useMenu'
 import { formatFCFA } from '@/lib/format'
+import { supabase } from '@/lib/supabaseClient'
+import { useToastStore } from '@/state/toastStore'
 import type { Order } from '@/types/domain'
+
+const DELETE_PIN = '1910'
 
 function toCsv(header: string[], rows: (string | number)[][]): string {
   const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`
@@ -71,6 +75,9 @@ export function DatabaseExplorer() {
   const { orders, loading: ordersLoading } = useAllOrders()
   const { accounts, loading: accountsLoading } = useAllAccounts()
   const { items: menuItems, loading: menuLoading } = useAllMenuItems()
+  const showToast = useToastStore((s) => s.show)
+  const [search, setSearch] = useState('')
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const accountsByEmail = useMemo(() => {
     const m = new Map<string, string>()
@@ -134,6 +141,38 @@ export function DatabaseExplorer() {
   const mostSold = products.slice(0, 10)
   const leastSold = [...products].reverse().slice(0, 10)
 
+  const searchResults = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return []
+    return orders
+      .filter((o) => !o.deleted)
+      .filter(
+        (o) =>
+          o.ref.toLowerCase().includes(q) ||
+          o.customer_name?.toLowerCase().includes(q) ||
+          o.customer_phone?.toLowerCase().includes(q),
+      )
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, 30)
+  }, [orders, search])
+
+  const deleteOrder = async (ref: string) => {
+    const pin = window.prompt(`Code PIN requis pour supprimer définitivement ${ref} :`)
+    if (pin === null) return
+    if (pin !== DELETE_PIN) {
+      showToast('Code PIN incorrect')
+      return
+    }
+    setDeleting(ref)
+    const { error } = await supabase.rpc('delete_order', { p_ref: ref })
+    setDeleting(null)
+    if (error) {
+      showToast(error.message)
+      return
+    }
+    showToast(`${ref} supprimée — retirée des statistiques`)
+  }
+
   return (
     <div>
       <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">Base de données</div>
@@ -142,6 +181,43 @@ export function DatabaseExplorer() {
       </div>
 
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
+
+      <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
+        <div className="mb-1 text-sm font-bold">🗑 Supprimer une commande (données de test)</div>
+        <div className="mb-3 text-xs text-[var(--color-ink)]/60">
+          Cherche par référence, nom ou téléphone. La suppression est définitive et retire la commande de toutes les statistiques et exports — un code PIN est demandé.
+        </div>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Ex : CSJ-1234, nom du client, numéro…"
+          className="mb-3 w-full rounded-lg border border-[var(--color-divider)] px-3 py-2 text-sm"
+        />
+        <div className="flex flex-col gap-2">
+          {searchResults.map((o) => (
+            <div key={o.ref} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs">
+              <div className="min-w-0">
+                <div className="font-bold">
+                  {o.ref} {o.is_staff_meal && <span className="text-[var(--color-ink)]/40">(repas staff)</span>}
+                </div>
+                <div className="truncate text-[var(--color-ink)]/60">
+                  {o.customer_name || o.customer_phone} · {formatFCFA(o.total)} · {new Date(o.created_at).toLocaleString('fr-FR')}
+                </div>
+              </div>
+              <button
+                onClick={() => deleteOrder(o.ref)}
+                disabled={deleting === o.ref}
+                className="flex-none rounded-lg border border-red-200 px-3 py-1.5 font-bold text-red-600 disabled:opacity-40"
+              >
+                {deleting === o.ref ? '…' : 'Supprimer'}
+              </button>
+            </div>
+          ))}
+          {search.trim() && searchResults.length === 0 && (
+            <div className="text-xs text-[var(--color-ink)]/50">Aucune commande trouvée.</div>
+          )}
+        </div>
+      </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">

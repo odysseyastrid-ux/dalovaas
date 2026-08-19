@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+
+  --color-accent: #ff6a3d;
+  --color-accent-600: #f0501f;
+  --color-accent-700: #d43e12;
+  --color-teal: #0f9e8e;
+  --color-teal-600: #0c7f72;
+  --color-ink: #14201d;
+  --color-surface: #f3f6f4;
+  --color-divider: #e1e8e4;
+  --color-bg: #f7f8f6;
+  --color-card: #ffffff;
+
+  --gradient-sunset: linear-gradient(135deg, #ffb35c 0%, #ff6a3d 55%, #e34f2c 100%);
+  --gradient-teal: linear-gradient(135deg, #14b8a6 0%, #0f9e8e 55%, #0c7f72 100%);
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -1,4 +1,19 @@
-# Chez Sanji
+# Chez Sanji + Dalovaas
+
+This repo holds two apps that share one Supabase project:
+
+- **Chez Sanji** (`apps/web`) — a fast-food ordering app (customer PWA +
+  staff dashboard) for a single restaurant.
+- **Dalovaas** (`apps/marketplace`) — a multi-vendor delivery marketplace
+  (the "Uber Eats for Cameroon" layer): any restaurant can join as a
+  vendor, independent couriers pick up and deliver, the platform takes a
+  commission. See **[apps/marketplace/README.md](apps/marketplace/README.md)**
+  for the full breakdown of its four roles (customer, vendor, courier,
+  admin) and how to run it.
+
+The rest of this README covers Chez Sanji specifically.
+
+## Chez Sanji
 
 A fast-food ordering app (customer PWA + staff dashboard) for Chez Sanji,
 built from the original design prototype (`Chez Sanj App.dc.html` /
@@ -19,13 +34,19 @@ same live orders.
 ## Structure
 
 ```
-apps/web/               React + TypeScript + Tailwind frontend
+apps/web/               Chez Sanji — React + TypeScript + Tailwind frontend
   src/customer/          Customer-facing app (splash, login, menu, cart, checkout, tracking, account)
   src/staff/              Staff dashboard (orders board, menu manager, reports, team)
   src/hooks/               Realtime data hooks (Supabase Postgres Changes)
   src/state/               Cart / auth / toast stores (zustand)
+apps/marketplace/       Dalovaas — multi-vendor delivery marketplace (own README)
+  src/customer/            Browse vendors, order, track delivery
+  src/vendor/               Restaurant partner dashboard (menu, incoming orders)
+  src/courier/              Courier app (available deliveries, claim, deliver)
+  src/admin/                Platform back-office (approve vendors, GMV/commission)
 supabase/
   migrations/              Schema, RLS policies, SECURITY DEFINER RPCs
+                           (0001-0028 Chez Sanji, 0029-0030 Dalovaas — mk_* tables/functions)
   functions/                Edge Functions (WhatsApp + push notifications, cron, staff invites)
   seed.sql                  Menu / rewards / promo code seed data (ported from the prototype)
 docs/

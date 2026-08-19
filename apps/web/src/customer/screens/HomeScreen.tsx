@@ -25,7 +25,11 @@ export function HomeScreen() {
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
-  const filtered = useMemo(() => items.filter((i) => i.cat === category), [items, category])
+  // Most expensive first, cheapest last, within each category.
+  const filtered = useMemo(
+    () => items.filter((i) => i.cat === category).sort((a, b) => b.price - a.price),
+    [items, category],
+  )
 
   const quickAdd = (item: (typeof items)[number], e: React.MouseEvent) => {
     e.stopPropagation()

@@ -113,6 +113,7 @@ export interface Account {
   notif_order_updates: boolean
   notif_rewards: boolean
   push_subscription: unknown | null
+  created_at: string
 }
 
 export type StaffRole = 'cashier' | 'manager'

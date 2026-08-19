@@ -10,6 +10,7 @@ import { Reports } from './Reports'
 import { StaffManager } from './StaffManager'
 import { BrandingManager } from './BrandingManager'
 import { TimeClock } from './TimeClock'
+import { DatabaseExplorer } from './DatabaseExplorer'
 import clsx from 'clsx'
 
 export function StaffApp() {
@@ -78,6 +79,7 @@ export function StaffApp() {
           { to: '/staff/reports', label: 'Reports' },
           ...(staff.role === 'manager' ? [{ to: '/staff/branding', label: 'Image de marque' }] : []),
           ...(staff.role === 'manager' ? [{ to: '/staff/team', label: 'Staff' }] : []),
+          ...(staff.role === 'manager' ? [{ to: '/staff/database', label: 'Base de données' }] : []),
         ].map((tab) => (
           <NavLink
             key={tab.to}
@@ -102,6 +104,7 @@ export function StaffApp() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/branding" element={staff.role === 'manager' ? <BrandingManager /> : <Navigate to="/staff" replace />} />
           <Route path="/team" element={staff.role === 'manager' ? <StaffManager /> : <Navigate to="/staff" replace />} />
+          <Route path="/database" element={staff.role === 'manager' ? <DatabaseExplorer /> : <Navigate to="/staff" replace />} />
           <Route path="*" element={<Navigate to="/staff" replace />} />
         </Routes>
       </div>

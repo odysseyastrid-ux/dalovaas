@@ -3,8 +3,15 @@ import { useAuthStore } from '@/state/authStore'
 import { useAvailableDeliveries } from '@/hooks/useOrders'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
-import { formatFcfa, timeAgo } from '@/lib/format'
+import { formatFcfa, formatDateTime, timeAgo } from '@/lib/format'
 import { Button } from '@/components/Button'
+import type { DeliveryOption } from '@/types/domain'
+
+const DELIVERY_LABELS: Record<DeliveryOption, string> = {
+  priority: '⚡ Priorité — à domicile',
+  standard: '🚦 Standard — au carrefour',
+  scheduled: '🗓️ Planifiée',
+}
 
 export function AvailableDeliveries() {
   const courier = useAuthStore((s) => s.courier)
@@ -71,7 +78,15 @@ export function AvailableDeliveries() {
               <div className="text-sm font-bold">{order.vendor_name}</div>
               <div className="text-xs text-[var(--color-ink)]/50">{timeAgo(order.ready_at ?? order.created_at)}</div>
             </div>
-            <div className="mb-1 text-xs text-[var(--color-ink)]/60">📍 {order.delivery_address}</div>
+            <div className="mb-1 text-xs font-bold text-[var(--color-ink)]/70">{DELIVERY_LABELS[order.delivery_option]}</div>
+            {order.delivery_option === 'scheduled' ? (
+              <>
+                {order.scheduled_at && <div className="mb-0.5 text-xs text-[var(--color-ink)]/60">🗓️ {formatDateTime(order.scheduled_at)}</div>}
+                {order.meeting_point && <div className="mb-1 text-xs text-[var(--color-ink)]/60">📍 {order.meeting_point}</div>}
+              </>
+            ) : (
+              <div className="mb-1 text-xs text-[var(--color-ink)]/60">📍 {order.delivery_address}</div>
+            )}
             <div className="mb-3 text-sm font-bold text-[var(--color-accent-700)]">{formatFcfa(order.delivery_fee)} de frais de livraison</div>
             <Button variant="teal" block onClick={() => claim(order.id)}>
               Prendre cette course

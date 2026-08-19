@@ -5,7 +5,14 @@ import { formatFcfa } from '@/lib/format'
 import { OrderStatusPill } from '@/components/StatusPill'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
-import type { OrderStatus } from '@/types/domain'
+import { formatDateTime } from '@/lib/format'
+import type { DeliveryOption, OrderStatus } from '@/types/domain'
+
+const DELIVERY_LABELS: Record<DeliveryOption, string> = {
+  priority: '⚡ Priorité — livré chez vous',
+  standard: '🚦 Standard — rendez-vous au carrefour',
+  scheduled: '🗓️ Planifiée',
+}
 
 const STEPS: { status: OrderStatus; label: string; emoji: string }[] = [
   { status: 'pending', label: 'Commande envoyée', emoji: '📨' },
@@ -42,7 +49,15 @@ export function OrderTracking() {
         <div className="font-[var(--font-heading)] text-xl font-bold">Commande {order.ref}</div>
         <OrderStatusPill status={order.status} />
       </div>
-      <div className="mb-6 text-sm text-[var(--color-ink)]/60">{order.vendor_name}</div>
+      <div className="mb-1 text-sm text-[var(--color-ink)]/60">{order.vendor_name}</div>
+      <div className="mb-6 text-xs font-bold text-[var(--color-ink)]/70">{DELIVERY_LABELS[order.delivery_option]}</div>
+
+      {order.delivery_option === 'scheduled' && (order.scheduled_at || order.meeting_point) && (
+        <div className="mb-6 rounded-2xl bg-orange-50 p-4 text-sm">
+          {order.scheduled_at && <div className="font-bold">🗓️ {formatDateTime(order.scheduled_at)}</div>}
+          {order.meeting_point && <div className="mt-0.5 text-[var(--color-ink)]/70">📍 {order.meeting_point}</div>}
+        </div>
+      )}
 
       {order.status === 'cancelled' ? (
         <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">
@@ -77,6 +92,12 @@ export function OrderTracking() {
             <div>{formatFcfa(line.line_total)}</div>
           </div>
         ))}
+        {order.donation_amount > 0 && (
+          <div className="flex justify-between py-1 text-sm">
+            <div>🤍 Don caritatif</div>
+            <div>{formatFcfa(order.donation_amount)}</div>
+          </div>
+        )}
         <div className="mt-2 flex justify-between border-t border-[var(--color-divider)] pt-2 text-sm font-bold">
           <div>Total</div>
           <div>{formatFcfa(order.total)}</div>

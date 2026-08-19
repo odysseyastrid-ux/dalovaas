@@ -3,6 +3,7 @@ export type OrderStatus = 'pending' | 'accepted' | 'ready_for_pickup' | 'picked_
 export type PaymentMethod = 'mtn_momo' | 'orange_money' | 'cash'
 export type VehicleType = 'bike' | 'moto' | 'car'
 export type CourierAvailability = 'offline' | 'online' | 'on_delivery'
+export type DeliveryOption = 'priority' | 'standard' | 'scheduled'
 
 export interface Vendor {
   id: string
@@ -83,6 +84,11 @@ export interface MkOrder {
   delivery_address: string
   delivery_lat: number | null
   delivery_lng: number | null
+  delivery_option: DeliveryOption
+  scheduled_at: string | null
+  meeting_point: string | null
+  distance_km: number | null
+  donation_amount: number
   payment_method: PaymentMethod
   paid: boolean
   notes: string | null

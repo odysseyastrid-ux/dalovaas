@@ -36,7 +36,11 @@ export function MyDeliveries() {
                   <div className="text-sm font-bold">{order.vendor_name} → {order.customer_name}</div>
                   <OrderStatusPill status={order.status} />
                 </div>
-                <div className="mb-1 text-xs text-[var(--color-ink)]/60">📍 {order.delivery_address}</div>
+                {order.delivery_option === 'scheduled' && order.meeting_point ? (
+                  <div className="mb-1 text-xs text-[var(--color-ink)]/60">📍 {order.meeting_point} (rendez-vous){order.scheduled_at && ` · ${formatDateTime(order.scheduled_at)}`}</div>
+                ) : (
+                  <div className="mb-1 text-xs text-[var(--color-ink)]/60">📍 {order.delivery_address}</div>
+                )}
                 <div className="mb-3 text-xs text-[var(--color-ink)]/60">📞 {order.customer_phone}</div>
                 <Button block onClick={() => markDelivered(order.id)}>
                   Marquer comme livrée

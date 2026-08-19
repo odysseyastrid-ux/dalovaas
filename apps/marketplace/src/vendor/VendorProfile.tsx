@@ -17,15 +17,47 @@ export function VendorProfile() {
   const [phone, setPhone] = useState(vendor?.phone ?? '')
   const [city, setCity] = useState(vendor?.city ?? '')
   const [address, setAddress] = useState(vendor?.address ?? '')
+  const [lat, setLat] = useState<number | null>(vendor?.lat ?? null)
+  const [lng, setLng] = useState<number | null>(vendor?.lng ?? null)
+  const [locating, setLocating] = useState(false)
   const [saving, setSaving] = useState(false)
 
   if (!vendor) return null
+
+  const locate = () => {
+    if (!navigator.geolocation) {
+      showToast('Localisation indisponible sur cet appareil')
+      return
+    }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude)
+        setLng(pos.coords.longitude)
+        setLocating(false)
+      },
+      () => {
+        showToast('Localisation refusée ou indisponible')
+        setLocating(false)
+      },
+      { timeout: 8000 },
+    )
+  }
 
   const save = async () => {
     setSaving(true)
     const { error } = await supabase
       .from('mk_vendors')
-      .update({ name: name.trim(), name_fr: name.trim(), description: description.trim(), phone: phone.trim(), city: city.trim(), address: address.trim() })
+      .update({
+        name: name.trim(),
+        name_fr: name.trim(),
+        description: description.trim(),
+        phone: phone.trim(),
+        city: city.trim(),
+        address: address.trim(),
+        lat,
+        lng,
+      })
       .eq('id', vendor.id)
     setSaving(false)
     if (error) {
@@ -60,6 +92,21 @@ export function VendorProfile() {
         <Field label="Adresse">
           <Input value={address} onChange={(e) => setAddress(e.target.value)} />
         </Field>
+        <div>
+          <div className="mb-1.5 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-ink)]/70">
+            Localisation
+          </div>
+          <div className="rounded-xl bg-[var(--color-surface)] p-3 text-xs">
+            {lat != null && lng != null ? (
+              <span className="text-emerald-700 font-bold">📍 Position enregistrée — les frais de livraison Priorité/Standard se calculent depuis ce point</span>
+            ) : (
+              <span className="text-[var(--color-ink)]/50">Aucune position enregistrée — les livraisons utiliseront un tarif par défaut</span>
+            )}
+          </div>
+          <Button variant="secondary" className="mt-2" disabled={locating} onClick={locate}>
+            {locating ? '…' : '📍 Utiliser ma position actuelle'}
+          </Button>
+        </div>
         <Button disabled={saving} onClick={save}>
           {saving ? '…' : 'Enregistrer'}
         </Button>

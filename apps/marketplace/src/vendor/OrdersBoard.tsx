@@ -4,10 +4,16 @@ import { useAuthStore } from '@/state/authStore'
 import { useVendorOrders } from '@/hooks/useOrders'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
-import { formatFcfa, timeAgo } from '@/lib/format'
+import { formatFcfa, formatDateTime, timeAgo } from '@/lib/format'
 import { OrderStatusPill } from '@/components/StatusPill'
 import { Button } from '@/components/Button'
-import type { MkOrder, OrderStatus } from '@/types/domain'
+import type { DeliveryOption, MkOrder, OrderStatus } from '@/types/domain'
+
+const DELIVERY_LABELS: Record<DeliveryOption, string> = {
+  priority: '⚡ Priorité',
+  standard: '🚦 Standard (carrefour)',
+  scheduled: '🗓️ Planifiée',
+}
 
 const TABS: { key: OrderStatus | 'history'; label: string }[] = [
   { key: 'pending', label: 'Nouvelles' },
@@ -63,8 +69,13 @@ export function OrdersBoard() {
               <div className="text-sm font-bold">{order.ref}</div>
               <OrderStatusPill status={order.status} />
             </div>
-            <div className="mb-2 text-xs text-[var(--color-ink)]/50">
+            <div className="mb-1 text-xs text-[var(--color-ink)]/50">
               {order.customer_name} · {order.customer_phone} · {timeAgo(order.created_at)}
+            </div>
+            <div className="mb-2 text-xs font-bold text-[var(--color-ink)]/70">
+              {DELIVERY_LABELS[order.delivery_option]}
+              {order.delivery_option === 'scheduled' && order.scheduled_at && ` · ${formatDateTime(order.scheduled_at)}`}
+              {order.delivery_option === 'scheduled' && order.meeting_point && ` · ${order.meeting_point}`}
             </div>
             {order.items.map((line, i) => (
               <div key={i} className="flex justify-between text-sm">

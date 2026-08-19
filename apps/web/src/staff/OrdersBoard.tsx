@@ -94,19 +94,25 @@ export function OrdersBoard() {
   }, [])
 
   // Alert sound for anything a staff member needs to act on, so a busy fair
-  // booth doesn't have to keep staring at the screen: new orders, new
-  // pending-payment validations, new OTP codes to relay.
+  // booth doesn't have to keep staring at the screen: new orders, orders
+  // about to blow their prep deadline, payments awaiting validation, and
+  // OTP codes waiting to be relayed. All four ring loudly and continuously
+  // until a staff member explicitly silences them with "Arrêter l'alarme"
+  // -- previously that button only stopped the new-order/deadline alarm,
+  // leaving pending-payment and OTP nags ringing forever with no way to
+  // silence them, which looked like the button was broken.
   const knownOrderIds = useRef<Set<string> | null>(null)
+  const knownPendingIds = useRef<Set<string> | null>(null)
   const knownOtpIds = useRef<Set<number> | null>(null)
   const deadlineFlagged = useRef<Set<string>>(new Set())
 
-  // A new order or an order about to blow its prep deadline rings loudly
-  // and continuously -- not just a periodic nag -- until a staff member
-  // explicitly silences it. Each order id, once flagged, only rings once
-  // per event (arriving / crossing the 1-minute mark); "Arrêter l'alarme"
-  // clears the currently-ringing set without suppressing future events.
+  // Each order/OTP id, once flagged, only rings once per event (arriving /
+  // crossing the 1-minute mark); "Arrêter l'alarme" clears the currently-
+  // ringing sets without suppressing future genuinely-new events.
   const [ringingNew, setRingingNew] = useState<Set<string>>(new Set())
   const [ringingDeadline, setRingingDeadline] = useState<Set<string>>(new Set())
+  const [ringingPending, setRingingPending] = useState<Set<string>>(new Set())
+  const [ringingOtp, setRingingOtp] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const ids = new Set(orders.map((o) => o.id))
@@ -121,14 +127,28 @@ export function OrdersBoard() {
     // keep counting toward a ringing alarm.
     setRingingNew((prev) => new Set([...prev].filter((id) => ids.has(id))))
     setRingingDeadline((prev) => new Set([...prev].filter((id) => ids.has(id))))
+
+    const pendingIds = new Set(orders.filter((o) => o.pending_validation).map((o) => o.id))
+    if (knownPendingIds.current) {
+      const newlyPending = [...pendingIds].filter((id) => !knownPendingIds.current!.has(id))
+      if (newlyPending.length > 0) {
+        setRingingPending((prev) => new Set([...prev, ...newlyPending]))
+      }
+    }
+    knownPendingIds.current = pendingIds
+    setRingingPending((prev) => new Set([...prev].filter((id) => pendingIds.has(id))))
   }, [orders])
 
   useEffect(() => {
     const ids = new Set(otpQueue.map((r) => r.id))
-    if (knownOtpIds.current && [...ids].some((id) => !knownOtpIds.current!.has(id))) {
-      playOtpAlert()
+    if (knownOtpIds.current) {
+      const arrived = [...ids].filter((id) => !knownOtpIds.current!.has(id))
+      if (arrived.length > 0) {
+        setRingingOtp((prev) => new Set([...prev, ...arrived]))
+      }
     }
     knownOtpIds.current = ids
+    setRingingOtp((prev) => new Set([...prev].filter((id) => ids.has(id))))
   }, [otpQueue])
 
   // Scan for orders that just crossed the "1 minute left" mark on their
@@ -148,13 +168,13 @@ export function OrdersBoard() {
     }
   }, [orders, now])
 
-  const isRinging = ringingNew.size > 0 || ringingDeadline.size > 0
+  const isRinging = ringingNew.size > 0 || ringingDeadline.size > 0 || ringingPending.size > 0 || ringingOtp.size > 0
   useEffect(() => {
     if (!isRinging) return
     playOrderAlert()
     const id = setInterval(() => {
-      if (ringingNew.size > 0) playOrderAlert()
-      if (ringingDeadline.size > 0) playOtpAlert()
+      if (ringingNew.size > 0 || ringingPending.size > 0) playOrderAlert()
+      if (ringingDeadline.size > 0 || ringingOtp.size > 0) playOtpAlert()
     }, 4000)
     return () => clearInterval(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -163,20 +183,9 @@ export function OrdersBoard() {
   const stopAlarm = () => {
     setRingingNew(new Set())
     setRingingDeadline(new Set())
+    setRingingPending(new Set())
+    setRingingOtp(new Set())
   }
-
-  // Keep nagging every 15s while something is still waiting on staff -- a
-  // single beep is easy to miss in a loud fair crowd, so anything unhandled
-  // (a payment not yet validated, an OTP not yet relayed) re-alerts until
-  // it's actually cleared. Each kind of wait re-uses its own distinct sound.
-  useEffect(() => {
-    if (pendingCount === 0 && otpQueue.length === 0) return
-    const id = setInterval(() => {
-      if (pendingCount > 0) playOrderAlert()
-      if (otpQueue.length > 0) playOtpAlert()
-    }, 15000)
-    return () => clearInterval(id)
-  }, [pendingCount, otpQueue.length])
 
   const validate = async (ref: string) => {
     const { data, error } = await supabase.rpc('validate_order_payment', { p_ref: ref })
@@ -227,11 +236,15 @@ export function OrdersBoard() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-red-600 bg-red-50 p-4">
           <div className="text-sm font-bold text-red-700">
             🔔{' '}
-            {ringingNew.size > 0 && ringingDeadline.size > 0
-              ? `${ringingNew.size} nouvelle(s) commande(s) et ${ringingDeadline.size} en fin de délai !`
-              : ringingNew.size > 0
-                ? `${ringingNew.size} nouvelle(s) commande(s) !`
-                : `${ringingDeadline.size} commande(s) à moins d'1 minute de la fin du délai !`}
+            {[
+              ringingNew.size > 0 && `${ringingNew.size} nouvelle(s) commande(s)`,
+              ringingDeadline.size > 0 && `${ringingDeadline.size} à moins d'1 minute du délai`,
+              ringingPending.size > 0 && `${ringingPending.size} paiement(s) à valider`,
+              ringingOtp.size > 0 && `${ringingOtp.size} code(s) OTP à relayer`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+            !
           </div>
           <button onClick={stopAlarm} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white">
             Arrêter l'alarme

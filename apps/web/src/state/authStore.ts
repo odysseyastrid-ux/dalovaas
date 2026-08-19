@@ -9,6 +9,14 @@ interface AuthState {
   staff: StaffMember | null
   loading: boolean
   initialized: boolean
+  // Clicking a password-reset email link establishes a fully valid,
+  // authenticated session (Supabase fires PASSWORD_RECOVERY) -- that's
+  // required so updateUser({password}) can run, but it also means the link
+  // itself grants dashboard access if nothing forces the reset step first.
+  // This flag lets the staff app hold the user on the reset screen,
+  // regardless of route, until they've actually set a new password.
+  isRecoverySession: boolean
+  clearRecoverySession: () => void
   init: () => void
   refreshAccount: () => Promise<void>
   refreshStaff: () => Promise<void>
@@ -21,6 +29,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   staff: null,
   loading: true,
   initialized: false,
+  isRecoverySession: false,
+
+  clearRecoverySession: () => set({ isRecoverySession: false }),
 
   init: () => {
     if (get().initialized) return
@@ -34,13 +45,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     })
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      set({ session, loading: false })
+    supabase.auth.onAuthStateChange((event, session) => {
+      set({ session, loading: false, ...(event === 'PASSWORD_RECOVERY' ? { isRecoverySession: true } : {}) })
       if (session) {
         get().refreshAccount()
         get().refreshStaff()
       } else {
-        set({ account: null, staff: null })
+        set({ account: null, staff: null, isRecoverySession: false })
       }
     })
   },

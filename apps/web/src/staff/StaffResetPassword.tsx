@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { Field, Input } from '@/components/Field'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
+import { useAuthStore } from '@/state/authStore'
 
 export function StaffResetPassword() {
   const navigate = useNavigate()
+  const clearRecoverySession = useAuthStore((s) => s.clearRecoverySession)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -13,8 +15,8 @@ export function StaffResetPassword() {
   const [done, setDone] = useState(false)
 
   const submit = async () => {
-    if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères')
+    if (password.length < 10) {
+      setError('Le mot de passe doit contenir au moins 10 caractères')
       return
     }
     if (password !== confirm) {
@@ -29,6 +31,9 @@ export function StaffResetPassword() {
       setError(err.message)
       return
     }
+    // The reset is complete and proven -- only now is it safe to let the
+    // recovery session through to the normal dashboard routes.
+    clearRecoverySession()
     setDone(true)
   }
 

@@ -19,13 +19,16 @@ export function StaffApp() {
   const staff = useAuthStore((s) => s.staff)
   const loading = useAuthStore((s) => s.loading)
   const signOut = useAuthStore((s) => s.signOut)
+  const isRecoverySession = useAuthStore((s) => s.isRecoverySession)
   const navigate = useNavigate()
   const location = useLocation()
   const otpQueue = useOtpRelayQueue()
 
-  // Reached via the password-reset email link, which establishes a
-  // recovery session -- must be reachable regardless of staff-role gating.
-  if (location.pathname === '/staff/reset-password') return <StaffResetPassword />
+  // Reached via the password-reset email link, which establishes a fully
+  // authenticated recovery session. Force the reset screen regardless of
+  // which route they land on or navigate to next -- otherwise the link
+  // itself grants dashboard access without ever proving a new password.
+  if (isRecoverySession || location.pathname === '/staff/reset-password') return <StaffResetPassword />
 
   if (loading) return <div className="flex min-h-dvh items-center justify-center text-sm text-[var(--color-ink)]/50">…</div>
 

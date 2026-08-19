@@ -5,9 +5,13 @@ layer that sits alongside Chez Sanji (a single-restaurant app also in this
 repo). Any restaurant can join as a vendor, independent couriers pick up and
 deliver orders, and the platform takes a commission per order.
 
-This is a separate app (`apps/marketplace`) with its own frontend, but it
-shares the same Supabase project as Chez Sanji — its tables are namespaced
-`mk_*` so nothing collides.
+**Live:** https://dalovaas.vercel.app
+
+This is a separate app (`apps/marketplace`) with its own frontend and its
+own dedicated Supabase project (kept isolated from Chez Sanji's, by choice —
+the schema itself is portable and namespaced `mk_*`, so it could just as
+easily live in a shared project instead; see `supabase/migrations/0029` and
+`0030`).
 
 ## Four roles, one codebase
 
@@ -74,6 +78,10 @@ values ('<their auth.users id>', 'Platform Admin');
 
 They can then log in at `/auth/admin`.
 
+For the live deployment above, this step is already done — an admin
+account exists for the project owner's email; ask them for the password
+rather than re-running this.
+
 ## Quick start
 
 ```bash
@@ -82,6 +90,12 @@ cp .env.example .env   # fill in your Supabase URL + anon key
 npm install
 npm run dev
 ```
+
+**Trying the live deployment:** customer phone login runs on a Supabase
+Test OTP for now (no real SMS provider wired up yet, same shortcut Chez
+Sanji uses for demos) — use `699000001` as the phone number and `123456`
+as the code. Vendor/courier/admin sign-in is real email + password, with
+email confirmation auto-approved so a fresh signup can sign in immediately.
 
 ## What's intentionally out of scope for this first version
 

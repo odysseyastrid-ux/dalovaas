@@ -87,7 +87,7 @@ export function ProfileScreen() {
         </div>
 
         <div className="mb-4">
-          <Field label={t.customerName}>
+          <Field label={t.profileNickname}>
             <Input value={name} onChange={(e) => setName(e.target.value)} onBlur={saveName} />
           </Field>
         </div>

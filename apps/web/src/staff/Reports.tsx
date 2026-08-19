@@ -20,12 +20,15 @@ function toCsv(orders: Order[]): string {
 }
 
 function downloadCsv(orders: Order[]) {
-  const blob = new Blob([toCsv(orders)], { type: 'text/csv;charset=utf-8;' })
+  const blob = new Blob(['﻿' + toCsv(orders)], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = `chez-sanji-orders-${new Date().toISOString().slice(0, 10)}.csv`
+  a.style.display = 'none'
+  document.body.appendChild(a)
   a.click()
+  document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
 
@@ -55,7 +58,17 @@ export function Reports() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="font-[var(--font-heading)] text-lg font-extrabold">{t.allOrdersRecap}</div>
-        <button onClick={() => downloadCsv(orders)} className="rounded-lg border border-[var(--color-divider)] bg-white px-3 py-1.5 text-xs font-bold">
+        <button
+          onClick={() => {
+            if (orders.length === 0) {
+              showToast('Aucune donnée à exporter pour l\'instant')
+              return
+            }
+            downloadCsv(orders)
+            showToast('Fichier téléchargé — voir vos téléchargements')
+          }}
+          className="rounded-lg border border-[var(--color-divider)] bg-white px-3 py-1.5 text-xs font-bold"
+        >
           {t.downloadAllCsv}
         </button>
       </div>

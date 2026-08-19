@@ -15,12 +15,20 @@ function toCsv(header: string[], rows: (string | number)[][]): string {
 }
 
 function downloadCsv(filename: string, csv: string) {
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  // Prefix with a UTF-8 BOM so Excel renders accented French text correctly
+  // instead of garbling it, and append the link to the DOM before clicking --
+  // some mobile browsers (notably Android Chrome) silently ignore a click()
+  // on an <a> that was never attached, so the download would appear to do
+  // nothing at all.
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = filename
+  a.style.display = 'none'
+  document.body.appendChild(a)
   a.click()
+  document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
 
@@ -89,6 +97,10 @@ export function DatabaseExplorer() {
   const customers = useMemo(() => customerStats(orders, accountsByEmail), [orders, accountsByEmail])
 
   const exportProducts = () => {
+    if (products.length === 0) {
+      showToast('Aucune donnée à exporter pour l\'instant')
+      return
+    }
     downloadCsv(
       `chez-sanji-produits-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv(
@@ -96,9 +108,14 @@ export function DatabaseExplorer() {
         products.map((p) => [p.name, p.cat, p.qty, p.revenue]),
       ),
     )
+    showToast('Fichier téléchargé — voir vos téléchargements')
   }
 
   const exportCustomers = () => {
+    if (customers.length === 0) {
+      showToast('Aucune donnée à exporter pour l\'instant')
+      return
+    }
     downloadCsv(
       `chez-sanji-clients-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv(
@@ -115,9 +132,14 @@ export function DatabaseExplorer() {
         ]),
       ),
     )
+    showToast('Fichier téléchargé — voir vos téléchargements')
   }
 
   const exportCatalog = () => {
+    if (menuItems.length === 0) {
+      showToast('Aucune donnée à exporter pour l\'instant')
+      return
+    }
     downloadCsv(
       `chez-sanji-catalogue-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv(
@@ -125,9 +147,14 @@ export function DatabaseExplorer() {
         menuItems.map((i) => [i.name_fr, i.cat, i.price, i.out_of_stock ? 'oui' : 'non', i.deleted ? 'oui' : 'non']),
       ),
     )
+    showToast('Fichier téléchargé — voir vos téléchargements')
   }
 
   const exportProfiles = () => {
+    if (accounts.length === 0) {
+      showToast('Aucune donnée à exporter pour l\'instant')
+      return
+    }
     downloadCsv(
       `chez-sanji-profils-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv(
@@ -135,6 +162,7 @@ export function DatabaseExplorer() {
         accounts.map((a) => [a.profile_name, a.email ?? '', a.phone ?? '', a.loyalty_points, a.created_at]),
       ),
     )
+    showToast('Fichier téléchargé — voir vos téléchargements')
   }
 
   const loading = ordersLoading || accountsLoading || menuLoading

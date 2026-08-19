@@ -99,12 +99,10 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
     saveCategoryAddOns(cat, [...current, { label: 'New option', label_fr: 'Nouveau supplément', price: 0 }])
   }
 
-  const updateCategoryAddOn = (cat: MenuCategory, idx: number, field: 'label' | 'price', value: string) => {
+  const updateCategoryAddOn = (cat: MenuCategory, idx: number, field: 'label' | 'label_fr' | 'price', value: string) => {
     const current = byCategory[cat] ?? []
     const addOns = current.map((a, i) =>
-      i === idx
-        ? { ...a, label: field === 'label' ? value : a.label, label_fr: field === 'label' ? value : a.label_fr, price: field === 'price' ? Number(value) || 0 : a.price }
-        : a,
+      i === idx ? { ...a, [field]: field === 'price' ? Number(value) || 0 : value } : a,
     )
     saveCategoryAddOns(cat, addOns)
   }
@@ -258,7 +256,14 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
                   </label>
                   <input
                     defaultValue={ao.label}
+                    placeholder="Nom (EN)"
                     onBlur={(e) => e.target.value !== ao.label && updateCategoryAddOn(cat, idx, 'label', e.target.value)}
+                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-2.5 py-1.5 text-xs"
+                  />
+                  <input
+                    defaultValue={ao.label_fr}
+                    placeholder="Nom (FR)"
+                    onBlur={(e) => e.target.value !== ao.label_fr && updateCategoryAddOn(cat, idx, 'label_fr', e.target.value)}
                     className="flex-1 rounded-lg border border-[var(--color-divider)] px-2.5 py-1.5 text-xs"
                   />
                   <input

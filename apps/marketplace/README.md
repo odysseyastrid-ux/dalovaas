@@ -23,7 +23,12 @@ easily live in a shared project instead; see `supabase/migrations/0029` and
   until an admin approves them.
 - **Courier** (`src/courier/`) — self-serve signup, go online/offline, claim
   unassigned deliveries from the pool, mark them delivered. Signs in with
-  email/password.
+  phone OTP, same as customers — the driver-app-standard flow (Uber/Bolt/
+  Yango all onboard by phone, never email), which also sidesteps the class
+  of bug where an interrupted email signup left an orphaned auth account
+  with no courier row and no way back in. Logging in with no `mk_couriers`
+  row yet (fresh or interrupted signup, doesn't matter which) shows the
+  same short registration form (name, vehicle, city).
 - **Admin / platform back-office** (`src/admin/`) — approve or suspend
   vendors, activate/deactivate couriers, see GMV and commission revenue
   across the whole platform. No self-serve signup — bootstrap manually (see
@@ -91,11 +96,12 @@ npm install
 npm run dev
 ```
 
-**Trying the live deployment:** customer phone login runs on a Supabase
-Test OTP for now (no real SMS provider wired up yet, same shortcut Chez
-Sanji uses for demos) — use `699000001` as the phone number and `123456`
-as the code. Vendor/courier/admin sign-in is real email + password, with
-email confirmation auto-approved so a fresh signup can sign in immediately.
+**Trying the live deployment:** phone login (customer and courier) runs on
+a Supabase Test OTP for now (no real SMS provider wired up yet, same
+shortcut Chez Sanji uses for demos) — use `699000001` as the phone number
+and `123456` as the code. Vendor/admin sign-in is real email + password,
+with email confirmation auto-approved so a fresh signup can sign in
+immediately.
 
 ## What's intentionally out of scope for this first version
 

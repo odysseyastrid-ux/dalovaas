@@ -11,7 +11,7 @@ export function Landing() {
     <div className="flex min-h-dvh flex-col bg-[image:var(--gradient-sunset)] px-6 py-10 text-white">
       <div className="mx-auto w-full max-w-md flex-1">
         <div className="mb-1 font-[var(--font-heading)] text-4xl font-extrabold tracking-tight">Dalovaas</div>
-        <div className="mb-10 text-sm text-white/90">La marketplace de livraison du Cameroun.</div>
+        <div className="mb-10 text-sm text-white/90">Plus jamais la dalle.</div>
 
         <div className="flex flex-col gap-3">
           {ROLES.map((r) => (

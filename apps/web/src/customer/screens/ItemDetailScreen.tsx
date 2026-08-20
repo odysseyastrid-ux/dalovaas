@@ -109,6 +109,11 @@ export function ItemDetailScreen() {
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
           </button>
+          {(item.cat === 'burgers' || item.cat === 'poutine') && (
+            <div className="absolute right-4 top-4 rounded-full border-2 border-white bg-pattern-gold px-3 py-1 text-xs font-black uppercase text-[var(--color-ink)] shadow-sm">
+              Combo
+            </div>
+          )}
         </div>
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">

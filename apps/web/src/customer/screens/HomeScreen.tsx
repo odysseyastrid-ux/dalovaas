@@ -9,11 +9,17 @@ import { formatFCFA } from '@/lib/format'
 import { useCartStore } from '@/state/cartStore'
 import { useToastStore } from '@/state/toastStore'
 import { PromoCarousel } from '@/components/PromoCarousel'
+import { ComboOfferModal } from './ComboOfferModal'
 
 // "Tout" and "Combo" are deliberately not customer-browsable categories --
 // combos are now offered dynamically via the add-to-cart upsell popup
 // instead of as their own standalone products.
 const CUSTOMER_CATEGORIES = CATEGORY_ORDER.filter((c) => c !== 'combo')
+
+// Same drink choices as the combo offer on the item detail page -- kept in
+// sync deliberately since this is the same upsell, just triggered from the
+// quick-add "+" button instead.
+const COMBO_DRINK_IDS = ['d1', 'itm_9b8fc4d6c5']
 
 export function HomeScreen() {
   const { t, lang, toggleLang } = useI18n()
@@ -22,6 +28,7 @@ export function HomeScreen() {
   const { settings } = useAppSettings()
   const [category, setCategory] = useState<MenuCategory>(CUSTOMER_CATEGORIES[0])
   const [logoFailed, setLogoFailed] = useState(false)
+  const [comboPromptItem, setComboPromptItem] = useState<(typeof items)[number] | null>(null)
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
@@ -31,8 +38,13 @@ export function HomeScreen() {
     [items, category],
   )
 
-  const quickAdd = (item: (typeof items)[number], e: React.MouseEvent) => {
-    e.stopPropagation()
+  const friesItem = useMemo(() => items.find((i) => i.cat === 'fries' && !i.out_of_stock) ?? null, [items])
+  const drinkOptions = useMemo(
+    () => items.filter((i) => i.cat === 'soft_drinks' && !i.out_of_stock && COMBO_DRINK_IDS.includes(i.id)),
+    [items],
+  )
+
+  const addPlain = (item: (typeof items)[number]) => {
     addLine({
       itemId: item.id,
       name: item.name,
@@ -43,6 +55,36 @@ export function HomeScreen() {
       addOns: [],
     })
     showToast((lang === 'fr' ? 'Ajouté au panier : ' : 'Added to cart: ') + (lang === 'fr' ? item.name_fr : item.name))
+  }
+
+  const quickAdd = (item: (typeof items)[number], e: React.MouseEvent) => {
+    e.stopPropagation()
+    const comboEligible =
+      (item.cat === 'burgers' || item.cat === 'poutine') && drinkOptions.length > 0 && (item.cat !== 'burgers' || !!friesItem)
+    if (comboEligible) {
+      setComboPromptItem(item)
+      return
+    }
+    addPlain(item)
+  }
+
+  const acceptCombo = (drink: (typeof items)[number]) => {
+    const item = comboPromptItem
+    if (!item) return
+    const bundlePrice = item.price + (item.cat === 'burgers' ? friesItem?.price ?? 0 : 0) + drink.price
+    const comboDiscount = Math.round(bundlePrice * 0.15)
+    addLine({
+      itemId: item.id,
+      name: item.name,
+      nameFr: item.name_fr,
+      cat: item.cat,
+      unitPrice: bundlePrice - comboDiscount,
+      qty: 1,
+      addOns: [],
+      combo: { drinkItemId: drink.id, drinkName: drink.name, drinkNameFr: drink.name_fr },
+    })
+    showToast((lang === 'fr' ? 'Combo ajouté : ' : 'Combo added: ') + (lang === 'fr' ? item.name_fr : item.name))
+    setComboPromptItem(null)
   }
 
   return (
@@ -98,8 +140,13 @@ export function HomeScreen() {
               onClick={() => navigate(`/item/${item.id}`)}
               className="flex cursor-pointer gap-4 rounded-2xl bg-[var(--color-card)] p-3 shadow-[0_2px_10px_rgba(26,21,18,0.06)]"
             >
-              <div className="h-[76px] w-[76px] flex-none overflow-hidden rounded-xl bg-[var(--color-surface)]">
+              <div className="relative h-[76px] w-[76px] flex-none overflow-hidden rounded-xl bg-[var(--color-surface)]">
                 {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
+                {(item.cat === 'burgers' || item.cat === 'poutine') && (
+                  <div className="absolute -left-1 -top-1 rounded-full border-2 border-white bg-pattern-gold px-1.5 py-0.5 text-[8px] font-black uppercase leading-none text-[var(--color-ink)] shadow-sm">
+                    Combo
+                  </div>
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="[font-family:var(--font-heading)] text-[15px] font-bold">
@@ -126,6 +173,22 @@ export function HomeScreen() {
           ))}
         </div>
       </div>
+
+      {comboPromptItem && (
+        <ComboOfferModal
+          item={comboPromptItem}
+          baseUnitPrice={comboPromptItem.price}
+          qty={1}
+          friesItem={friesItem}
+          drinkOptions={drinkOptions}
+          lang={lang}
+          onAccept={acceptCombo}
+          onDecline={() => {
+            addPlain(comboPromptItem)
+            setComboPromptItem(null)
+          }}
+        />
+      )}
     </div>
   )
 }

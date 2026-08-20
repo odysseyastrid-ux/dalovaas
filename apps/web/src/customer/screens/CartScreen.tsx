@@ -28,7 +28,7 @@ export function CartScreen() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="border-b border-[var(--color-divider)] p-4 font-[var(--font-heading)] text-lg font-extrabold">
+      <div className="border-b border-[var(--color-divider)] p-4 [font-family:var(--font-heading)] text-lg font-extrabold">
         {t.yourCart}
       </div>
 
@@ -45,7 +45,7 @@ export function CartScreen() {
                 <div className="flex justify-between gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <div className="font-[var(--font-heading)] text-sm font-bold">
+                      <div className="[font-family:var(--font-heading)] text-sm font-bold">
                         {lang === 'fr' ? line.nameFr : line.name}
                       </div>
                       {line.redemptionId && (
@@ -67,7 +67,7 @@ export function CartScreen() {
                       </div>
                     )}
                   </div>
-                  <div className="font-[var(--font-heading)] text-sm font-bold">
+                  <div className="[font-family:var(--font-heading)] text-sm font-bold">
                     {line.redemptionId && line.addOns.length === 0
                       ? lang === 'fr'
                         ? 'Gratuit'
@@ -110,7 +110,7 @@ export function CartScreen() {
               <span>{t.subtotal}</span>
               <span>{formatFCFA(subtotal)}</span>
             </div>
-            <div className="mb-4 flex justify-between font-[var(--font-heading)] text-base font-extrabold">
+            <div className="mb-4 flex justify-between [font-family:var(--font-heading)] text-base font-extrabold">
               <span>{t.total}</span>
               <span>{formatFCFA(subtotal)}</span>
             </div>

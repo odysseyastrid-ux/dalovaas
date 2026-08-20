@@ -126,7 +126,7 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
   if (!canEdit) {
     return (
       <div>
-        <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">{t.manageMenu}</div>
+        <div className="mb-4 [font-family:var(--font-heading)] text-lg font-extrabold">{t.manageMenu}</div>
         <div className="flex flex-col gap-2">
           {visible.map((item) => (
             <div key={item.id} className="flex items-center justify-between rounded-xl border border-[var(--color-divider)] bg-white p-3.5">
@@ -141,7 +141,7 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
 
   return (
     <div>
-      <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">{t.manageMenu}</div>
+      <div className="mb-4 [font-family:var(--font-heading)] text-lg font-extrabold">{t.manageMenu}</div>
 
       <div className="mb-6 rounded-xl border-2 border-[var(--color-ink)] bg-white p-4">
         <div className="mb-3 text-sm font-bold">{t.addProduct}</div>
@@ -224,7 +224,7 @@ export function MenuManager({ canEdit }: { canEdit: boolean }) {
       </div>
 
       <div className="mt-8">
-        <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">{t.addOnsLabel}</div>
+        <div className="mb-1 [font-family:var(--font-heading)] text-lg font-extrabold">{t.addOnsLabel}</div>
         <div className="mb-4 text-xs text-[var(--color-ink)]/60">
           {lang === 'fr'
             ? 'Les suppléments sont partagés par catégorie : une modification ici s\'applique à tous les produits de la catégorie.'

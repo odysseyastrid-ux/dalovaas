@@ -182,21 +182,21 @@ export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
 
   return (
     <div>
-      <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">Paie</div>
+      <div className="mb-1 [font-family:var(--font-heading)] text-lg font-extrabold">Paie</div>
       <div className="mb-4 text-xs text-[var(--color-ink)]/60">Période : {periodLabel(settings.payroll_period_start)}</div>
 
       <div className="mb-6 grid grid-cols-3 gap-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Heures</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{totalHours.toFixed(1)}h</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{totalHours.toFixed(1)}h</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Employés</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{employees.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{employees.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Total à payer</div>
-          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(totalPayout)}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(totalPayout)}</div>
         </div>
       </div>
 
@@ -227,7 +227,7 @@ export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
           <div key={r.employee.id} className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-divider)] bg-white p-4">
             <div>
               <div className="flex items-center gap-2">
-                <div className="font-[var(--font-heading)] text-sm font-bold">{r.employee.name}</div>
+                <div className="[font-family:var(--font-heading)] text-sm font-bold">{r.employee.name}</div>
                 {r.adjusted && (
                   <span className="rounded-full bg-[var(--color-accent)] px-2 py-0.5 text-[9px] font-bold">CORRIGÉ</span>
                 )}
@@ -251,7 +251,7 @@ export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="font-[var(--font-heading)] text-sm font-bold">{formatFCFA(r.total)}</div>
+              <div className="[font-family:var(--font-heading)] text-sm font-bold">{formatFCFA(r.total)}</div>
               <button onClick={() => exportPayslip(r)} className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
                 Fiche
               </button>

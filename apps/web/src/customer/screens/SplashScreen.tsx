@@ -22,13 +22,13 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
             CS
           </div>
         )}
-        <div className="mt-2 font-[var(--font-heading)] text-2xl font-extrabold text-white">
+        <div className="mt-2 [font-family:var(--font-heading)] text-2xl font-extrabold text-white">
           <span className="text-3d animate-float">{t.slogan}</span>
         </div>
       </div>
       <button
         onClick={onEnter}
-        className="absolute bottom-8 left-6 right-6 rounded-xl bg-white px-5 py-4 text-left font-[var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)]"
+        className="absolute bottom-8 left-6 right-6 rounded-xl bg-white px-5 py-4 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)]"
       >
         {t.enter}
       </button>

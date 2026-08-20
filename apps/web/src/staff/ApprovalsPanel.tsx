@@ -38,7 +38,7 @@ export function ApprovalsPanel({ employees }: { employees: Employee[] }) {
 
   return (
     <div>
-      <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">Approbations</div>
+      <div className="mb-4 [font-family:var(--font-heading)] text-lg font-extrabold">Approbations</div>
 
       <div className="mb-6 rounded-xl border-2 border-[var(--color-ink)] bg-white p-4">
         <div className="mb-3 text-sm font-bold">+ Ajouter une demande d'heures supplémentaires</div>
@@ -73,7 +73,7 @@ export function ApprovalsPanel({ employees }: { employees: Employee[] }) {
           <div key={r.id} className="rounded-xl border-2 border-[var(--color-accent)] bg-white p-4">
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-[var(--font-heading)] text-sm font-bold">{nameFor(r.employee_id)}</div>
+                <div className="[font-family:var(--font-heading)] text-sm font-bold">{nameFor(r.employee_id)}</div>
                 <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">
                   {r.hours ?? '—'} h {r.auto && '· alerte automatique'}
                 </div>

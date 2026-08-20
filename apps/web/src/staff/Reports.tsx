@@ -57,7 +57,7 @@ export function Reports() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <div className="font-[var(--font-heading)] text-lg font-extrabold">{t.allOrdersRecap}</div>
+        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">{t.allOrdersRecap}</div>
         <button
           onClick={() => {
             if (orders.length === 0) {
@@ -75,19 +75,19 @@ export function Reports() {
       <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.totalOrders}</div>
-          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Commandes aujourd'hui</div>
-          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{todayStats.orderCount}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold">{todayStats.orderCount}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Ventes aujourd'hui</div>
-          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">🤍 Dons aujourd'hui</div>
-          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
         </div>
       </div>
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
@@ -96,7 +96,7 @@ export function Reports() {
           <div key={o.id} className="rounded-xl border border-[var(--color-divider)] bg-white p-4">
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-[var(--font-heading)] text-sm font-bold">{o.ref}</div>
+                <div className="[font-family:var(--font-heading)] text-sm font-bold">{o.ref}</div>
                 <div className="text-xs text-[var(--color-ink)]/60">{o.customer_name} — {o.customer_phone}</div>
               </div>
               <span className="rounded-full border border-[var(--color-divider)] px-2 py-0.5 text-[10px]">
@@ -105,7 +105,7 @@ export function Reports() {
             </div>
             <div className="mt-2 flex items-center justify-between text-xs text-[var(--color-ink)]/60">
               <span>{o.fulfillment} · {t.pickupCodeLabel}: {o.pickup_code}</span>
-              <span className="font-[var(--font-heading)] text-sm font-bold text-[var(--color-ink)]">{formatFCFA(o.total)}</span>
+              <span className="[font-family:var(--font-heading)] text-sm font-bold text-[var(--color-ink)]">{formatFCFA(o.total)}</span>
             </div>
             {staff?.role === 'manager' && (
               <button onClick={() => deleteOrder(o.ref)} className="mt-2 text-xs font-bold text-red-600">

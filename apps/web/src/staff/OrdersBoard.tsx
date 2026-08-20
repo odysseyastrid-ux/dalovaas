@@ -286,25 +286,25 @@ export function OrdersBoard() {
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.activeOrders}</div>
-          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold">{orders.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">{t.staffPendingValidation}</div>
-          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold text-[var(--color-accent-700)]">
+          <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold text-[var(--color-accent-700)]">
             {pendingCount}
           </div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Commandes aujourd'hui</div>
-          <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold">{todayStats.orderCount}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold">{todayStats.orderCount}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Ventes aujourd'hui</div>
-          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">🤍 Dons aujourd'hui</div>
-          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
         </div>
       </div>
 
@@ -328,7 +328,7 @@ export function OrdersBoard() {
         {refError && <div className="mt-2 text-xs text-red-600">{t.validateRefError}</div>}
       </div>
 
-      <div className="mb-3 font-[var(--font-heading)] text-sm font-bold uppercase tracking-wide">{t.activeOrdersList}</div>
+      <div className="mb-3 [font-family:var(--font-heading)] text-sm font-bold uppercase tracking-wide">{t.activeOrdersList}</div>
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
       {!loading && orders.length === 0 && <div className="text-sm text-[var(--color-ink)]/50">—</div>}
       <div className="flex flex-col gap-3">
@@ -339,7 +339,7 @@ export function OrdersBoard() {
             style={{ borderColor: ringingNew.has(order.id) || ringingDeadline.has(order.id) ? '#dc2626' : 'var(--color-divider)', borderWidth: ringingNew.has(order.id) || ringingDeadline.has(order.id) ? 2 : 1 }}
           >
             <div>
-              <div className="font-[var(--font-heading)] text-sm font-bold">
+              <div className="[font-family:var(--font-heading)] text-sm font-bold">
                 {order.is_staff_meal ? order.customer_name : order.ref}
               </div>
               <div className="text-xs text-[var(--color-ink)]/60">

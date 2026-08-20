@@ -50,7 +50,7 @@ export function HomeScreen() {
       <div className="relative flex items-center justify-between border-b border-[var(--color-divider)] p-4">
         <button
           onClick={toggleLang}
-          className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 font-[var(--font-heading)] text-[11px] font-bold"
+          className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold"
         >
           {lang.toUpperCase()} / {lang === 'fr' ? 'EN' : 'FR'}
         </button>
@@ -102,7 +102,7 @@ export function HomeScreen() {
                 {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-[var(--font-heading)] text-[15px] font-bold">
+                <div className="[font-family:var(--font-heading)] text-[15px] font-bold">
                   {lang === 'fr' ? item.name_fr : item.name}
                   {item.out_of_stock && (
                     <span className="ml-2 text-[10px] font-normal text-red-600">{t.outOfStock}</span>
@@ -111,7 +111,7 @@ export function HomeScreen() {
                 <div className="mt-0.5 truncate text-xs text-[var(--color-ink)]/60">
                   {lang === 'fr' ? item.description_fr : item.description}
                 </div>
-                <div className="mt-1.5 font-[var(--font-heading)] text-[13px] font-bold">{formatFCFA(item.price)}</div>
+                <div className="mt-1.5 [font-family:var(--font-heading)] text-[13px] font-bold">{formatFCFA(item.price)}</div>
               </div>
               <button
                 disabled={item.out_of_stock}
@@ -134,7 +134,7 @@ function CategoryChip({ active, onClick, children }: { active: boolean; onClick:
   return (
     <button
       onClick={onClick}
-      className="flex-none whitespace-nowrap rounded-full border-2 border-[var(--color-ink)] px-4 py-2 font-[var(--font-heading)] text-sm font-bold"
+      className="flex-none whitespace-nowrap rounded-full border-2 border-[var(--color-ink)] px-4 py-2 [font-family:var(--font-heading)] text-sm font-bold"
       style={{ backgroundImage: active ? 'var(--gradient-ink)' : 'none', color: active ? 'var(--color-accent)' : 'var(--color-ink)' }}
     >
       {children}

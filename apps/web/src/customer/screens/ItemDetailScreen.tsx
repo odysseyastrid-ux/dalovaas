@@ -112,10 +112,10 @@ export function ItemDetailScreen() {
         </div>
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="font-[var(--font-heading)] text-2xl font-extrabold">
+            <div className="[font-family:var(--font-heading)] text-2xl font-extrabold">
               {lang === 'fr' ? item.name_fr : item.name}
             </div>
-            <div className="whitespace-nowrap font-[var(--font-heading)] text-lg font-extrabold">
+            <div className="whitespace-nowrap [font-family:var(--font-heading)] text-lg font-extrabold">
               {formatFCFA(unitPrice)}
             </div>
           </div>
@@ -125,7 +125,7 @@ export function ItemDetailScreen() {
 
           {item.add_ons.length > 0 && (
             <div className="mt-6">
-              <div className="mb-3 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide">
+              <div className="mb-3 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide">
                 {t.addOns}
               </div>
               {item.add_ons.map((ao) => {
@@ -158,7 +158,7 @@ export function ItemDetailScreen() {
           )}
 
           <div className="mt-6 flex items-center gap-4">
-            <div className="font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.qty}</div>
+            <div className="[font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.qty}</div>
             <button
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               className="flex h-8 w-8 items-center justify-center rounded-full border-[1.5px] border-[var(--color-divider)]"

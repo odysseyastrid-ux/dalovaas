@@ -58,7 +58,7 @@ export function StaffApp() {
         </button>
       )}
       <div className="flex items-center justify-between border-b border-[var(--color-divider)] bg-white px-6 py-4">
-        <div className="font-[var(--font-heading)] text-lg font-extrabold">Chez Sanji — Dashboard</div>
+        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">Chez Sanji — Dashboard</div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-[var(--color-ink)]/60">
             {staff.name} · {staff.role}

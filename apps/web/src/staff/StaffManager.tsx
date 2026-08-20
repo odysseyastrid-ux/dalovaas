@@ -40,7 +40,7 @@ export function StaffManager() {
 
   return (
     <div>
-      <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">Staff</div>
+      <div className="mb-4 [font-family:var(--font-heading)] text-lg font-extrabold">Staff</div>
 
       <div className="mb-6 rounded-xl border-2 border-[var(--color-ink)] bg-white p-4">
         <div className="mb-3 text-sm font-bold">Invite staff member</div>

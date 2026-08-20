@@ -151,7 +151,7 @@ export function CheckoutScreen() {
         right={
           <button
             onClick={toggleLang}
-            className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 font-[var(--font-heading)] text-[11px] font-bold"
+            className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold"
           >
             {lang.toUpperCase()}
           </button>
@@ -161,7 +161,7 @@ export function CheckoutScreen() {
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         {step === 'summary' && (
           <div className="rounded-xl border border-[var(--color-divider)] p-4">
-            <div className="mb-3 font-[var(--font-heading)] text-sm font-bold">{t.orderSummary}</div>
+            <div className="mb-3 [font-family:var(--font-heading)] text-sm font-bold">{t.orderSummary}</div>
             {lines.map((l) => (
               <div key={l.key} className="flex justify-between border-b border-[var(--color-divider)] py-1 text-xs">
                 <span>
@@ -254,7 +254,7 @@ export function CheckoutScreen() {
                   <span>+{formatFCFA(donationPreview)}</span>
                 </div>
               )}
-              <div className="mt-1 flex justify-between font-[var(--font-heading)] text-sm font-extrabold text-[var(--color-ink)]">
+              <div className="mt-1 flex justify-between [font-family:var(--font-heading)] text-sm font-extrabold text-[var(--color-ink)]">
                 <span>{t.total}</span>
                 <span>{formatFCFA(total)}</span>
               </div>
@@ -319,7 +319,7 @@ export function CheckoutScreen() {
                     {settings.payment_icons[paymentMethod] && (
                       <img src={settings.payment_icons[paymentMethod]} alt="" className="h-8 w-8 rounded-md object-cover" />
                     )}
-                    <div className="font-[var(--font-heading)] text-sm font-bold">
+                    <div className="[font-family:var(--font-heading)] text-sm font-bold">
                       {paymentMethod === 'orange_money' ? 'Orange Money' : 'MTN MoMo'}
                     </div>
                   </div>

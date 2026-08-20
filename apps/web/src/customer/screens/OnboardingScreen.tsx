@@ -38,7 +38,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
           {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : ['⚡', '📍', '🎁'][step]}
         </div>
         <div className="mt-6">
-          <div className="font-[var(--font-heading)] text-2xl font-extrabold">
+          <div className="[font-family:var(--font-heading)] text-2xl font-extrabold">
             {lang === 'fr' ? slide.titleFr : slide.titleEn}
           </div>
           <div className="mt-3 text-sm leading-relaxed text-[var(--color-ink)]/70">

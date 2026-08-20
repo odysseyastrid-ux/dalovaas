@@ -113,7 +113,7 @@ function EquipeView({ canManage }: { canManage: boolean }) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <div className="font-[var(--font-heading)] text-lg font-extrabold">Équipe</div>
+        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">Équipe</div>
         <div className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-bold">{onShiftCount} en service</div>
       </div>
 
@@ -151,7 +151,7 @@ function EquipeView({ canManage }: { canManage: boolean }) {
             <div key={employee.id} className="flex flex-col rounded-xl border border-[var(--color-divider)] bg-white p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="font-[var(--font-heading)] text-sm font-bold">{employee.name}</div>
+                  <div className="[font-family:var(--font-heading)] text-sm font-bold">{employee.name}</div>
                   {open ? (
                     openBreak ? (
                       <div className="mt-0.5 text-xs font-bold text-[var(--color-accent-700)]">

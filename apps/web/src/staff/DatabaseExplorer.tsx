@@ -203,7 +203,7 @@ export function DatabaseExplorer() {
 
   return (
     <div>
-      <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">Base de données</div>
+      <div className="mb-1 [font-family:var(--font-heading)] text-lg font-extrabold">Base de données</div>
       <div className="mb-4 text-xs text-[var(--color-ink)]/60">
         Produits, clients et profils, avec export CSV téléchargeable en un clic.
       </div>
@@ -250,19 +250,19 @@ export function DatabaseExplorer() {
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Produits distincts</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{products.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{products.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Clients</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{customers.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{customers.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Profils enregistrés</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{accounts.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{accounts.length}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Articles au menu</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{menuItems.length}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{menuItems.length}</div>
         </div>
       </div>
 

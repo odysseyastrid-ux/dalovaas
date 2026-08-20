@@ -25,10 +25,10 @@ export function AccountScreen() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between border-b border-[var(--color-divider)] p-4">
-        <div className="font-[var(--font-heading)] text-lg font-extrabold">{t.account}</div>
+        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">{t.account}</div>
         <button
           onClick={toggleLang}
-          className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 font-[var(--font-heading)] text-[11px] font-bold"
+          className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold"
         >
           {lang.toUpperCase()}
         </button>
@@ -42,12 +42,12 @@ export function AccountScreen() {
             {account?.avatar_url ? (
               <img src={account.avatar_url} alt="" className="h-14 w-14 flex-none rounded-full object-cover" />
             ) : (
-              <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[var(--color-accent)] font-[var(--font-heading)] text-lg font-bold">
+              <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[var(--color-accent)] [font-family:var(--font-heading)] text-lg font-bold">
                 {initials}
               </div>
             )}
             <div>
-              <div className="font-[var(--font-heading)] text-[15px] font-bold">{account?.profile_name || '—'}</div>
+              <div className="[font-family:var(--font-heading)] text-[15px] font-bold">{account?.profile_name || '—'}</div>
               <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{account?.email}</div>
             </div>
           </div>
@@ -57,11 +57,11 @@ export function AccountScreen() {
         </div>
         <div className="mb-3 flex gap-3">
           <div className="flex-1 rounded-2xl bg-[var(--color-card)] p-3 text-center shadow-[0_2px_10px_rgba(26,21,18,0.06)]">
-            <div className="font-[var(--font-heading)] text-xl font-extrabold">{orders.length}</div>
+            <div className="[font-family:var(--font-heading)] text-xl font-extrabold">{orders.length}</div>
             <div className="text-[11px] text-[var(--color-ink)]/60">{t.myOrders}</div>
           </div>
           <div className="flex-1 rounded-2xl bg-pattern-gold p-3 text-center">
-            <div className="font-[var(--font-heading)] text-xl font-extrabold">{account?.loyalty_points ?? 0}</div>
+            <div className="[font-family:var(--font-heading)] text-xl font-extrabold">{account?.loyalty_points ?? 0}</div>
             <div className="text-[11px] opacity-70">{t.myPoints}</div>
           </div>
         </div>

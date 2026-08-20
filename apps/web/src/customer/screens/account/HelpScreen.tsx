@@ -15,7 +15,7 @@ export function HelpScreen() {
       <BackHeader title={t.helpTitle} onBack={() => navigate('/account')} />
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div className="mb-3 rounded-xl border border-[var(--color-divider)] p-4">
-          <div className="font-[var(--font-heading)] text-sm font-bold">{t.helpWhatsappTitle}</div>
+          <div className="[font-family:var(--font-heading)] text-sm font-bold">{t.helpWhatsappTitle}</div>
           <div className="mt-1 text-xs text-[var(--color-ink)]/60">{t.helpWhatsappDesc}</div>
           <div className="mt-3 flex flex-col gap-2">
             <a href={`https://wa.me/${STAFF_WHATSAPP_NUMBER}`} target="_blank" rel="noopener">
@@ -31,7 +31,7 @@ export function HelpScreen() {
           </div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] p-4">
-          <div className="font-[var(--font-heading)] text-sm font-bold">{t.helpFaqTitle}</div>
+          <div className="[font-family:var(--font-heading)] text-sm font-bold">{t.helpFaqTitle}</div>
           <div className="mt-1 text-xs text-[var(--color-ink)]/60">{t.helpFaqDesc}</div>
         </div>
       </div>

@@ -52,23 +52,23 @@ export function RewardsScreen() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="border-b border-[var(--color-divider)] p-4 font-[var(--font-heading)] text-lg font-extrabold">
+      <div className="border-b border-[var(--color-divider)] p-4 [font-family:var(--font-heading)] text-lg font-extrabold">
         {t.rewards}
       </div>
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div className="rounded-xl bg-pattern-gold p-6">
           <div className="text-xs uppercase tracking-wide opacity-80">{t.yourPoints}</div>
-          <div className="mt-1 font-[var(--font-heading)] text-4xl font-extrabold">{points}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-4xl font-extrabold">{points}</div>
           <div className="mt-4 h-1.5 w-full rounded-full bg-white/30">
             <div className="h-full rounded-full bg-white" style={{ width: `${tierProgress}%` }} />
           </div>
         </div>
         <div className="mt-6">
-          <div className="mb-3 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.redeem}</div>
+          <div className="mb-3 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.redeem}</div>
           {rewards.map((r) => (
             <div key={r.id} className="mb-3 flex items-center justify-between rounded-2xl bg-[var(--color-card)] p-3.5 shadow-[0_2px_10px_rgba(26,21,18,0.06)]">
               <div>
-                <div className="font-[var(--font-heading)] text-sm font-bold">{lang === 'fr' ? r.name_fr : r.name}</div>
+                <div className="[font-family:var(--font-heading)] text-sm font-bold">{lang === 'fr' ? r.name_fr : r.name}</div>
                 <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">{r.cost} pts</div>
               </div>
               <button

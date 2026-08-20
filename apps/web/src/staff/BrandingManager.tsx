@@ -112,7 +112,7 @@ export function BrandingManager() {
 
   return (
     <div>
-      <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">Image de marque</div>
+      <div className="mb-4 [font-family:var(--font-heading)] text-lg font-extrabold">Image de marque</div>
 
       <div className="mb-6">
         <div className="mb-2 text-xs font-bold uppercase text-[var(--color-ink)]/50">Logo</div>

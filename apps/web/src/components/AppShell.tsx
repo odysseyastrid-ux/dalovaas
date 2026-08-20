@@ -32,7 +32,7 @@ export function BackHeader({
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </button>
-      <div className="flex-1 font-[var(--font-heading)] text-lg font-extrabold">{title}</div>
+      <div className="flex-1 [font-family:var(--font-heading)] text-lg font-extrabold">{title}</div>
       {right}
     </div>
   )

@@ -40,7 +40,7 @@ export function StaffResetPassword() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-[var(--color-surface)] p-6">
       <div className="w-full max-w-sm rounded-2xl border border-[var(--color-divider)] bg-white p-6">
-        <div className="mb-1 font-[var(--font-heading)] text-xl font-extrabold">Chez Sanji</div>
+        <div className="mb-1 [font-family:var(--font-heading)] text-xl font-extrabold">Chez Sanji</div>
         <div className="mb-6 text-sm text-[var(--color-ink)]/60">Nouveau mot de passe</div>
         {done ? (
           <>

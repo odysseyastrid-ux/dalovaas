@@ -17,7 +17,7 @@ export function StaffMealsPanel({ employees }: { employees: Employee[] }) {
 
   return (
     <div>
-      <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">Repas staff</div>
+      <div className="mb-1 [font-family:var(--font-heading)] text-lg font-extrabold">Repas staff</div>
       <div className="mb-4 text-xs text-[var(--color-ink)]/60">
         1er repas de pause gratuit, 2ème à -50% — un avantage staff, distinct de la paie.
       </div>
@@ -25,15 +25,15 @@ export function StaffMealsPanel({ employees }: { employees: Employee[] }) {
       <div className="mb-6 grid grid-cols-3 gap-4">
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Gratuits</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{freeCount}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{freeCount}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">-50%</div>
-          <div className="mt-1 font-[var(--font-heading)] text-2xl font-extrabold">{halfCount}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-2xl font-extrabold">{halfCount}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
           <div className="text-xs uppercase text-[var(--color-ink)]/50">Total dû (caisse)</div>
-          <div className="mt-1 font-[var(--font-heading)] text-xl font-extrabold">{formatFCFA(totalOwed)}</div>
+          <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(totalOwed)}</div>
         </div>
       </div>
 

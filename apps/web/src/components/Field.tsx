@@ -3,7 +3,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react'
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1.5 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-ink)]/70">
+      <div className="mb-1.5 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-ink)]/70">
         {label}
       </div>
       {children}

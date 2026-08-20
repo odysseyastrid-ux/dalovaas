@@ -27,7 +27,7 @@ export function OrderHistoryScreen() {
         {orders.map((o) => (
           <div key={o.id} className="mb-3 flex items-center justify-between rounded-xl border border-[var(--color-divider)] p-3.5">
             <div className="min-w-0 flex-1 cursor-pointer" onClick={() => navigate(`/tracking/${o.ref}`)}>
-              <div className="font-[var(--font-heading)] text-sm font-bold">{o.ref}</div>
+              <div className="[font-family:var(--font-heading)] text-sm font-bold">{o.ref}</div>
               <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">
                 {t.pickupCodeLabel}: {o.pickup_code} · {formatFCFA(o.total)}
               </div>

@@ -61,7 +61,7 @@ export function ProfileScreen() {
             {account?.avatar_url ? (
               <img src={account.avatar_url} alt="" className="h-24 w-24 rounded-full object-cover" />
             ) : (
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[var(--color-accent)] font-[var(--font-heading)] text-2xl font-bold">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[var(--color-accent)] [font-family:var(--font-heading)] text-2xl font-bold">
                 {initials}
               </div>
             )}

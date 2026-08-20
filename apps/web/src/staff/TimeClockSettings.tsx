@@ -135,7 +135,7 @@ export function TimeClockSettings({ employees }: { employees: Employee[] }) {
 
   return (
     <div>
-      <div className="mb-4 font-[var(--font-heading)] text-lg font-extrabold">Réglages du pointage</div>
+      <div className="mb-4 [font-family:var(--font-heading)] text-lg font-extrabold">Réglages du pointage</div>
 
       <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
         <div className="mb-3 text-sm font-bold">Poste et pauses par employé</div>

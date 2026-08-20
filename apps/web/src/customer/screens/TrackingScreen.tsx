@@ -82,7 +82,7 @@ export function TrackingScreen() {
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div className="mb-4 flex items-center justify-between border-b border-[var(--color-divider)] pb-4">
           <div>
-            <div className="font-[var(--font-heading)] text-[15px] font-bold">{order.ref}</div>
+            <div className="[font-family:var(--font-heading)] text-[15px] font-bold">{order.ref}</div>
             <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">
               {order.lines.length} {lang === 'fr' ? 'article(s)' : 'item(s)'} · {formatFCFA(order.total)}
             </div>
@@ -121,7 +121,7 @@ export function TrackingScreen() {
 
         {order.pending_validation ? (
           <div className="rounded-xl border-2 border-[var(--color-accent)] p-4 text-center">
-            <div className="font-[var(--font-heading)] text-sm font-extrabold">{t.pendingValidationTitle}</div>
+            <div className="[font-family:var(--font-heading)] text-sm font-extrabold">{t.pendingValidationTitle}</div>
             <div className="mt-1 text-xs text-[var(--color-ink)]/70">{t.pendingValidationDesc}</div>
             <input
               ref={fileInputRef}
@@ -166,7 +166,7 @@ export function TrackingScreen() {
                     {i < 3 && <div className="min-h-8 w-0.5 flex-1" style={{ background: done ? 'var(--color-accent)' : 'var(--color-divider)' }} />}
                   </div>
                   <div className="pb-6">
-                    <div className="font-[var(--font-heading)] text-sm font-bold" style={{ color: done ? 'var(--color-ink)' : 'var(--color-ink)/40' }}>
+                    <div className="[font-family:var(--font-heading)] text-sm font-bold" style={{ color: done ? 'var(--color-ink)' : 'var(--color-ink)/40' }}>
                       {label}
                     </div>
                   </div>
@@ -177,7 +177,7 @@ export function TrackingScreen() {
             {order.order_status_index === 1 && order.step_deadline && (
               <div className="mt-1 rounded-xl border border-[var(--color-divider)] p-4">
                 <div className="text-xs text-[var(--color-ink)]/60">{t.estimated}</div>
-                <div className="mt-1.5 font-[var(--font-heading)] text-xl font-extrabold text-[var(--color-accent-700)]">
+                <div className="mt-1.5 [font-family:var(--font-heading)] text-xl font-extrabold text-[var(--color-accent-700)]">
                   {formatCountdown(remainingMs)}
                 </div>
               </div>
@@ -185,7 +185,7 @@ export function TrackingScreen() {
 
             <div className="mt-3 rounded-xl border-2 border-[var(--color-accent)] p-4 text-center">
               <div className="text-xs text-[var(--color-ink)]/60">{t.pickupCodeLabel}</div>
-              <div className="mt-1 font-[var(--font-heading)] text-3xl font-extrabold tracking-widest">{order.pickup_code}</div>
+              <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold tracking-widest">{order.pickup_code}</div>
               <div className="mt-1 text-xs text-[var(--color-ink)]/60">{t.pickupCodeDesc}</div>
             </div>
 

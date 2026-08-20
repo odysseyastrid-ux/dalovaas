@@ -45,7 +45,7 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: Pending
 
   return (
     <div className="flex flex-1 flex-col justify-center px-6">
-      <div className="mb-3 font-[var(--font-heading)] text-2xl font-extrabold">{t.loginTitle}</div>
+      <div className="mb-3 [font-family:var(--font-heading)] text-2xl font-extrabold">{t.loginTitle}</div>
 
       <button
         onClick={signInWithGoogle}

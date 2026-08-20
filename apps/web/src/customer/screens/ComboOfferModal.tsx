@@ -29,7 +29,7 @@ export function ComboOfferModal({
         className="w-full max-w-sm rounded-2xl bg-[var(--color-bg)] p-5"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-1 font-[var(--font-heading)] text-lg font-extrabold">
+        <div className="mb-1 [font-family:var(--font-heading)] text-lg font-extrabold">
           {lang === 'fr' ? 'Envie d’un combo ?' : 'Make it a combo?'}
         </div>
         <div className="mb-4 text-sm text-[var(--color-ink)]/70">

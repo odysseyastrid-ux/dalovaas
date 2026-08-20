@@ -16,10 +16,10 @@ export function AboutScreen() {
       <BackHeader title={t.aboutTitle} onBack={() => navigate('/account')} />
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div className="mb-6">
-          <div className="mb-2 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-accent-700)]">
+          <div className="mb-2 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-accent-700)]">
             Chez Sanji
           </div>
-          <div className="font-[var(--font-heading)] text-3xl font-extrabold leading-[1.15] text-balance">
+          <div className="[font-family:var(--font-heading)] text-3xl font-extrabold leading-[1.15] text-balance">
             {lang === 'fr'
               ? 'Une entreprise de restauration rapide canadienne, implantée au Cameroun.'
               : 'A Canadian fast-food company, established in Cameroon.'}
@@ -34,19 +34,19 @@ export function AboutScreen() {
               CS
             </div>
           )}
-          <div className="font-[var(--font-heading)] text-xl font-extrabold">Chez Sanji</div>
+          <div className="[font-family:var(--font-heading)] text-xl font-extrabold">Chez Sanji</div>
           <div className="mt-1 text-xs opacity-70">{lang === 'fr' ? 'Restauration rapide' : 'Fast food restaurant'}</div>
         </div>
 
         <div className="mb-4 rounded-2xl bg-pattern-coral p-5 text-white">
-          <div className="mb-2 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide opacity-80">
+          <div className="mb-2 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide opacity-80">
             {lang === 'fr' ? 'Fondateur' : 'Founder'}
           </div>
-          <div className="font-[var(--font-heading)] text-lg font-bold leading-relaxed">{FOUNDER_NAME}</div>
+          <div className="[font-family:var(--font-heading)] text-lg font-bold leading-relaxed">{FOUNDER_NAME}</div>
         </div>
 
         <div className="rounded-2xl bg-pattern-ink p-5 text-white">
-          <div className="mb-2 font-[var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-accent)]">
+          <div className="mb-2 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-accent)]">
             {lang === 'fr' ? 'Informations légales' : 'Legal information'}
           </div>
           <div className="text-xs leading-relaxed opacity-80">

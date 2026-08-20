@@ -50,7 +50,7 @@ export function VerifyCodeScreen({ pending, onBack }: { pending: PendingLogin; o
 
   return (
     <div className="flex flex-1 flex-col justify-center px-6">
-      <div className="mb-3 font-[var(--font-heading)] text-2xl font-extrabold">
+      <div className="mb-3 [font-family:var(--font-heading)] text-2xl font-extrabold">
         {pending.mode === 'email' ? t.verifyTitle : t.verifyTitlePhone}
       </div>
       <div className="mb-6 text-sm text-[var(--color-ink)]/70">

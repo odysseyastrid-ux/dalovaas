@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-heading: 'Rye', 'Plus Jakarta Sans', 'Segoe UI', system-ui, serif;
   --font-body: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
 
   --color-accent: #f5c518;

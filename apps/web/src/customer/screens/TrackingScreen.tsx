@@ -6,6 +6,7 @@ import { Button } from '@/components/Button'
 import { useOrderByRef } from '@/hooks/useOrders'
 import { useAppSettings } from '@/hooks/useAppSettings'
 import { formatFCFA, formatCountdown } from '@/lib/format'
+import { haversineKm, estimateTravelMinutes } from '@/lib/geo'
 import { downloadReceipt } from '@/lib/receipt'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
@@ -38,6 +39,20 @@ export function TrackingScreen() {
 
   const STEP_LABELS = [t.stepReceived, t.stepPreparing, t.stepReady, t.stepDelivered]
   const remainingMs = order.step_deadline ? new Date(order.step_deadline).getTime() - now : 0
+
+  const distanceKm =
+    order.fulfillment === 'delivery' && order.location && settings.venue_location
+      ? haversineKm(settings.venue_location, order.location)
+      : null
+  const travelMinutes = distanceKm != null ? estimateTravelMinutes(distanceKm) : null
+  // Before the order is ready, the courier's travel time stacks on top of the
+  // live prep countdown so the customer sees one combined ETA. Once it's
+  // ready there's no "ready since" timestamp to anchor a live countdown to,
+  // so the travel estimate is shown as a static figure instead.
+  const deliveryEtaMs =
+    travelMinutes != null && order.order_status_index < 2 && order.step_deadline
+      ? new Date(order.step_deadline).getTime() + travelMinutes * 60000 - now
+      : null
 
   const shareLocation = () => {
     if (!navigator.geolocation) {
@@ -194,6 +209,31 @@ export function TrackingScreen() {
                 <Button block variant="secondary" onClick={shareLocation}>
                   {lang === 'fr' ? 'Partager ma position' : 'Share my location'}
                 </Button>
+                <div className="mt-1.5 text-center text-[11px] text-[var(--color-ink)]/50">
+                  {lang === 'fr'
+                    ? 'Pour voir le temps de trajet estimé jusqu’à vous'
+                    : 'To see the estimated travel time to you'}
+                </div>
+              </div>
+            )}
+
+            {order.fulfillment === 'delivery' && distanceKm != null && travelMinutes != null && (
+              <div className="mt-3 rounded-xl border border-[var(--color-divider)] p-4">
+                <div className="text-xs text-[var(--color-ink)]/60">
+                  {lang === 'fr' ? `Trajet estimé · ${distanceKm.toFixed(1)} km` : `Estimated trip · ${distanceKm.toFixed(1)} km`}
+                </div>
+                <div className="mt-1.5 [font-family:var(--font-heading)] text-xl font-extrabold text-[var(--color-accent-700)]">
+                  {deliveryEtaMs != null ? formatCountdown(deliveryEtaMs) : `~${travelMinutes} min`}
+                </div>
+                <div className="mt-0.5 text-[11px] text-[var(--color-ink)]/50">
+                  {deliveryEtaMs != null
+                    ? lang === 'fr'
+                      ? 'Temps estimé avant que votre commande arrive'
+                      : 'Estimated time before your order arrives'
+                    : lang === 'fr'
+                      ? 'Temps de trajet une fois la commande partie'
+                      : 'Travel time once your order is on its way'}
+                </div>
               </div>
             )}
           </>

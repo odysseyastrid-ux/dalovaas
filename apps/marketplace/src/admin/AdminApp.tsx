@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import { BottomTabs, ICONS } from '@/components/BottomTabs'
 import { useAllVendors } from '@/hooks/useVendors'
+import { useAllCouriers } from '@/hooks/useCouriers'
 import { Overview } from './Overview'
 import { VendorsManagement } from './VendorsManagement'
 import { CouriersManagement } from './CouriersManagement'
@@ -8,7 +9,9 @@ import { OrdersOverview } from './OrdersOverview'
 
 export function AdminApp() {
   const { data: vendors } = useAllVendors()
+  const { data: couriers } = useAllCouriers(true)
   const pendingCount = vendors.filter((v) => v.status === 'pending').length
+  const pendingCourierCount = couriers.filter((c) => !c.verified).length
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--color-bg)]">
@@ -24,7 +27,7 @@ export function AdminApp() {
         tabs={[
           { to: '/admin', end: true, label: 'Aperçu', icon: ICONS.gauge },
           { to: '/admin/restaurants', label: 'Restaurants', icon: ICONS.store, badge: pendingCount },
-          { to: '/admin/livreurs', label: 'Livreurs', icon: ICONS.bike },
+          { to: '/admin/livreurs', label: 'Livreurs', icon: ICONS.bike, badge: pendingCourierCount },
           { to: '/admin/commandes', label: 'Commandes', icon: ICONS.list },
         ]}
       />

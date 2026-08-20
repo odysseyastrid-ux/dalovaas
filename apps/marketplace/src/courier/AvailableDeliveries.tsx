@@ -38,6 +38,22 @@ export function AvailableDeliveries() {
     navigate('/courier/mes-courses')
   }
 
+  if (courier && !courier.verified) {
+    return (
+      <div className="px-5 pt-8 pb-10">
+        <div className="mb-1 font-[var(--font-heading)] text-2xl font-extrabold">Salut {courier.full_name.split(' ')[0]} 👋</div>
+        <div className="mb-6 text-sm text-[var(--color-ink)]/60">Courses disponibles</div>
+        <div className="rounded-2xl bg-amber-50 p-6 text-center">
+          <div className="mb-2 text-3xl">🕒</div>
+          <div className="mb-1 font-[var(--font-heading)] text-base font-bold text-amber-800">Vérification en cours</div>
+          <div className="text-sm text-amber-700">
+            Votre identité est en cours de vérification par l'équipe Dalovaas — pour la sûreté des clients. Vous pourrez prendre des courses dès l'approbation.
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="px-5 pt-8 pb-10">
       <div className="mb-1 font-[var(--font-heading)] text-2xl font-extrabold">Salut {courier?.full_name?.split(' ')[0]} 👋</div>

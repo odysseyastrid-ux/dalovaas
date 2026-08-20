@@ -50,8 +50,14 @@ export interface Courier {
   phone: string
   vehicle_type: VehicleType
   city: string
+  address: string
+  id_number: string
+  plate_number: string
+  emergency_contact_phone: string
   status: CourierAvailability
   active: boolean
+  verified: boolean
+  verified_at: string | null
   rating: number
   rating_count: number
   created_at: string

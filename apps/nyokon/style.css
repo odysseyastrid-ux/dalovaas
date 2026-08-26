@@ -262,6 +262,62 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 .btn-outline{border:1px solid var(--fg);}
 .btn-outline:hover{background:var(--invert-bg);color:var(--invert-fg);}
 .btn.full{width:100%;text-align:center;}
+
+/* Animated gradient CTA — liquid lime/chrome shimmer behind the button.
+   Structure: .gbtn-wrap > (.g-light, .g-layer × n) + the real <a>/<button>. */
+.gbtn-wrap{
+  position:relative;
+  display:inline-flex;
+  border-radius:999px;
+  isolation:isolate;
+  overflow:hidden;
+}
+.gbtn-wrap::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:#14140f;
+  z-index:0;
+}
+.gbtn-wrap .g-light{
+  position:absolute;
+  pointer-events:none;
+  z-index:1;
+  left:10%;
+  width:80%;
+  aspect-ratio:6/1;
+  top:50%;
+  margin-top:-0.6rem;
+  border-radius:50px;
+  background-color:#fff5;
+  filter:blur(6px);
+  animation:gPulse 3s ease-in-out infinite;
+}
+.gbtn-wrap .g-layer{
+  position:absolute;
+  pointer-events:none;
+  z-index:1;
+  left:-160%;
+  width:500%;
+  aspect-ratio:1;
+  background:radial-gradient(ellipse at 65% 180%, #fff, #d1ff3c, #fff, #d1ff3c, #fff, #d1ff3c, #fff);
+  mix-blend-mode:difference;
+  animation:gRotate 20s linear infinite;
+}
+.gbtn-wrap .g-layer:last-child{mix-blend-mode:color-dodge;}
+.gbtn-wrap > a,.gbtn-wrap > button{
+  position:relative;
+  z-index:2;
+  background:transparent!important;
+  border-color:transparent!important;
+  color:#0b0b0c!important;
+  text-shadow:0 1px 2px rgba(255,255,255,.55);
+}
+@keyframes gRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes gPulse{0%,100%{opacity:1}50%{opacity:.15}}
+@media (prefers-reduced-motion: reduce){
+  .gbtn-wrap .g-layer,.gbtn-wrap .g-light{animation:none;}
+}
 .btn:focus-visible,.filter:focus-visible,.icon-link:focus-visible,.quick-add:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
   outline:2px solid var(--accent);
   outline-offset:2px;

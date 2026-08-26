@@ -3,14 +3,22 @@
 // Product prices below are stored in USD and converted at render time.
 
 const PRODUCTS = [
-  { id:'p1', name:'Oversized Hoodie', sub:'Off-Black', price:98, was:null, category:'tops', tag:'NEW' },
-  { id:'p2', name:'Boxy Tee', sub:'Vintage White', price:42, was:null, category:'tops', tag:null },
-  { id:'p3', name:'Cargo Pant', sub:'Charcoal', price:110, was:130, category:'bottoms', tag:'SALE' },
-  { id:'p4', name:'Track Jacket', sub:'Bone', price:135, was:null, category:'tops', tag:null },
-  { id:'p5', name:'Denim Short', sub:'Washed Indigo', price:78, was:null, category:'bottoms', tag:null },
-  { id:'p6', name:'Beanie', sub:'Black', price:32, was:null, category:'accessories', tag:null },
-  { id:'p7', name:'Wide Leg Trouser', sub:'Sand', price:118, was:null, category:'bottoms', tag:'NEW' },
-  { id:'p8', name:'Crossbody Bag', sub:'Black Nylon', price:64, was:null, category:'accessories', tag:null },
+  { id:'p1', price:98,  was:null, category:'tops',        tag:'new',
+    name:{en:'Oversized Hoodie', fr:'Hoodie Oversize'}, sub:{en:'Off-Black', fr:'Noir Anthracite'} },
+  { id:'p2', price:42,  was:null, category:'tops',        tag:null,
+    name:{en:'Boxy Tee', fr:'T-shirt Coupe Carrée'}, sub:{en:'Vintage White', fr:'Blanc Vintage'} },
+  { id:'p3', price:110, was:130,  category:'bottoms',     tag:'sale',
+    name:{en:'Cargo Pant', fr:'Pantalon Cargo'}, sub:{en:'Charcoal', fr:'Anthracite'} },
+  { id:'p4', price:135, was:null, category:'tops',        tag:null,
+    name:{en:'Track Jacket', fr:'Veste de Survêtement'}, sub:{en:'Bone', fr:'Ivoire'} },
+  { id:'p5', price:78,  was:null, category:'bottoms',     tag:null,
+    name:{en:'Denim Short', fr:'Short en Jean'}, sub:{en:'Washed Indigo', fr:'Indigo Délavé'} },
+  { id:'p6', price:32,  was:null, category:'accessories', tag:null,
+    name:{en:'Beanie', fr:'Bonnet'}, sub:{en:'Black', fr:'Noir'} },
+  { id:'p7', price:118, was:null, category:'bottoms',     tag:'new',
+    name:{en:'Wide Leg Trouser', fr:'Pantalon Large'}, sub:{en:'Sand', fr:'Sable'} },
+  { id:'p8', price:64,  was:null, category:'accessories', tag:null,
+    name:{en:'Crossbody Bag', fr:'Sacoche Bandoulière'}, sub:{en:'Black Nylon', fr:'Nylon Noir'} },
 ];
 
 // Static, illustrative FX rates (USD -> currency). Wire these to a live
@@ -27,15 +35,82 @@ const CURRENCIES = [
 ];
 const DEFAULT_CURRENCY = 'XOF';
 
-function loadCurrency(){
+// UI translations. English and French copy for every static string on the
+// page; keys match the data-i18n / data-i18n-placeholder / data-i18n-aria
+// attributes in index.html.
+const TRANSLATIONS = {
+  en: {
+    announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
+    nav_shop:'SHOP', nav_lookbook:'LOOKBOOK', nav_about:'ABOUT', nav_contact:'CONTACT',
+    hero_eyebrow:'FALL COLLECTION', hero_title_1:'BUILT', hero_title_2:'DIFFERENT', hero_cta:'SHOP THE DROP',
+    marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
+    shop_title:'THE COLLECTION',
+    filter_all:'ALL', filter_tops:'TOPS', filter_bottoms:'BOTTOMS', filter_accessories:'ACCESSORIES',
+    quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE',
+    editorial_eyebrow:'THE STORY', editorial_title:'NOT OFF THE RACK.',
+    editorial_text:"DL KSTOM started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a DL KSTOM piece different.",
+    editorial_cta:'OUR STORY',
+    lookbook_title:'LOOKBOOK',
+    newsletter_title:'GET FIRST ACCESS', newsletter_text:'Sign up for early access to new drops and restocks.',
+    newsletter_placeholder:'EMAIL ADDRESS', newsletter_btn:'JOIN', newsletter_note:"You're on the list.",
+    footer_tagline:'Custom streetwear. Made to order.',
+    footer_shop_h:'SHOP', footer_shop_all:'All Products', footer_shop_new:'New Arrivals', footer_shop_best:'Best Sellers',
+    footer_support_h:'SUPPORT', footer_shipping:'Shipping', footer_returns:'Returns', footer_size:'Size Guide', footer_contact:'Contact',
+    footer_follow_h:'FOLLOW',
+    footer_rights:'All rights reserved.', footer_note:'Placeholder storefront — replace product images, copy, and links.',
+    cart_title:'YOUR CART', cart_empty:'Your cart is empty.', cart_subtotal:'SUBTOTAL', cart_checkout:'CHECKOUT',
+    aria_menu:'Menu', aria_currency:'Currency', aria_theme:'Toggle light/dark theme',
+    aria_search:'Search', aria_account:'Account', aria_cart:'Cart', aria_cart_close:'Close cart',
+  },
+  fr: {
+    announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
+    nav_shop:'BOUTIQUE', nav_lookbook:'LOOKBOOK', nav_about:'À PROPOS', nav_contact:'CONTACT',
+    hero_eyebrow:'COLLECTION AUTOMNE', hero_title_1:'CONSTRUIT', hero_title_2:'AUTREMENT', hero_cta:'VOIR LE DROP',
+    marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
+    shop_title:'LA COLLECTION',
+    filter_all:'TOUT', filter_tops:'HAUTS', filter_bottoms:'BAS', filter_accessories:'ACCESSOIRES',
+    quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE',
+    editorial_eyebrow:"L'HISTOIRE", editorial_title:'PAS DU PRÊT-À-PORTER.',
+    editorial_text:"DL KSTOM a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce DL KSTOM différente.",
+    editorial_cta:'NOTRE HISTOIRE',
+    lookbook_title:'LOOKBOOK',
+    newsletter_title:'SOIS LE PREMIER INFORMÉ', newsletter_text:'Inscris-toi pour un accès anticipé aux nouveaux drops et réassorts.',
+    newsletter_placeholder:'ADRESSE E-MAIL', newsletter_btn:'REJOINDRE', newsletter_note:'Tu es sur la liste.',
+    footer_tagline:'Streetwear sur mesure. Fait sur commande.',
+    footer_shop_h:'BOUTIQUE', footer_shop_all:'Tous les produits', footer_shop_new:'Nouveautés', footer_shop_best:'Meilleures ventes',
+    footer_support_h:'ASSISTANCE', footer_shipping:'Livraison', footer_returns:'Retours', footer_size:'Guide des tailles', footer_contact:'Contact',
+    footer_follow_h:'SUIVRE',
+    footer_rights:'Tous droits réservés.', footer_note:'Boutique de démonstration — remplace les images produits, les textes et les liens.',
+    cart_title:'TON PANIER', cart_empty:'Ton panier est vide.', cart_subtotal:'SOUS-TOTAL', cart_checkout:'COMMANDER',
+    aria_menu:'Menu', aria_currency:'Devise', aria_theme:'Basculer thème clair/sombre',
+    aria_search:'Recherche', aria_account:'Compte', aria_cart:'Panier', aria_cart_close:'Fermer le panier',
+  },
+};
+const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+
+function loadLang(){
   try {
-    const saved = localStorage.getItem('dlkstom-currency');
-    if (saved && CURRENCIES.some(c => c.code === saved)) return saved;
+    const saved = localStorage.getItem('dlkstom-lang');
+    if (saved === 'en' || saved === 'fr') return saved;
   } catch (e) { /* localStorage unavailable */ }
-  return DEFAULT_CURRENCY;
+  return DEFAULT_LANG;
 }
 
-let currentCurrency = loadCurrency();
+let currentLang = loadLang();
+
+function t(key){
+  return TRANSLATIONS[currentLang][key] ?? TRANSLATIONS.en[key] ?? key;
+}
+
+function applyStaticTranslations(){
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('.lang-switch button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+}
 
 const grid = document.getElementById('productGrid');
 const cart = new Map();
@@ -46,6 +121,15 @@ function money(usd){
   return new Intl.NumberFormat(c.locale, { style:'currency', currency:c.code, maximumFractionDigits:0 }).format(amount);
 }
 
+function loadCurrency(){
+  try {
+    const saved = localStorage.getItem('dlkstom-currency');
+    if (saved && CURRENCIES.some(c => c.code === saved)) return saved;
+  } catch (e) { /* localStorage unavailable */ }
+  return DEFAULT_CURRENCY;
+}
+
+let currentCurrency = loadCurrency();
 let currentFilter = 'all';
 
 function renderProducts(filter=currentFilter){
@@ -53,19 +137,21 @@ function renderProducts(filter=currentFilter){
   grid.innerHTML = '';
   const list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
   for (const p of list){
+    const name = p.name[currentLang] || p.name.en;
+    const sub = p.sub[currentLang] || p.sub.en;
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
       <div class="product-media">
-        ${p.tag ? `<span class="product-tag">${p.tag}</span>` : ''}
-        <div class="placeholder-img primary" data-placeholder="${p.name.toUpperCase()}"></div>
-        <div class="placeholder-img secondary" data-placeholder="${p.name.toUpperCase()} — ALT"></div>
-        <button class="quick-add" data-id="${p.id}">QUICK ADD — ${money(p.price)}</button>
+        ${p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
+        <div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
+        <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>
+        <button class="quick-add" data-id="${p.id}">${t('quick_add')} — ${money(p.price)}</button>
       </div>
       <div class="product-info">
         <div>
-          <div class="product-name">${p.name}</div>
-          <div class="product-sub">${p.sub}</div>
+          <div class="product-name">${name}</div>
+          <div class="product-sub">${sub}</div>
         </div>
         <div class="product-price">
           ${p.was ? `<span class="was">${money(p.was)}</span>` : ''}${money(p.price)}
@@ -75,7 +161,13 @@ function renderProducts(filter=currentFilter){
     grid.appendChild(card);
   }
 }
-renderProducts();
+
+function refreshFilterLabels(){
+  document.querySelectorAll('.filter').forEach(btn => {
+    const key = 'filter_' + btn.dataset.filter;
+    if (TRANSLATIONS.en[key]) btn.textContent = t(key);
+  });
+}
 
 document.querySelectorAll('.filter').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -107,11 +199,11 @@ cartScrim.addEventListener('click', closeCart);
 
 function renderCart(){
   if (cart.size === 0){
-    cartItemsEl.innerHTML = '<p>Your cart is empty.</p>';
+    cartItemsEl.innerHTML = `<p>${t('cart_empty')}</p>`;
   } else {
     cartItemsEl.innerHTML = [...cart.values()].map(item => `
       <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);">
-        <span>${item.name} × ${item.qty}</span>
+        <span>${item.name[currentLang] || item.name.en} × ${item.qty}</span>
         <span>${money(item.price * item.qty)}</span>
       </div>
     `).join('');
@@ -180,11 +272,27 @@ currencySelect.addEventListener('change', () => {
   renderCart();
 });
 
+// Language
+document.querySelectorAll('.lang-switch button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentLang = btn.dataset.lang;
+    try { localStorage.setItem('dlkstom-lang', currentLang); } catch (e) { /* localStorage unavailable */ }
+    applyStaticTranslations();
+    refreshFilterLabels();
+    renderProducts();
+    renderCart();
+  });
+});
+
 // Newsletter (demo only — wire up to real email provider)
 document.getElementById('newsletterForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  document.getElementById('newsletterNote').textContent = "You're on the list.";
+  document.getElementById('newsletterNote').textContent = t('newsletter_note');
   e.target.reset();
 });
 
+// Initial render
+applyStaticTranslations();
+refreshFilterLabels();
+renderProducts();
 document.getElementById('year').textContent = new Date().getFullYear();

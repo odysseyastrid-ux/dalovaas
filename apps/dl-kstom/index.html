@@ -12,21 +12,25 @@
 </head>
 <body>
 
-<div class="announce">FREE SHIPPING ON ORDERS $150+ &nbsp;•&nbsp; NEW DROP EVERY MONTH &nbsp;•&nbsp; MADE TO ORDER</div>
+<div class="announce" data-i18n="announce"></div>
 
 <header class="site-header" id="siteHeader">
-  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+  <button class="nav-toggle" id="navToggle" data-i18n-aria="aria_menu" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
   <nav class="nav-left">
-    <a href="#shop">SHOP</a>
-    <a href="#lookbook">LOOKBOOK</a>
-    <a href="#about">ABOUT</a>
+    <a href="#shop" data-i18n="nav_shop"></a>
+    <a href="#lookbook" data-i18n="nav_lookbook"></a>
+    <a href="#about" data-i18n="nav_about"></a>
   </nav>
   <a href="#top" class="wordmark">DL KSTOM</a>
   <nav class="nav-right">
+    <div class="lang-switch" id="langSwitch">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="fr">FR</button>
+    </div>
     <div class="currency-select-wrap">
-      <select id="currencySelect" aria-label="Currency">
+      <select id="currencySelect" data-i18n-aria="aria_currency" aria-label="Currency">
         <option value="XOF">FCFA (XOF)</option>
         <option value="USD">USD ($)</option>
         <option value="EUR">EUR (€)</option>
@@ -37,17 +41,17 @@
         <option value="ZAR">ZAR (R)</option>
       </select>
     </div>
-    <button class="icon-link theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+    <button class="icon-link theme-toggle" id="themeToggle" data-i18n-aria="aria_theme" aria-label="Toggle light/dark theme">
       <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
     </button>
-    <a href="#" class="icon-link" aria-label="Search">
+    <a href="#" class="icon-link" data-i18n-aria="aria_search" aria-label="Search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </a>
-    <a href="#" class="icon-link" aria-label="Account">
+    <a href="#" class="icon-link" data-i18n-aria="aria_account" aria-label="Account">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
     </a>
-    <a href="#" class="icon-link cart-link" aria-label="Cart">
+    <a href="#" class="icon-link cart-link" data-i18n-aria="aria_cart" aria-label="Cart">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
       <span class="cart-count">0</span>
     </a>
@@ -55,10 +59,10 @@
 </header>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#shop">SHOP</a>
-  <a href="#lookbook">LOOKBOOK</a>
-  <a href="#about">ABOUT</a>
-  <a href="#contact">CONTACT</a>
+  <a href="#shop" data-i18n="nav_shop"></a>
+  <a href="#lookbook" data-i18n="nav_lookbook"></a>
+  <a href="#about" data-i18n="nav_about"></a>
+  <a href="#contact" data-i18n="nav_contact"></a>
 </div>
 
 <main id="top">
@@ -69,9 +73,9 @@
       <div class="hero-overlay"></div>
     </div>
     <div class="hero-content">
-      <p class="hero-eyebrow">FALL COLLECTION</p>
-      <h1 class="hero-title">BUILT<br>DIFFERENT</h1>
-      <a href="#shop" class="btn btn-light">SHOP THE DROP</a>
+      <p class="hero-eyebrow" data-i18n="hero_eyebrow"></p>
+      <h1 class="hero-title"><span data-i18n="hero_title_1"></span><br><span data-i18n="hero_title_2"></span></h1>
+      <a href="#shop" class="btn btn-light" data-i18n="hero_cta"></a>
     </div>
     <a href="#shop" class="scroll-cue" aria-label="Scroll down">
       <span></span>
@@ -81,13 +85,13 @@
   <!-- MARQUEE -->
   <div class="marquee">
     <div class="marquee-track">
-      <span>CUSTOM STREETWEAR</span><span>•</span>
-      <span>MADE TO ORDER</span><span>•</span>
-      <span>LIMITED RUNS</span><span>•</span>
+      <span data-i18n="marquee_1"></span><span>•</span>
+      <span data-i18n="marquee_2"></span><span>•</span>
+      <span data-i18n="marquee_3"></span><span>•</span>
       <span>DL KSTOM</span><span>•</span>
-      <span>CUSTOM STREETWEAR</span><span>•</span>
-      <span>MADE TO ORDER</span><span>•</span>
-      <span>LIMITED RUNS</span><span>•</span>
+      <span data-i18n="marquee_1"></span><span>•</span>
+      <span data-i18n="marquee_2"></span><span>•</span>
+      <span data-i18n="marquee_3"></span><span>•</span>
       <span>DL KSTOM</span><span>•</span>
     </div>
   </div>
@@ -95,12 +99,12 @@
   <!-- SHOP GRID -->
   <section class="shop" id="shop">
     <div class="section-head">
-      <h2>THE COLLECTION</h2>
+      <h2 data-i18n="shop_title"></h2>
       <div class="filters">
-        <button class="filter active" data-filter="all">ALL</button>
-        <button class="filter" data-filter="tops">TOPS</button>
-        <button class="filter" data-filter="bottoms">BOTTOMS</button>
-        <button class="filter" data-filter="accessories">ACCESSORIES</button>
+        <button class="filter active" data-filter="all" data-i18n="filter_all"></button>
+        <button class="filter" data-filter="tops" data-i18n="filter_tops"></button>
+        <button class="filter" data-filter="bottoms" data-i18n="filter_bottoms"></button>
+        <button class="filter" data-filter="accessories" data-i18n="filter_accessories"></button>
       </div>
     </div>
 
@@ -113,23 +117,17 @@
   <section class="editorial" id="about">
     <div class="editorial-media placeholder-img" data-placeholder="EDITORIAL / LOOKBOOK IMAGE"></div>
     <div class="editorial-copy">
-      <p class="editorial-eyebrow">THE STORY</p>
-      <h2>NOT OFF THE RACK.</h2>
-      <p class="editorial-text">
-        DL KSTOM started as one-off pieces made for friends. Every drop is
-        small-batch, cut and finished by hand, built for people who want
-        something that doesn't look like everyone else's closet. This is
-        where you swap in your real brand copy — origin story, materials,
-        what makes a DL KSTOM piece different.
-      </p>
-      <a href="#" class="btn btn-outline">OUR STORY</a>
+      <p class="editorial-eyebrow" data-i18n="editorial_eyebrow"></p>
+      <h2 data-i18n="editorial_title"></h2>
+      <p class="editorial-text" data-i18n="editorial_text"></p>
+      <a href="#" class="btn btn-outline" data-i18n="editorial_cta"></a>
     </div>
   </section>
 
   <!-- LOOKBOOK STRIP -->
   <section class="lookbook" id="lookbook">
     <div class="section-head">
-      <h2>LOOKBOOK</h2>
+      <h2 data-i18n="lookbook_title"></h2>
     </div>
     <div class="lookbook-grid">
       <div class="placeholder-img lb-tall" data-placeholder="LOOKBOOK 01"></div>
@@ -143,11 +141,11 @@
 
   <!-- NEWSLETTER -->
   <section class="newsletter" id="contact">
-    <h2>GET FIRST ACCESS</h2>
-    <p>Sign up for early access to new drops and restocks.</p>
+    <h2 data-i18n="newsletter_title"></h2>
+    <p data-i18n="newsletter_text"></p>
     <form class="newsletter-form" id="newsletterForm">
-      <input type="email" placeholder="EMAIL ADDRESS" required aria-label="Email address" />
-      <button type="submit">JOIN</button>
+      <input type="email" data-i18n-placeholder="newsletter_placeholder" placeholder="EMAIL ADDRESS" required data-i18n-aria="newsletter_placeholder" aria-label="Email address" />
+      <button type="submit" data-i18n="newsletter_btn"></button>
     </form>
     <p class="newsletter-note" id="newsletterNote"></p>
   </section>
@@ -158,42 +156,42 @@
   <div class="footer-top">
     <div class="footer-col">
       <a href="#top" class="wordmark small">DL KSTOM</a>
-      <p>Custom streetwear. Made to order.</p>
+      <p data-i18n="footer_tagline"></p>
     </div>
     <div class="footer-col">
-      <h4>SHOP</h4>
-      <a href="#shop">All Products</a>
-      <a href="#shop">New Arrivals</a>
-      <a href="#shop">Best Sellers</a>
+      <h4 data-i18n="footer_shop_h"></h4>
+      <a href="#shop" data-i18n="footer_shop_all"></a>
+      <a href="#shop" data-i18n="footer_shop_new"></a>
+      <a href="#shop" data-i18n="footer_shop_best"></a>
     </div>
     <div class="footer-col">
-      <h4>SUPPORT</h4>
-      <a href="#">Shipping</a>
-      <a href="#">Returns</a>
-      <a href="#">Size Guide</a>
-      <a href="#">Contact</a>
+      <h4 data-i18n="footer_support_h"></h4>
+      <a href="#" data-i18n="footer_shipping"></a>
+      <a href="#" data-i18n="footer_returns"></a>
+      <a href="#" data-i18n="footer_size"></a>
+      <a href="#" data-i18n="footer_contact"></a>
     </div>
     <div class="footer-col">
-      <h4>FOLLOW</h4>
+      <h4 data-i18n="footer_follow_h"></h4>
       <a href="#">Instagram</a>
       <a href="#">TikTok</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© <span id="year"></span> DL KSTOM. All rights reserved.</span>
-    <span>Placeholder storefront — replace product images, copy, and links.</span>
+    <span>© <span id="year"></span> DL KSTOM. <span data-i18n="footer_rights"></span></span>
+    <span data-i18n="footer_note"></span>
   </div>
 </footer>
 
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-drawer-head">
-    <h3>YOUR CART</h3>
-    <button id="cartClose" aria-label="Close cart">&times;</button>
+    <h3 data-i18n="cart_title"></h3>
+    <button id="cartClose" data-i18n-aria="aria_cart_close" aria-label="Close cart">&times;</button>
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
-    <div class="cart-total"><span>SUBTOTAL</span><span id="cartTotal">$0</span></div>
-    <button class="btn btn-light full">CHECKOUT</button>
+    <div class="cart-total"><span data-i18n="cart_subtotal"></span><span id="cartTotal">$0</span></div>
+    <button class="btn btn-light full" data-i18n="cart_checkout"></button>
   </div>
 </div>
 <div class="cart-scrim" id="cartScrim"></div>

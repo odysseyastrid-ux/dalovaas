@@ -1,4 +1,4 @@
-// DL KSTOM storefront — replace PRODUCTS with real inventory (and swap
+// nyøkøn storefront — replace PRODUCTS with real inventory (and swap
 // placeholder-img blocks for real <img> tags) when you have product photos.
 // Product prices below are stored in USD and converted at render time.
 
@@ -96,7 +96,7 @@ const TRANSLATIONS = {
     filter_shoes:'SHOES', filter_bags:'BAGS', filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
     quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', sizes_label:'Sizes',
     editorial_eyebrow:'THE STORY', editorial_title:'NOT OFF THE RACK.',
-    editorial_text:"DL KSTOM started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a DL KSTOM piece different.",
+    editorial_text:"nyøkøn started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a nyøkøn piece different.",
     editorial_cta:'OUR STORY',
     lookbook_title:'LOOKBOOK',
     newsletter_title:'GET FIRST ACCESS', newsletter_text:'Sign up for early access to new drops and restocks.',
@@ -120,7 +120,7 @@ const TRANSLATIONS = {
     filter_shoes:'CHAUSSURES', filter_bags:'SACS', filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
     quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', sizes_label:'Tailles',
     editorial_eyebrow:"L'HISTOIRE", editorial_title:'PAS DU PRÊT-À-PORTER.',
-    editorial_text:"DL KSTOM a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce DL KSTOM différente.",
+    editorial_text:"nyøkøn a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce nyøkøn différente.",
     editorial_cta:'NOTRE HISTOIRE',
     lookbook_title:'LOOKBOOK',
     newsletter_title:'SOIS LE PREMIER INFORMÉ', newsletter_text:'Inscris-toi pour un accès anticipé aux nouveaux drops et réassorts.',
@@ -139,7 +139,7 @@ const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().star
 
 function loadLang(){
   try {
-    const saved = localStorage.getItem('dlkstom-lang');
+    const saved = localStorage.getItem('nyokon-lang');
     if (saved === 'en' || saved === 'fr') return saved;
   } catch (e) { /* localStorage unavailable */ }
   return DEFAULT_LANG;
@@ -173,7 +173,7 @@ function money(usd){
 
 function loadCurrency(){
   try {
-    const saved = localStorage.getItem('dlkstom-currency');
+    const saved = localStorage.getItem('nyokon-currency');
     if (saved && CURRENCIES.some(c => c.code === saved)) return saved;
   } catch (e) { /* localStorage unavailable */ }
   return DEFAULT_CURRENCY;
@@ -305,7 +305,7 @@ grid.addEventListener('click', (e) => {
 
 // Theme (light/dark)
 function loadTheme(){
-  try { return localStorage.getItem('dlkstom-theme'); } catch (e) { return null; }
+  try { return localStorage.getItem('nyokon-theme'); } catch (e) { return null; }
 }
 function systemPrefersDark(){
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -329,7 +329,7 @@ themeToggle.addEventListener('click', () => {
   const isDark = currentTheme === 'dark' || (!currentTheme && systemPrefersDark());
   currentTheme = isDark ? 'light' : 'dark';
   applyTheme(currentTheme);
-  try { localStorage.setItem('dlkstom-theme', currentTheme); } catch (e) { /* localStorage unavailable */ }
+  try { localStorage.setItem('nyokon-theme', currentTheme); } catch (e) { /* localStorage unavailable */ }
   syncThemeToggle();
 });
 
@@ -344,7 +344,7 @@ const currencySelect = document.getElementById('currencySelect');
 currencySelect.value = currentCurrency;
 currencySelect.addEventListener('change', () => {
   currentCurrency = currencySelect.value;
-  try { localStorage.setItem('dlkstom-currency', currentCurrency); } catch (e) { /* localStorage unavailable */ }
+  try { localStorage.setItem('nyokon-currency', currentCurrency); } catch (e) { /* localStorage unavailable */ }
   renderProducts();
   renderCart();
 });
@@ -353,7 +353,7 @@ currencySelect.addEventListener('change', () => {
 document.querySelectorAll('.lang-switch button').forEach(btn => {
   btn.addEventListener('click', () => {
     currentLang = btn.dataset.lang;
-    try { localStorage.setItem('dlkstom-lang', currentLang); } catch (e) { /* localStorage unavailable */ }
+    try { localStorage.setItem('nyokon-lang', currentLang); } catch (e) { /* localStorage unavailable */ }
     applyStaticTranslations();
     refreshFilterLabels();
     renderProducts();

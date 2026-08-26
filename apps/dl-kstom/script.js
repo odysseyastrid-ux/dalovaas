@@ -134,6 +134,42 @@ grid.addEventListener('click', (e) => {
   openCart();
 });
 
+// Theme (light/dark)
+function loadTheme(){
+  try { return localStorage.getItem('dlkstom-theme'); } catch (e) { return null; }
+}
+function systemPrefersDark(){
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function applyTheme(theme){
+  if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+let currentTheme = loadTheme();
+applyTheme(currentTheme);
+
+const themeToggle = document.getElementById('themeToggle');
+function syncThemeToggle(){
+  const isDark = currentTheme === 'dark' || (!currentTheme && systemPrefersDark());
+  themeToggle.classList.toggle('is-dark', isDark);
+}
+syncThemeToggle();
+
+themeToggle.addEventListener('click', () => {
+  const isDark = currentTheme === 'dark' || (!currentTheme && systemPrefersDark());
+  currentTheme = isDark ? 'light' : 'dark';
+  applyTheme(currentTheme);
+  try { localStorage.setItem('dlkstom-theme', currentTheme); } catch (e) { /* localStorage unavailable */ }
+  syncThemeToggle();
+});
+
+if (window.matchMedia) {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!currentTheme) syncThemeToggle();
+  });
+}
+
 // Currency
 const currencySelect = document.getElementById('currencySelect');
 currencySelect.value = currentCurrency;

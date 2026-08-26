@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DL KSTOM — Collection</title>
+<meta name="description" content="DL KSTOM — custom streetwear, drops and made-to-order pieces." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="announce">FREE SHIPPING ON ORDERS $150+ &nbsp;•&nbsp; NEW DROP EVERY MONTH &nbsp;•&nbsp; MADE TO ORDER</div>
+
+<header class="site-header" id="siteHeader">
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="nav-left">
+    <a href="#shop">SHOP</a>
+    <a href="#lookbook">LOOKBOOK</a>
+    <a href="#about">ABOUT</a>
+  </nav>
+  <a href="#top" class="wordmark">DL KSTOM</a>
+  <nav class="nav-right">
+    <a href="#" class="icon-link" aria-label="Search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </a>
+    <a href="#" class="icon-link" aria-label="Account">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+    </a>
+    <a href="#" class="icon-link cart-link" aria-label="Cart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+      <span class="cart-count">0</span>
+    </a>
+  </nav>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#shop">SHOP</a>
+  <a href="#lookbook">LOOKBOOK</a>
+  <a href="#about">ABOUT</a>
+  <a href="#contact">CONTACT</a>
+</div>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-media placeholder-img" data-placeholder="HERO IMAGE / VIDEO — 1920×1080+">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">FALL COLLECTION</p>
+      <h1 class="hero-title">BUILT<br>DIFFERENT</h1>
+      <a href="#shop" class="btn btn-light">SHOP THE DROP</a>
+    </div>
+    <a href="#shop" class="scroll-cue" aria-label="Scroll down">
+      <span></span>
+    </a>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span>CUSTOM STREETWEAR</span><span>•</span>
+      <span>MADE TO ORDER</span><span>•</span>
+      <span>LIMITED RUNS</span><span>•</span>
+      <span>DL KSTOM</span><span>•</span>
+      <span>CUSTOM STREETWEAR</span><span>•</span>
+      <span>MADE TO ORDER</span><span>•</span>
+      <span>LIMITED RUNS</span><span>•</span>
+      <span>DL KSTOM</span><span>•</span>
+    </div>
+  </div>
+
+  <!-- SHOP GRID -->
+  <section class="shop" id="shop">
+    <div class="section-head">
+      <h2>THE COLLECTION</h2>
+      <div class="filters">
+        <button class="filter active" data-filter="all">ALL</button>
+        <button class="filter" data-filter="tops">TOPS</button>
+        <button class="filter" data-filter="bottoms">BOTTOMS</button>
+        <button class="filter" data-filter="accessories">ACCESSORIES</button>
+      </div>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+      <!-- Product cards are generated from PRODUCTS in script.js -->
+    </div>
+  </section>
+
+  <!-- EDITORIAL SPLIT -->
+  <section class="editorial" id="about">
+    <div class="editorial-media placeholder-img" data-placeholder="EDITORIAL / LOOKBOOK IMAGE"></div>
+    <div class="editorial-copy">
+      <p class="editorial-eyebrow">THE STORY</p>
+      <h2>NOT OFF THE RACK.</h2>
+      <p class="editorial-text">
+        DL KSTOM started as one-off pieces made for friends. Every drop is
+        small-batch, cut and finished by hand, built for people who want
+        something that doesn't look like everyone else's closet. This is
+        where you swap in your real brand copy — origin story, materials,
+        what makes a DL KSTOM piece different.
+      </p>
+      <a href="#" class="btn btn-outline">OUR STORY</a>
+    </div>
+  </section>
+
+  <!-- LOOKBOOK STRIP -->
+  <section class="lookbook" id="lookbook">
+    <div class="section-head">
+      <h2>LOOKBOOK</h2>
+    </div>
+    <div class="lookbook-grid">
+      <div class="placeholder-img lb-tall" data-placeholder="LOOKBOOK 01"></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 02"></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 03"></div>
+      <div class="placeholder-img lb-tall" data-placeholder="LOOKBOOK 04"></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 05"></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 06"></div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter" id="contact">
+    <h2>GET FIRST ACCESS</h2>
+    <p>Sign up for early access to new drops and restocks.</p>
+    <form class="newsletter-form" id="newsletterForm">
+      <input type="email" placeholder="EMAIL ADDRESS" required aria-label="Email address" />
+      <button type="submit">JOIN</button>
+    </form>
+    <p class="newsletter-note" id="newsletterNote"></p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-col">
+      <a href="#top" class="wordmark small">DL KSTOM</a>
+      <p>Custom streetwear. Made to order.</p>
+    </div>
+    <div class="footer-col">
+      <h4>SHOP</h4>
+      <a href="#shop">All Products</a>
+      <a href="#shop">New Arrivals</a>
+      <a href="#shop">Best Sellers</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="#">Shipping</a>
+      <a href="#">Returns</a>
+      <a href="#">Size Guide</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>FOLLOW</h4>
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="year"></span> DL KSTOM. All rights reserved.</span>
+    <span>Placeholder storefront — replace product images, copy, and links.</span>
+  </div>
+</footer>
+
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-head">
+    <h3>YOUR CART</h3>
+    <button id="cartClose" aria-label="Close cart">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>SUBTOTAL</span><span id="cartTotal">$0</span></div>
+    <button class="btn btn-light full">CHECKOUT</button>
+  </div>
+</div>
+<div class="cart-scrim" id="cartScrim"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

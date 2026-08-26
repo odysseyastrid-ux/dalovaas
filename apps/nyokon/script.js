@@ -340,13 +340,16 @@ if (window.matchMedia) {
 }
 
 // Currency
-const currencySelect = document.getElementById('currencySelect');
-currencySelect.value = currentCurrency;
-currencySelect.addEventListener('change', () => {
-  currentCurrency = currencySelect.value;
-  try { localStorage.setItem('nyokon-currency', currentCurrency); } catch (e) { /* localStorage unavailable */ }
-  renderProducts();
-  renderCart();
+const currencySelects = document.querySelectorAll('.currency-select');
+currencySelects.forEach(sel => { sel.value = currentCurrency; });
+currencySelects.forEach(sel => {
+  sel.addEventListener('change', () => {
+    currentCurrency = sel.value;
+    currencySelects.forEach(other => { if (other !== sel) other.value = currentCurrency; });
+    try { localStorage.setItem('nyokon-currency', currentCurrency); } catch (e) { /* localStorage unavailable */ }
+    renderProducts();
+    renderCart();
+  });
 });
 
 // Language

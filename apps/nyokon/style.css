@@ -178,6 +178,13 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   letter-spacing:.08em;
   border-top:1px solid var(--line);
 }
+.mobile-menu-controls{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:16px 24px;
+  flex-wrap:wrap;
+}
 
 /* Hero — always a dark, photo-backed band regardless of site theme */
 .hero{
@@ -607,6 +614,8 @@ main > section{
 @media (max-width:900px){
   .nav-left{display:none;}
   .nav-toggle{display:flex;}
+  .header-only-control{display:none;}
+  .nav-right{gap:14px;}
   .editorial{grid-template-columns:1fr;}
   .lookbook-grid{grid-template-columns:repeat(2,1fr);}
   .lookbook-grid > div:nth-child(n){grid-column:auto;}

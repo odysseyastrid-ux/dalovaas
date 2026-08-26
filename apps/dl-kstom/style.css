@@ -7,7 +7,8 @@
   --accent:#d1ff3c;
   --radius:2px;
   --maxw:1400px;
-  --font-display:'UnifrakturMaguntia', 'Anton', cursive;
+  --font-display:'Anton', 'Arial Narrow', sans-serif;
+  --font-wordmark:'UnifrakturMaguntia', 'Anton', cursive;
   --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -76,12 +77,12 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   border-bottom:1px solid var(--line);
 }
 .wordmark{
-  font-family:var(--font-display);
-  font-size:22px;
+  font-family:var(--font-wordmark);
+  font-size:26px;
   letter-spacing:.04em;
   text-align:center;
 }
-.wordmark.small{font-size:18px;display:block;margin-bottom:8px;}
+.wordmark.small{font-size:20px;display:block;margin-bottom:8px;}
 .nav-left,.nav-right{
   display:flex;
   align-items:center;
@@ -104,6 +105,23 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   transition:width .25s ease;
 }
 .nav-left a:hover::after{width:100%;}
+.currency-select-wrap select{
+  background:transparent;
+  color:var(--fg);
+  border:1px solid var(--line);
+  border-radius:20px;
+  font-family:var(--font-body);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.06em;
+  padding:6px 10px;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+}
+.currency-select-wrap select:hover,.currency-select-wrap select:focus-visible{border-color:var(--fg);outline:none;}
+.currency-select-wrap select option{background:var(--bg);color:var(--fg);}
+
 .icon-link{display:flex;align-items:center;position:relative;}
 .cart-count{
   position:absolute;

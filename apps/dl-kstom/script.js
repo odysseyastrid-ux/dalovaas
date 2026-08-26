@@ -1,5 +1,6 @@
 // DL KSTOM storefront — replace PRODUCTS with real inventory (and swap
 // placeholder-img blocks for real <img> tags) when you have product photos.
+// Product prices below are stored in USD and converted at render time.
 
 const PRODUCTS = [
   { id:'p1', name:'Oversized Hoodie', sub:'Off-Black', price:98, was:null, category:'tops', tag:'NEW' },
@@ -12,12 +13,43 @@ const PRODUCTS = [
   { id:'p8', name:'Crossbody Bag', sub:'Black Nylon', price:64, was:null, category:'accessories', tag:null },
 ];
 
+// Static, illustrative FX rates (USD -> currency). Wire these to a live
+// rates API (e.g. exchangerate.host) before taking real payments.
+const CURRENCIES = [
+  { code:'XOF', rate:600,  locale:'fr-SN' },
+  { code:'USD', rate:1,    locale:'en-US' },
+  { code:'EUR', rate:0.92, locale:'de-DE' },
+  { code:'GBP', rate:0.79, locale:'en-GB' },
+  { code:'CAD', rate:1.37, locale:'en-CA' },
+  { code:'NGN', rate:1550, locale:'en-NG' },
+  { code:'GHS', rate:15.5, locale:'en-GH' },
+  { code:'ZAR', rate:18.5, locale:'en-ZA' },
+];
+const DEFAULT_CURRENCY = 'XOF';
+
+function loadCurrency(){
+  try {
+    const saved = localStorage.getItem('dlkstom-currency');
+    if (saved && CURRENCIES.some(c => c.code === saved)) return saved;
+  } catch (e) { /* localStorage unavailable */ }
+  return DEFAULT_CURRENCY;
+}
+
+let currentCurrency = loadCurrency();
+
 const grid = document.getElementById('productGrid');
 const cart = new Map();
 
-function money(n){ return `$${n.toFixed(0)}`; }
+function money(usd){
+  const c = CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0];
+  const amount = usd * c.rate;
+  return new Intl.NumberFormat(c.locale, { style:'currency', currency:c.code, maximumFractionDigits:0 }).format(amount);
+}
 
-function renderProducts(filter='all'){
+let currentFilter = 'all';
+
+function renderProducts(filter=currentFilter){
+  currentFilter = filter;
   grid.innerHTML = '';
   const list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
   for (const p of list){
@@ -100,6 +132,16 @@ grid.addEventListener('click', (e) => {
   else cart.set(product.id, { ...product, qty: 1 });
   renderCart();
   openCart();
+});
+
+// Currency
+const currencySelect = document.getElementById('currencySelect');
+currencySelect.value = currentCurrency;
+currencySelect.addEventListener('change', () => {
+  currentCurrency = currencySelect.value;
+  try { localStorage.setItem('dlkstom-currency', currentCurrency); } catch (e) { /* localStorage unavailable */ }
+  renderProducts();
+  renderCart();
 });
 
 // Newsletter (demo only — wire up to real email provider)

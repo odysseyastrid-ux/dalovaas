@@ -116,28 +116,15 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 }
 .wordmark.small{display:block;margin-bottom:8px;}
 .wordmark.small img{height:22px;}
-.nav-left,.nav-right{
+
+/* Header sides: a "Categories" dropdown on the left, a compact icon
+   cluster (settings / search / cart) on the right — the wordmark sits
+   alone between them so it stays the visual anchor of the header. */
+.header-actions{
   display:flex;
   align-items:center;
-  gap:22px;
-  flex:1;
+  gap:18px;
 }
-.nav-right{justify-content:flex-end;}
-.nav-left a,.nav-right a{
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:.08em;
-}
-.nav-left a{position:relative;}
-.nav-left a::after{
-  content:'';
-  position:absolute;
-  left:0;bottom:-4px;
-  width:0;height:1px;
-  background:var(--fg);
-  transition:width .25s ease;
-}
-.nav-left a:hover::after{width:100%;}
 .icon-link{display:flex;align-items:center;position:relative;}
 .theme-toggle .icon-sun{display:none;}
 .theme-toggle.is-dark .icon-sun{display:block;}
@@ -153,37 +140,75 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
 }
-.nav-toggle{
-  display:none;
-  flex-direction:column;
-  gap:5px;
-  width:22px;
-}
-.nav-toggle span{height:1.5px;background:var(--fg);width:100%;}
 
-.mobile-menu{
-  display:none;
-  flex-direction:column;
-  position:sticky;
-  top:73px;
-  z-index:99;
-  background:var(--bg);
-  border-bottom:1px solid var(--line);
-}
-.mobile-menu.open{display:flex;}
-.mobile-menu a{
-  padding:16px 24px;
-  font-size:13px;
-  font-weight:600;
-  letter-spacing:.08em;
-  border-top:1px solid var(--line);
-}
-.mobile-menu-controls{
+.nav-dropdown{position:relative;}
+.nav-trigger{
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:16px 24px;
-  flex-wrap:wrap;
+  gap:7px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--fg);
+}
+.nav-trigger svg{transition:transform .2s ease;}
+.nav-dropdown.open .nav-trigger svg{transform:rotate(180deg);}
+.dropdown-panel{
+  position:absolute;
+  top:calc(100% + 14px);
+  left:0;
+  min-width:210px;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:0 16px 40px rgba(0,0,0,.28);
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-6px);
+  transition:opacity .18s ease, transform .18s ease, visibility .18s;
+  z-index:200;
+}
+.nav-dropdown.open .dropdown-panel{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+.dropdown-panel a{
+  padding:10px 14px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.06em;
+  border-radius:3px;
+  color:var(--fg-dim);
+}
+.dropdown-panel a:hover{background:var(--bg-alt);color:var(--fg);}
+.dropdown-panel a.dropdown-panel-all{
+  margin-top:6px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  color:var(--fg);
+}
+.settings-panel{
+  left:auto;
+  right:0;
+  min-width:240px;
+  gap:16px;
+  padding:18px;
+}
+.settings-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.settings-label{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--fg-dim);
 }
 
 /* Hero — always a dark, photo-backed band regardless of site theme */
@@ -674,10 +699,8 @@ main > section{
 
 /* Responsive */
 @media (max-width:900px){
-  .nav-left{display:none;}
-  .nav-toggle{display:flex;}
-  .header-only-control{display:none;}
-  .nav-right{gap:14px;}
+  .header-actions{gap:12px;}
+  .settings-panel{right:-8px;}
   .editorial{grid-template-columns:1fr;}
   .lookbook-grid{grid-template-columns:repeat(2,1fr);}
   .lookbook-grid > div:nth-child(n){grid-column:auto;}

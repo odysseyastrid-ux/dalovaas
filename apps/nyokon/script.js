@@ -88,7 +88,8 @@ const DEFAULT_CURRENCY = 'XOF';
 const TRANSLATIONS = {
   en: {
     announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
-    nav_men:'MEN', nav_women:'WOMEN', nav_kids:'KIDS', nav_shop:'SHOP', nav_lookbook:'LOOKBOOK', nav_about:'ABOUT', nav_contact:'CONTACT',
+    nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
+    settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
     hero_eyebrow:'FALL COLLECTION', hero_title_1:'BUILT', hero_title_2:'DIFFERENT', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
     shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
@@ -107,12 +108,13 @@ const TRANSLATIONS = {
     footer_follow_h:'FOLLOW',
     footer_rights:'All rights reserved.', footer_note:'Placeholder storefront — replace product images, copy, and links.',
     cart_title:'YOUR CART', cart_empty:'Your cart is empty.', cart_subtotal:'SUBTOTAL', cart_checkout:'CHECKOUT',
-    aria_menu:'Menu', aria_currency:'Currency', aria_theme:'Toggle light/dark theme',
-    aria_search:'Search', aria_account:'Account', aria_cart:'Cart', aria_cart_close:'Close cart',
+    aria_currency:'Currency', aria_theme:'Toggle light/dark theme',
+    aria_search:'Search', aria_cart:'Cart', aria_cart_close:'Close cart',
   },
   fr: {
     announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
-    nav_men:'HOMME', nav_women:'FEMME', nav_kids:'ENFANT', nav_shop:'BOUTIQUE', nav_lookbook:'LOOKBOOK', nav_about:'À PROPOS', nav_contact:'CONTACT',
+    nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
+    settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
     hero_eyebrow:'COLLECTION AUTOMNE', hero_title_1:'CONSTRUIT', hero_title_2:'AUTREMENT', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
     shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
@@ -131,8 +133,8 @@ const TRANSLATIONS = {
     footer_follow_h:'SUIVRE',
     footer_rights:'Tous droits réservés.', footer_note:'Boutique de démonstration — remplace les images produits, les textes et les liens.',
     cart_title:'TON PANIER', cart_empty:'Ton panier est vide.', cart_subtotal:'SOUS-TOTAL', cart_checkout:'COMMANDER',
-    aria_menu:'Menu', aria_currency:'Devise', aria_theme:'Basculer thème clair/sombre',
-    aria_search:'Recherche', aria_account:'Compte', aria_cart:'Panier', aria_cart_close:'Fermer le panier',
+    aria_currency:'Devise', aria_theme:'Basculer thème clair/sombre',
+    aria_search:'Recherche', aria_cart:'Panier', aria_cart_close:'Fermer le panier',
   },
 };
 const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
@@ -235,8 +237,8 @@ document.querySelectorAll('.filter').forEach(btn => {
   btn.addEventListener('click', () => setActiveFilter(btn.dataset.filter));
 });
 
-// Category links in the nav (Men/Women/Kids/Shop) jump to the shop
-// section and pre-select the matching filter pill.
+// Category links in the header dropdown jump to the shop section and
+// pre-select the matching filter pill.
 document.querySelectorAll('[data-filter]').forEach(link => {
   if (link.classList.contains('filter')) return; // pills handled above
   link.addEventListener('click', () => setActiveFilter(link.dataset.filter));
@@ -254,11 +256,32 @@ document.querySelector('a[data-i18n-aria="aria_search"]').addEventListener('clic
   searchInput.focus();
 });
 
-// Mobile menu
-const navToggle = document.getElementById('navToggle');
-const mobileMenu = document.getElementById('mobileMenu');
-navToggle.addEventListener('click', () => mobileMenu.classList.toggle('open'));
-mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+// Header dropdowns (categories / settings)
+const dropdowns = document.querySelectorAll('.nav-dropdown');
+function closeDropdown(dd){
+  dd.classList.remove('open');
+  dd.querySelector('button').setAttribute('aria-expanded', 'false');
+}
+function closeAllDropdowns(except){
+  dropdowns.forEach(dd => { if (dd !== except) closeDropdown(dd); });
+}
+dropdowns.forEach(dd => {
+  const trigger = dd.querySelector('button');
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = !dd.classList.contains('open');
+    closeAllDropdowns();
+    if (willOpen){
+      dd.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+  });
+  dd.querySelectorAll('a[data-filter]').forEach(link => {
+    link.addEventListener('click', () => closeDropdown(dd));
+  });
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('.nav-dropdown')) closeAllDropdowns(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllDropdowns(); });
 
 // Cart
 const cartDrawer = document.getElementById('cartDrawer');

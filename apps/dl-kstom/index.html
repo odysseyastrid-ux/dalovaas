@@ -19,7 +19,10 @@
     <span></span><span></span><span></span>
   </button>
   <nav class="nav-left">
-    <a href="#shop" data-i18n="nav_shop"></a>
+    <a href="#shop" data-filter="men" data-i18n="nav_men"></a>
+    <a href="#shop" data-filter="women" data-i18n="nav_women"></a>
+    <a href="#shop" data-filter="kids" data-i18n="nav_kids"></a>
+    <a href="#shop" data-filter="all" data-i18n="nav_shop"></a>
     <a href="#lookbook" data-i18n="nav_lookbook"></a>
     <a href="#about" data-i18n="nav_about"></a>
   </nav>
@@ -59,7 +62,10 @@
 </header>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#shop" data-i18n="nav_shop"></a>
+  <a href="#shop" data-filter="men" data-i18n="nav_men"></a>
+  <a href="#shop" data-filter="women" data-i18n="nav_women"></a>
+  <a href="#shop" data-filter="kids" data-i18n="nav_kids"></a>
+  <a href="#shop" data-filter="all" data-i18n="nav_shop"></a>
   <a href="#lookbook" data-i18n="nav_lookbook"></a>
   <a href="#about" data-i18n="nav_about"></a>
   <a href="#contact" data-i18n="nav_contact"></a>
@@ -100,17 +106,23 @@
   <section class="shop" id="shop">
     <div class="section-head">
       <h2 data-i18n="shop_title"></h2>
-      <div class="filters">
-        <button class="filter active" data-filter="all" data-i18n="filter_all"></button>
-        <button class="filter" data-filter="tops" data-i18n="filter_tops"></button>
-        <button class="filter" data-filter="bottoms" data-i18n="filter_bottoms"></button>
-        <button class="filter" data-filter="accessories" data-i18n="filter_accessories"></button>
-      </div>
+      <input type="search" class="search-input" id="searchInput" data-i18n-placeholder="search_placeholder" data-i18n-aria="search_placeholder" placeholder="SEARCH" aria-label="Search products" />
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter active" data-filter="all" data-i18n="filter_all"></button>
+      <button class="filter" data-filter="men" data-i18n="filter_men"></button>
+      <button class="filter" data-filter="women" data-i18n="filter_women"></button>
+      <button class="filter" data-filter="kids" data-i18n="filter_kids"></button>
+      <button class="filter" data-filter="shoes" data-i18n="filter_shoes"></button>
+      <button class="filter" data-filter="bags" data-i18n="filter_bags"></button>
+      <button class="filter" data-filter="accessories" data-i18n="filter_accessories"></button>
+      <button class="filter" data-filter="fragrance" data-i18n="filter_fragrance"></button>
     </div>
 
     <div class="product-grid" id="productGrid">
       <!-- Product cards are generated from PRODUCTS in script.js -->
     </div>
+    <p class="no-results" id="noResults" data-i18n="no_results" hidden></p>
   </section>
 
   <!-- EDITORIAL SPLIT -->

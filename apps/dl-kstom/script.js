@@ -2,23 +2,70 @@
 // placeholder-img blocks for real <img> tags) when you have product photos.
 // Product prices below are stored in USD and converted at render time.
 
+const SIZES_APPAREL = ['S','M','L','XL'];
+const SIZES_KIDS = ['4-5Y','6-7Y','8-9Y','10-11Y'];
+const SIZES_SHOES = ['40','41','42','43','44','45'];
+
 const PRODUCTS = [
-  { id:'p1', price:98,  was:null, category:'tops',        tag:'new',
+  // Men
+  { id:'m1', price:168, was:null, category:'men', tag:'new', sizes:SIZES_APPAREL,
+    name:{en:'Flight Bomber Jacket', fr:'Blouson Bomber'}, sub:{en:'Navy', fr:'Marine'} },
+  { id:'m2', price:98,  was:null, category:'men', tag:'new', sizes:SIZES_APPAREL,
     name:{en:'Oversized Hoodie', fr:'Hoodie Oversize'}, sub:{en:'Off-Black', fr:'Noir Anthracite'} },
-  { id:'p2', price:42,  was:null, category:'tops',        tag:null,
-    name:{en:'Boxy Tee', fr:'T-shirt Coupe Carrée'}, sub:{en:'Vintage White', fr:'Blanc Vintage'} },
-  { id:'p3', price:110, was:130,  category:'bottoms',     tag:'sale',
+  { id:'m3', price:110, was:130,  category:'men', tag:'sale', sizes:SIZES_APPAREL,
     name:{en:'Cargo Pant', fr:'Pantalon Cargo'}, sub:{en:'Charcoal', fr:'Anthracite'} },
-  { id:'p4', price:135, was:null, category:'tops',        tag:null,
-    name:{en:'Track Jacket', fr:'Veste de Survêtement'}, sub:{en:'Bone', fr:'Ivoire'} },
-  { id:'p5', price:78,  was:null, category:'bottoms',     tag:null,
-    name:{en:'Denim Short', fr:'Short en Jean'}, sub:{en:'Washed Indigo', fr:'Indigo Délavé'} },
-  { id:'p6', price:32,  was:null, category:'accessories', tag:null,
-    name:{en:'Beanie', fr:'Bonnet'}, sub:{en:'Black', fr:'Noir'} },
-  { id:'p7', price:118, was:null, category:'bottoms',     tag:'new',
+  { id:'m4', price:145, was:null, category:'men', tag:null, sizes:SIZES_APPAREL,
+    name:{en:'Denim Jacket', fr:'Veste en Jean'}, sub:{en:'Washed Blue', fr:'Bleu Délavé'} },
+
+  // Women
+  { id:'w1', price:128, was:null, category:'women', tag:'new', sizes:SIZES_APPAREL,
+    name:{en:'Cropped Puffer Vest', fr:'Doudoune Crop Sans Manches'}, sub:{en:'Black', fr:'Noir'} },
+  { id:'w2', price:118, was:null, category:'women', tag:null, sizes:SIZES_APPAREL,
     name:{en:'Wide Leg Trouser', fr:'Pantalon Large'}, sub:{en:'Sand', fr:'Sable'} },
-  { id:'p8', price:64,  was:null, category:'accessories', tag:null,
+  { id:'w3', price:96,  was:null, category:'women', tag:'new', sizes:SIZES_APPAREL,
+    name:{en:'Pleated Midi Skirt', fr:'Jupe Midi Plissée'}, sub:{en:'Ivory', fr:'Ivoire'} },
+  { id:'w4', price:38,  was:null, category:'women', tag:null, sizes:SIZES_APPAREL,
+    name:{en:'Ribbed Tank Top', fr:'Débardeur Côtelé'}, sub:{en:'White', fr:'Blanc'} },
+
+  // Kids
+  { id:'k1', price:58, was:null, category:'kids', tag:'new', sizes:SIZES_KIDS,
+    name:{en:'Kids Logo Hoodie', fr:'Hoodie Logo Enfant'}, sub:{en:'Grey Marl', fr:'Gris Chiné'} },
+  { id:'k2', price:52, was:null, category:'kids', tag:null, sizes:SIZES_KIDS,
+    name:{en:'Kids Cargo Pant', fr:'Pantalon Cargo Enfant'}, sub:{en:'Khaki', fr:'Kaki'} },
+  { id:'k3', price:64, was:null, category:'kids', tag:'new', sizes:SIZES_KIDS,
+    name:{en:'Kids Windbreaker', fr:'Coupe-Vent Enfant'}, sub:{en:'Red', fr:'Rouge'} },
+
+  // Shoes
+  { id:'s1', price:145, was:null, category:'shoes', tag:'new', sizes:SIZES_SHOES,
+    name:{en:'Chunky Trainer', fr:'Sneaker Chunky'}, sub:{en:'White / Black', fr:'Blanc / Noir'} },
+  { id:'s2', price:110, was:null, category:'shoes', tag:null, sizes:SIZES_SHOES,
+    name:{en:'Low-Top Sneaker', fr:'Sneaker Basse'}, sub:{en:'Triple White', fr:'Tout Blanc'} },
+  { id:'s3', price:158, was:185,  category:'shoes', tag:'sale', sizes:SIZES_SHOES,
+    name:{en:'Combat Boot', fr:'Rangers'}, sub:{en:'Black Leather', fr:'Cuir Noir'} },
+
+  // Bags
+  { id:'b1', price:64,  was:null, category:'bags', tag:null,
     name:{en:'Crossbody Bag', fr:'Sacoche Bandoulière'}, sub:{en:'Black Nylon', fr:'Nylon Noir'} },
+  { id:'b2', price:48,  was:null, category:'bags', tag:'new',
+    name:{en:'Canvas Tote Bag', fr:'Tote Bag en Toile'}, sub:{en:'Natural', fr:'Écru'} },
+  { id:'b3', price:135, was:null, category:'bags', tag:'new',
+    name:{en:'Weekend Duffel', fr:'Sac Week-end'}, sub:{en:'Olive', fr:'Olive'} },
+
+  // Accessories
+  { id:'a1', price:32, was:null, category:'accessories', tag:null,
+    name:{en:'Beanie', fr:'Bonnet'}, sub:{en:'Black', fr:'Noir'} },
+  { id:'a2', price:34, was:null, category:'accessories', tag:null,
+    name:{en:'Snapback Cap', fr:'Casquette Snapback'}, sub:{en:'Black', fr:'Noir'} },
+  { id:'a3', price:42, was:null, category:'accessories', tag:'new',
+    name:{en:'Reversible Belt', fr:'Ceinture Réversible'}, sub:{en:'Black / Brown', fr:'Noir / Marron'} },
+
+  // Fragrance
+  { id:'f1', price:78,  was:null, category:'fragrance', tag:'new',
+    name:{en:'Eau de Parfum 50ml', fr:'Eau de Parfum 50ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
+  { id:'f2', price:110, was:null, category:'fragrance', tag:null,
+    name:{en:'Eau de Parfum 100ml', fr:'Eau de Parfum 100ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
+  { id:'f3', price:28,  was:null, category:'fragrance', tag:null,
+    name:{en:'Travel Spray 15ml', fr:'Vaporisateur Nomade 15ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
 ];
 
 // Static, illustrative FX rates (USD -> currency). Wire these to a live
@@ -40,13 +87,14 @@ const DEFAULT_CURRENCY = 'XOF';
 // attributes in index.html.
 const TRANSLATIONS = {
   en: {
-    announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
-    nav_shop:'SHOP', nav_lookbook:'LOOKBOOK', nav_about:'ABOUT', nav_contact:'CONTACT',
+    announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
+    nav_men:'MEN', nav_women:'WOMEN', nav_kids:'KIDS', nav_shop:'SHOP', nav_lookbook:'LOOKBOOK', nav_about:'ABOUT', nav_contact:'CONTACT',
     hero_eyebrow:'FALL COLLECTION', hero_title_1:'BUILT', hero_title_2:'DIFFERENT', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
-    shop_title:'THE COLLECTION',
-    filter_all:'ALL', filter_tops:'TOPS', filter_bottoms:'BOTTOMS', filter_accessories:'ACCESSORIES',
-    quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE',
+    shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
+    filter_all:'ALL', filter_men:'MEN', filter_women:'WOMEN', filter_kids:'KIDS',
+    filter_shoes:'SHOES', filter_bags:'BAGS', filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
+    quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', sizes_label:'Sizes',
     editorial_eyebrow:'THE STORY', editorial_title:'NOT OFF THE RACK.',
     editorial_text:"DL KSTOM started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a DL KSTOM piece different.",
     editorial_cta:'OUR STORY',
@@ -63,13 +111,14 @@ const TRANSLATIONS = {
     aria_search:'Search', aria_account:'Account', aria_cart:'Cart', aria_cart_close:'Close cart',
   },
   fr: {
-    announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
-    nav_shop:'BOUTIQUE', nav_lookbook:'LOOKBOOK', nav_about:'À PROPOS', nav_contact:'CONTACT',
+    announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
+    nav_men:'HOMME', nav_women:'FEMME', nav_kids:'ENFANT', nav_shop:'BOUTIQUE', nav_lookbook:'LOOKBOOK', nav_about:'À PROPOS', nav_contact:'CONTACT',
     hero_eyebrow:'COLLECTION AUTOMNE', hero_title_1:'CONSTRUIT', hero_title_2:'AUTREMENT', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
-    shop_title:'LA COLLECTION',
-    filter_all:'TOUT', filter_tops:'HAUTS', filter_bottoms:'BAS', filter_accessories:'ACCESSOIRES',
-    quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE',
+    shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
+    filter_all:'TOUT', filter_men:'HOMME', filter_women:'FEMME', filter_kids:'ENFANT',
+    filter_shoes:'CHAUSSURES', filter_bags:'SACS', filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
+    quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', sizes_label:'Tailles',
     editorial_eyebrow:"L'HISTOIRE", editorial_title:'PAS DU PRÊT-À-PORTER.',
     editorial_text:"DL KSTOM a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce DL KSTOM différente.",
     editorial_cta:'NOTRE HISTOIRE',
@@ -113,6 +162,7 @@ function applyStaticTranslations(){
 }
 
 const grid = document.getElementById('productGrid');
+const noResultsEl = document.getElementById('noResults');
 const cart = new Map();
 
 function money(usd){
@@ -131,11 +181,17 @@ function loadCurrency(){
 
 let currentCurrency = loadCurrency();
 let currentFilter = 'all';
+let searchQuery = '';
 
 function renderProducts(filter=currentFilter){
   currentFilter = filter;
   grid.innerHTML = '';
-  const list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
+  let list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
+  if (searchQuery){
+    const q = searchQuery.toLowerCase();
+    list = list.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(q));
+  }
+  noResultsEl.hidden = list.length > 0;
   for (const p of list){
     const name = p.name[currentLang] || p.name.en;
     const sub = p.sub[currentLang] || p.sub.en;
@@ -152,6 +208,7 @@ function renderProducts(filter=currentFilter){
         <div>
           <div class="product-name">${name}</div>
           <div class="product-sub">${sub}</div>
+          ${p.sizes ? `<div class="product-sizes">${t('sizes_label')}: ${p.sizes.join(' · ')}</div>` : ''}
         </div>
         <div class="product-price">
           ${p.was ? `<span class="was">${money(p.was)}</span>` : ''}${money(p.price)}
@@ -169,12 +226,32 @@ function refreshFilterLabels(){
   });
 }
 
+function setActiveFilter(filter){
+  document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+  renderProducts(filter);
+}
+
 document.querySelectorAll('.filter').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderProducts(btn.dataset.filter);
-  });
+  btn.addEventListener('click', () => setActiveFilter(btn.dataset.filter));
+});
+
+// Category links in the nav (Men/Women/Kids/Shop) jump to the shop
+// section and pre-select the matching filter pill.
+document.querySelectorAll('[data-filter]').forEach(link => {
+  if (link.classList.contains('filter')) return; // pills handled above
+  link.addEventListener('click', () => setActiveFilter(link.dataset.filter));
+});
+
+// Search
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', () => {
+  searchQuery = searchInput.value.trim();
+  renderProducts();
+});
+document.querySelector('a[data-i18n-aria="aria_search"]').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('shop').scrollIntoView({ behavior:'smooth' });
+  searchInput.focus();
 });
 
 // Mobile menu

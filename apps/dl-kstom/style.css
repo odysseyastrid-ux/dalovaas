@@ -303,7 +303,28 @@ main > section{
   font-size:clamp(30px,4vw,44px);
   letter-spacing:0;
 }
-.filters{display:flex;gap:10px;}
+.search-input{
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:20px;
+  color:var(--fg);
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size:12px;
+  letter-spacing:.04em;
+  padding:9px 16px;
+  min-width:200px;
+}
+.search-input::placeholder{color:var(--fg-dim);}
+.search-input:focus{outline:none;border-color:var(--fg);}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+.no-results{color:var(--fg-dim);padding:40px 0;text-align:center;}
+.product-sizes{
+  margin-top:8px;
+  font-size:11px;
+  letter-spacing:.04em;
+  color:var(--fg-dim);
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 .filter{
   font-size:11px;
   font-weight:700;

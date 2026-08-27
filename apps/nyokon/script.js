@@ -90,7 +90,7 @@ const TRANSLATIONS = {
     announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
     nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
     settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
-    intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL', intro_skip:'SKIP',
+    intro_eyebrow:'STEP IN', intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL', intro_skip:'SKIP',
     hero_eyebrow:'FALL COLLECTION', hero_title_1:'BUILT', hero_title_2:'DIFFERENT', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
     shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
@@ -116,7 +116,7 @@ const TRANSLATIONS = {
     announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
     nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
     settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
-    intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER', intro_skip:'PASSER',
+    intro_eyebrow:'ENTREZ', intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER', intro_skip:'PASSER',
     hero_eyebrow:'COLLECTION AUTOMNE', hero_title_1:'CONSTRUIT', hero_title_2:'AUTREMENT', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
     shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
@@ -420,6 +420,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   if (reducedMotion) {
     section.classList.add('is-unlocked');
     video.classList.add('is-ready');
+    titleEl.classList.add('is-drawn');
     titleEl.style.opacity = '0';
     taglineEl.style.opacity = '1';
     hintEl.style.opacity = '0';
@@ -443,6 +444,14 @@ document.getElementById('year').textContent = new Date().getFullYear();
   video.addEventListener('loadeddata', () => {
     duration = video.duration || 0;
     video.classList.add('is-ready');
+    // Some browsers (notably iOS/Safari) never paint a decoded frame until
+    // playback has actually started at least once — seeking alone leaves
+    // the element blank. A muted play-then-immediate-pause primes the
+    // decoder so subsequent currentTime scrubbing renders correctly.
+    const primePlayback = video.play();
+    if (primePlayback && typeof primePlayback.then === 'function') {
+      primePlayback.then(() => video.pause()).catch(() => {});
+    }
   });
 
   video.addEventListener('seeked', () => {
@@ -489,6 +498,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   }
 
   engageLock();
+  requestAnimationFrame(() => requestAnimationFrame(() => titleEl.classList.add('is-drawn')));
 
   function addDelta(deltaY){
     targetProgress = clamp(targetProgress + deltaY / scrubDistance, 0, 1);

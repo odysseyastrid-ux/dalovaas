@@ -120,6 +120,7 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 /* Header wordmark — continuous 3D spin on its own vertical axis. */
 .wordmark-3d{perspective:400px;}
 .wordmark-3d img{
+  height:52px;
   animation:wordmarkSpin 7s linear infinite;
   transform-style:preserve-3d;
   backface-visibility:visible;

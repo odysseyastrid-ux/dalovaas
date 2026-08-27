@@ -87,7 +87,7 @@ const DEFAULT_CURRENCY = 'XOF';
 // attributes in index.html.
 const TRANSLATIONS = {
   en: {
-    announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
+    announce:'FREE SHIPPING ON ORDERS 25,000 FCFA+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
     nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
     settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
     intro_eyebrow:'STEP IN', intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL', intro_skip:'SKIP',
@@ -113,7 +113,7 @@ const TRANSLATIONS = {
     aria_search:'Search', aria_cart:'Cart', aria_cart_close:'Close cart',
   },
   fr: {
-    announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
+    announce:'LIVRAISON GRATUITE DÈS 25 000 FCFA  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
     nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
     settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
     intro_eyebrow:'ENTREZ', intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER', intro_skip:'PASSER',

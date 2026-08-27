@@ -116,6 +116,18 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 }
 .wordmark.small{display:block;margin-bottom:8px;}
 .wordmark.small img{height:22px;}
+.wordmark-svg{
+  height:26px;
+  width:auto;
+  display:block;
+  overflow:visible;
+}
+.wm-letter{
+  fill:var(--fg);
+  stroke:var(--fg);
+  stroke-width:22;
+  stroke-linejoin:round;
+}
 
 /* Header sides: a "Categories" dropdown on the left, a compact icon
    cluster (settings / search / cart) on the right — the wordmark sits

@@ -399,3 +399,22 @@ applyStaticTranslations();
 refreshFilterLabels();
 renderProducts();
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Header wordmark — draws itself in on load (GSAP DrawSVGPlugin), then fills.
+(function initWordmarkDraw(){
+  const letters = document.querySelectorAll('.wm-letter');
+  if (!letters.length) return;
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducedMotion || typeof gsap === 'undefined' || typeof DrawSVGPlugin === 'undefined') return;
+  gsap.registerPlugin(DrawSVGPlugin);
+  gsap.set(letters, { drawSVG: '0%', fillOpacity: 0 });
+  gsap.to(letters, {
+    drawSVG: '100%',
+    duration: 0.9,
+    stagger: 0.1,
+    ease: 'power1.inOut',
+    onComplete(){
+      gsap.to(letters, { fillOpacity: 1, strokeOpacity: 0, duration: 0.35 });
+    }
+  });
+})();

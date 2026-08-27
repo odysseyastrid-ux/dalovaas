@@ -42,6 +42,18 @@
   .slot-save:disabled{opacity:.4;cursor:default;}
   .signout{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);background:none;border:none;cursor:pointer;}
   .signout:hover{color:var(--fg);}
+  .staff-section-title{font-family:var(--font-display);font-size:22px;margin:44px 0 8px;}
+  .order-row{padding:16px 0;border-top:1px solid var(--line);}
+  .order-row:first-child{border-top:none;}
+  .order-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;}
+  .order-ref{font-weight:700;font-size:13px;}
+  .order-total{font-family:var(--font-display);font-size:15px;}
+  .order-meta{font-size:12px;color:var(--fg-dim);margin-bottom:6px;}
+  .order-items{font-size:12px;color:var(--fg-dim);margin-bottom:10px;}
+  .order-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .order-status{font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);}
+  .order-receipt-link{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink);text-decoration:underline;cursor:pointer;background:none;border:none;}
+  .staff-empty{color:var(--fg-dim);font-size:13px;padding:8px 0;}
 </style>
 </head>
 <body>
@@ -74,6 +86,26 @@
     <h1 class="staff-title">Photos du site</h1>
     <p class="staff-sub">Choisis une photo pour chaque emplacement, puis clique sur "Enregistrer". Le site se met à jour pour tous les visiteurs immédiatement.</p>
     <div class="staff-card" id="slotList"></div>
+
+    <h2 class="staff-section-title">Paiement</h2>
+    <p class="staff-sub">Numéros affichés aux clients pour Orange Money / MTN MoMo au moment de la commande.</p>
+    <div class="staff-card">
+      <form id="paymentSettingsForm">
+        <div class="staff-field">
+          <label for="orangeMoneyNumber">Numéro Orange Money</label>
+          <input type="text" id="orangeMoneyNumber" placeholder="ex: 6XX XXX XXX" />
+        </div>
+        <div class="staff-field">
+          <label for="mtnMomoNumber">Numéro MTN MoMo</label>
+          <input type="text" id="mtnMomoNumber" placeholder="ex: 6XX XXX XXX" />
+        </div>
+        <button type="submit" class="staff-btn" id="paymentSettingsBtn">Enregistrer</button>
+        <div class="staff-error" id="paymentSettingsError"></div>
+      </form>
+    </div>
+
+    <h2 class="staff-section-title">Commandes récentes</h2>
+    <div class="staff-card" id="ordersList"></div>
   </div>
 </div>
 
@@ -105,6 +137,8 @@ function showDashboard(){
   dashboard.style.display = 'block';
   signOutBtn.style.display = 'inline-block';
   renderSlots();
+  loadPaymentSettings();
+  renderOrders();
 }
 function showLogin(){
   loginView.style.display = 'block';
@@ -195,6 +229,91 @@ async function renderSlots(){
         btn.textContent = 'Enregistrer';
         alert('Erreur : ' + (err.message || err));
       }
+    });
+  });
+}
+
+const paymentSettingsForm = document.getElementById('paymentSettingsForm');
+const paymentSettingsBtn = document.getElementById('paymentSettingsBtn');
+const paymentSettingsError = document.getElementById('paymentSettingsError');
+const orangeMoneyNumber = document.getElementById('orangeMoneyNumber');
+const mtnMomoNumber = document.getElementById('mtnMomoNumber');
+
+async function loadPaymentSettings(){
+  const { data } = await sb.from('settings').select('key,value');
+  const byKey = {};
+  (data || []).forEach(r => { byKey[r.key] = r.value; });
+  orangeMoneyNumber.value = byKey.orange_money_number || '';
+  mtnMomoNumber.value = byKey.mtn_momo_number || '';
+}
+
+paymentSettingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  paymentSettingsError.textContent = '';
+  paymentSettingsBtn.disabled = true;
+  paymentSettingsBtn.textContent = 'Enregistrement…';
+  try {
+    const { error } = await sb.from('settings').upsert([
+      { key: 'orange_money_number', value: orangeMoneyNumber.value.trim() },
+      { key: 'mtn_momo_number', value: mtnMomoNumber.value.trim() },
+    ]);
+    if (error) throw error;
+    paymentSettingsBtn.textContent = 'Enregistré ✓';
+  } catch (err) {
+    paymentSettingsError.textContent = 'Erreur : ' + (err.message || err);
+    paymentSettingsBtn.textContent = 'Enregistrer';
+  } finally {
+    paymentSettingsBtn.disabled = false;
+    setTimeout(() => { paymentSettingsBtn.textContent = 'Enregistrer'; }, 2000);
+  }
+});
+
+const ordersList = document.getElementById('ordersList');
+const PAYMENT_LABELS = { orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', cash: 'Cash' };
+const STATUS_OPTIONS = ['pending', 'confirmed', 'cancelled'];
+
+async function renderOrders(){
+  const { data: orders, error } = await sb
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error || !orders || !orders.length) {
+    ordersList.innerHTML = '<p class="staff-empty">Aucune commande pour l’instant.</p>';
+    return;
+  }
+  ordersList.innerHTML = '';
+  orders.forEach(order => {
+    const row = document.createElement('div');
+    row.className = 'order-row';
+    const itemsSummary = (order.items || []).map(i => `${i.name} ×${i.qty}`).join(', ');
+    row.innerHTML = `
+      <div class="order-head">
+        <span class="order-ref">${order.ref}</span>
+        <span class="order-total">${order.subtotal} ${order.currency}</span>
+      </div>
+      <div class="order-meta">${order.customer_name} — ${order.customer_phone} — ${order.fulfillment}${order.address ? ' — ' + order.address : ''} — ${PAYMENT_LABELS[order.payment_method] || order.payment_method}</div>
+      <div class="order-items">${itemsSummary}</div>
+      <div class="order-actions">
+        <select class="order-status" data-id="${order.id}">
+          ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === order.status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+        ${order.receipt_path ? `<button type="button" class="order-receipt-link" data-path="${order.receipt_path}">Voir le reçu</button>` : ''}
+      </div>
+    `;
+    ordersList.appendChild(row);
+  });
+
+  ordersList.querySelectorAll('.order-status').forEach(select => {
+    select.addEventListener('change', async () => {
+      await sb.from('orders').update({ status: select.value }).eq('id', select.dataset.id);
+    });
+  });
+  ordersList.querySelectorAll('.order-receipt-link').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { data, error: signError } = await sb.storage.from('order-receipts').createSignedUrl(btn.dataset.path, 300);
+      if (signError || !data) { alert('Impossible d’ouvrir le reçu.'); return; }
+      window.open(data.signedUrl, '_blank');
     });
   });
 }

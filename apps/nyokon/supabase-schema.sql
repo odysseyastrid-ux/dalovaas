@@ -56,3 +56,84 @@ create policy site_images_bucket_update_staff
   on storage.objects for update
   to authenticated
   using (bucket_id = 'site-images');
+
+-- Checkout: orders, editable payment account numbers, and a private
+-- bucket for uploaded mobile-money payment receipts.
+
+create table if not exists public.settings (
+  key text primary key,
+  value text
+);
+
+insert into public.settings (key, value) values
+  ('orange_money_number', ''),
+  ('mtn_momo_number', '')
+on conflict (key) do nothing;
+
+alter table public.settings enable row level security;
+
+drop policy if exists settings_select_public on public.settings;
+create policy settings_select_public
+  on public.settings for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists settings_update_staff on public.settings;
+create policy settings_update_staff
+  on public.settings for update
+  to authenticated
+  using (true)
+  with check (true);
+
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  ref text not null,
+  customer_name text not null,
+  customer_phone text not null,
+  fulfillment text not null default 'pickup',
+  address text,
+  items jsonb not null,
+  subtotal numeric not null,
+  currency text not null default 'XOF',
+  payment_method text not null,
+  receipt_path text,
+  status text not null default 'pending',
+  created_at timestamptz not null default now()
+);
+
+alter table public.orders enable row level security;
+
+drop policy if exists orders_insert_public on public.orders;
+create policy orders_insert_public
+  on public.orders for insert
+  to anon, authenticated
+  with check (true);
+
+drop policy if exists orders_select_staff on public.orders;
+create policy orders_select_staff
+  on public.orders for select
+  to authenticated
+  using (true);
+
+drop policy if exists orders_update_staff on public.orders;
+create policy orders_update_staff
+  on public.orders for update
+  to authenticated
+  using (true)
+  with check (true);
+
+insert into storage.buckets (id, name, public)
+values ('order-receipts', 'order-receipts', false)
+on conflict (id) do nothing;
+
+drop policy if exists order_receipts_insert_public on storage.objects;
+create policy order_receipts_insert_public
+  on storage.objects for insert
+  to anon, authenticated
+  with check (bucket_id = 'order-receipts');
+
+drop policy if exists order_receipts_select_staff on storage.objects;
+create policy order_receipts_select_staff
+  on storage.objects for select
+  to authenticated
+  using (bucket_id = 'order-receipts');

@@ -7,6 +7,12 @@
 // auth + RLS policies (see supabase-schema.sql), not by keeping this secret.
 const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+let _sbClient = null;
+function getSb(){
+  if (typeof supabase === 'undefined') return null;
+  if (!_sbClient) _sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return _sbClient;
+}
 
 const SIZES_APPAREL = ['S','M','L','XL'];
 const SIZES_KIDS = ['4-5Y','6-7Y','8-9Y','10-11Y'];
@@ -117,6 +123,17 @@ const TRANSLATIONS = {
     cart_title:'YOUR CART', cart_empty:'Your cart is empty.', cart_subtotal:'SUBTOTAL', cart_checkout:'CHECKOUT',
     aria_currency:'Currency', aria_theme:'Toggle light/dark theme',
     aria_search:'Search', aria_cart:'Cart', aria_cart_close:'Close cart',
+    checkout_name_label:'FULL NAME', checkout_phone_label:'PHONE NUMBER',
+    checkout_fulfillment_label:'FULFILLMENT', checkout_pickup:'Pickup', checkout_delivery:'Delivery',
+    checkout_address_label:'DELIVERY ADDRESS', checkout_payment_label:'PAYMENT METHOD',
+    checkout_cash:'Cash on pickup', checkout_receipt_label:'PAYMENT RECEIPT (SCREENSHOT)',
+    checkout_dial:'Dial to pay', checkout_copy:'Copy', checkout_copied:'Copied',
+    checkout_submit:'PLACE ORDER', checkout_back:'Back to cart',
+    checkout_error_fields:'Please fill in your name and phone number.',
+    checkout_error_receipt:'Please attach a screenshot of your payment before submitting.',
+    checkout_error_generic:'Something went wrong. Please try again.',
+    checkout_confirm_title:'Order received', checkout_confirm_note:'We will confirm your order and payment shortly.',
+    checkout_continue:'CONTINUE SHOPPING', checkout_ref_prefix:'Order ',
   },
   fr: {
     announce:'LIVRAISON GRATUITE DÈS 25 000 FCFA  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
@@ -143,6 +160,17 @@ const TRANSLATIONS = {
     cart_title:'TON PANIER', cart_empty:'Ton panier est vide.', cart_subtotal:'SOUS-TOTAL', cart_checkout:'COMMANDER',
     aria_currency:'Devise', aria_theme:'Basculer thème clair/sombre',
     aria_search:'Recherche', aria_cart:'Panier', aria_cart_close:'Fermer le panier',
+    checkout_name_label:'NOM COMPLET', checkout_phone_label:'NUMÉRO DE TÉLÉPHONE',
+    checkout_fulfillment_label:'MODE DE RÉCUPÉRATION', checkout_pickup:'Retrait', checkout_delivery:'Livraison',
+    checkout_address_label:'ADRESSE DE LIVRAISON', checkout_payment_label:'MODE DE PAIEMENT',
+    checkout_cash:'Cash à la récupération', checkout_receipt_label:'PREUVE DE PAIEMENT (CAPTURE)',
+    checkout_dial:'Composer pour payer', checkout_copy:'Copier', checkout_copied:'Copié',
+    checkout_submit:'COMMANDER', checkout_back:'Retour au panier',
+    checkout_error_fields:'Merci de renseigner ton nom et ton numéro.',
+    checkout_error_receipt:'Merci de joindre une capture de ton paiement avant de valider.',
+    checkout_error_generic:'Une erreur est survenue. Réessaie.',
+    checkout_confirm_title:'Commande reçue', checkout_confirm_note:'Nous allons confirmer ta commande et ton paiement sous peu.',
+    checkout_continue:'CONTINUER MES ACHATS', checkout_ref_prefix:'Commande ',
   },
 };
 const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
@@ -212,7 +240,12 @@ function renderProducts(filter=currentFilter){
         ${p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
         <div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
         <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>
-        <button class="quick-add" data-id="${p.id}">${t('quick_add')} — ${money(p.price)}</button>
+        <span class="gbtn-wrap gbtn-bar quick-add-wrap">
+          <span class="g-light"></span>
+          <span class="g-layer" style="animation-delay:0s;animation-duration:20s;"></span>
+          <span class="g-layer" style="animation-delay:.4s;animation-duration:17s;"></span>
+          <button class="quick-add" data-id="${p.id}">${t('quick_add')} — ${money(p.price)}</button>
+        </span>
       </div>
       <div class="product-info">
         <div>
@@ -334,6 +367,176 @@ grid.addEventListener('click', (e) => {
   openCart();
 });
 
+// Checkout — mobile-money (Orange Money / MTN MoMo) or cash on pickup,
+// same pattern as Chez Sanji: no payment gateway, customer sends money
+// manually and uploads a receipt for staff to verify.
+(function initCheckout(){
+  const cartFooter = document.getElementById('cartFooter');
+  const checkoutView = document.getElementById('checkoutView');
+  const checkoutConfirm = document.getElementById('checkoutConfirm');
+  const cartCheckoutBtn = document.getElementById('cartCheckoutBtn');
+  const checkoutBack = document.getElementById('checkoutBack');
+  const checkoutContinueBtn = document.getElementById('checkoutContinueBtn');
+  const checkoutAddressField = document.getElementById('checkoutAddressField');
+  const checkoutPaymentDetails = document.getElementById('checkoutPaymentDetails');
+  const checkoutError = document.getElementById('checkoutError');
+  const checkoutSubmitBtn = document.getElementById('checkoutSubmitBtn');
+  const checkoutRef = document.getElementById('checkoutRef');
+  if (!checkoutView) return;
+
+  let paymentSettings = { orange_money_number: '', mtn_momo_number: '' };
+  (async function loadPaymentSettings(){
+    const sb = getSb();
+    if (!sb) return;
+    try {
+      const { data } = await sb.from('settings').select('key,value');
+      (data || []).forEach(row => { paymentSettings[row.key] = row.value || ''; });
+    } catch (e) { /* keep blank defaults */ }
+  })();
+
+  function showCart(){
+    checkoutView.style.display = 'none';
+    checkoutConfirm.style.display = 'none';
+    cartItemsEl.style.display = '';
+    cartFooter.style.display = '';
+  }
+  function showCheckoutForm(){
+    cartItemsEl.style.display = 'none';
+    cartFooter.style.display = 'none';
+    checkoutConfirm.style.display = 'none';
+    checkoutView.style.display = 'flex';
+    renderPaymentDetails();
+  }
+  function showConfirm(ref){
+    checkoutView.style.display = 'none';
+    checkoutRef.textContent = t('checkout_ref_prefix') + ref;
+    checkoutConfirm.style.display = 'flex';
+  }
+
+  cartCheckoutBtn.addEventListener('click', () => {
+    if (cart.size === 0) return;
+    showCheckoutForm();
+  });
+  checkoutBack.addEventListener('click', showCart);
+  checkoutContinueBtn.addEventListener('click', () => { showCart(); closeCart(); });
+
+  checkoutView.querySelectorAll('input[name=fulfillment]').forEach(r => {
+    r.addEventListener('change', () => {
+      checkoutAddressField.style.display = r.value === 'delivery' && r.checked ? 'block' : checkoutAddressField.style.display;
+    });
+  });
+  checkoutView.addEventListener('change', (e) => {
+    if (e.target.name === 'fulfillment') {
+      checkoutAddressField.style.display = e.target.value === 'delivery' ? 'block' : 'none';
+    }
+    if (e.target.name === 'payment') renderPaymentDetails();
+  });
+
+  function selectedPaymentMethod(){
+    const checked = checkoutView.querySelector('input[name=payment]:checked');
+    return checked ? checked.value : 'cash';
+  }
+
+  function renderPaymentDetails(){
+    const method = selectedPaymentMethod();
+    if (method === 'cash') {
+      checkoutPaymentDetails.innerHTML = '';
+      return;
+    }
+    const label = method === 'orange_money' ? 'Orange Money' : 'MTN MoMo';
+    const number = paymentSettings[method === 'orange_money' ? 'orange_money_number' : 'mtn_momo_number'] || '—';
+    const dialCode = method === 'orange_money' ? '#150#' : '*126#';
+    checkoutPaymentDetails.innerHTML = `
+      <div class="checkout-account-number">
+        <span>${label}: ${number}</span>
+        <button type="button" class="checkout-account-copy" data-number="${number}">${t('checkout_copy')}</button>
+      </div>
+      <a class="checkout-dial-link" href="tel:${encodeURIComponent(dialCode)}">${t('checkout_dial')} (${dialCode})</a>
+      <div class="checkout-field">
+        <label>${t('checkout_receipt_label')}</label>
+        <input type="file" accept="image/*,.pdf" id="checkoutReceipt" />
+      </div>
+    `;
+    const copyBtn = checkoutPaymentDetails.querySelector('.checkout-account-copy');
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(copyBtn.dataset.number);
+        copyBtn.textContent = t('checkout_copied');
+        setTimeout(() => { copyBtn.textContent = t('checkout_copy'); }, 1500);
+      } catch (e) { /* clipboard unavailable — number is already shown inline */ }
+    });
+  }
+
+  checkoutView.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    checkoutError.textContent = '';
+    const name = document.getElementById('checkoutName').value.trim();
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    if (!name || !phone) {
+      checkoutError.textContent = t('checkout_error_fields');
+      return;
+    }
+    const method = selectedPaymentMethod();
+    const receiptInput = document.getElementById('checkoutReceipt');
+    const receiptFile = receiptInput && receiptInput.files[0];
+    if (method !== 'cash' && !receiptFile) {
+      checkoutError.textContent = t('checkout_error_receipt');
+      return;
+    }
+
+    const sb = getSb();
+    if (!sb) {
+      checkoutError.textContent = t('checkout_error_generic');
+      return;
+    }
+
+    checkoutSubmitBtn.disabled = true;
+    const ref = 'NYK-' + Date.now().toString(36).toUpperCase();
+
+    try {
+      let receiptPath = null;
+      if (receiptFile) {
+        const ext = receiptFile.name.split('.').pop();
+        receiptPath = `${ref}.${ext}`;
+        const { error: uploadError } = await sb.storage.from('order-receipts').upload(receiptPath, receiptFile);
+        if (uploadError) throw uploadError;
+      }
+
+      const fulfillment = checkoutView.querySelector('input[name=fulfillment]:checked').value;
+      const address = document.getElementById('checkoutAddress').value.trim();
+      const rate = (CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0]).rate;
+      const totalUSD = [...cart.values()].reduce((sum, i) => sum + i.price * i.qty, 0);
+      const items = [...cart.values()].map(i => ({
+        id: i.id, name: i.name[currentLang] || i.name.en, price: i.price, qty: i.qty,
+      }));
+
+      const { error: insertError } = await sb.from('orders').insert({
+        ref,
+        customer_name: name,
+        customer_phone: phone,
+        fulfillment,
+        address: fulfillment === 'delivery' ? address : null,
+        items,
+        subtotal: Math.round(totalUSD * rate),
+        currency: currentCurrency,
+        payment_method: method,
+        receipt_path: receiptPath,
+      });
+      if (insertError) throw insertError;
+
+      cart.clear();
+      renderCart();
+      checkoutView.reset();
+      checkoutAddressField.style.display = 'none';
+      showConfirm(ref);
+    } catch (err) {
+      checkoutError.textContent = t('checkout_error_generic');
+    } finally {
+      checkoutSubmitBtn.disabled = false;
+    }
+  });
+})();
+
 // Theme (light/dark)
 function loadTheme(){
   try { return localStorage.getItem('nyokon-theme'); } catch (e) { return null; }
@@ -412,9 +615,9 @@ document.getElementById('year').textContent = new Date().getFullYear();
 // when a staff member has uploaded one via staff.html. Fails silently
 // (keeps the static defaults) if Supabase is unreachable or empty.
 (async function loadStaffImages(){
-  if (typeof supabase === 'undefined') return;
+  const sb = getSb();
+  if (!sb) return;
   try {
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data, error } = await sb.from('site_images').select('slot,image_url');
     if (error || !data) return;
     data.forEach(row => {

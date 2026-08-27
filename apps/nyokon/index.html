@@ -259,14 +259,68 @@
     <button id="cartClose" data-i18n-aria="aria_cart_close" aria-label="Close cart">&times;</button>
   </div>
   <div class="cart-items" id="cartItems"></div>
-  <div class="cart-footer">
+
+  <form class="checkout-view" id="checkoutView" style="display:none;">
+    <div class="checkout-field">
+      <label data-i18n="checkout_name_label"></label>
+      <input type="text" id="checkoutName" required />
+    </div>
+    <div class="checkout-field">
+      <label data-i18n="checkout_phone_label"></label>
+      <input type="tel" id="checkoutPhone" required />
+    </div>
+    <div class="checkout-field">
+      <label data-i18n="checkout_fulfillment_label"></label>
+      <div class="checkout-radio-row">
+        <label><input type="radio" name="fulfillment" value="pickup" checked /><span data-i18n="checkout_pickup"></span></label>
+        <label><input type="radio" name="fulfillment" value="delivery" /><span data-i18n="checkout_delivery"></span></label>
+      </div>
+    </div>
+    <div class="checkout-field" id="checkoutAddressField" style="display:none;">
+      <label data-i18n="checkout_address_label"></label>
+      <input type="text" id="checkoutAddress" />
+    </div>
+    <div class="checkout-field">
+      <label data-i18n="checkout_payment_label"></label>
+      <div class="checkout-radio-row checkout-payment-methods">
+        <label><input type="radio" name="payment" value="orange_money" checked /><span>Orange Money</span></label>
+        <label><input type="radio" name="payment" value="mtn_momo" /><span>MTN MoMo</span></label>
+        <label><input type="radio" name="payment" value="cash" /><span data-i18n="checkout_cash"></span></label>
+      </div>
+    </div>
+    <div class="checkout-payment-details" id="checkoutPaymentDetails"></div>
+    <div class="checkout-error" id="checkoutError"></div>
+    <span class="gbtn-wrap" style="width:100%;">
+      <span class="g-light"></span>
+      <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+      <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+      <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+      <button type="submit" class="btn btn-light full" id="checkoutSubmitBtn" data-i18n="checkout_submit"></button>
+    </span>
+    <button type="button" class="checkout-back" id="checkoutBack" data-i18n="checkout_back"></button>
+  </form>
+
+  <div class="checkout-confirm" id="checkoutConfirm" style="display:none;">
+    <p class="checkout-confirm-title" data-i18n="checkout_confirm_title"></p>
+    <p class="checkout-confirm-ref" id="checkoutRef"></p>
+    <p class="checkout-confirm-note" data-i18n="checkout_confirm_note"></p>
+    <span class="gbtn-wrap" style="width:100%;">
+      <span class="g-light"></span>
+      <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+      <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+      <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+      <button type="button" class="btn btn-light full" id="checkoutContinueBtn" data-i18n="checkout_continue"></button>
+    </span>
+  </div>
+
+  <div class="cart-footer" id="cartFooter">
     <div class="cart-total"><span data-i18n="cart_subtotal"></span><span id="cartTotal">$0</span></div>
     <span class="gbtn-wrap" style="width:100%;">
       <span class="g-light"></span>
       <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
       <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
       <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
-      <button class="btn btn-light full" data-i18n="cart_checkout"></button>
+      <button id="cartCheckoutBtn" class="btn btn-light full" data-i18n="cart_checkout"></button>
     </span>
   </div>
 </div>

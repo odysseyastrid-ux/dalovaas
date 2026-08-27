@@ -90,7 +90,7 @@ const TRANSLATIONS = {
     announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
     nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
     settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
-    intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL',
+    intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL', intro_skip:'SKIP',
     hero_eyebrow:'FALL COLLECTION', hero_title_1:'BUILT', hero_title_2:'DIFFERENT', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
     shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
@@ -116,7 +116,7 @@ const TRANSLATIONS = {
     announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
     nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
     settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
-    intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER',
+    intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER', intro_skip:'PASSER',
     hero_eyebrow:'COLLECTION AUTOMNE', hero_title_1:'CONSTRUIT', hero_title_2:'AUTREMENT', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
     shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
@@ -412,7 +412,8 @@ document.getElementById('year').textContent = new Date().getFullYear();
   const taglineEl = document.getElementById('introHeroTagline');
   const hintEl = document.getElementById('introHeroHint');
   const progressBar = document.getElementById('introHeroProgress');
-  const scrubDistance = 2400;
+  const skipBtn = document.getElementById('introHeroSkip');
+  const scrubDistance = 1400;
 
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -518,10 +519,21 @@ document.getElementById('year').textContent = new Date().getFullYear();
     if (!locked && window.scrollY <= 0) engageLock();
   }
 
+  function onKeydown(e){
+    if (!locked) return;
+    if (['ArrowDown','PageDown',' ','Spacebar'].includes(e.key)) { addDelta(220); e.preventDefault(); }
+    else if (['ArrowUp','PageUp'].includes(e.key)) { addDelta(-220); e.preventDefault(); }
+  }
+
   window.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('scroll', onWindowScroll, { passive: true });
+  window.addEventListener('keydown', onKeydown);
+  skipBtn.addEventListener('click', () => { targetProgress = 1; releaseLock(); });
+
+  // Safety net: never let a stuck video or missed input trap the page.
+  setTimeout(() => { if (locked) releaseLock(); }, 12000);
 
   function frame(){
     currentProgress += (targetProgress - currentProgress) * 0.18;

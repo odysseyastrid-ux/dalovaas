@@ -2,6 +2,12 @@
 // placeholder-img blocks for real <img> tags) when you have product photos.
 // Product prices below are stored in USD and converted at render time.
 
+// Staff-uploaded site images (hero/lookbook) — see staff.html. The anon
+// key is safe to expose publicly; write access is gated by Supabase
+// auth + RLS policies (see supabase-schema.sql), not by keeping this secret.
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+
 const SIZES_APPAREL = ['S','M','L','XL'];
 const SIZES_KIDS = ['4-5Y','6-7Y','8-9Y','10-11Y'];
 const SIZES_SHOES = ['40','41','42','43','44','45'];
@@ -401,6 +407,32 @@ applyStaticTranslations();
 refreshFilterLabels();
 renderProducts();
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Staff-uploaded photos — overrides the static hero/lookbook placeholders
+// when a staff member has uploaded one via staff.html. Fails silently
+// (keeps the static defaults) if Supabase is unreachable or empty.
+(async function loadStaffImages(){
+  if (typeof supabase === 'undefined') return;
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data, error } = await sb.from('site_images').select('slot,image_url');
+    if (error || !data) return;
+    data.forEach(row => {
+      if (!row.image_url) return;
+      const el = document.querySelector(`[data-slot="${row.slot}"]`);
+      if (!el) return;
+      let img = el.querySelector('img');
+      if (!img) {
+        el.classList.remove('placeholder-img');
+        el.removeAttribute('data-placeholder');
+        img = document.createElement('img');
+        img.alt = 'nyøkøn';
+        el.insertBefore(img, el.firstChild);
+      }
+      img.src = row.image_url;
+    });
+  } catch (e) { /* Supabase unreachable — keep static defaults */ }
+})();
 
 // Intro hero — scroll-locked video scrub, then unlocks into the normal page.
 (function initIntroHero(){

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn — Staff</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  body{background:var(--bg);color:var(--fg);min-height:100vh;}
+  .staff-wrap{max-width:640px;margin:0 auto;padding:60px 20px 100px;}
+  .staff-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
+  .staff-header a{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);}
+  .staff-title{font-family:var(--font-display);font-size:clamp(28px,5vw,40px);margin-bottom:8px;}
+  .staff-sub{color:var(--fg-dim);font-size:13px;margin-bottom:36px;}
+  .staff-card{border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+  .staff-field{margin-bottom:16px;}
+  .staff-field label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:8px;}
+  .staff-field input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;color:var(--fg);font-family:inherit;font-size:14px;}
+  .staff-field input:focus{outline:none;border-color:var(--fg);}
+  .staff-btn{display:inline-block;padding:13px 28px;font-size:12px;font-weight:700;letter-spacing:.08em;border-radius:999px;background:var(--invert-bg);color:var(--invert-fg);border:none;cursor:pointer;}
+  .staff-btn:hover{background:#d1ff3c;color:#0b0b0c;}
+  .staff-btn:disabled{opacity:.5;cursor:default;}
+  .staff-error{color:#e05a4e;font-size:13px;margin-top:12px;}
+  .staff-note{color:var(--fg-dim);font-size:12px;margin-top:12px;}
+  #dashboard{display:none;}
+  .slot-row{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--line);}
+  .slot-row:first-child{border-top:none;}
+  .slot-info{display:flex;align-items:center;gap:14px;min-width:0;}
+  .slot-thumb{width:56px;height:56px;border-radius:4px;object-fit:cover;background:var(--bg-alt);flex-shrink:0;}
+  .slot-name{font-size:13px;font-weight:700;letter-spacing:.04em;}
+  .slot-status{font-size:11px;color:var(--fg-dim);margin-top:2px;}
+  .slot-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .slot-actions input[type=file]{font-size:11px;max-width:130px;}
+  .slot-save{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;}
+  .slot-save:hover{border-color:var(--fg);}
+  .slot-save:disabled{opacity:.4;cursor:default;}
+  .signout{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);background:none;border:none;cursor:pointer;}
+  .signout:hover{color:var(--fg);}
+</style>
+</head>
+<body>
+<div class="staff-wrap">
+  <div class="staff-header">
+    <a href="index.html">← nyøkøn</a>
+    <button class="signout" id="signOutBtn" style="display:none;">Se déconnecter</button>
+  </div>
+
+  <div id="loginView">
+    <h1 class="staff-title">Espace staff</h1>
+    <p class="staff-sub">Connecte-toi pour gérer les photos du site.</p>
+    <div class="staff-card">
+      <form id="loginForm">
+        <div class="staff-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" required autocomplete="username" />
+        </div>
+        <div class="staff-field">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="staff-btn" id="loginBtn">Se connecter</button>
+        <div class="staff-error" id="loginError"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard">
+    <h1 class="staff-title">Photos du site</h1>
+    <p class="staff-sub">Choisis une photo pour chaque emplacement, puis clique sur "Enregistrer". Le site se met à jour pour tous les visiteurs immédiatement.</p>
+    <div class="staff-card" id="slotList"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const SLOTS = [
+  { slot: 'hero', label: 'Hero (page d’accueil)' },
+  { slot: 'lookbook_1', label: 'Lookbook 01' },
+  { slot: 'lookbook_2', label: 'Lookbook 02' },
+  { slot: 'lookbook_3', label: 'Lookbook 03' },
+  { slot: 'lookbook_4', label: 'Lookbook 04' },
+  { slot: 'lookbook_5', label: 'Lookbook 05' },
+  { slot: 'lookbook_6', label: 'Lookbook 06' },
+];
+
+const loginView = document.getElementById('loginView');
+const dashboard = document.getElementById('dashboard');
+const signOutBtn = document.getElementById('signOutBtn');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+const loginBtn = document.getElementById('loginBtn');
+const slotList = document.getElementById('slotList');
+
+function showDashboard(){
+  loginView.style.display = 'none';
+  dashboard.style.display = 'block';
+  signOutBtn.style.display = 'inline-block';
+  renderSlots();
+}
+function showLogin(){
+  loginView.style.display = 'block';
+  dashboard.style.display = 'none';
+  signOutBtn.style.display = 'none';
+}
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.textContent = '';
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Connexion…';
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'Se connecter';
+  if (error) {
+    loginError.textContent = 'Identifiants incorrects.';
+    return;
+  }
+  showDashboard();
+});
+
+signOutBtn.addEventListener('click', async () => {
+  await sb.auth.signOut();
+  showLogin();
+});
+
+async function renderSlots(){
+  const { data: rows } = await sb.from('site_images').select('slot,image_url');
+  const currentBySlot = {};
+  (rows || []).forEach(r => { currentBySlot[r.slot] = r.image_url; });
+
+  slotList.innerHTML = '';
+  SLOTS.forEach(({ slot, label }) => {
+    const row = document.createElement('div');
+    row.className = 'slot-row';
+
+    const currentUrl = currentBySlot[slot];
+    row.innerHTML = `
+      <div class="slot-info">
+        <img class="slot-thumb" src="${currentUrl || ''}" style="${currentUrl ? '' : 'display:none;'}" />
+        <div>
+          <div class="slot-name">${label}</div>
+          <div class="slot-status">${currentUrl ? 'Photo actuelle en ligne' : 'Placeholder par défaut'}</div>
+        </div>
+      </div>
+      <div class="slot-actions">
+        <input type="file" accept="image/*" data-slot="${slot}" />
+        <button type="button" class="slot-save" data-slot="${slot}" disabled>Enregistrer</button>
+      </div>
+    `;
+    slotList.appendChild(row);
+  });
+
+  slotList.querySelectorAll('input[type=file]').forEach(input => {
+    input.addEventListener('change', () => {
+      const btn = slotList.querySelector(`.slot-save[data-slot="${input.dataset.slot}"]`);
+      btn.disabled = !input.files.length;
+    });
+  });
+
+  slotList.querySelectorAll('.slot-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const slot = btn.dataset.slot;
+      const input = slotList.querySelector(`input[data-slot="${slot}"]`);
+      const file = input.files[0];
+      if (!file) return;
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+      try {
+        const ext = file.name.split('.').pop();
+        const path = `${slot}-${Date.now()}.${ext}`;
+        const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: publicUrlData } = sb.storage.from('site-images').getPublicUrl(path);
+        const { error: dbError } = await sb.from('site_images').upsert({
+          slot,
+          image_url: publicUrlData.publicUrl,
+          updated_at: new Date().toISOString(),
+        });
+        if (dbError) throw dbError;
+        btn.textContent = 'Enregistré ✓';
+        renderSlots();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+        alert('Erreur : ' + (err.message || err));
+      }
+    });
+  });
+}
+
+(async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showDashboard();
+  else showLogin();
+})();
+</script>
+</body>
+</html>

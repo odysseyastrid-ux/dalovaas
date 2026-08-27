@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bevan&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 
@@ -114,7 +115,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-media placeholder-img" data-placeholder="HERO IMAGE / VIDEO — 1920×1080+">
+    <div class="hero-media placeholder-img" data-placeholder="HERO IMAGE / VIDEO — 1920×1080+" data-slot="hero">
       <div class="hero-overlay"></div>
     </div>
     <div class="hero-content">
@@ -194,12 +195,12 @@
       <h2 data-i18n="lookbook_title"></h2>
     </div>
     <div class="lookbook-grid">
-      <div class="lb-photo lb-tall"><img src="assets/lookbook-frame-1.jpg" alt="nyøkøn lookbook" /></div>
-      <div class="placeholder-img" data-placeholder="LOOKBOOK 02"></div>
-      <div class="placeholder-img" data-placeholder="LOOKBOOK 03"></div>
-      <div class="lb-photo lb-tall"><img src="assets/lookbook-frame-2.jpg" alt="nyøkøn lookbook" /></div>
-      <div class="placeholder-img" data-placeholder="LOOKBOOK 05"></div>
-      <div class="placeholder-img" data-placeholder="LOOKBOOK 06"></div>
+      <div class="lb-photo lb-tall" data-slot="lookbook_1"><img src="assets/lookbook-frame-1.jpg" alt="nyøkøn lookbook" /></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 02" data-slot="lookbook_2"></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 03" data-slot="lookbook_3"></div>
+      <div class="lb-photo lb-tall" data-slot="lookbook_4"><img src="assets/lookbook-frame-2.jpg" alt="nyøkøn lookbook" /></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 05" data-slot="lookbook_5"></div>
+      <div class="placeholder-img" data-placeholder="LOOKBOOK 06" data-slot="lookbook_6"></div>
     </div>
   </section>
 

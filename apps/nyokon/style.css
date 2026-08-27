@@ -254,7 +254,7 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   font-weight:700;
   letter-spacing:.2em;
   color:var(--hero-accent);
-  margin-bottom:14px;
+  margin-bottom:26px;
 }
 .hero-title{
   font-family:var(--font-display);

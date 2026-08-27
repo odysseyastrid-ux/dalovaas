@@ -90,6 +90,7 @@ const TRANSLATIONS = {
     announce:'FREE SHIPPING ON ORDERS $150+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
     nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
     settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
+    intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL',
     hero_eyebrow:'FALL COLLECTION', hero_title_1:'BUILT', hero_title_2:'DIFFERENT', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
     shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
@@ -115,6 +116,7 @@ const TRANSLATIONS = {
     announce:'LIVRAISON GRATUITE DÈS 150$  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
     nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
     settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
+    intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER',
     hero_eyebrow:'COLLECTION AUTOMNE', hero_title_1:'CONSTRUIT', hero_title_2:'AUTREMENT', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
     shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
@@ -399,3 +401,151 @@ applyStaticTranslations();
 refreshFilterLabels();
 renderProducts();
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Intro hero — scroll-locked video scrub, then unlocks into the normal page.
+(function initIntroHero(){
+  const section = document.getElementById('introHero');
+  const video = document.getElementById('introHeroVideo');
+  if (!section || !video) return;
+
+  const titleEl = document.getElementById('introHeroTitle');
+  const taglineEl = document.getElementById('introHeroTagline');
+  const hintEl = document.getElementById('introHeroHint');
+  const progressBar = document.getElementById('introHeroProgress');
+  const scrubDistance = 2400;
+
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reducedMotion) {
+    section.classList.add('is-unlocked');
+    video.classList.add('is-ready');
+    titleEl.style.opacity = '0';
+    taglineEl.style.opacity = '1';
+    hintEl.style.opacity = '0';
+    progressBar.style.transform = 'scaleX(1)';
+    return;
+  }
+
+  function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
+
+  let duration = 0;
+  let targetProgress = 0;
+  let currentProgress = 0;
+  let hasStartedScrolling = false;
+  let isSeeking = false;
+  let pendingTime = null;
+  let locked = false;
+  let lockedScrollY = 0;
+  let touchStartY = 0;
+  let rafId = 0;
+
+  video.addEventListener('loadeddata', () => {
+    duration = video.duration || 0;
+    video.classList.add('is-ready');
+  });
+
+  video.addEventListener('seeked', () => {
+    isSeeking = false;
+    if (pendingTime !== null) {
+      const t = pendingTime;
+      pendingTime = null;
+      isSeeking = true;
+      video.currentTime = t;
+    }
+  });
+
+  function seekTo(t){
+    if (isSeeking) { pendingTime = t; return; }
+    isSeeking = true;
+    video.currentTime = t;
+  }
+
+  function engageLock(){
+    if (locked) return;
+    locked = true;
+    lockedScrollY = window.scrollY;
+    const b = document.body.style;
+    b.position = 'fixed';
+    b.top = `-${lockedScrollY}px`;
+    b.left = '0';
+    b.right = '0';
+    b.width = '100%';
+    section.classList.remove('is-unlocked');
+  }
+
+  function releaseLock(){
+    if (!locked) return;
+    locked = false;
+    const y = lockedScrollY;
+    const b = document.body.style;
+    b.position = '';
+    b.top = '';
+    b.left = '';
+    b.right = '';
+    b.width = '';
+    window.scrollTo(0, y);
+    section.classList.add('is-unlocked');
+  }
+
+  engageLock();
+
+  function addDelta(deltaY){
+    targetProgress = clamp(targetProgress + deltaY / scrubDistance, 0, 1);
+    if (targetProgress > 0.001) hasStartedScrolling = true;
+  }
+
+  function onWheel(e){
+    if (!locked) return;
+    addDelta(e.deltaY);
+    e.preventDefault();
+    if (targetProgress >= 1 && e.deltaY > 0) releaseLock();
+  }
+
+  function onTouchStart(e){
+    touchStartY = e.touches[0] ? e.touches[0].clientY : 0;
+  }
+  function onTouchMove(e){
+    if (!locked) return;
+    const y = e.touches[0] ? e.touches[0].clientY : touchStartY;
+    const deltaY = touchStartY - y;
+    touchStartY = y;
+    addDelta(deltaY);
+    e.preventDefault();
+    if (targetProgress >= 1 && deltaY > 0) releaseLock();
+  }
+
+  function onWindowScroll(){
+    if (!locked && window.scrollY <= 0) engageLock();
+  }
+
+  window.addEventListener('wheel', onWheel, { passive: false });
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('scroll', onWindowScroll, { passive: true });
+
+  function frame(){
+    currentProgress += (targetProgress - currentProgress) * 0.18;
+
+    if (duration > 0) seekTo(currentProgress * duration);
+
+    const scale = 1 + currentProgress * 0.06;
+    video.style.transform = `scale(${scale})`;
+
+    const titleT = 1 - clamp(currentProgress / 0.35, 0, 1);
+    titleEl.style.opacity = String(titleT);
+    titleEl.style.transform = `translateY(${(1 - titleT) * -24}px) scale(${0.96 + titleT * 0.04})`;
+    titleEl.style.filter = `blur(${(1 - titleT) * 10}px)`;
+
+    hintEl.style.opacity = hasStartedScrolling ? '0' : '1';
+
+    const taglineT = clamp((currentProgress - 0.82) / 0.18, 0, 1);
+    taglineEl.style.opacity = String(taglineT);
+    taglineEl.style.transform = `translateY(${(1 - taglineT) * 20}px) scale(${0.97 + taglineT * 0.03})`;
+    taglineEl.style.filter = `blur(${(1 - taglineT) * 8}px)`;
+
+    progressBar.style.transform = `scaleX(${currentProgress})`;
+
+    rafId = requestAnimationFrame(frame);
+  }
+  rafId = requestAnimationFrame(frame);
+})();

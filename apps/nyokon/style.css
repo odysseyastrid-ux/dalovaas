@@ -791,3 +791,102 @@ main > section{
 @media (prefers-reduced-motion: reduce){
   #stars,#stars2,#stars3{animation:none;}
 }
+
+/* Intro hero — scroll-locked video scrub. Fixed full-viewport gate while
+   "locked"; becomes a normal in-flow section once the video finishes and
+   the visitor keeps scrolling forward. See script.js for the state machine. */
+.intro-hero{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  width:100%;
+  height:100dvh;
+  overflow:hidden;
+  background:#05070d;
+}
+.intro-hero.is-unlocked{
+  position:relative;
+  inset:auto;
+}
+.intro-hero-media{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transform-origin:center center;
+  will-change:transform;
+  transition:opacity .6s ease;
+}
+.intro-hero-media.is-ready{opacity:1;}
+.intro-hero-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(5,7,13,.35), rgba(5,7,13,0) 30%, rgba(5,7,13,.15) 70%, rgba(5,7,13,.55));
+  pointer-events:none;
+}
+.intro-hero-title,
+.intro-hero-tagline{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 8%;
+  text-align:center;
+  pointer-events:none;
+}
+.intro-hero-title span,
+.intro-hero-tagline span{
+  font-family:var(--font-display);
+  color:#f2f4f8;
+  text-shadow:0 4px 30px rgba(0,0,0,.5);
+  will-change:transform,filter,opacity;
+}
+.intro-hero-title span{
+  font-size:clamp(34px,9vw,120px);
+  line-height:.95;
+}
+.intro-hero-tagline{opacity:0;}
+.intro-hero-tagline span{
+  font-size:clamp(16px,2.6vw,28px);
+  line-height:1.3;
+}
+.intro-hero-hint{
+  position:absolute;
+  left:50%;
+  bottom:clamp(20px,6vh,48px);
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  color:rgba(242,244,248,.75);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.3em;
+  transition:opacity .4s ease;
+  pointer-events:none;
+}
+.intro-hero-hint svg{animation:introHintBounce 1.6s ease-in-out infinite;}
+@keyframes introHintBounce{
+  0%,100%{transform:translateY(0);opacity:.5;}
+  50%{transform:translateY(5px);opacity:1;}
+}
+.intro-hero-progress{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:2px;
+  background:rgba(255,255,255,.12);
+}
+.intro-hero-progress-bar{
+  height:100%;
+  width:100%;
+  background:linear-gradient(90deg, rgba(255,255,255,.5), rgba(255,255,255,.95));
+  transform:scaleX(0);
+  transform-origin:left center;
+}
+@media (prefers-reduced-motion: reduce){
+  .intro-hero-hint svg{animation:none;}
+}

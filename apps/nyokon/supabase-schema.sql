@@ -15,17 +15,20 @@ on conflict (slot) do nothing;
 
 alter table public.site_images enable row level security;
 
-create policy "Public can read site images"
+drop policy if exists site_images_select_public on public.site_images;
+create policy site_images_select_public
   on public.site_images for select
   to anon, authenticated
   using (true);
 
-create policy "Staff can insert site images"
+drop policy if exists site_images_insert_staff on public.site_images;
+create policy site_images_insert_staff
   on public.site_images for insert
   to authenticated
   with check (true);
 
-create policy "Staff can update site images"
+drop policy if exists site_images_update_staff on public.site_images;
+create policy site_images_update_staff
   on public.site_images for update
   to authenticated
   using (true)
@@ -36,17 +39,20 @@ insert into storage.buckets (id, name, public)
 values ('site-images', 'site-images', true)
 on conflict (id) do nothing;
 
-create policy "Public can view site-images bucket"
+drop policy if exists site_images_bucket_select_public on storage.objects;
+create policy site_images_bucket_select_public
   on storage.objects for select
   to public
   using (bucket_id = 'site-images');
 
-create policy "Staff can upload to site-images bucket"
+drop policy if exists site_images_bucket_insert_staff on storage.objects;
+create policy site_images_bucket_insert_staff
   on storage.objects for insert
   to authenticated
   with check (bucket_id = 'site-images');
 
-create policy "Staff can update site-images bucket"
+drop policy if exists site_images_bucket_update_staff on storage.objects;
+create policy site_images_bucket_update_staff
   on storage.objects for update
   to authenticated
   using (bucket_id = 'site-images');

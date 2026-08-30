@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn</title>
+<meta name="description" content="nyøkøn — custom streetwear, drops and made-to-order pieces." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="pdp-back" id="pdpBack">BACK</a>
+  <a href="index.html" class="wordmark"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <a href="index.html" class="icon-link cart-link" aria-label="Cart">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+    <span class="cart-count" id="pdpCartCount">0</span>
+  </a>
+</header>
+
+<main class="pdp" id="pdpRoot">
+  <p class="pdp-empty">…</p>
+</main>
+
+<div class="pdp-sticky-bar" id="pdpStickyBar" hidden>
+  <span class="pdp-sticky-price" id="pdpStickyPrice"></span>
+  <span class="gbtn-wrap" style="flex:1;">
+    <span class="g-light"></span>
+    <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+    <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+    <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+    <button type="button" class="btn btn-light full" id="pdpStickyBtn"></button>
+  </span>
+  <span class="pdp-sticky-note" id="pdpStickyNote"></span>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const CURRENCIES = [
+  { code:'XOF', rate:600,  locale:'fr-SN' },
+  { code:'USD', rate:1,    locale:'en-US' },
+  { code:'EUR', rate:0.92, locale:'de-DE' },
+  { code:'GBP', rate:0.79, locale:'en-GB' },
+  { code:'CAD', rate:1.37, locale:'en-CA' },
+  { code:'NGN', rate:1550, locale:'en-NG' },
+  { code:'GHS', rate:15.5, locale:'en-GH' },
+  { code:'ZAR', rate:18.5, locale:'en-ZA' },
+];
+const DEFAULT_CURRENCY = 'XOF';
+function loadCurrency(){
+  try { const s = localStorage.getItem('nyokon-currency'); if (s && CURRENCIES.some(c => c.code === s)) return s; } catch (e) {}
+  return DEFAULT_CURRENCY;
+}
+const currentCurrency = loadCurrency();
+function money(usd){
+  const c = CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0];
+  return new Intl.NumberFormat(c.locale, { style:'currency', currency:c.code, maximumFractionDigits:0 }).format(usd * c.rate);
+}
+
+const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+function loadLang(){
+  try { const s = localStorage.getItem('nyokon-lang'); if (s === 'en' || s === 'fr') return s; } catch (e) {}
+  return DEFAULT_LANG;
+}
+const currentLang = loadLang();
+document.documentElement.lang = currentLang;
+
+const T = {
+  en: {
+    back:'BACK', colour:'Colour', colours:'Colours', sizes:'SIZES',
+    size_not_in_stock:'Size not in stock?', add_to_cart:'ADD TO CART', sold_out:'SOLD OUT',
+    added:'Added to cart', view_cart:'VIEW CART', choose_size:'Please select a size.',
+    also_like:'YOU MAY ALSO LIKE', not_found:'Product not found.',
+  },
+  fr: {
+    back:'RETOUR', colour:'Couleur', colours:'Couleurs', sizes:'TAILLES',
+    size_not_in_stock:'Taille indisponible ?', add_to_cart:'AJOUTER AU PANIER', sold_out:'ÉPUISÉ',
+    added:'Ajouté au panier', view_cart:'VOIR LE PANIER', choose_size:'Choisis une taille.',
+    also_like:'VOUS AIMEREZ AUSSI', not_found:'Produit introuvable.',
+  },
+};
+function t(key){ return T[currentLang][key] || T.en[key] || key; }
+document.getElementById('pdpBack').textContent = t('back');
+
+// Respect the theme already chosen on the main site (same localStorage
+// key as script.js) — no theme toggle here, just don't clash with it.
+(function applyStoredTheme(){
+  try {
+    const saved = localStorage.getItem('nyokon-theme');
+    const dark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (dark) document.documentElement.dataset.theme = 'dark';
+  } catch (e) {}
+})();
+
+// Cart is shared with script.js via localStorage (array of [key, item]
+// pairs) so items added here show up in the cart drawer on index.html.
+function loadCart(){
+  try { const raw = localStorage.getItem('nyokon-cart'); return raw ? new Map(JSON.parse(raw)) : new Map(); } catch (e) { return new Map(); }
+}
+function saveCart(cart){
+  try { localStorage.setItem('nyokon-cart', JSON.stringify([...cart.entries()])); } catch (e) {}
+}
+function refreshCartCount(){
+  const cart = loadCart();
+  document.getElementById('pdpCartCount').textContent = [...cart.values()].reduce((sum, i) => sum + i.qty, 0);
+}
+function addToCart(product, size, color, qty){
+  const cart = loadCart();
+  const key = `${product.id}::${size || ''}::${color || ''}`;
+  const existing = cart.get(key);
+  if (existing) existing.qty += qty;
+  else cart.set(key, { ...product, size: size || null, color: color || null, qty });
+  saveCart(cart);
+  refreshCartCount();
+}
+refreshCartCount();
+
+function galleryFor(images, colorName){
+  let list = colorName ? images.filter(img => !img.color_name || img.color_name === colorName) : images;
+  if (!list.length) list = images;
+  return list.map(img => img.url);
+}
+function stockBySizeFrom(variants){
+  const map = {};
+  variants.forEach(v => { if (!v.size) return; map[v.size] = (map[v.size] || 0) + (Number(v.stock) || 0); });
+  return map;
+}
+
+async function fetchProduct(id){
+  if (!sb || !id) return null;
+  try {
+    const { data: row, error } = await sb.from('products').select('*').eq('id', id).single();
+    if (error || !row) return null;
+    const [{ data: variants }, { data: images }] = await Promise.all([
+      sb.from('product_variants').select('size,stock').eq('product_id', id),
+      sb.from('product_images').select('color_name,url,position').eq('product_id', id).order('position', { ascending: true }),
+    ]);
+    return { row, variants: variants || [], images: images || [] };
+  } catch (e) { return null; }
+}
+async function fetchRelated(row){
+  if (!sb) return [];
+  try {
+    const { data } = await sb.from('products').select('id,name_en,name_fr,price,image_url')
+      .eq('active', true).eq('gender', row.gender).eq('type', row.type).neq('id', row.id).limit(4);
+    return data || [];
+  } catch (e) { return []; }
+}
+
+function render({ row, variants, images }){
+  const root = document.getElementById('pdpRoot');
+  const name = currentLang === 'fr' ? row.name_fr : row.name_en;
+  document.title = `${name} — nyøkøn`;
+  const colors = row.colors && row.colors.length ? row.colors : null;
+  const sizes = row.sizes && row.sizes.length ? row.sizes : null;
+  const stockBySize = stockBySizeFrom(variants);
+  const hasStockData = Object.keys(stockBySize).length > 0;
+  const soldOut = row.sold_out === true || (variants.length > 0 && variants.every(v => (Number(v.stock) || 0) <= 0));
+
+  let selectedColor = colors ? colors[0].name : null;
+  let selectedSize = null;
+  let galleryIdx = 0;
+
+  root.innerHTML = `
+    <div class="pdp-layout">
+      <div class="pdp-gallery">
+        <div class="pdp-gallery-main">
+          <button type="button" class="pdp-gallery-nav pdp-gallery-prev" aria-label="Previous">‹</button>
+          <img id="pdpGalleryImg" src="" alt="${name}" />
+          <button type="button" class="pdp-gallery-nav pdp-gallery-next" aria-label="Next">›</button>
+          <span class="pdp-gallery-counter" id="pdpGalleryCounter"></span>
+          ${row.model_stats ? `<span class="pdp-gallery-model">${row.model_stats}</span>` : ''}
+        </div>
+        <div class="pdp-gallery-dots" id="pdpGalleryDots"></div>
+      </div>
+      <div class="pdp-info">
+        <div class="pdp-name">${name}</div>
+        <div class="pdp-sub" id="pdpSub">${selectedColor || (currentLang === 'fr' ? row.sub_fr : row.sub_en) || ''}</div>
+        <div class="pdp-price">${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}</div>
+        ${colors ? `
+        <div class="pdp-colors">
+          <div class="pdp-colors-label" id="pdpColorsLabel"></div>
+          <div class="color-swatch-row" id="pdpColorRow">${colors.map((c, i) => `<button type="button" class="color-swatch${i === 0 ? ' active' : ''}" data-name="${c.name}" style="background:${c.hex}" title="${c.name || ''}"></button>`).join('')}</div>
+        </div>` : ''}
+        ${sizes ? `
+        <div class="pdp-sizes">
+          <div class="pdp-sizes-head">
+            <span class="pdp-sizes-label">${t('sizes')}</span>
+            ${hasStockData ? `<button type="button" class="pdp-size-help" id="pdpSizeHelp">${t('size_not_in_stock')}</button>` : ''}
+          </div>
+          <div class="pdp-size-grid" id="pdpSizeGrid">${sizes.map(s => {
+            const outOfStock = hasStockData && (stockBySize[s] || 0) <= 0;
+            return `<button type="button" class="size-chip${outOfStock ? ' is-out' : ''}" data-size="${s}" ${outOfStock ? 'disabled' : ''}>${s}</button>`;
+          }).join('')}</div>
+        </div>` : ''}
+        <div class="pdp-note" id="pdpNote"></div>
+        ${row.material ? `<div class="pdp-desc">${row.material}${row.care_instructions ? ' — ' + row.care_instructions : ''}</div>` : ''}
+      </div>
+    </div>
+    <div class="pdp-related" id="pdpRelated"></div>
+  `;
+
+  const galleryImg = document.getElementById('pdpGalleryImg');
+  const galleryCounter = document.getElementById('pdpGalleryCounter');
+  const galleryDots = document.getElementById('pdpGalleryDots');
+  let gallery = galleryFor(images, selectedColor);
+  if (!gallery.length && row.image_url) gallery = [row.image_url];
+
+  function renderGallery(){
+    if (!gallery.length){
+      galleryImg.removeAttribute('src');
+      galleryCounter.textContent = '';
+      galleryDots.innerHTML = '';
+      return;
+    }
+    galleryIdx = Math.max(0, Math.min(galleryIdx, gallery.length - 1));
+    galleryImg.src = gallery[galleryIdx];
+    galleryCounter.textContent = `${galleryIdx + 1}/${gallery.length}`;
+    galleryDots.innerHTML = gallery.map((_, i) => `<span class="pdp-gallery-dot${i === galleryIdx ? ' active' : ''}"></span>`).join('');
+  }
+  renderGallery();
+  root.querySelector('.pdp-gallery-prev').addEventListener('click', () => { galleryIdx = (galleryIdx - 1 + gallery.length) % gallery.length; renderGallery(); });
+  root.querySelector('.pdp-gallery-next').addEventListener('click', () => { galleryIdx = (galleryIdx + 1) % gallery.length; renderGallery(); });
+
+  if (colors){
+    const label = document.getElementById('pdpColorsLabel');
+    label.textContent = `${colors.length} ${colors.length > 1 ? t('colours') : t('colour')}`;
+    document.getElementById('pdpColorRow').addEventListener('click', (e) => {
+      const swatch = e.target.closest('.color-swatch');
+      if (!swatch) return;
+      selectedColor = swatch.dataset.name;
+      document.querySelectorAll('#pdpColorRow .color-swatch').forEach(s => s.classList.toggle('active', s === swatch));
+      document.getElementById('pdpSub').textContent = selectedColor;
+      gallery = galleryFor(images, selectedColor);
+      if (!gallery.length && row.image_url) gallery = [row.image_url];
+      galleryIdx = 0;
+      renderGallery();
+    });
+  }
+
+  if (sizes){
+    document.getElementById('pdpSizeGrid').addEventListener('click', (e) => {
+      const chip = e.target.closest('.size-chip');
+      if (!chip) return;
+      selectedSize = chip.dataset.size;
+      document.querySelectorAll('#pdpSizeGrid .size-chip').forEach(c => c.classList.toggle('active', c === chip));
+      document.getElementById('pdpNote').textContent = '';
+    });
+    const helpBtn = document.getElementById('pdpSizeHelp');
+    if (helpBtn) helpBtn.addEventListener('click', () => {
+      document.getElementById('pdpNote').textContent = currentLang === 'fr'
+        ? 'Contacte-nous — on te préviendra dès le réassort.'
+        : "Contact us — we'll notify you when it's back in stock.";
+    });
+  }
+
+  document.getElementById('pdpStickyBar').hidden = false;
+  document.getElementById('pdpStickyPrice').innerHTML = `${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}`;
+  const stickyBtn = document.getElementById('pdpStickyBtn');
+  const stickyNote = document.getElementById('pdpStickyNote');
+  stickyBtn.textContent = soldOut ? t('sold_out') : t('add_to_cart');
+  if (soldOut){
+    stickyBtn.disabled = true;
+  } else {
+    stickyBtn.addEventListener('click', () => {
+      if (sizes && !selectedSize){
+        document.getElementById('pdpNote').textContent = t('choose_size');
+        return;
+      }
+      const product = {
+        id: row.id,
+        price: Number(row.price),
+        was: row.was != null ? Number(row.was) : null,
+        image: row.image_url || (gallery[0] || null),
+        name: { en: row.name_en, fr: row.name_fr },
+        sub: { en: row.sub_en || '', fr: row.sub_fr || '' },
+      };
+      addToCart(product, selectedSize, selectedColor, 1);
+      stickyNote.textContent = `${t('added')} — `;
+      const link = document.createElement('a');
+      link.href = 'index.html';
+      link.textContent = t('view_cart');
+      link.style.textDecoration = 'underline';
+      stickyNote.appendChild(link);
+    });
+  }
+
+  fetchRelated(row).then(related => {
+    if (!related.length) return;
+    document.getElementById('pdpRelated').innerHTML = `
+      <div class="pdp-related-title">${t('also_like')}</div>
+      <div class="pdp-related-grid">
+        ${related.map(p => `
+          <a class="pdp-related-card" href="product.html?id=${encodeURIComponent(p.id)}">
+            <div class="pdp-related-media">${p.image_url ? `<img src="${p.image_url}" alt="" />` : ''}</div>
+            <div class="pdp-related-name">${currentLang === 'fr' ? p.name_fr : p.name_en}</div>
+            <div class="pdp-related-price">${money(Number(p.price))}</div>
+          </a>
+        `).join('')}
+      </div>
+    `;
+  });
+}
+
+(async function init(){
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('id');
+  const result = await fetchProduct(productId);
+  if (!result){
+    document.getElementById('pdpRoot').innerHTML = `<p class="pdp-empty">${t('not_found')}</p>`;
+    return;
+  }
+  render(result);
+})();
+</script>
+</body>
+</html>

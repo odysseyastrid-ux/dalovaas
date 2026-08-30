@@ -137,6 +137,11 @@ const TRANSLATIONS = {
     filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
     filter_girls:'GIRLS', filter_boys:'BOYS',
     quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', tag_sold_out:'SOLD OUT', sizes_label:'Sizes',
+    color_singular:'Colour', color_plural:'Colours',
+    quick_add_title:'QUICK ADD', quick_add_submit:'ADD TO CART',
+    pdp_you_may_also_like:'YOU MAY ALSO LIKE', pdp_size_not_in_stock:'Size not in stock?',
+    pdp_back:'BACK', pdp_add_to_cart:'ADD TO CART', pdp_added:'Added to cart',
+    pdp_view_cart:'VIEW CART', pdp_not_found:'Product not found.',
     size_choose_error:'Please select a size.',
     editorial_eyebrow:'THE STORY', editorial_title:'NOT OFF THE RACK.',
     editorial_text:"nyøkøn started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a nyøkøn piece different.",
@@ -177,6 +182,11 @@ const TRANSLATIONS = {
     filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
     filter_girls:'FILLES', filter_boys:'GARÇONS',
     quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', tag_sold_out:'ÉPUISÉ', sizes_label:'Tailles',
+    color_singular:'Couleur', color_plural:'Couleurs',
+    quick_add_title:'AJOUT RAPIDE', quick_add_submit:'AJOUTER AU PANIER',
+    pdp_you_may_also_like:'VOUS AIMEREZ AUSSI', pdp_size_not_in_stock:'Taille indisponible ?',
+    pdp_back:'RETOUR', pdp_add_to_cart:'AJOUTER AU PANIER', pdp_added:'Ajouté au panier',
+    pdp_view_cart:'VOIR LE PANIER', pdp_not_found:'Produit introuvable.',
     size_choose_error:'Choisis une taille.',
     editorial_eyebrow:"L'HISTOIRE", editorial_title:'PAS DU PRÊT-À-PORTER.',
     editorial_text:"nyøkøn a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce nyøkøn différente.",
@@ -235,6 +245,24 @@ const grid = document.getElementById('productGrid');
 const noResultsEl = document.getElementById('noResults');
 const cart = new Map();
 
+// Persisted so the cart survives navigating to a product page and back
+// (product.html is a separate page load, not a client-side route).
+function saveCart(){
+  try { localStorage.setItem('nyokon-cart', JSON.stringify([...cart.entries()])); } catch (e) { /* localStorage unavailable */ }
+}
+(function loadCartFromStorage(){
+  try {
+    const raw = localStorage.getItem('nyokon-cart');
+    if (!raw) return;
+    JSON.parse(raw).forEach(([key, item]) => cart.set(key, item));
+  } catch (e) { /* corrupt or unavailable — start with an empty cart */ }
+})();
+
+function colorImage(product, colorName){
+  if (colorName && product.colorImages && product.colorImages[colorName]) return product.colorImages[colorName];
+  return product.image || null;
+}
+
 function money(usd){
   const c = CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0];
   const amount = usd * c.rate;
@@ -286,34 +314,33 @@ function renderProducts(){
   for (const p of list){
     const name = p.name[currentLang] || p.name.en;
     const sub = p.sub[currentLang] || p.sub.en;
+    const initialImage = colorImage(p, p.colors && p.colors.length ? p.colors[0].name : null);
     const card = document.createElement('div');
     card.className = 'product-card';
+    card.dataset.id = p.id;
     card.dataset.type = p.type;
+    const pdpHref = `product.html?id=${encodeURIComponent(p.id)}`;
     card.innerHTML = `
       <div class="product-media">
         ${p.soldOut ? `<span class="product-tag product-tag-soldout">${t('tag_sold_out')}</span>`
           : p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
-        ${p.image
-          ? `<img class="product-photo" src="${p.image}" alt="${name}">`
-          : `<div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
-        <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>`}
-        <span class="gbtn-wrap gbtn-bar quick-add-wrap">
-          <span class="g-light"></span>
-          <span class="g-layer" style="animation-delay:0s;animation-duration:20s;"></span>
-          <span class="g-layer" style="animation-delay:.4s;animation-duration:17s;"></span>
-          <button class="quick-add" data-id="${p.id}" ${p.soldOut ? 'disabled' : ''}>${p.soldOut ? t('tag_sold_out') : `${t('quick_add')} — ${money(p.price)}`}</button>
-        </span>
+        <a class="product-media-link" href="${pdpHref}" aria-label="${name}">
+          ${initialImage
+            ? `<img class="product-photo" src="${initialImage}" alt="${name}">`
+            : `<div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
+          <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>`}
+        </a>
+        <button type="button" class="quick-add-fab" data-id="${p.id}" aria-label="${t('quick_add')}" ${p.soldOut ? 'disabled' : ''}>+</button>
       </div>
       <div class="product-info">
         <div>
-          <div class="product-name">${name}</div>
-          <div class="product-sub">${sub}</div>
-          ${p.colors ? `<div class="product-colors">${p.colors.map(c => `<span class="color-swatch" style="background:${c.hex}" title="${c.name || ''}"></span>`).join('')}</div>` : ''}
-          ${p.sizes ? `<div class="product-sizes">${p.sizes.map(s => {
-            const outOfStock = p.stockBySize && (p.stockBySize[s] || 0) <= 0;
-            return `<button type="button" class="size-chip${outOfStock ? ' is-out' : ''}" data-size="${s}" ${outOfStock ? 'disabled' : ''}>${s}</button>`;
-          }).join('')}</div>
-          <div class="product-size-note"></div>` : ''}
+          <a class="product-name-link" href="${pdpHref}"><div class="product-name">${name}</div></a>
+          <div class="product-sub">${p.colors && p.colors.length ? (p.colors[0].name || sub) : sub}</div>
+          ${p.colors && p.colors.length ? `
+          <div class="product-colors">
+            <div class="color-swatch-row">${p.colors.map((c, i) => `<button type="button" class="color-swatch${i === 0 ? ' active' : ''}" data-idx="${i}" style="background:${c.hex}" title="${c.name || ''}"></button>`).join('')}</div>
+            <span class="color-count">${p.colors.length} ${p.colors.length > 1 ? t('color_plural') : t('color_singular')}</span>
+          </div>` : ''}
         </div>
         <div class="product-price">
           ${p.was ? `<span class="was">${money(p.was)}</span>` : ''}${money(p.price)}
@@ -324,19 +351,26 @@ function renderProducts(){
   }
 }
 
-// Size chips (product cards render their own — event delegation since
-// the grid is rebuilt on every filter/search/currency/language change).
+// Color swatches and the "+" quick-add button (product cards render
+// their own — event delegation since the grid is rebuilt on every
+// filter/search/currency/language change).
 grid.addEventListener('click', (e) => {
-  const chip = e.target.closest('.size-chip');
-  if (!chip) return;
-  const card = chip.closest('.product-card');
-  card.querySelectorAll('.size-chip').forEach(c => c.classList.toggle('active', c === chip));
-  card.dataset.selectedSize = chip.dataset.size;
-  const note = card.querySelector('.product-size-note');
-  if (note){
-    note.classList.remove('is-error');
-    note.textContent = sizeChartNote(card.dataset.type, chip.dataset.size);
+  const swatch = e.target.closest('.color-swatch');
+  if (swatch){
+    const card = swatch.closest('.product-card');
+    const product = PRODUCTS.find(p => p.id === card.dataset.id);
+    if (!product || !product.colors) return;
+    const color = product.colors[parseInt(swatch.dataset.idx, 10)];
+    if (!color) return;
+    card.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s === swatch));
+    const img = card.querySelector('.product-photo');
+    if (img) img.src = colorImage(product, color.name) || img.src;
+    const subEl = card.querySelector('.product-sub');
+    if (subEl) subEl.textContent = color.name || subEl.textContent;
+    return;
   }
+  const fab = e.target.closest('.quick-add-fab');
+  if (fab) openQuickAdd(fab.dataset.id);
 });
 
 function refreshFilterLabels(){
@@ -442,7 +476,7 @@ function renderCart(){
   } else {
     cartItemsEl.innerHTML = [...cart.values()].map(item => `
       <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);">
-        <span>${item.name[currentLang] || item.name.en}${item.size ? ' — ' + item.size : ''} × ${item.qty}</span>
+        <span>${item.name[currentLang] || item.name.en}${item.color ? ' — ' + item.color : ''}${item.size ? ' — ' + item.size : ''} × ${item.qty}</span>
         <span>${money(item.price * item.qty)}</span>
       </div>
     `).join('');
@@ -451,28 +485,93 @@ function renderCart(){
   cartTotalEl.textContent = money(total);
   const count = [...cart.values()].reduce((sum, i) => sum + i.qty, 0);
   cartCountEl.textContent = count;
+  saveCart();
 }
 
-grid.addEventListener('click', (e) => {
-  const btn = e.target.closest('.quick-add');
-  if (!btn) return;
-  const product = PRODUCTS.find(p => p.id === btn.dataset.id);
-  if (!product) return;
-  const card = btn.closest('.product-card');
-  const note = card.querySelector('.product-size-note');
-  let size = null;
-  if (product.sizes && product.sizes.length){
-    size = card.dataset.selectedSize || null;
-    if (!size){
-      if (note){ note.textContent = t('size_choose_error'); note.classList.add('is-error'); }
-      return;
-    }
-  }
-  const key = size ? `${product.id}::${size}` : product.id;
+function addToCart(product, size, color, qty){
+  const key = `${product.id}::${size || ''}::${color || ''}`;
   const existing = cart.get(key);
-  if (existing) existing.qty += 1;
-  else cart.set(key, { ...product, size, qty: 1 });
+  if (existing) existing.qty += qty;
+  else cart.set(key, { ...product, size: size || null, color: color || null, qty });
   renderCart();
+}
+
+// Quick Add drawer — opened from a card's "+" button, lets the
+// customer pick a color and size without leaving the catalog.
+const quickAddDrawer = document.getElementById('quickAddDrawer');
+const quickAddScrim = document.getElementById('quickAddScrim');
+const quickAddPhoto = document.getElementById('quickAddPhoto');
+const quickAddNameEl = document.getElementById('quickAddName');
+const quickAddSubEl = document.getElementById('quickAddSub');
+const quickAddPriceEl = document.getElementById('quickAddPrice');
+const quickAddColorsEl = document.getElementById('quickAddColors');
+const quickAddSizesEl = document.getElementById('quickAddSizes');
+const quickAddNoteEl = document.getElementById('quickAddNote');
+const quickAddSubmitBtn = document.getElementById('quickAddSubmit');
+let quickAddProduct = null;
+let quickAddSelectedColor = null;
+let quickAddSelectedSize = null;
+
+function openQuickAddDrawer(){ quickAddDrawer.classList.add('open'); quickAddScrim.classList.add('open'); }
+function closeQuickAddDrawer(){ quickAddDrawer.classList.remove('open'); quickAddScrim.classList.remove('open'); }
+document.getElementById('quickAddClose').addEventListener('click', closeQuickAddDrawer);
+quickAddScrim.addEventListener('click', closeQuickAddDrawer);
+
+function renderQuickAddColors(){
+  quickAddColorsEl.innerHTML = (quickAddProduct.colors || []).map(c =>
+    `<button type="button" class="color-swatch${c.name === quickAddSelectedColor ? ' active' : ''}" data-name="${c.name}" style="background:${c.hex}" title="${c.name || ''}"></button>`
+  ).join('');
+}
+function renderQuickAddSizes(){
+  quickAddSizesEl.innerHTML = (quickAddProduct.sizes || []).map(s => {
+    const outOfStock = quickAddProduct.stockBySize && (quickAddProduct.stockBySize[s] || 0) <= 0;
+    return `<button type="button" class="size-chip${s === quickAddSelectedSize ? ' active' : ''}${outOfStock ? ' is-out' : ''}" data-size="${s}" ${outOfStock ? 'disabled' : ''}>${s}</button>`;
+  }).join('');
+}
+
+function openQuickAdd(id){
+  const product = PRODUCTS.find(p => p.id === id);
+  if (!product) return;
+  quickAddProduct = product;
+  quickAddSelectedColor = product.colors && product.colors.length ? product.colors[0].name : null;
+  quickAddSelectedSize = null;
+  quickAddNoteEl.textContent = '';
+  const name = product.name[currentLang] || product.name.en;
+  quickAddPhoto.src = colorImage(product, quickAddSelectedColor) || '';
+  quickAddPhoto.alt = name;
+  quickAddNameEl.textContent = name;
+  quickAddSubEl.textContent = quickAddSelectedColor || (product.sub[currentLang] || product.sub.en);
+  quickAddPriceEl.innerHTML = `${product.was ? `<span class="was">${money(product.was)}</span>` : ''}${money(product.price)}`;
+  renderQuickAddColors();
+  renderQuickAddSizes();
+  openQuickAddDrawer();
+}
+
+quickAddColorsEl.addEventListener('click', (e) => {
+  const swatch = e.target.closest('.color-swatch');
+  if (!swatch || !quickAddProduct) return;
+  quickAddSelectedColor = swatch.dataset.name;
+  quickAddPhoto.src = colorImage(quickAddProduct, quickAddSelectedColor) || quickAddPhoto.src;
+  quickAddSubEl.textContent = quickAddSelectedColor;
+  renderQuickAddColors();
+});
+
+quickAddSizesEl.addEventListener('click', (e) => {
+  const chip = e.target.closest('.size-chip');
+  if (!chip || !quickAddProduct) return;
+  quickAddSelectedSize = chip.dataset.size;
+  quickAddNoteEl.textContent = '';
+  renderQuickAddSizes();
+});
+
+quickAddSubmitBtn.addEventListener('click', () => {
+  if (!quickAddProduct) return;
+  if (quickAddProduct.sizes && quickAddProduct.sizes.length && !quickAddSelectedSize){
+    quickAddNoteEl.textContent = t('size_choose_error');
+    return;
+  }
+  addToCart(quickAddProduct, quickAddSelectedSize, quickAddSelectedColor, 1);
+  closeQuickAddDrawer();
   openCart();
 });
 
@@ -617,7 +716,7 @@ grid.addEventListener('click', (e) => {
       const rate = (CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0]).rate;
       const totalUSD = [...cart.values()].reduce((sum, i) => sum + i.price * i.qty, 0);
       const items = [...cart.values()].map(i => ({
-        id: i.id, name: i.name[currentLang] || i.name.en, size: i.size || null, price: i.price, qty: i.qty,
+        id: i.id, name: i.name[currentLang] || i.name.en, size: i.size || null, color: i.color || null, price: i.price, qty: i.qty,
       }));
 
       const { error: insertError } = await sb.from('orders').insert({
@@ -720,6 +819,7 @@ document.getElementById('newsletterForm').addEventListener('submit', (e) => {
 applyStaticTranslations();
 refreshFilterLabels();
 renderProducts();
+renderCart();
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // Live product catalog — replaces FALLBACK_PRODUCTS once fetched, so
@@ -731,7 +831,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   try {
     const { data, error } = await sb
       .from('products')
-      .select('id,gender,type,kids_group,tag,tags,price,was,sizes,colors,material,fit,care_instructions,volume_ml,olfactory_family,concentration,sold_out,name_en,name_fr,sub_en,sub_fr,image_url')
+      .select('id,gender,type,kids_group,tag,tags,price,was,sizes,colors,material,fit,care_instructions,volume_ml,olfactory_family,concentration,sold_out,model_stats,name_en,name_fr,sub_en,sub_fr,image_url')
       .eq('active', true)
       .order('created_at', { ascending: true });
     if (error || !data || !data.length) return;
@@ -747,6 +847,17 @@ document.getElementById('year').textContent = new Date().getFullYear();
       });
     } catch (e) { /* stock tracking is optional */ }
 
+    // The product's photo gallery — ordered, optionally tagged with a
+    // color so picking a colorway swaps the card/PDP image (see
+    // colorImage()). Missing entirely just falls back to image_url.
+    let imagesByProduct = {};
+    try {
+      const { data: images } = await sb.from('product_images').select('product_id,color_name,url,position').order('position', { ascending: true });
+      (images || []).forEach(img => {
+        (imagesByProduct[img.product_id] = imagesByProduct[img.product_id] || []).push(img);
+      });
+    } catch (e) { /* gallery is optional */ }
+
     PRODUCTS = data.map(r => {
       const variants = variantsByProduct[r.id] || [];
       const stockBySize = {};
@@ -755,6 +866,13 @@ document.getElementById('year').textContent = new Date().getFullYear();
         stockBySize[v.size] = (stockBySize[v.size] || 0) + (Number(v.stock) || 0);
       });
       const soldOut = r.sold_out === true || (variants.length > 0 && variants.every(v => (Number(v.stock) || 0) <= 0));
+      const images = imagesByProduct[r.id] || [];
+      const colorImages = {};
+      const gallery = [];
+      images.forEach(img => {
+        if (img.color_name && !colorImages[img.color_name]) colorImages[img.color_name] = img.url;
+        gallery.push(img.url);
+      });
       return {
         id: r.id,
         price: Number(r.price),
@@ -767,12 +885,15 @@ document.getElementById('year').textContent = new Date().getFullYear();
         sizes: r.sizes && r.sizes.length ? r.sizes : null,
         stockBySize: Object.keys(stockBySize).length ? stockBySize : null,
         colors: r.colors && r.colors.length ? r.colors : null,
+        colorImages: Object.keys(colorImages).length ? colorImages : null,
+        gallery: gallery.length ? gallery : null,
         material: r.material || null,
         fit: r.fit || null,
         careInstructions: r.care_instructions || null,
         volumeMl: r.volume_ml || null,
         olfactoryFamily: r.olfactory_family || null,
         concentration: r.concentration || null,
+        modelStats: r.model_stats || null,
         soldOut,
         image: r.image_url || null,
         name: { en: r.name_en, fr: r.name_fr },

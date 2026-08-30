@@ -366,3 +366,36 @@ create policy product_costs_staff_only
   to authenticated
   using (true)
   with check (true);
+
+-- Product detail page: a real ordered image gallery (the "1/8" style
+-- counter needs more than one photo per product) and an optional
+-- model-fit caption. Images can be tied to one colorway (color_name)
+-- or left null to apply regardless of which color is selected —
+-- that's also what drives the product card's hover/click color swap,
+-- so no separate "swatch image" field is needed on `colors`.
+
+alter table public.products add column if not exists model_stats text;
+
+create table if not exists public.product_images (
+  id uuid primary key default gen_random_uuid(),
+  product_id text not null references public.products(id) on delete cascade,
+  color_name text,
+  url text not null,
+  position integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.product_images enable row level security;
+
+drop policy if exists product_images_select_public on public.product_images;
+create policy product_images_select_public
+  on public.product_images for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists product_images_write_staff on public.product_images;
+create policy product_images_write_staff
+  on public.product_images for all
+  to authenticated
+  using (true)
+  with check (true);

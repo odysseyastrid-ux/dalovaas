@@ -697,6 +697,29 @@ main > section{
 .checkout-field input:focus,.checkout-field select:focus{outline:none;border-color:var(--fg);}
 .checkout-radio-row{display:flex;flex-direction:column;gap:10px;}
 .checkout-radio-row label{display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;}
+.payment-method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;}
+.payment-method-card{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:14px 8px;
+  border:1px solid var(--line);border-radius:var(--radius);
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+}
+.payment-method-card input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+.payment-method-card:has(input:checked){border-color:var(--fg);background:var(--bg-alt);}
+.pm-badge{
+  display:flex;align-items:center;justify-content:center;
+  min-width:46px;height:28px;padding:0 10px;
+  border-radius:4px;
+  font-size:12px;font-weight:800;letter-spacing:.02em;
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.pm-orange .pm-badge{background:#FF7900;color:#fff;}
+.pm-mtn .pm-badge{background:#FFCC00;color:#111;}
+.pm-cash .pm-badge{background:transparent;color:var(--fg-dim);}
+.pm-label{font-size:11px;font-weight:600;text-align:center;color:var(--fg-dim);}
+.payment-method-card:has(input:checked) .pm-label{color:var(--fg);}
 .checkout-payment-details{
   border:1px solid var(--line);border-radius:var(--radius);padding:16px;
   font-size:13px;color:var(--fg-dim);display:flex;flex-direction:column;gap:12px;

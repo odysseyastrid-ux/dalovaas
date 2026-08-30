@@ -78,6 +78,12 @@ create policy settings_select_public
   to anon, authenticated
   using (true);
 
+drop policy if exists settings_insert_staff on public.settings;
+create policy settings_insert_staff
+  on public.settings for insert
+  to authenticated
+  with check (true);
+
 drop policy if exists settings_update_staff on public.settings;
 create policy settings_update_staff
   on public.settings for update

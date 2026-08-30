@@ -79,12 +79,14 @@ const T = {
     size_not_in_stock:'Size not in stock?', add_to_cart:'ADD TO CART', sold_out:'SOLD OUT',
     added:'Added to cart', view_cart:'VIEW CART', choose_size:'Please select a size.',
     also_like:'YOU MAY ALSO LIKE', not_found:'Product not found.',
+    back_to_shop:'← Back to shop', go_back:'Go back',
   },
   fr: {
     back:'RETOUR', colour:'Couleur', colours:'Couleurs', sizes:'TAILLES',
     size_not_in_stock:'Taille indisponible ?', add_to_cart:'AJOUTER AU PANIER', sold_out:'ÉPUISÉ',
     added:'Ajouté au panier', view_cart:'VOIR LE PANIER', choose_size:'Choisis une taille.',
     also_like:'VOUS AIMEREZ AUSSI', not_found:'Produit introuvable.',
+    back_to_shop:'← Retour à la boutique', go_back:'Retour en arrière',
   },
 };
 function t(key){ return T[currentLang][key] || T.en[key] || key; }
@@ -315,7 +317,17 @@ function render({ row, variants, images }){
   const productId = params.get('id');
   const result = await fetchProduct(productId);
   if (!result){
-    document.getElementById('pdpRoot').innerHTML = `<p class="pdp-empty">${t('not_found')}</p>`;
+    document.getElementById('pdpRoot').innerHTML = `
+      <div class="pdp-empty">
+        <p>${t('not_found')}</p>
+        <div class="pdp-empty-actions">
+          <a href="index.html" class="btn btn-light">${t('back_to_shop')}</a>
+          <button type="button" class="pdp-empty-history" id="pdpGoBack">${t('go_back')}</button>
+        </div>
+      </div>
+    `;
+    const goBackBtn = document.getElementById('pdpGoBack');
+    if (goBackBtn) goBackBtn.addEventListener('click', () => { if (history.length > 1) history.back(); });
     return;
   }
   render(result);

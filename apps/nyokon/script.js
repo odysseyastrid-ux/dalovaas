@@ -343,7 +343,7 @@ function renderProducts(){
       <div class="product-info">
         <div>
           <a class="product-name-link" href="${pdpHref}"><div class="product-name">${name}</div></a>
-          <div class="product-sub">${p.colors && p.colors.length ? (p.colors[0].name || sub) : sub}</div>
+          <div class="product-sub">${sub}</div>
           ${p.colors && p.colors.length ? `
           <div class="product-colors">
             <div class="color-swatch-row">${p.colors.map((c, i) => `<button type="button" class="color-swatch${i === 0 ? ' active' : ''}" data-idx="${i}" style="background:${c.hex}" title="${c.name || ''}"></button>`).join('')}</div>
@@ -373,8 +373,6 @@ grid.addEventListener('click', (e) => {
     card.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s === swatch));
     const img = card.querySelector('.product-photo');
     if (img) img.src = colorImage(product, color.name) || img.src;
-    const subEl = card.querySelector('.product-sub');
-    if (subEl) subEl.textContent = color.name || subEl.textContent;
     return;
   }
   const fab = e.target.closest('.quick-add-fab');

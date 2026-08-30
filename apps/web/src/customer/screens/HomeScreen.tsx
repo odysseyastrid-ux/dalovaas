@@ -140,13 +140,8 @@ export function HomeScreen() {
               onClick={() => navigate(`/item/${item.id}`)}
               className="flex cursor-pointer gap-4 rounded-2xl bg-[var(--color-card)] p-3 shadow-[0_2px_10px_rgba(26,21,18,0.06)]"
             >
-              <div className="relative h-[76px] w-[76px] flex-none overflow-hidden rounded-xl bg-[var(--color-surface)]">
+              <div className="h-[76px] w-[76px] flex-none overflow-hidden rounded-xl bg-[var(--color-surface)]">
                 {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
-                {(item.cat === 'burgers' || item.cat === 'poutine') && (
-                  <div className="absolute -left-1 -top-1 rounded-full border-2 border-white bg-pattern-gold px-1.5 py-0.5 text-[8px] font-black uppercase leading-none text-[var(--color-ink)] shadow-sm">
-                    Combo
-                  </div>
-                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="[font-family:var(--font-heading)] text-[15px] font-bold">

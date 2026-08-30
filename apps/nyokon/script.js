@@ -163,7 +163,13 @@ const TRANSLATIONS = {
     checkout_address_label:'DELIVERY ADDRESS', checkout_address_placeholder:'Neighbourhood / landmark',
     checkout_payment_label:'PAYMENT METHOD',
     checkout_error_city:'Please select your city.',
-    checkout_cash:'Cash on pickup', checkout_receipt_label:'PAYMENT RECEIPT (SCREENSHOT)',
+    checkout_cash:'Cash on pickup', checkout_fidelity:'Loyalty points', checkout_receipt_label:'PAYMENT RECEIPT (SCREENSHOT)',
+    checkout_card_unavailable:'Card payment isn’t available online yet — please contact us directly to pay by card.',
+    checkout_fidelity_enter_phone:'Enter your phone number above to see your points balance.',
+    checkout_fidelity_xof_only:'Paying with points is only available in FCFA (XOF) — change your currency in settings.',
+    checkout_fidelity_balance:'You have {points} points ({value}) — enough to cover this order.',
+    checkout_fidelity_insufficient:'You have {points} points ({value}) — not enough for this order. Choose another payment method.',
+    checkout_fidelity_changed:'Your points balance changed since this page loaded. Please try again.',
     checkout_dial:'Dial to pay', checkout_copy:'Copy', checkout_copied:'Copied',
     checkout_submit:'PLACE ORDER', checkout_back:'Back to cart',
     checkout_error_fields:'Please fill in your name and phone number.',
@@ -212,7 +218,13 @@ const TRANSLATIONS = {
     checkout_address_label:'ADRESSE DE LIVRAISON', checkout_address_placeholder:'Quartier / point de repère',
     checkout_payment_label:'MODE DE PAIEMENT',
     checkout_error_city:'Merci de sélectionner ta ville.',
-    checkout_cash:'Cash à la récupération', checkout_receipt_label:'PREUVE DE PAIEMENT (CAPTURE)',
+    checkout_cash:'Cash à la récupération', checkout_fidelity:'Points fidélité', checkout_receipt_label:'PREUVE DE PAIEMENT (CAPTURE)',
+    checkout_card_unavailable:'Le paiement par carte n’est pas encore disponible en ligne — contacte-nous directement pour payer par carte.',
+    checkout_fidelity_enter_phone:'Entre ton numéro de téléphone ci-dessus pour voir ton solde de points.',
+    checkout_fidelity_xof_only:'Le paiement par points est disponible uniquement en FCFA (XOF) — change la devise dans les réglages.',
+    checkout_fidelity_balance:'Tu as {points} points ({value}) — de quoi couvrir cette commande.',
+    checkout_fidelity_insufficient:'Tu as {points} points ({value}) — pas assez pour cette commande. Choisis un autre mode de paiement.',
+    checkout_fidelity_changed:'Ton solde de points a changé depuis le chargement de cette page. Réessaie.',
     checkout_dial:'Composer pour payer', checkout_copy:'Copier', checkout_copied:'Copié',
     checkout_submit:'COMMANDER', checkout_back:'Retour au panier',
     checkout_error_fields:'Merci de renseigner ton nom et ton numéro.',
@@ -645,16 +657,73 @@ quickAddSubmitBtn.addEventListener('click', () => {
     }
     if (e.target.name === 'payment') renderPaymentDetails();
   });
+  document.getElementById('checkoutPhone').addEventListener('input', () => {
+    if (selectedPaymentMethod() === 'fidelity') renderPaymentDetails();
+  });
 
   function selectedPaymentMethod(){
     const checked = checkoutView.querySelector('input[name=payment]:checked');
     return checked ? checked.value : 'cash';
   }
 
+  function cartTotalInCurrentCurrency(){
+    const rate = (CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0]).rate;
+    const totalUSD = [...cart.values()].reduce((sum, i) => sum + i.price * i.qty, 0);
+    return Math.round(totalUSD * rate);
+  }
+  function formatXOF(amount){
+    return new Intl.NumberFormat('fr-SN', { style:'currency', currency:'XOF', maximumFractionDigits:0 }).format(amount);
+  }
+
+  async function renderFidelityPanel(){
+    if (currentCurrency !== 'XOF') {
+      checkoutPaymentDetails.innerHTML = `<div class="checkout-info-message is-error">${t('checkout_fidelity_xof_only')}</div>`;
+      checkoutSubmitBtn.disabled = true;
+      return;
+    }
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    if (!phone) {
+      checkoutPaymentDetails.innerHTML = `<div class="checkout-info-message">${t('checkout_fidelity_enter_phone')}</div>`;
+      checkoutSubmitBtn.disabled = true;
+      return;
+    }
+    const sb = getSb();
+    if (!sb) {
+      checkoutPaymentDetails.innerHTML = `<div class="checkout-info-message is-error">${t('checkout_error_generic')}</div>`;
+      checkoutSubmitBtn.disabled = true;
+      return;
+    }
+    try {
+      const { data } = await sb.from('customers').select('points').eq('phone', phone).maybeSingle();
+      const points = (data && data.points) || 0;
+      const pointValue = parseFloat(paymentSettings.loyalty_point_value) || 10;
+      const pointsWorth = Math.round(points * pointValue);
+      const total = cartTotalInCurrentCurrency();
+      const enoughPoints = pointsWorth >= total && total > 0;
+      const msg = t(enoughPoints ? 'checkout_fidelity_balance' : 'checkout_fidelity_insufficient')
+        .replace('{points}', points).replace('{value}', formatXOF(pointsWorth));
+      checkoutPaymentDetails.innerHTML = `<div class="checkout-info-message ${enoughPoints ? 'is-ok' : 'is-error'}">${msg}</div>`;
+      checkoutSubmitBtn.disabled = !enoughPoints;
+    } catch (e) {
+      checkoutPaymentDetails.innerHTML = `<div class="checkout-info-message is-error">${t('checkout_error_generic')}</div>`;
+      checkoutSubmitBtn.disabled = true;
+    }
+  }
+
   function renderPaymentDetails(){
     const method = selectedPaymentMethod();
+    checkoutSubmitBtn.disabled = false;
     if (method === 'cash') {
       checkoutPaymentDetails.innerHTML = '';
+      return;
+    }
+    if (method === 'bank_card') {
+      checkoutPaymentDetails.innerHTML = `<div class="checkout-info-message is-error">${t('checkout_card_unavailable')}</div>`;
+      checkoutSubmitBtn.disabled = true;
+      return;
+    }
+    if (method === 'fidelity') {
+      renderFidelityPanel();
       return;
     }
     const label = method === 'orange_money' ? 'Orange Money' : 'MTN MoMo';
@@ -698,9 +767,13 @@ quickAddSubmitBtn.addEventListener('click', () => {
       return;
     }
     const method = selectedPaymentMethod();
+    if (method === 'bank_card') {
+      checkoutError.textContent = t('checkout_card_unavailable');
+      return;
+    }
     const receiptInput = document.getElementById('checkoutReceipt');
     const receiptFile = receiptInput && receiptInput.files[0];
-    if (method !== 'cash' && !receiptFile) {
+    if (method !== 'cash' && method !== 'fidelity' && !receiptFile) {
       checkoutError.textContent = t('checkout_error_receipt');
       return;
     }
@@ -749,8 +822,23 @@ quickAddSubmitBtn.addEventListener('click', () => {
       }
 
       const address = document.getElementById('checkoutAddress').value.trim();
-      const rate = (CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0]).rate;
-      const totalUSD = [...cart.values()].reduce((sum, i) => sum + i.price * i.qty, 0);
+      const subtotalAmount = cartTotalInCurrentCurrency();
+
+      // Same "check then spend" atomicity as the stock deduction above —
+      // redeem points before the order is recorded, so an order is
+      // never created for points the customer didn't actually have.
+      if (method === 'fidelity') {
+        const pointValue = parseFloat(paymentSettings.loyalty_point_value) || 10;
+        const pointsToSpend = Math.ceil(subtotalAmount / pointValue);
+        const { error: redeemError } = await sb.rpc('redeem_loyalty_points', { p_phone: phone, p_points: pointsToSpend });
+        if (redeemError) {
+          checkoutError.textContent = (redeemError.message || '').includes('INSUFFICIENT_POINTS')
+            ? t('checkout_fidelity_changed')
+            : t('checkout_error_generic');
+          return;
+        }
+      }
+
       const items = [...cart.values()].map(i => ({
         id: i.id, name: i.name[currentLang] || i.name.en, size: i.size || null, color: i.color || null, price: i.price, qty: i.qty,
       }));
@@ -763,7 +851,7 @@ quickAddSubmitBtn.addEventListener('click', () => {
         city: fulfillmentChoice === 'delivery' ? cityValue : null,
         address: fulfillmentChoice === 'delivery' ? address : null,
         items,
-        subtotal: Math.round(totalUSD * rate),
+        subtotal: subtotalAmount,
         currency: currentCurrency,
         payment_method: method,
         receipt_path: receiptPath,

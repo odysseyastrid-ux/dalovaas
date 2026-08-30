@@ -304,6 +304,8 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 .btn-outline{border:1px solid var(--fg);}
 .btn-outline:hover{background:var(--invert-bg);color:var(--invert-fg);}
 .btn.full{width:100%;text-align:center;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn:disabled:hover{background:var(--invert-bg);color:var(--invert-fg);}
 
 /* Animated gradient CTA — liquid lime/chrome shimmer behind the button.
    Structure: .gbtn-wrap > (.g-light, .g-layer × n) + the real <a>/<button>. */
@@ -718,6 +720,8 @@ main > section{
 .pm-orange .pm-badge{background:#FF7900;color:#fff;}
 .pm-mtn .pm-badge{background:#FFCC00;color:#111;}
 .pm-cash .pm-badge{background:transparent;color:var(--fg-dim);}
+.pm-card .pm-badge{background:transparent;color:#2b3a8f;}
+.pm-fidelity .pm-badge{background:transparent;color:#7a3bd1;}
 .pm-label{font-size:11px;font-weight:600;text-align:center;color:var(--fg-dim);}
 .payment-method-card:has(input:checked) .pm-label{color:var(--fg);}
 .checkout-payment-details{
@@ -731,6 +735,9 @@ main > section{
   background:var(--bg-alt);border-radius:var(--radius);padding:10px 14px;
 }
 .checkout-account-copy{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);white-space:nowrap;}
+.checkout-info-message{font-size:13px;line-height:1.5;color:var(--fg-dim);background:var(--bg-alt);border-radius:var(--radius);padding:12px 14px;}
+.checkout-info-message.is-ok{color:var(--accent-ink);}
+.checkout-info-message.is-error{color:#e05a4e;}
 .checkout-dial-link{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink);text-decoration:underline;}
 .checkout-error{color:#e05a4e;font-size:13px;min-height:0;}
 .checkout-back{align-self:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);}

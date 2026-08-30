@@ -447,3 +447,101 @@ grant execute on function public.decrement_variant_stock(jsonb) to anon, authent
 
 -- Delivery city, alongside the existing free-text address field.
 alter table public.orders add column if not exists city text;
+
+-- Loyalty points ("carte de fidélité"). Customers have no login on
+-- this site, so the phone number they already give at checkout is
+-- the account key. Points are earned automatically when staff
+-- confirms an order (see the trigger below) and can be spent to pay
+-- for a later order in full. Only XOF orders earn points — the site
+-- doesn't have a reliable FCFA conversion for other currencies to
+-- award points against.
+
+insert into public.settings (key, value) values
+  ('loyalty_earn_divisor', '100'),
+  ('loyalty_point_value', '10')
+on conflict (key) do nothing;
+-- loyalty_earn_divisor: customer earns 1 point per this many FCFA spent.
+-- loyalty_point_value: 1 point is worth this many FCFA when redeeming.
+
+create table if not exists public.customers (
+  phone text primary key,
+  name text,
+  points integer not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.customers enable row level security;
+
+drop policy if exists customers_select_public on public.customers;
+create policy customers_select_public
+  on public.customers for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists customers_write_staff on public.customers;
+create policy customers_write_staff
+  on public.customers for all
+  to authenticated
+  using (true)
+  with check (true);
+
+-- Awards points the moment staff marks an order 'confirmed' (and
+-- only then, so a cancelled or still-pending order never pays out).
+create or replace function public.award_loyalty_points()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_divisor numeric;
+  v_points integer;
+begin
+  if new.status = 'confirmed' and old.status is distinct from 'confirmed'
+     and new.currency = 'XOF' and new.payment_method <> 'fidelity' then
+    select coalesce(value::numeric, 100) into v_divisor from public.settings where key = 'loyalty_earn_divisor';
+    v_points := floor(new.subtotal / greatest(v_divisor, 1));
+    if v_points > 0 then
+      insert into public.customers (phone, name, points, updated_at)
+      values (new.customer_phone, new.customer_name, v_points, now())
+      on conflict (phone) do update
+        set points = public.customers.points + excluded.points,
+            name = coalesce(excluded.name, public.customers.name),
+            updated_at = now();
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists orders_award_loyalty_points on public.orders;
+create trigger orders_award_loyalty_points
+  after update on public.orders
+  for each row
+  execute function public.award_loyalty_points();
+
+-- Atomic redemption at checkout — same "check then spend" pattern as
+-- decrement_variant_stock, so two orders can't both spend the same
+-- points. Raises INSUFFICIENT_POINTS if the balance is too low.
+create or replace function public.redeem_loyalty_points(p_phone text, p_points integer)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_current integer;
+begin
+  select points into v_current from public.customers where phone = p_phone for update;
+  if v_current is null then
+    raise exception 'CUSTOMER_NOT_FOUND:%', p_phone;
+  end if;
+  if v_current < p_points then
+    raise exception 'INSUFFICIENT_POINTS:available=%:requested=%', v_current, p_points;
+  end if;
+  update public.customers set points = points - p_points, updated_at = now() where phone = p_phone;
+end;
+$$;
+
+revoke all on function public.redeem_loyalty_points(text, integer) from public;
+grant execute on function public.redeem_loyalty_points(text, integer) to anon, authenticated;

@@ -262,6 +262,31 @@
       </form>
     </div>
 
+    <h2 class="staff-section-title">Fidélité</h2>
+    <p class="staff-sub">Les clients gagnent des points automatiquement dès qu'une commande passe en "confirmed" (en FCFA uniquement), et peuvent les utiliser pour payer une commande complète.</p>
+    <div class="staff-card">
+      <form id="loyaltySettingsForm">
+        <div class="staff-field">
+          <label for="loyaltyEarnDivisor">FCFA dépensés pour gagner 1 point</label>
+          <input type="number" id="loyaltyEarnDivisor" min="1" step="1" placeholder="ex: 100" />
+        </div>
+        <div class="staff-field">
+          <label for="loyaltyPointValue">Valeur d'1 point en FCFA (à la dépense)</label>
+          <input type="number" id="loyaltyPointValue" min="1" step="1" placeholder="ex: 10" />
+        </div>
+        <button type="submit" class="staff-btn" id="loyaltySettingsBtn">Enregistrer</button>
+        <div class="staff-error" id="loyaltySettingsError"></div>
+      </form>
+    </div>
+    <div class="staff-card" id="loyaltyLookup">
+      <p class="staff-sub" style="margin-bottom:12px;">Vérifier le solde de points d'un client :</p>
+      <div class="staff-field" style="margin-bottom:8px;">
+        <input type="text" id="loyaltyPhoneInput" placeholder="Numéro de téléphone" />
+      </div>
+      <button type="button" class="slot-save" id="loyaltyLookupBtn">Rechercher</button>
+      <p class="staff-sub" id="loyaltyLookupResult" style="margin-top:10px;"></p>
+    </div>
+
     <h2 class="staff-section-title">Promotions</h2>
     <p class="staff-sub">Programme une campagne à l'avance — elle remplace automatiquement le bandeau du site pendant sa période, sans que tu aies besoin d'y penser le jour J.</p>
     <div class="staff-card">
@@ -327,6 +352,7 @@ function showDashboard(){
   renderSlots();
   renderProductsStaff();
   loadPaymentSettings();
+  loadLoyaltySettings();
   renderPromotions();
   renderBestSellers();
   renderOrders();
@@ -907,6 +933,52 @@ paymentSettingsForm.addEventListener('submit', async (e) => {
   }
 });
 
+const loyaltySettingsForm = document.getElementById('loyaltySettingsForm');
+const loyaltySettingsBtn = document.getElementById('loyaltySettingsBtn');
+const loyaltySettingsError = document.getElementById('loyaltySettingsError');
+const loyaltyEarnDivisor = document.getElementById('loyaltyEarnDivisor');
+const loyaltyPointValue = document.getElementById('loyaltyPointValue');
+
+async function loadLoyaltySettings(){
+  const { data } = await sb.from('settings').select('key,value').in('key', ['loyalty_earn_divisor', 'loyalty_point_value']);
+  const byKey = {};
+  (data || []).forEach(r => { byKey[r.key] = r.value; });
+  loyaltyEarnDivisor.value = byKey.loyalty_earn_divisor || '100';
+  loyaltyPointValue.value = byKey.loyalty_point_value || '10';
+}
+
+loyaltySettingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loyaltySettingsError.textContent = '';
+  loyaltySettingsBtn.disabled = true;
+  loyaltySettingsBtn.textContent = 'Enregistrement…';
+  try {
+    const { error } = await sb.from('settings').upsert([
+      { key: 'loyalty_earn_divisor', value: String(parseInt(loyaltyEarnDivisor.value, 10) || 100) },
+      { key: 'loyalty_point_value', value: String(parseInt(loyaltyPointValue.value, 10) || 10) },
+    ]);
+    if (error) throw error;
+    loyaltySettingsBtn.textContent = 'Enregistré ✓';
+  } catch (err) {
+    loyaltySettingsError.textContent = 'Erreur : ' + (err.message || err);
+    loyaltySettingsBtn.textContent = 'Enregistrer';
+  } finally {
+    loyaltySettingsBtn.disabled = false;
+    setTimeout(() => { loyaltySettingsBtn.textContent = 'Enregistrer'; }, 2000);
+  }
+});
+
+document.getElementById('loyaltyLookupBtn').addEventListener('click', async () => {
+  const resultEl = document.getElementById('loyaltyLookupResult');
+  const phone = document.getElementById('loyaltyPhoneInput').value.trim();
+  if (!phone) { resultEl.textContent = 'Entre un numéro.'; return; }
+  resultEl.textContent = 'Recherche…';
+  const { data } = await sb.from('customers').select('name,points').eq('phone', phone).maybeSingle();
+  resultEl.textContent = data
+    ? `${data.name || phone} : ${data.points} points`
+    : 'Aucun client trouvé avec ce numéro.';
+});
+
 const promoForm = document.getElementById('promoForm');
 const promoSubmitBtn = document.getElementById('promoSubmitBtn');
 const promoError = document.getElementById('promoError');
@@ -1001,7 +1073,7 @@ async function renderBestSellers(){
 }
 
 const ordersList = document.getElementById('ordersList');
-const PAYMENT_LABELS = { orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', cash: 'Cash' };
+const PAYMENT_LABELS = { orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', cash: 'Cash', bank_card: 'Carte bancaire', fidelity: 'Points fidélité' };
 const STATUS_OPTIONS = ['pending', 'confirmed', 'cancelled'];
 
 async function renderOrders(){

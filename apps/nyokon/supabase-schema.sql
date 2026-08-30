@@ -189,3 +189,77 @@ create policy promotions_delete_staff
   on public.promotions for delete
   to authenticated
   using (true);
+
+-- Product catalog — staff-managed from staff.html (add/edit/hide/delete
+-- products, set prices, upload photos). Seeded below with the original
+-- static catalog from script.js, so nothing changes on the live site
+-- until staff edits something.
+
+create table if not exists public.products (
+  id text primary key,
+  category text not null,
+  tag text,
+  price numeric not null,
+  was numeric,
+  sizes text[],
+  name_en text not null,
+  name_fr text not null,
+  sub_en text,
+  sub_fr text,
+  image_url text,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.products enable row level security;
+
+drop policy if exists products_select_public on public.products;
+create policy products_select_public
+  on public.products for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists products_insert_staff on public.products;
+create policy products_insert_staff
+  on public.products for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists products_update_staff on public.products;
+create policy products_update_staff
+  on public.products for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists products_delete_staff on public.products;
+create policy products_delete_staff
+  on public.products for delete
+  to authenticated
+  using (true);
+
+insert into public.products (id, category, tag, price, was, sizes, name_en, name_fr, sub_en, sub_fr) values
+  ('m1','men','new',168,null,array['S','M','L','XL'],'Flight Bomber Jacket','Blouson Bomber','Navy','Marine'),
+  ('m2','men','new',98,null,array['S','M','L','XL'],'Oversized Hoodie','Hoodie Oversize','Off-Black','Noir Anthracite'),
+  ('m3','men','sale',110,130,array['S','M','L','XL'],'Cargo Pant','Pantalon Cargo','Charcoal','Anthracite'),
+  ('m4','men',null,145,null,array['S','M','L','XL'],'Denim Jacket','Veste en Jean','Washed Blue','Bleu Délavé'),
+  ('w1','women','new',128,null,array['S','M','L','XL'],'Cropped Puffer Vest','Doudoune Crop Sans Manches','Black','Noir'),
+  ('w2','women',null,118,null,array['S','M','L','XL'],'Wide Leg Trouser','Pantalon Large','Sand','Sable'),
+  ('w3','women','new',96,null,array['S','M','L','XL'],'Pleated Midi Skirt','Jupe Midi Plissée','Ivory','Ivoire'),
+  ('w4','women',null,38,null,array['S','M','L','XL'],'Ribbed Tank Top','Débardeur Côtelé','White','Blanc'),
+  ('k1','kids','new',58,null,array['4-5Y','6-7Y','8-9Y','10-11Y'],'Kids Logo Hoodie','Hoodie Logo Enfant','Grey Marl','Gris Chiné'),
+  ('k2','kids',null,52,null,array['4-5Y','6-7Y','8-9Y','10-11Y'],'Kids Cargo Pant','Pantalon Cargo Enfant','Khaki','Kaki'),
+  ('k3','kids','new',64,null,array['4-5Y','6-7Y','8-9Y','10-11Y'],'Kids Windbreaker','Coupe-Vent Enfant','Red','Rouge'),
+  ('s1','shoes','new',145,null,array['40','41','42','43','44','45'],'Chunky Trainer','Sneaker Chunky','White / Black','Blanc / Noir'),
+  ('s2','shoes',null,110,null,array['40','41','42','43','44','45'],'Low-Top Sneaker','Sneaker Basse','Triple White','Tout Blanc'),
+  ('s3','shoes','sale',158,185,array['40','41','42','43','44','45'],'Combat Boot','Rangers','Black Leather','Cuir Noir'),
+  ('b1','bags',null,64,null,null,'Crossbody Bag','Sacoche Bandoulière','Black Nylon','Nylon Noir'),
+  ('b2','bags','new',48,null,null,'Canvas Tote Bag','Tote Bag en Toile','Natural','Écru'),
+  ('b3','bags','new',135,null,null,'Weekend Duffel','Sac Week-end','Olive','Olive'),
+  ('a1','accessories',null,32,null,null,'Beanie','Bonnet','Black','Noir'),
+  ('a2','accessories',null,34,null,null,'Snapback Cap','Casquette Snapback','Black','Noir'),
+  ('a3','accessories','new',42,null,null,'Reversible Belt','Ceinture Réversible','Black / Brown','Noir / Marron'),
+  ('f1','fragrance','new',78,null,null,'Eau de Parfum 50ml','Eau de Parfum 50ml','Signature Scent','Fragrance Signature'),
+  ('f2','fragrance',null,110,null,null,'Eau de Parfum 100ml','Eau de Parfum 100ml','Signature Scent','Fragrance Signature'),
+  ('f3','fragrance',null,28,null,null,'Travel Spray 15ml','Vaporisateur Nomade 15ml','Signature Scent','Fragrance Signature')
+on conflict (id) do nothing;

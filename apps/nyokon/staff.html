@@ -68,6 +68,19 @@
   .bar-track{flex:1;background:var(--bg-alt);border-radius:4px;height:16px;overflow:hidden;}
   .bar-fill{height:100%;background:#d1ff3c;border-radius:4px;}
   .bar-value{width:32px;flex-shrink:0;font-size:12px;font-weight:700;text-align:right;}
+  .prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+  .prod-grid label{display:block;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:4px;}
+  .prod-grid input,.prod-grid select{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;color:var(--fg);font-family:inherit;font-size:13px;}
+  .prod-grid input:focus,.prod-grid select:focus{outline:none;border-color:var(--fg);}
+  .prod-card{border-top:1px solid var(--line);padding:20px 0;}
+  .prod-card:first-child{border-top:none;}
+  .prod-top{display:flex;gap:14px;align-items:flex-start;}
+  .prod-thumb{width:64px;height:64px;border-radius:4px;object-fit:cover;background:var(--bg-alt);flex-shrink:0;}
+  .prod-body{flex:1;min-width:0;}
+  .prod-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:2px;}
+  .prod-active-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg-dim);cursor:pointer;}
+  .prod-delete{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;}
+  .prod-error{margin:0;}
 </style>
 </head>
 <body>
@@ -100,6 +113,46 @@
     <h1 class="staff-title">Photos du site</h1>
     <p class="staff-sub">Choisis une photo pour chaque emplacement, puis clique sur "Enregistrer". Le site se met à jour pour tous les visiteurs immédiatement.</p>
     <div class="staff-card" id="slotList"></div>
+
+    <h2 class="staff-section-title">Produits</h2>
+    <p class="staff-sub">Le catalogue affiché sur le site. Ajoute, modifie, désactive ou supprime un produit — c'est visible immédiatement pour les clients.</p>
+    <div class="staff-card">
+      <form id="newProductForm">
+        <div class="prod-grid">
+          <div>
+            <label for="npCategory">Catégorie</label>
+            <select id="npCategory">
+              <option value="men">Homme</option>
+              <option value="women">Femme</option>
+              <option value="kids">Enfant</option>
+              <option value="shoes">Chaussures</option>
+              <option value="bags">Sacs</option>
+              <option value="accessories">Accessoires</option>
+              <option value="fragrance">Parfum</option>
+            </select>
+          </div>
+          <div><label for="npNameEn">Nom (anglais)</label><input id="npNameEn" required /></div>
+          <div><label for="npNameFr">Nom (français)</label><input id="npNameFr" required /></div>
+          <div><label for="npPrice">Prix (USD)</label><input id="npPrice" type="number" step="0.01" min="0" required /></div>
+          <div><label for="npWas">Prix barré (optionnel)</label><input id="npWas" type="number" step="0.01" min="0" /></div>
+          <div>
+            <label for="npTag">Étiquette</label>
+            <select id="npTag">
+              <option value="">Aucune</option>
+              <option value="new">Nouveau</option>
+              <option value="sale">Promo</option>
+            </select>
+          </div>
+          <div><label for="npSubEn">Description courte (anglais)</label><input id="npSubEn" /></div>
+          <div><label for="npSubFr">Description courte (français)</label><input id="npSubFr" /></div>
+          <div><label for="npSizes">Tailles (séparées par virgule)</label><input id="npSizes" placeholder="S, M, L, XL" /></div>
+          <div><label for="npImage">Photo</label><input id="npImage" type="file" accept="image/*" /></div>
+        </div>
+        <button type="submit" class="staff-btn" id="newProductBtn">Ajouter le produit</button>
+        <div class="staff-error" id="newProductError"></div>
+      </form>
+    </div>
+    <div id="productList"></div>
 
     <h2 class="staff-section-title">Paiement</h2>
     <p class="staff-sub">Numéros affichés aux clients pour Orange Money / MTN MoMo au moment de la commande.</p>
@@ -189,6 +242,7 @@ function showDashboard(){
   dashboard.style.display = 'block';
   signOutBtn.style.display = 'inline-block';
   renderSlots();
+  renderProductsStaff();
   loadPaymentSettings();
   renderPromotions();
   renderBestSellers();
@@ -283,6 +337,170 @@ async function renderSlots(){
         btn.textContent = 'Enregistrer';
         alert('Erreur : ' + (err.message || err));
       }
+    });
+  });
+}
+
+function escAttr(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+function slugify(s){
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'produit';
+}
+
+const PROD_CATEGORIES = [
+  ['men', 'Homme'], ['women', 'Femme'], ['kids', 'Enfant'], ['shoes', 'Chaussures'],
+  ['bags', 'Sacs'], ['accessories', 'Accessoires'], ['fragrance', 'Parfum'],
+];
+const PROD_TAGS = [['', 'Aucune'], ['new', 'Nouveau'], ['sale', 'Promo']];
+
+const newProductForm = document.getElementById('newProductForm');
+const newProductBtn = document.getElementById('newProductBtn');
+const newProductError = document.getElementById('newProductError');
+const productList = document.getElementById('productList');
+
+newProductForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  newProductError.textContent = '';
+  const nameEn = document.getElementById('npNameEn').value.trim();
+  const nameFr = document.getElementById('npNameFr').value.trim();
+  const price = parseFloat(document.getElementById('npPrice').value);
+  if (!nameEn || !nameFr || !(price >= 0)) {
+    newProductError.textContent = 'Nom (EN/FR) et prix sont requis.';
+    return;
+  }
+  newProductBtn.disabled = true;
+  newProductBtn.textContent = 'Ajout…';
+  try {
+    const id = slugify(nameEn) + '-' + Date.now().toString(36);
+    let image_url = null;
+    const fileInput = document.getElementById('npImage');
+    if (fileInput.files.length) {
+      const file = fileInput.files[0];
+      const ext = file.name.split('.').pop();
+      const path = `${id}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
+      image_url = pub.publicUrl;
+    }
+    const wasVal = document.getElementById('npWas').value;
+    const sizesRaw = document.getElementById('npSizes').value.trim();
+    const { error } = await sb.from('products').insert({
+      id,
+      category: document.getElementById('npCategory').value,
+      tag: document.getElementById('npTag').value || null,
+      price,
+      was: wasVal ? parseFloat(wasVal) : null,
+      sizes: sizesRaw ? sizesRaw.split(',').map(s => s.trim()).filter(Boolean) : null,
+      name_en: nameEn,
+      name_fr: nameFr,
+      sub_en: document.getElementById('npSubEn').value.trim(),
+      sub_fr: document.getElementById('npSubFr').value.trim(),
+      image_url,
+      active: true,
+    });
+    if (error) throw error;
+    newProductForm.reset();
+    renderProductsStaff();
+  } catch (err) {
+    newProductError.textContent = 'Erreur : ' + (err.message || err);
+  } finally {
+    newProductBtn.disabled = false;
+    newProductBtn.textContent = 'Ajouter le produit';
+  }
+});
+
+async function renderProductsStaff(){
+  const { data: rows } = await sb.from('products').select('*').order('created_at', { ascending: true });
+  productList.innerHTML = '';
+  if (!rows || !rows.length) {
+    productList.innerHTML = '<p class="staff-empty">Aucun produit pour l’instant.</p>';
+    return;
+  }
+  rows.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'prod-card';
+    row.dataset.id = p.id;
+    row.innerHTML = `
+      <div class="prod-top">
+        <img class="prod-thumb" src="${p.image_url || ''}" style="${p.image_url ? '' : 'display:none;'}" />
+        <div class="prod-body">
+          <div class="prod-grid">
+            <div><label>Catégorie</label><select class="f-category">${PROD_CATEGORIES.map(([v, l]) => `<option value="${v}" ${v === p.category ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Nom (EN)</label><input class="f-name-en" value="${escAttr(p.name_en)}" /></div>
+            <div><label>Nom (FR)</label><input class="f-name-fr" value="${escAttr(p.name_fr)}" /></div>
+            <div><label>Prix (USD)</label><input class="f-price" type="number" step="0.01" min="0" value="${p.price}" /></div>
+            <div><label>Prix barré</label><input class="f-was" type="number" step="0.01" min="0" value="${p.was ?? ''}" /></div>
+            <div><label>Étiquette</label><select class="f-tag">${PROD_TAGS.map(([v, l]) => `<option value="${v}" ${v === (p.tag || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Description (EN)</label><input class="f-sub-en" value="${escAttr(p.sub_en)}" /></div>
+            <div><label>Description (FR)</label><input class="f-sub-fr" value="${escAttr(p.sub_fr)}" /></div>
+            <div><label>Tailles (séparées par virgule)</label><input class="f-sizes" value="${escAttr((p.sizes || []).join(', '))}" /></div>
+            <div><label>Photo</label><input class="f-image" type="file" accept="image/*" /></div>
+          </div>
+          <div class="prod-foot">
+            <label class="prod-active-label"><input type="checkbox" class="f-active" ${p.active ? 'checked' : ''} /> Actif (visible sur le site)</label>
+            <button type="button" class="slot-save prod-save">Enregistrer</button>
+            <button type="button" class="prod-delete">Supprimer</button>
+            <span class="staff-error prod-error"></span>
+          </div>
+        </div>
+      </div>
+    `;
+    productList.appendChild(row);
+  });
+
+  productList.querySelectorAll('.prod-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      const id = row.dataset.id;
+      const errEl = row.querySelector('.prod-error');
+      errEl.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement…';
+      try {
+        const update = {
+          category: row.querySelector('.f-category').value,
+          tag: row.querySelector('.f-tag').value || null,
+          price: parseFloat(row.querySelector('.f-price').value) || 0,
+          was: row.querySelector('.f-was').value ? parseFloat(row.querySelector('.f-was').value) : null,
+          sizes: row.querySelector('.f-sizes').value.trim()
+            ? row.querySelector('.f-sizes').value.trim().split(',').map(s => s.trim()).filter(Boolean)
+            : null,
+          name_en: row.querySelector('.f-name-en').value.trim(),
+          name_fr: row.querySelector('.f-name-fr').value.trim(),
+          sub_en: row.querySelector('.f-sub-en').value.trim(),
+          sub_fr: row.querySelector('.f-sub-fr').value.trim(),
+          active: row.querySelector('.f-active').checked,
+        };
+        const fileInput = row.querySelector('.f-image');
+        if (fileInput.files.length) {
+          const file = fileInput.files[0];
+          const ext = file.name.split('.').pop();
+          const path = `${id}-${Date.now()}.${ext}`;
+          const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+          if (uploadError) throw uploadError;
+          const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
+          update.image_url = pub.publicUrl;
+        }
+        const { error } = await sb.from('products').update(update).eq('id', id);
+        if (error) throw error;
+        btn.textContent = 'Enregistré ✓';
+        if (update.image_url) { renderProductsStaff(); return; }
+        setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        errEl.textContent = 'Erreur : ' + (err.message || err);
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+      }
+    });
+  });
+
+  productList.querySelectorAll('.prod-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      if (!confirm('Supprimer ce produit définitivement ? Cette action est irréversible.')) return;
+      await sb.from('products').delete().eq('id', row.dataset.id);
+      renderProductsStaff();
     });
   });
 }

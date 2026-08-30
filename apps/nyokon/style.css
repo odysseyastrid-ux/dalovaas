@@ -461,6 +461,7 @@ main > section{
 .product-media .placeholder-img{position:absolute;inset:0;transition:opacity .3s ease;}
 .product-media .placeholder-img.secondary{opacity:0;}
 .product-card:hover .placeholder-img.secondary{opacity:1;}
+.product-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius);}
 .product-tag{
   position:absolute;
   top:10px;left:10px;

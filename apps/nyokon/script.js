@@ -1,6 +1,7 @@
-// nyøkøn storefront — replace PRODUCTS with real inventory (and swap
-// placeholder-img blocks for real <img> tags) when you have product photos.
-// Product prices below are stored in USD and converted at render time.
+// nyøkøn storefront. The real catalog lives in Supabase and is managed
+// from staff.html; FALLBACK_PRODUCTS below is only what renders before
+// that loads (or if it's unreachable). Prices are stored in USD and
+// converted at render time.
 
 // Staff-uploaded site images (hero/lookbook) — see staff.html. The anon
 // key is safe to expose publicly; write access is gated by Supabase
@@ -18,7 +19,7 @@ const SIZES_APPAREL = ['S','M','L','XL'];
 const SIZES_KIDS = ['4-5Y','6-7Y','8-9Y','10-11Y'];
 const SIZES_SHOES = ['40','41','42','43','44','45'];
 
-const PRODUCTS = [
+const FALLBACK_PRODUCTS = [
   // Men
   { id:'m1', price:168, was:null, category:'men', tag:'new', sizes:SIZES_APPAREL,
     name:{en:'Flight Bomber Jacket', fr:'Blouson Bomber'}, sub:{en:'Navy', fr:'Marine'} },
@@ -79,6 +80,12 @@ const PRODUCTS = [
   { id:'f3', price:28,  was:null, category:'fragrance', tag:null,
     name:{en:'Travel Spray 15ml', fr:'Vaporisateur Nomade 15ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
 ];
+
+// Live catalog. Starts from the fallback list above (so the site works
+// even offline or before Supabase loads), then gets replaced by the
+// real database catalog once it's fetched — see loadProductsFromSupabase()
+// below. Staff manage the real catalog from staff.html.
+let PRODUCTS = FALLBACK_PRODUCTS;
 
 // Static, illustrative FX rates (USD -> currency). Wire these to a live
 // rates API (e.g. exchangerate.host) before taking real payments.
@@ -238,8 +245,10 @@ function renderProducts(filter=currentFilter){
     card.innerHTML = `
       <div class="product-media">
         ${p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
-        <div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
-        <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>
+        ${p.image
+          ? `<img class="product-photo" src="${p.image}" alt="${name}">`
+          : `<div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
+        <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>`}
         <span class="gbtn-wrap gbtn-bar quick-add-wrap">
           <span class="g-light"></span>
           <span class="g-layer" style="animation-delay:0s;animation-duration:20s;"></span>
@@ -612,6 +621,34 @@ applyStaticTranslations();
 refreshFilterLabels();
 renderProducts();
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Live product catalog — replaces FALLBACK_PRODUCTS once fetched, so
+// edits staff make in staff.html (new products, price changes, photos,
+// hiding a sold-out item) show up on the site without a code deploy.
+(async function loadProductsFromSupabase(){
+  const sb = getSb();
+  if (!sb) return;
+  try {
+    const { data, error } = await sb
+      .from('products')
+      .select('id,category,tag,price,was,sizes,name_en,name_fr,sub_en,sub_fr,image_url')
+      .eq('active', true)
+      .order('created_at', { ascending: true });
+    if (error || !data || !data.length) return;
+    PRODUCTS = data.map(r => ({
+      id: r.id,
+      price: Number(r.price),
+      was: r.was != null ? Number(r.was) : null,
+      category: r.category,
+      tag: r.tag || null,
+      sizes: r.sizes && r.sizes.length ? r.sizes : null,
+      image: r.image_url || null,
+      name: { en: r.name_en, fr: r.name_fr },
+      sub: { en: r.sub_en || '', fr: r.sub_fr || '' },
+    }));
+    renderProducts();
+  } catch (e) { /* keep FALLBACK_PRODUCTS on any failure */ }
+})();
 
 // Scheduled promotions — if staff has a campaign active right now
 // (see staff.html), it replaces the default announcement bar text.

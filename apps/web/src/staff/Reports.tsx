@@ -65,7 +65,7 @@ export function Reports() {
               return
             }
             downloadCsv(orders)
-            showToast('Fichier téléchargé — voir vos téléchargements')
+            showToast('Fichier téléchargé, consultez vos téléchargements')
           }}
           className="rounded-lg border border-[var(--color-divider)] bg-white px-3 py-1.5 text-xs font-bold"
         >
@@ -86,7 +86,12 @@ export function Reports() {
           <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
-          <div className="text-xs uppercase text-[var(--color-ink)]/50">🤍 Dons aujourd'hui</div>
+          <div className="flex items-center justify-center gap-1 text-xs uppercase text-[var(--color-ink)]/50">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+            </svg>
+            Dons aujourd'hui
+          </div>
           <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
         </div>
       </div>
@@ -97,7 +102,7 @@ export function Reports() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="[font-family:var(--font-heading)] text-sm font-bold">{o.ref}</div>
-                <div className="text-xs text-[var(--color-ink)]/60">{o.customer_name} — {o.customer_phone}</div>
+                <div className="text-xs text-[var(--color-ink)]/60">{o.customer_name} · {o.customer_phone}</div>
               </div>
               <span className="rounded-full border border-[var(--color-divider)] px-2 py-0.5 text-[10px]">
                 {o.status === 'done' ? 'Livrée' : o.pending_validation ? 'En attente' : 'En cours'}

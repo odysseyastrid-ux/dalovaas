@@ -78,7 +78,7 @@ function EquipeView({ canManage }: { canManage: boolean }) {
         coords = await getGpsPosition()
         if (!coords) {
           setBusy(null)
-          showToast('Position GPS requise pour pointer — activez la localisation')
+          showToast('Position GPS requise pour pointer, activez la localisation')
           return
         }
       }
@@ -138,7 +138,7 @@ function EquipeView({ canManage }: { canManage: boolean }) {
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
       {!loading && employees.length === 0 && (
         <div className="text-sm text-[var(--color-ink)]/50">
-          Aucun employé — {canManage ? 'ajoutez votre équipe ci-dessus.' : 'demandez à un manager de vous ajouter.'}
+          Aucun employé, {canManage ? 'ajoutez votre équipe ci-dessus.' : 'demandez à un manager de vous ajouter.'}
         </div>
       )}
 
@@ -171,9 +171,13 @@ function EquipeView({ canManage }: { canManage: boolean }) {
                   {openBreak && (
                     <button
                       onClick={() => setMealFor(mealFor === employee.id ? null : employee.id)}
-                      className="rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold"
+                      className="flex items-center gap-1.5 rounded-lg border border-[var(--color-divider)] px-3 py-2 text-xs font-bold"
                     >
-                      🍽️ Repas
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="9" />
+                        <circle cx="12" cy="12" r="4" />
+                      </svg>
+                      Repas
                     </button>
                   )}
                   {open && employee.max_breaks > 0 && (
@@ -293,8 +297,12 @@ export function TimeClock({ canManage }: { canManage: boolean }) {
       <EquipeView canManage={canManage} />
       {canManage && (
         <div className="mt-8 border-t border-[var(--color-divider)] pt-6">
-          <button onClick={unlock} className="rounded-lg border border-[var(--color-divider)] px-4 py-2 text-sm font-bold">
-            🔒 Espace manager (Approbations, Paie, Réglages)
+          <button onClick={unlock} className="flex items-center gap-1.5 rounded-lg border border-[var(--color-divider)] px-4 py-2 text-sm font-bold">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Espace manager (Approbations, Paie, Réglages)
           </button>
         </div>
       )}

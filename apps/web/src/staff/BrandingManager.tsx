@@ -137,7 +137,7 @@ export function BrandingManager() {
             />
           </label>
         </div>
-        {ordered.length === 0 && <div className="text-xs text-[var(--color-ink)]/50">Aucune bannière — l'écran d'accueil n'affichera pas de carrousel.</div>}
+        {ordered.length === 0 && <div className="text-xs text-[var(--color-ink)]/50">Aucune bannière, l'écran d'accueil n'affichera pas de carrousel.</div>}
         <div className="flex flex-col gap-2">
           {ordered.map((slide, i) => (
             <div key={slide.image_url + i} className="flex items-center gap-3 rounded-xl border border-[var(--color-divider)] bg-white p-3">

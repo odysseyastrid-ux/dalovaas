@@ -65,7 +65,7 @@ function buildRows(order: Order, lang: 'fr' | 'en'): Row[] {
   if (order.donation_amount) {
     rows.push({
       kind: 'kv',
-      label: lang === 'fr' ? '🤍 Don caritatif' : '🤍 Charity donation',
+      label: lang === 'fr' ? 'Don caritatif' : 'Charity donation',
       value: `+${formatFCFA(order.donation_amount)}`,
       bold: false,
       h: 24,

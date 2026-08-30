@@ -19,7 +19,7 @@ export function StaffMealsPanel({ employees }: { employees: Employee[] }) {
     <div>
       <div className="mb-1 [font-family:var(--font-heading)] text-lg font-extrabold">Repas staff</div>
       <div className="mb-4 text-xs text-[var(--color-ink)]/60">
-        1er repas de pause gratuit, 2ème à -50% — un avantage staff, distinct de la paie.
+        1er repas de pause gratuit, 2ème à -50%, un avantage staff distinct de la paie.
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-4">

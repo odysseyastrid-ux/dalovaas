@@ -75,7 +75,7 @@ function letterheadHtml(logoUrl: string | null) {
 
 function legalFooterHtml() {
   return `<div class="legal-footer">
-    Chez Sanji — entreprise de restauration rapide canadienne implantée au Cameroun. Fondateur : Dama Louis Vanell Astrid.<br />
+    Chez Sanji : entreprise de restauration rapide canadienne implantée au Cameroun. Fondateur : Dama Louis Vanell Astrid.<br />
     © ${new Date().getFullYear()} Chez Sanji. Tous droits réservés. Document généré le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}.
   </div>`
 }
@@ -149,7 +149,7 @@ export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
       )
       .join('')
     printDoc(
-      'Paie — Chez Sanji',
+      'Paie · Chez Sanji',
       `${letterheadHtml(settings.logo_url)}
        <h1>Bulletin de paie collectif</h1>
        <div class="muted">Période : ${periodLabel(settings.payroll_period_start)}</div>
@@ -162,7 +162,7 @@ export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
 
   const exportPayslip = (row: (typeof rows)[number]) => {
     printDoc(
-      `Fiche de paie — ${row.employee.name}`,
+      `Fiche de paie · ${row.employee.name}`,
       `${letterheadHtml(settings.logo_url)}
        <h1>Fiche de paie</h1>
        <div class="muted">Employé : <strong>${row.employee.name}</strong> · Poste : ${CATEGORY_LABEL[row.employee.category]}</div>

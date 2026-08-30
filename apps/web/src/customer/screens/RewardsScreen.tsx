@@ -44,7 +44,7 @@ export function RewardsScreen() {
       redemptionId: redemption.id,
     })
     await refreshAccount()
-    showToast(lang === 'fr' ? 'Récompense ajoutée — plus qu\'à commander !' : 'Reward added — ready to order!')
+    showToast(lang === 'fr' ? 'Récompense ajoutée, plus qu\'à commander !' : 'Reward added, ready to order!')
     // Straight to checkout, not just the cart -- the reward is already in
     // it, so there's nothing left to review before paying.
     navigate('/checkout')

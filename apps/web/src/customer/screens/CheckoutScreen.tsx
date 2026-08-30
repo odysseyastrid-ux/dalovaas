@@ -107,7 +107,7 @@ export function CheckoutScreen() {
       const { error: uploadErr } = await supabase.storage.from('payment-proofs').upload(proofPath, proofFile)
       if (uploadErr) {
         setPlacing(false)
-        showToast(lang === 'fr' ? "Échec de l'envoi du reçu — réessayez" : 'Receipt upload failed — try again')
+        showToast(lang === 'fr' ? "Échec de l'envoi du reçu, réessayez" : 'Receipt upload failed, try again')
         return
       }
     }
@@ -134,7 +134,7 @@ export function CheckoutScreen() {
       if (attachErr) {
         // Order already exists at this point; surface it so the customer
         // knows to show staff their receipt manually rather than assume it's linked.
-        showToast(lang === 'fr' ? 'Commande créée mais le reçu n’a pas pu être lié — montrez-le au staff' : 'Order created but receipt could not be linked — show it to staff')
+        showToast(lang === 'fr' ? 'Commande créée mais le reçu n’a pas pu être lié, montrez-le au staff' : 'Order created but receipt could not be linked, show it to staff')
       }
     }
 
@@ -217,8 +217,13 @@ export function CheckoutScreen() {
                   />
                 )}
                 <div className="flex-1 text-xs">
-                  <div className="font-bold">
-                    {!settings.charity_logo_url && '🤍 '}{lang === 'fr' ? 'Arrondir pour la charité' : 'Round up for charity'}
+                  <div className="flex items-center gap-1.5 font-bold">
+                    {!settings.charity_logo_url && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+                      </svg>
+                    )}
+                    {lang === 'fr' ? 'Arrondir pour la charité' : 'Round up for charity'}
                   </div>
                   <div className="mt-0.5 text-[var(--color-ink)]/60">
                     {lang === 'fr'
@@ -250,7 +255,12 @@ export function CheckoutScreen() {
               )}
               {donationPreview > 0 && (
                 <div className="mb-1 flex justify-between text-[var(--color-accent-700)]">
-                  <span>🤍 {lang === 'fr' ? 'Don caritatif' : 'Charity donation'}</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+                    </svg>
+                    {lang === 'fr' ? 'Don caritatif' : 'Charity donation'}
+                  </span>
                   <span>+{formatFCFA(donationPreview)}</span>
                 </div>
               )}

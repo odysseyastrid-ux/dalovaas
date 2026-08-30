@@ -97,7 +97,7 @@ export function TimeClockSettings({ employees }: { employees: Employee[] }) {
     }
     const onShift = employees.filter((e) => entries.some((en) => en.employee_id === e.id && en.clock_out === null))
     const body = [
-      'Résumé du planning — Chez Sanji',
+      'Résumé du planning · Chez Sanji',
       '',
       `En service maintenant : ${onShift.length}`,
       ...onShift.map((e) => `- ${e.name}`),
@@ -189,8 +189,14 @@ export function TimeClockSettings({ employees }: { employees: Employee[] }) {
           >
             {settings.require_gps_checkin ? 'Activé' : 'Désactivé'}
           </button>
-          <button onClick={captureVenue} disabled={locating} className="rounded-lg border border-[var(--color-divider)] px-4 py-2 text-xs font-bold disabled:opacity-40">
-            {locating ? 'Localisation…' : "📍 Définir l'emplacement du restaurant (ici)"}
+          <button onClick={captureVenue} disabled={locating} className="flex items-center gap-1.5 rounded-lg border border-[var(--color-divider)] px-4 py-2 text-xs font-bold disabled:opacity-40">
+            {!locating && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-none">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            )}
+            {locating ? 'Localisation…' : "Définir l'emplacement du restaurant (ici)"}
           </button>
           {settings.venue_location && (
             <span className="text-xs text-[var(--color-ink)]/50">

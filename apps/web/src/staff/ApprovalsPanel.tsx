@@ -67,7 +67,7 @@ export function ApprovalsPanel({ employees }: { employees: Employee[] }) {
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
 
       <div className="mb-3 text-xs font-bold uppercase tracking-wide text-[var(--color-ink)]/50">En attente</div>
-      {pending.length === 0 && <div className="mb-6 text-sm text-[var(--color-ink)]/50">Tout est à jour — aucune approbation en attente.</div>}
+      {pending.length === 0 && <div className="mb-6 text-sm text-[var(--color-ink)]/50">Tout est à jour, aucune approbation en attente.</div>}
       <div className="mb-6 flex flex-col gap-3">
         {pending.map((r) => (
           <div key={r.id} className="rounded-xl border-2 border-[var(--color-accent)] bg-white p-4">

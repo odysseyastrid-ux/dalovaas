@@ -52,13 +52,18 @@ export function StaffApp() {
       {otpQueue.length > 0 && location.pathname !== '/staff' && (
         <button
           onClick={() => navigate('/staff')}
-          className="block w-full animate-pulse bg-red-600 px-6 py-2 text-center text-sm font-bold text-white"
+          className="flex w-full animate-pulse items-center justify-center gap-1.5 bg-red-600 px-6 py-2 text-center text-sm font-bold text-white"
         >
-          🔴 {otpQueue.length} code{otpQueue.length > 1 ? 's' : ''} OTP en attente d'envoi — cliquez pour relayer
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-none">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          {otpQueue.length} code{otpQueue.length > 1 ? 's' : ''} OTP en attente d'envoi, cliquez pour relayer
         </button>
       )}
       <div className="flex items-center justify-between border-b border-[var(--color-divider)] bg-white px-6 py-4">
-        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">Chez Sanji — Dashboard</div>
+        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">Chez Sanji · Dashboard</div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-[var(--color-ink)]/60">
             {staff.name} · {staff.role}

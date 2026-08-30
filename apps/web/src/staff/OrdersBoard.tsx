@@ -22,7 +22,7 @@ function buildStaffGroupMessage(order: Order, kind: 'created' | 'validated') {
   const header = kind === 'validated' ? '✅ Commande validée' : '🆕 Nouvelle commande'
   return [
     `${header} ${order.ref}`,
-    `${order.customer_name} — ${order.customer_phone}`,
+    `${order.customer_name} · ${order.customer_phone}`,
     `${FULFILLMENT_LABEL[order.fulfillment]} · Retrait: ${order.pickup_code}`,
     itemsText,
     `Total: ${formatFCFA(order.total)}`,
@@ -34,9 +34,9 @@ async function sendToStaffGroup(order: Order, kind: 'created' | 'validated', sho
   const msg = buildStaffGroupMessage(order, kind)
   try {
     await navigator.clipboard.writeText(msg)
-    showToast('Message copié — collez-le dans le groupe WhatsApp')
+    showToast('Message copié, collez-le dans le groupe WhatsApp')
   } catch {
-    showToast('Impossible de copier — copiez le message manuellement')
+    showToast('Impossible de copier, copiez le message manuellement')
   }
   window.open(STAFF_GROUP_LINK, '_blank', 'noopener')
 }
@@ -50,7 +50,7 @@ function buildReceiptHtml(order: Order) {
     h1{font-size:20px;margin-bottom:4px}.muted{color:#666;font-size:13px;margin-bottom:20px}
     table{width:100%;border-collapse:collapse;margin-bottom:20px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left;font-size:13px}
     .total{font-size:18px;font-weight:bold;text-align:right;margin-top:12px}</style></head><body>
-    <h1>Chez Sanji — Reçu</h1>
+    <h1>Chez Sanji · Reçu</h1>
     <div class="muted">Commande ${order.ref} &middot; Code de retrait: ${order.pickup_code}</div>
     <div class="muted">Client: ${order.customer_name} &middot; ${order.customer_phone}</div>
     <div class="muted">${FULFILLMENT_LABEL[order.fulfillment]}</div>
@@ -234,8 +234,11 @@ export function OrdersBoard() {
     <div>
       {isRinging && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-red-600 bg-red-50 p-4">
-          <div className="text-sm font-bold text-red-700">
-            🔔{' '}
+          <div className="flex items-center gap-1.5 text-sm font-bold text-red-700">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-none">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
             {[
               ringingNew.size > 0 && `${ringingNew.size} nouvelle(s) commande(s)`,
               ringingDeadline.size > 0 && `${ringingDeadline.size} à moins d'1 minute du délai`,
@@ -254,8 +257,13 @@ export function OrdersBoard() {
 
       {otpQueue.length > 0 && (
         <div className="mb-6 rounded-xl border-2 border-red-600 bg-red-50 p-4">
-          <div className="mb-2 text-sm font-bold text-red-700">
-            🔴 Codes OTP en attente — envoyez-les vite (valides 30 min)
+          <div className="mb-2 flex items-center gap-1.5 text-sm font-bold text-red-700">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            Codes OTP en attente, envoyez-les vite (valides 30 min)
           </div>
           <div className="flex flex-col gap-2">
             {otpQueue.map((row) => (
@@ -303,7 +311,12 @@ export function OrdersBoard() {
           <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.revenue)}</div>
         </div>
         <div className="rounded-xl border border-[var(--color-divider)] bg-white p-4 text-center">
-          <div className="text-xs uppercase text-[var(--color-ink)]/50">🤍 Dons aujourd'hui</div>
+          <div className="flex items-center justify-center gap-1 text-xs uppercase text-[var(--color-ink)]/50">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+            </svg>
+            Dons aujourd'hui
+          </div>
           <div className="mt-1 [font-family:var(--font-heading)] text-xl font-extrabold">{formatFCFA(todayStats.donations)}</div>
         </div>
       </div>
@@ -344,7 +357,7 @@ export function OrdersBoard() {
               </div>
               <div className="text-xs text-[var(--color-ink)]/60">
                 {t.pickupCodeLabel}: {order.pickup_code}
-                {!order.is_staff_meal && ` · ${order.customer_name} — ${order.customer_phone}`}
+                {!order.is_staff_meal && ` · ${order.customer_name} · ${order.customer_phone}`}
               </div>
               <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">
                 {FULFILLMENT_LABEL[order.fulfillment]} · {formatFCFA(order.total)}
@@ -352,8 +365,12 @@ export function OrdersBoard() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {order.is_staff_meal && (
-                <span className="rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold">
-                  🍽️ Repas staff
+                <span className="flex items-center gap-1 rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[11px] font-bold">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <circle cx="12" cy="12" r="4" />
+                  </svg>
+                  Repas staff
                 </span>
               )}
               {order.pending_validation && (

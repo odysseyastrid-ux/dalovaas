@@ -108,7 +108,7 @@ export function DatabaseExplorer() {
         products.map((p) => [p.name, p.cat, p.qty, p.revenue]),
       ),
     )
-    showToast('Fichier téléchargé — voir vos téléchargements')
+    showToast('Fichier téléchargé, consultez vos téléchargements')
   }
 
   const exportCustomers = () => {
@@ -132,7 +132,7 @@ export function DatabaseExplorer() {
         ]),
       ),
     )
-    showToast('Fichier téléchargé — voir vos téléchargements')
+    showToast('Fichier téléchargé, consultez vos téléchargements')
   }
 
   const exportCatalog = () => {
@@ -147,7 +147,7 @@ export function DatabaseExplorer() {
         menuItems.map((i) => [i.name_fr, i.cat, i.price, i.out_of_stock ? 'oui' : 'non', i.deleted ? 'oui' : 'non']),
       ),
     )
-    showToast('Fichier téléchargé — voir vos téléchargements')
+    showToast('Fichier téléchargé, consultez vos téléchargements')
   }
 
   const exportProfiles = () => {
@@ -162,7 +162,7 @@ export function DatabaseExplorer() {
         accounts.map((a) => [a.profile_name, a.email ?? '', a.phone ?? '', a.loyalty_points, a.created_at]),
       ),
     )
-    showToast('Fichier téléchargé — voir vos téléchargements')
+    showToast('Fichier téléchargé, consultez vos téléchargements')
   }
 
   const loading = ordersLoading || accountsLoading || menuLoading
@@ -198,7 +198,7 @@ export function DatabaseExplorer() {
       showToast(error.message)
       return
     }
-    showToast(`${ref} supprimée — retirée des statistiques`)
+    showToast(`${ref} supprimée, retirée des statistiques`)
   }
 
   return (
@@ -211,9 +211,17 @@ export function DatabaseExplorer() {
       {loading && <div className="text-sm text-[var(--color-ink)]/50">…</div>}
 
       <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
-        <div className="mb-1 text-sm font-bold">🗑 Supprimer une commande (données de test)</div>
+        <div className="mb-1 flex items-center gap-1.5 text-sm font-bold">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+          Supprimer une commande (données de test)
+        </div>
         <div className="mb-3 text-xs text-[var(--color-ink)]/60">
-          Cherche par référence, nom ou téléphone. La suppression est définitive et retire la commande de toutes les statistiques et exports — un code PIN est demandé.
+          Cherche par référence, nom ou téléphone. La suppression est définitive et retire la commande de toutes les statistiques et exports. Un code PIN est demandé.
         </div>
         <input
           value={search}
@@ -268,7 +276,13 @@ export function DatabaseExplorer() {
 
       <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
-          <div className="text-sm font-bold">🏆 Produits les plus vendus</div>
+          <div className="flex items-center gap-1.5 text-sm font-bold">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 18 8.5 10.5 13.5 15.5 23 6" />
+              <polyline points="17 6 23 6 23 12" />
+            </svg>
+            Produits les plus vendus
+          </div>
           <button onClick={exportProducts} className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
             Export CSV
           </button>
@@ -289,7 +303,13 @@ export function DatabaseExplorer() {
       </div>
 
       <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
-        <div className="mb-3 text-sm font-bold">📉 Produits les moins vendus</div>
+        <div className="mb-3 flex items-center gap-1.5 text-sm font-bold">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="1 6 8.5 13.5 13.5 8.5 23 18" />
+            <polyline points="17 18 23 18 23 12" />
+          </svg>
+          Produits les moins vendus
+        </div>
         <div className="flex flex-col gap-1.5">
           {leastSold.map((p) => (
             <div key={p.name} className="flex items-center justify-between text-xs">
@@ -305,7 +325,15 @@ export function DatabaseExplorer() {
 
       <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
-          <div className="text-sm font-bold">👥 Fréquence de commande par client</div>
+          <div className="flex items-center gap-1.5 text-sm font-bold">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Fréquence de commande par client
+          </div>
           <button onClick={exportCustomers} className="rounded-lg border border-[var(--color-divider)] px-3 py-1.5 text-xs font-bold">
             Export CSV
           </button>

@@ -43,7 +43,7 @@ export function StaffMealPicker({ employee, onClose }: { employee: Employee; onC
   return (
     <div className="mt-2 w-full rounded-lg border border-[var(--color-divider)] bg-[var(--color-surface)] p-3">
       <div className="mb-2 text-xs font-bold">
-        Repas de {employee.name} — {mealsToday === 0 ? '1er gratuit, 2e -50%' : mealsToday === 1 ? 'prochain à -50%' : 'plein tarif désormais'}
+        Repas de {employee.name} · {mealsToday === 0 ? '1er gratuit, 2e -50%' : mealsToday === 1 ? 'prochain à -50%' : 'plein tarif désormais'}
       </div>
       <div className="mb-2 flex max-h-48 flex-col gap-1 overflow-y-auto">
         {items.map((item) => {

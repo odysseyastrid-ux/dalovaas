@@ -79,7 +79,7 @@ export function TrackingScreen() {
     const { error: uploadErr } = await supabase.storage.from('payment-proofs').upload(path, file)
     if (uploadErr) {
       setUploadingProof(false)
-      showToast(lang === 'fr' ? "Échec de l'envoi — réessayez" : 'Upload failed — try again')
+      showToast(lang === 'fr' ? "Échec de l'envoi, réessayez" : 'Upload failed, try again')
       return
     }
     const { error: attachErr } = await supabase.rpc('attach_payment_proof', { p_ref: order.ref, p_proof_url: path })
@@ -124,7 +124,11 @@ export function TrackingScreen() {
                 className="h-10 w-10 flex-none rounded-lg border border-[var(--color-divider)] bg-white object-contain p-1"
               />
             ) : (
-              <span className="flex-none text-lg">🤍</span>
+              <span className="flex h-10 w-10 flex-none items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+                </svg>
+              </span>
             )}
             <div>
               {lang === 'fr'

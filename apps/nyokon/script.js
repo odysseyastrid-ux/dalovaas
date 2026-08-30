@@ -593,6 +593,7 @@ document.querySelectorAll('.lang-switch button').forEach(btn => {
     currentLang = btn.dataset.lang;
     try { localStorage.setItem('nyokon-lang', currentLang); } catch (e) { /* localStorage unavailable */ }
     applyStaticTranslations();
+    applyPromotionText();
     refreshFilterLabels();
     renderProducts();
     renderCart();
@@ -611,6 +612,34 @@ applyStaticTranslations();
 refreshFilterLabels();
 renderProducts();
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Scheduled promotions — if staff has a campaign active right now
+// (see staff.html), it replaces the default announcement bar text.
+let activePromotion = null;
+function applyPromotionText(){
+  if (!activePromotion) return;
+  const announceEl = document.querySelector('.announce');
+  if (announceEl) announceEl.textContent = currentLang === 'fr' ? activePromotion.title_fr : activePromotion.title_en;
+}
+(async function loadActivePromotion(){
+  const sb = getSb();
+  if (!sb) return;
+  try {
+    const nowIso = new Date().toISOString();
+    const { data } = await sb
+      .from('promotions')
+      .select('title_en,title_fr')
+      .eq('active', true)
+      .lte('starts_at', nowIso)
+      .gte('ends_at', nowIso)
+      .order('starts_at', { ascending: false })
+      .limit(1);
+    if (data && data.length) {
+      activePromotion = data[0];
+      applyPromotionText();
+    }
+  } catch (e) { /* keep default announcement text */ }
+})();
 
 // Staff-uploaded photos — overrides the static hero/lookbook placeholders
 // when a staff member has uploaded one via staff.html. Fails silently

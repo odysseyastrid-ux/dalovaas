@@ -54,6 +54,20 @@
   .order-status{font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);}
   .order-receipt-link{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink);text-decoration:underline;cursor:pointer;background:none;border:none;}
   .staff-empty{color:var(--fg-dim);font-size:13px;padding:8px 0;}
+  .promo-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line);}
+  .promo-row:first-child{border-top:none;}
+  .promo-status{font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:10px;margin-right:8px;}
+  .promo-status.is-live{background:#d1ff3c;color:#0b0b0c;}
+  .promo-status.is-upcoming{background:var(--bg-alt);color:var(--fg-dim);}
+  .promo-status.is-past{background:var(--bg-alt);color:var(--fg-dim);opacity:.6;}
+  .promo-title{font-size:13px;}
+  .promo-dates{font-size:11px;color:var(--fg-dim);margin-top:2px;}
+  .promo-delete{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;flex-shrink:0;}
+  .bar-row{display:flex;align-items:center;gap:12px;padding:8px 0;}
+  .bar-label{width:140px;flex-shrink:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bar-track{flex:1;background:var(--bg-alt);border-radius:4px;height:16px;overflow:hidden;}
+  .bar-fill{height:100%;background:#d1ff3c;border-radius:4px;}
+  .bar-value{width:32px;flex-shrink:0;font-size:12px;font-weight:700;text-align:right;}
 </style>
 </head>
 <body>
@@ -112,6 +126,36 @@
       </form>
     </div>
 
+    <h2 class="staff-section-title">Promotions</h2>
+    <p class="staff-sub">Programme une campagne à l'avance — elle remplace automatiquement le bandeau du site pendant sa période, sans que tu aies besoin d'y penser le jour J.</p>
+    <div class="staff-card">
+      <form id="promoForm">
+        <div class="staff-field">
+          <label for="promoTitleEn">Texte du bandeau (anglais)</label>
+          <input type="text" id="promoTitleEn" placeholder="ex: BLACK FRIDAY — 30% OFF EVERYTHING" required />
+        </div>
+        <div class="staff-field">
+          <label for="promoTitleFr">Texte du bandeau (français)</label>
+          <input type="text" id="promoTitleFr" placeholder="ex: BLACK FRIDAY — 30% SUR TOUT" required />
+        </div>
+        <div class="staff-field">
+          <label for="promoStart">Début</label>
+          <input type="datetime-local" id="promoStart" required />
+        </div>
+        <div class="staff-field">
+          <label for="promoEnd">Fin</label>
+          <input type="datetime-local" id="promoEnd" required />
+        </div>
+        <button type="submit" class="staff-btn" id="promoSubmitBtn">Programmer</button>
+        <div class="staff-error" id="promoError"></div>
+      </form>
+    </div>
+    <div class="staff-card" id="promoList"></div>
+
+    <h2 class="staff-section-title">Meilleures ventes</h2>
+    <p class="staff-sub">Quantités vendues, à partir des commandes confirmées.</p>
+    <div class="staff-card" id="bestSellers"></div>
+
     <h2 class="staff-section-title">Commandes récentes</h2>
     <div class="staff-card" id="ordersList"></div>
   </div>
@@ -146,6 +190,8 @@ function showDashboard(){
   signOutBtn.style.display = 'inline-block';
   renderSlots();
   loadPaymentSettings();
+  renderPromotions();
+  renderBestSellers();
   renderOrders();
 }
 function showLogin(){
@@ -281,6 +327,99 @@ paymentSettingsForm.addEventListener('submit', async (e) => {
     setTimeout(() => { paymentSettingsBtn.textContent = 'Enregistrer'; }, 2000);
   }
 });
+
+const promoForm = document.getElementById('promoForm');
+const promoSubmitBtn = document.getElementById('promoSubmitBtn');
+const promoError = document.getElementById('promoError');
+const promoList = document.getElementById('promoList');
+
+promoForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  promoError.textContent = '';
+  const titleEn = document.getElementById('promoTitleEn').value.trim();
+  const titleFr = document.getElementById('promoTitleFr').value.trim();
+  const start = document.getElementById('promoStart').value;
+  const end = document.getElementById('promoEnd').value;
+  if (!titleEn || !titleFr || !start || !end) return;
+  if (new Date(end) <= new Date(start)) {
+    promoError.textContent = 'La date de fin doit être après la date de début.';
+    return;
+  }
+  promoSubmitBtn.disabled = true;
+  try {
+    const { error } = await sb.from('promotions').insert({
+      title_en: titleEn,
+      title_fr: titleFr,
+      starts_at: new Date(start).toISOString(),
+      ends_at: new Date(end).toISOString(),
+    });
+    if (error) throw error;
+    promoForm.reset();
+    renderPromotions();
+  } catch (err) {
+    promoError.textContent = 'Erreur : ' + (err.message || err);
+  } finally {
+    promoSubmitBtn.disabled = false;
+  }
+});
+
+async function renderPromotions(){
+  const { data: promos } = await sb.from('promotions').select('*').order('starts_at', { ascending: false }).limit(20);
+  if (!promos || !promos.length) {
+    promoList.innerHTML = '<p class="staff-empty">Aucune promotion programmée.</p>';
+    return;
+  }
+  const now = new Date();
+  promoList.innerHTML = '';
+  promos.forEach(promo => {
+    const starts = new Date(promo.starts_at);
+    const ends = new Date(promo.ends_at);
+    let statusClass = 'is-upcoming', statusLabel = 'À venir';
+    if (now >= starts && now <= ends) { statusClass = 'is-live'; statusLabel = 'En cours'; }
+    else if (now > ends) { statusClass = 'is-past'; statusLabel = 'Terminée'; }
+    const row = document.createElement('div');
+    row.className = 'promo-row';
+    row.innerHTML = `
+      <div>
+        <span class="promo-status ${statusClass}">${statusLabel}</span>
+        <span class="promo-title">${promo.title_fr}</span>
+        <div class="promo-dates">${starts.toLocaleString('fr-FR')} → ${ends.toLocaleString('fr-FR')}</div>
+      </div>
+      <button type="button" class="promo-delete" data-id="${promo.id}">Supprimer</button>
+    `;
+    promoList.appendChild(row);
+  });
+  promoList.querySelectorAll('.promo-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await sb.from('promotions').delete().eq('id', btn.dataset.id);
+      renderPromotions();
+    });
+  });
+}
+
+const bestSellersEl = document.getElementById('bestSellers');
+async function renderBestSellers(){
+  const { data: orders } = await sb.from('orders').select('items').eq('status', 'confirmed');
+  const counts = {};
+  (orders || []).forEach(order => {
+    (order.items || []).forEach(item => {
+      counts[item.name] = (counts[item.name] || 0) + item.qty;
+    });
+  });
+  const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  if (!ranked.length) {
+    bestSellersEl.innerHTML = '<p class="staff-empty">Pas encore de commande confirmée.</p>';
+    return;
+  }
+  const max = ranked[0][1];
+  bestSellersEl.innerHTML = ranked.map(([name, qty]) => `
+    <div class="bar-row">
+      <div class="bar-label">${name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, (qty / max) * 100)}%"></div></div>
+      <div class="bar-value">${qty}</div>
+    </div>
+  `).join('');
+}
 
 const ordersList = document.getElementById('ordersList');
 const PAYMENT_LABELS = { orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', cash: 'Cash' };

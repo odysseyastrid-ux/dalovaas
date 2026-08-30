@@ -384,7 +384,7 @@ grid.addEventListener('click', (e) => {
   const checkoutRef = document.getElementById('checkoutRef');
   if (!checkoutView) return;
 
-  let paymentSettings = { orange_money_number: '', mtn_momo_number: '' };
+  let paymentSettings = { orange_money_number: '', orange_money_name: '', mtn_momo_number: '', mtn_momo_name: '' };
   (async function loadPaymentSettings(){
     const sb = getSb();
     if (!sb) return;
@@ -445,10 +445,11 @@ grid.addEventListener('click', (e) => {
     }
     const label = method === 'orange_money' ? 'Orange Money' : 'MTN MoMo';
     const number = paymentSettings[method === 'orange_money' ? 'orange_money_number' : 'mtn_momo_number'] || '—';
+    const holderName = paymentSettings[method === 'orange_money' ? 'orange_money_name' : 'mtn_momo_name'] || '';
     const dialCode = method === 'orange_money' ? '#150#' : '*126#';
     checkoutPaymentDetails.innerHTML = `
       <div class="checkout-account-number">
-        <span>${label}: ${number}</span>
+        <span>${label}: ${number}${holderName ? ' — ' + holderName : ''}</span>
         <button type="button" class="checkout-account-copy" data-number="${number}">${t('checkout_copy')}</button>
       </div>
       <a class="checkout-dial-link" href="tel:${encodeURIComponent(dialCode)}">${t('checkout_dial')} (${dialCode})</a>

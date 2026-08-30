@@ -67,7 +67,9 @@ create table if not exists public.settings (
 
 insert into public.settings (key, value) values
   ('orange_money_number', ''),
-  ('mtn_momo_number', '')
+  ('orange_money_name', ''),
+  ('mtn_momo_number', ''),
+  ('mtn_momo_name', '')
 on conflict (key) do nothing;
 
 alter table public.settings enable row level security;

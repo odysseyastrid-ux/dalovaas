@@ -96,8 +96,16 @@
           <input type="text" id="orangeMoneyNumber" placeholder="ex: 6XX XXX XXX" />
         </div>
         <div class="staff-field">
+          <label for="orangeMoneyName">Nom du titulaire (Orange Money)</label>
+          <input type="text" id="orangeMoneyName" placeholder="ex: Jean Dupont" />
+        </div>
+        <div class="staff-field">
           <label for="mtnMomoNumber">Numéro MTN MoMo</label>
           <input type="text" id="mtnMomoNumber" placeholder="ex: 6XX XXX XXX" />
+        </div>
+        <div class="staff-field">
+          <label for="mtnMomoName">Nom du titulaire (MTN MoMo)</label>
+          <input type="text" id="mtnMomoName" placeholder="ex: Jean Dupont" />
         </div>
         <button type="submit" class="staff-btn" id="paymentSettingsBtn">Enregistrer</button>
         <div class="staff-error" id="paymentSettingsError"></div>
@@ -237,14 +245,18 @@ const paymentSettingsForm = document.getElementById('paymentSettingsForm');
 const paymentSettingsBtn = document.getElementById('paymentSettingsBtn');
 const paymentSettingsError = document.getElementById('paymentSettingsError');
 const orangeMoneyNumber = document.getElementById('orangeMoneyNumber');
+const orangeMoneyName = document.getElementById('orangeMoneyName');
 const mtnMomoNumber = document.getElementById('mtnMomoNumber');
+const mtnMomoName = document.getElementById('mtnMomoName');
 
 async function loadPaymentSettings(){
   const { data } = await sb.from('settings').select('key,value');
   const byKey = {};
   (data || []).forEach(r => { byKey[r.key] = r.value; });
   orangeMoneyNumber.value = byKey.orange_money_number || '';
+  orangeMoneyName.value = byKey.orange_money_name || '';
   mtnMomoNumber.value = byKey.mtn_momo_number || '';
+  mtnMomoName.value = byKey.mtn_momo_name || '';
 }
 
 paymentSettingsForm.addEventListener('submit', async (e) => {
@@ -255,7 +267,9 @@ paymentSettingsForm.addEventListener('submit', async (e) => {
   try {
     const { error } = await sb.from('settings').upsert([
       { key: 'orange_money_number', value: orangeMoneyNumber.value.trim() },
+      { key: 'orange_money_name', value: orangeMoneyName.value.trim() },
       { key: 'mtn_momo_number', value: mtnMomoNumber.value.trim() },
+      { key: 'mtn_momo_name', value: mtnMomoName.value.trim() },
     ]);
     if (error) throw error;
     paymentSettingsBtn.textContent = 'Enregistré ✓';

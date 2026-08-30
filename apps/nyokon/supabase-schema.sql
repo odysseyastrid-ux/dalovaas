@@ -399,3 +399,48 @@ create policy product_images_write_staff
   to authenticated
   using (true)
   with check (true);
+
+-- Atomic stock decrement at checkout. There's no Node/Prisma backend
+-- on this static site to hold a database transaction open across
+-- requests, so the "check available stock, then decrement" logic
+-- that would normally live in an API route lives here instead, as a
+-- single Postgres function — the function body already runs as one
+-- transaction, and `for update` row-locks each variant so two
+-- customers checking out the last unit at the same time can't both
+-- succeed. `security definer` lets anon call it (checkout is
+-- anonymous) without being granted raw UPDATE on product_variants,
+-- which stays staff-only.
+
+create or replace function public.decrement_variant_stock(items jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  item jsonb;
+  v_id uuid;
+  v_qty integer;
+  v_current integer;
+begin
+  for item in select * from jsonb_array_elements(items)
+  loop
+    v_id := (item->>'variant_id')::uuid;
+    v_qty := (item->>'qty')::integer;
+
+    select stock into v_current from public.product_variants where id = v_id for update;
+
+    if v_current is null then
+      raise exception 'VARIANT_NOT_FOUND:%', v_id;
+    end if;
+    if v_current < v_qty then
+      raise exception 'INSUFFICIENT_STOCK:%:available=%:requested=%', v_id, v_current, v_qty;
+    end if;
+
+    update public.product_variants set stock = stock - v_qty where id = v_id;
+  end loop;
+end;
+$$;
+
+revoke all on function public.decrement_variant_stock(jsonb) from public;
+grant execute on function public.decrement_variant_stock(jsonb) to anon, authenticated;

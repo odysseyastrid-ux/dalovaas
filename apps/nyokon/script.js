@@ -166,6 +166,7 @@ const TRANSLATIONS = {
     checkout_error_fields:'Please fill in your name and phone number.',
     checkout_error_receipt:'Please attach a screenshot of your payment before submitting.',
     checkout_error_generic:'Something went wrong. Please try again.',
+    checkout_error_stock:"Sorry, one of the sizes in your cart just sold out. Please review your cart and try again.",
     checkout_confirm_title:'Order received', checkout_confirm_note:'We will confirm your order and payment shortly.',
     checkout_continue:'CONTINUE SHOPPING', checkout_ref_prefix:'Order ',
   },
@@ -211,6 +212,7 @@ const TRANSLATIONS = {
     checkout_error_fields:'Merci de renseigner ton nom et ton numéro.',
     checkout_error_receipt:'Merci de joindre une capture de ton paiement avant de valider.',
     checkout_error_generic:'Une erreur est survenue. Réessaie.',
+    checkout_error_stock:"Désolé, une des tailles de ton panier vient d'être épuisée. Vérifie ton panier et réessaie.",
     checkout_confirm_title:'Commande reçue', checkout_confirm_note:'Nous allons confirmer ta commande et ton paiement sous peu.',
     checkout_continue:'CONTINUER MES ACHATS', checkout_ref_prefix:'Commande ',
   },
@@ -709,6 +711,31 @@ quickAddSubmitBtn.addEventListener('click', () => {
         receiptPath = `${ref}.${ext}`;
         const { error: uploadError } = await sb.storage.from('order-receipts').upload(receiptPath, receiptFile);
         if (uploadError) throw uploadError;
+      }
+
+      // Atomically check + reserve stock before the order is recorded,
+      // so a customer never gets a "confirmed" order for a size that
+      // sold out while they were checking out. Only items staff is
+      // actually tracking stock for (a matching product_variants row)
+      // take part — everything else stays always-available, as before.
+      const productIds = [...new Set([...cart.values()].map(i => i.id))];
+      const stockDeductions = [];
+      if (productIds.length) {
+        const { data: variants } = await sb.from('product_variants').select('id,product_id,size,color_name').in('product_id', productIds);
+        for (const item of cart.values()) {
+          if (!item.size) continue;
+          const match = (variants || []).find(v => v.product_id === item.id && v.size === item.size && (v.color_name || null) === (item.color || null));
+          if (match) stockDeductions.push({ variant_id: match.id, qty: item.qty });
+        }
+      }
+      if (stockDeductions.length) {
+        const { error: stockError } = await sb.rpc('decrement_variant_stock', { items: stockDeductions });
+        if (stockError) {
+          checkoutError.textContent = (stockError.message || '').includes('INSUFFICIENT_STOCK')
+            ? t('checkout_error_stock')
+            : t('checkout_error_generic');
+          return;
+        }
       }
 
       const fulfillment = checkoutView.querySelector('input[name=fulfillment]:checked').value;

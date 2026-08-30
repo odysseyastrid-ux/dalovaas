@@ -159,7 +159,10 @@ const TRANSLATIONS = {
     aria_search:'Search', aria_cart:'Cart', aria_cart_close:'Close cart',
     checkout_name_label:'FULL NAME', checkout_phone_label:'PHONE NUMBER',
     checkout_fulfillment_label:'FULFILLMENT', checkout_pickup:'Pickup', checkout_delivery:'Delivery',
-    checkout_address_label:'DELIVERY ADDRESS', checkout_payment_label:'PAYMENT METHOD',
+    checkout_city_label:'CITY', checkout_city_placeholder:'Select your city', checkout_city_other:'Other city',
+    checkout_address_label:'DELIVERY ADDRESS', checkout_address_placeholder:'Neighbourhood / landmark',
+    checkout_payment_label:'PAYMENT METHOD',
+    checkout_error_city:'Please select your city.',
     checkout_cash:'Cash on pickup', checkout_receipt_label:'PAYMENT RECEIPT (SCREENSHOT)',
     checkout_dial:'Dial to pay', checkout_copy:'Copy', checkout_copied:'Copied',
     checkout_submit:'PLACE ORDER', checkout_back:'Back to cart',
@@ -205,7 +208,10 @@ const TRANSLATIONS = {
     aria_search:'Recherche', aria_cart:'Panier', aria_cart_close:'Fermer le panier',
     checkout_name_label:'NOM COMPLET', checkout_phone_label:'NUMÉRO DE TÉLÉPHONE',
     checkout_fulfillment_label:'MODE DE RÉCUPÉRATION', checkout_pickup:'Retrait', checkout_delivery:'Livraison',
-    checkout_address_label:'ADRESSE DE LIVRAISON', checkout_payment_label:'MODE DE PAIEMENT',
+    checkout_city_label:'VILLE', checkout_city_placeholder:'Choisis ta ville', checkout_city_other:'Autre ville',
+    checkout_address_label:'ADRESSE DE LIVRAISON', checkout_address_placeholder:'Quartier / point de repère',
+    checkout_payment_label:'MODE DE PAIEMENT',
+    checkout_error_city:'Merci de sélectionner ta ville.',
     checkout_cash:'Cash à la récupération', checkout_receipt_label:'PREUVE DE PAIEMENT (CAPTURE)',
     checkout_dial:'Composer pour payer', checkout_copy:'Copier', checkout_copied:'Copié',
     checkout_submit:'COMMANDER', checkout_back:'Retour au panier',
@@ -687,6 +693,12 @@ quickAddSubmitBtn.addEventListener('click', () => {
       checkoutError.textContent = t('checkout_error_fields');
       return;
     }
+    const fulfillmentChoice = checkoutView.querySelector('input[name=fulfillment]:checked').value;
+    const cityValue = document.getElementById('checkoutCity').value;
+    if (fulfillmentChoice === 'delivery' && !cityValue) {
+      checkoutError.textContent = t('checkout_error_city');
+      return;
+    }
     const method = selectedPaymentMethod();
     const receiptInput = document.getElementById('checkoutReceipt');
     const receiptFile = receiptInput && receiptInput.files[0];
@@ -738,7 +750,6 @@ quickAddSubmitBtn.addEventListener('click', () => {
         }
       }
 
-      const fulfillment = checkoutView.querySelector('input[name=fulfillment]:checked').value;
       const address = document.getElementById('checkoutAddress').value.trim();
       const rate = (CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0]).rate;
       const totalUSD = [...cart.values()].reduce((sum, i) => sum + i.price * i.qty, 0);
@@ -750,8 +761,9 @@ quickAddSubmitBtn.addEventListener('click', () => {
         ref,
         customer_name: name,
         customer_phone: phone,
-        fulfillment,
-        address: fulfillment === 'delivery' ? address : null,
+        fulfillment: fulfillmentChoice,
+        city: fulfillmentChoice === 'delivery' ? cityValue : null,
+        address: fulfillmentChoice === 'delivery' ? address : null,
         items,
         subtotal: Math.round(totalUSD * rate),
         currency: currentCurrency,

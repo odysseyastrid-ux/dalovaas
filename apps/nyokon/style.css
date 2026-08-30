@@ -690,11 +690,11 @@ main > section{
 /* Checkout */
 .checkout-view{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:18px;}
 .checkout-field label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:8px;}
-.checkout-field input[type=text],.checkout-field input[type=tel],.checkout-field input[type=file]{
+.checkout-field input[type=text],.checkout-field input[type=tel],.checkout-field input[type=file],.checkout-field select{
   width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);
   padding:12px 14px;color:var(--fg);font-family:inherit;font-size:14px;
 }
-.checkout-field input:focus{outline:none;border-color:var(--fg);}
+.checkout-field input:focus,.checkout-field select:focus{outline:none;border-color:var(--fg);}
 .checkout-radio-row{display:flex;flex-direction:column;gap:10px;}
 .checkout-radio-row label{display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;}
 .checkout-payment-details{

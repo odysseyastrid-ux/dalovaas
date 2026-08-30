@@ -1027,7 +1027,7 @@ async function renderOrders(){
         <span class="order-ref">${order.ref}</span>
         <span class="order-total">${order.subtotal} ${order.currency}</span>
       </div>
-      <div class="order-meta">${order.customer_name} — ${order.customer_phone} — ${order.fulfillment}${order.address ? ' — ' + order.address : ''} — ${PAYMENT_LABELS[order.payment_method] || order.payment_method}</div>
+      <div class="order-meta">${order.customer_name} — ${order.customer_phone} — ${order.fulfillment}${order.city ? ' — ' + order.city : ''}${order.address ? ' — ' + order.address : ''} — ${PAYMENT_LABELS[order.payment_method] || order.payment_method}</div>
       <div class="order-items">${itemsSummary}</div>
       <div class="order-actions">
         <select class="order-status" data-id="${order.id}">

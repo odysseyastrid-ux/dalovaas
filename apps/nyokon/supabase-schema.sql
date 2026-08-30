@@ -444,3 +444,6 @@ $$;
 
 revoke all on function public.decrement_variant_stock(jsonb) from public;
 grant execute on function public.decrement_variant_stock(jsonb) to anon, authenticated;
+
+-- Delivery city, alongside the existing free-text address field.
+alter table public.orders add column if not exists city text;

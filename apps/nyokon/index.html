@@ -282,8 +282,18 @@
       </div>
     </div>
     <div class="checkout-field" id="checkoutAddressField" style="display:none;">
-      <label data-i18n="checkout_address_label"></label>
-      <input type="text" id="checkoutAddress" />
+      <label data-i18n="checkout_city_label"></label>
+      <select id="checkoutCity">
+        <option value="" data-i18n="checkout_city_placeholder"></option>
+        <option value="douala">Douala</option>
+        <option value="yaounde">Yaoundé</option>
+        <option value="bafoussam">Bafoussam</option>
+        <option value="garoua">Garoua</option>
+        <option value="bamenda">Bamenda</option>
+        <option value="autre" data-i18n="checkout_city_other"></option>
+      </select>
+      <label data-i18n="checkout_address_label" style="margin-top:14px;"></label>
+      <input type="text" id="checkoutAddress" data-i18n-placeholder="checkout_address_placeholder" />
     </div>
     <div class="checkout-field">
       <label data-i18n="checkout_payment_label"></label>

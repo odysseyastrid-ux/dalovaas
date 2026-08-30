@@ -136,7 +136,7 @@ const TRANSLATIONS = {
     filter_clothing:'CLOTHING', filter_shoes:'SHOES', filter_bags:'BAGS',
     filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
     filter_girls:'GIRLS', filter_boys:'BOYS',
-    quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', sizes_label:'Sizes',
+    quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', tag_sold_out:'SOLD OUT', sizes_label:'Sizes',
     size_choose_error:'Please select a size.',
     editorial_eyebrow:'THE STORY', editorial_title:'NOT OFF THE RACK.',
     editorial_text:"nyøkøn started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a nyøkøn piece different.",
@@ -176,7 +176,7 @@ const TRANSLATIONS = {
     filter_clothing:'VÊTEMENTS', filter_shoes:'CHAUSSURES', filter_bags:'SACS',
     filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
     filter_girls:'FILLES', filter_boys:'GARÇONS',
-    quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', sizes_label:'Tailles',
+    quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', tag_sold_out:'ÉPUISÉ', sizes_label:'Tailles',
     size_choose_error:'Choisis une taille.',
     editorial_eyebrow:"L'HISTOIRE", editorial_title:'PAS DU PRÊT-À-PORTER.',
     editorial_text:"nyøkøn a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce nyøkøn différente.",
@@ -291,7 +291,8 @@ function renderProducts(){
     card.dataset.type = p.type;
     card.innerHTML = `
       <div class="product-media">
-        ${p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
+        ${p.soldOut ? `<span class="product-tag product-tag-soldout">${t('tag_sold_out')}</span>`
+          : p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
         ${p.image
           ? `<img class="product-photo" src="${p.image}" alt="${name}">`
           : `<div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
@@ -300,14 +301,18 @@ function renderProducts(){
           <span class="g-light"></span>
           <span class="g-layer" style="animation-delay:0s;animation-duration:20s;"></span>
           <span class="g-layer" style="animation-delay:.4s;animation-duration:17s;"></span>
-          <button class="quick-add" data-id="${p.id}">${t('quick_add')} — ${money(p.price)}</button>
+          <button class="quick-add" data-id="${p.id}" ${p.soldOut ? 'disabled' : ''}>${p.soldOut ? t('tag_sold_out') : `${t('quick_add')} — ${money(p.price)}`}</button>
         </span>
       </div>
       <div class="product-info">
         <div>
           <div class="product-name">${name}</div>
           <div class="product-sub">${sub}</div>
-          ${p.sizes ? `<div class="product-sizes">${p.sizes.map(s => `<button type="button" class="size-chip" data-size="${s}">${s}</button>`).join('')}</div>
+          ${p.colors ? `<div class="product-colors">${p.colors.map(c => `<span class="color-swatch" style="background:${c.hex}" title="${c.name || ''}"></span>`).join('')}</div>` : ''}
+          ${p.sizes ? `<div class="product-sizes">${p.sizes.map(s => {
+            const outOfStock = p.stockBySize && (p.stockBySize[s] || 0) <= 0;
+            return `<button type="button" class="size-chip${outOfStock ? ' is-out' : ''}" data-size="${s}" ${outOfStock ? 'disabled' : ''}>${s}</button>`;
+          }).join('')}</div>
           <div class="product-size-note"></div>` : ''}
         </div>
         <div class="product-price">
@@ -726,23 +731,54 @@ document.getElementById('year').textContent = new Date().getFullYear();
   try {
     const { data, error } = await sb
       .from('products')
-      .select('id,gender,type,kids_group,tag,price,was,sizes,name_en,name_fr,sub_en,sub_fr,image_url')
+      .select('id,gender,type,kids_group,tag,tags,price,was,sizes,colors,material,fit,care_instructions,volume_ml,olfactory_family,concentration,sold_out,name_en,name_fr,sub_en,sub_fr,image_url')
       .eq('active', true)
       .order('created_at', { ascending: true });
     if (error || !data || !data.length) return;
-    PRODUCTS = data.map(r => ({
-      id: r.id,
-      price: Number(r.price),
-      was: r.was != null ? Number(r.was) : null,
-      gender: r.gender || 'unisex',
-      type: r.type || 'clothing',
-      kidsGroup: r.kids_group || null,
-      tag: r.tag || null,
-      sizes: r.sizes && r.sizes.length ? r.sizes : null,
-      image: r.image_url || null,
-      name: { en: r.name_en, fr: r.name_fr },
-      sub: { en: r.sub_en || '', fr: r.sub_fr || '' },
-    }));
+
+    // Per-size stock, when staff tracks it (product_variants). A
+    // product with no variant rows stays always-available, same as
+    // before — variants are an opt-in stock layer, not required.
+    let variantsByProduct = {};
+    try {
+      const { data: variants } = await sb.from('product_variants').select('product_id,size,stock');
+      (variants || []).forEach(v => {
+        (variantsByProduct[v.product_id] = variantsByProduct[v.product_id] || []).push(v);
+      });
+    } catch (e) { /* stock tracking is optional */ }
+
+    PRODUCTS = data.map(r => {
+      const variants = variantsByProduct[r.id] || [];
+      const stockBySize = {};
+      variants.forEach(v => {
+        if (!v.size) return;
+        stockBySize[v.size] = (stockBySize[v.size] || 0) + (Number(v.stock) || 0);
+      });
+      const soldOut = r.sold_out === true || (variants.length > 0 && variants.every(v => (Number(v.stock) || 0) <= 0));
+      return {
+        id: r.id,
+        price: Number(r.price),
+        was: r.was != null ? Number(r.was) : null,
+        gender: r.gender || 'unisex',
+        type: r.type || 'clothing',
+        kidsGroup: r.kids_group || null,
+        tag: r.tag || null,
+        tags: r.tags || null,
+        sizes: r.sizes && r.sizes.length ? r.sizes : null,
+        stockBySize: Object.keys(stockBySize).length ? stockBySize : null,
+        colors: r.colors && r.colors.length ? r.colors : null,
+        material: r.material || null,
+        fit: r.fit || null,
+        careInstructions: r.care_instructions || null,
+        volumeMl: r.volume_ml || null,
+        olfactoryFamily: r.olfactory_family || null,
+        concentration: r.concentration || null,
+        soldOut,
+        image: r.image_url || null,
+        name: { en: r.name_en, fr: r.name_fr },
+        sub: { en: r.sub_en || '', fr: r.sub_fr || '' },
+      };
+    });
     renderProducts();
   } catch (e) { /* keep FALLBACK_PRODUCTS on any failure */ }
 })();

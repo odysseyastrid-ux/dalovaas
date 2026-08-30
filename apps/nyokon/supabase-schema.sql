@@ -300,3 +300,69 @@ where gender = 'kids' and kids_group is null;
 
 alter table public.products alter column gender set default 'unisex';
 alter table public.products alter column type set default 'clothing';
+
+-- Product detail sheet: materials, clothing fit/care, fragrance specs,
+-- colorways, and free-form merchandising tags (separate from the
+-- single `tag` column, which still drives the NEW/SALE badge on the
+-- storefront card). All nullable/optional — only the fields relevant
+-- to a product's `type` are shown in the staff form.
+
+alter table public.products add column if not exists material text;
+alter table public.products add column if not exists fit text;
+alter table public.products add column if not exists care_instructions text;
+alter table public.products add column if not exists volume_ml integer;
+alter table public.products add column if not exists olfactory_family text;
+alter table public.products add column if not exists concentration text;
+alter table public.products add column if not exists colors jsonb;
+alter table public.products add column if not exists tags text[];
+alter table public.products add column if not exists sold_out boolean not null default false;
+
+-- Variants: per size (+ optional color) stock and SKU. Optional per
+-- product — a product with no variant rows is treated as always
+-- available (unchanged behaviour); once staff adds variant rows for a
+-- product, a size with 0 stock shows as sold out on that size only.
+
+create table if not exists public.product_variants (
+  id uuid primary key default gen_random_uuid(),
+  product_id text not null references public.products(id) on delete cascade,
+  size text,
+  color_name text,
+  sku text,
+  stock integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.product_variants enable row level security;
+
+drop policy if exists product_variants_select_public on public.product_variants;
+create policy product_variants_select_public
+  on public.product_variants for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists product_variants_write_staff on public.product_variants;
+create policy product_variants_write_staff
+  on public.product_variants for all
+  to authenticated
+  using (true)
+  with check (true);
+
+-- Cost price lives in its own staff-only table (not a column on
+-- `products`) so it is never reachable through the public anon key —
+-- there is no anon policy on this table at all, so anon queries
+-- return zero rows regardless of what they ask for.
+
+create table if not exists public.product_costs (
+  product_id text primary key references public.products(id) on delete cascade,
+  cost_price numeric,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.product_costs enable row level security;
+
+drop policy if exists product_costs_staff_only on public.product_costs;
+create policy product_costs_staff_only
+  on public.product_costs for all
+  to authenticated
+  using (true)
+  with check (true);

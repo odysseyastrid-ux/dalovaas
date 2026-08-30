@@ -81,6 +81,24 @@
   .prod-active-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg-dim);cursor:pointer;}
   .prod-delete{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;}
   .prod-error{margin:0;}
+  .prod-colors-field,.prod-tags-field{margin-bottom:16px;}
+  .prod-colors-field label,.prod-tags-field label{display:block;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:8px;}
+  .color-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  .color-row{display:flex;align-items:center;gap:8px;}
+  .color-row input[type=color]{width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer;}
+  .color-row input[type=text]{flex:1;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;color:var(--fg);font-family:inherit;font-size:13px;}
+  .color-row-remove{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;flex-shrink:0;}
+  .prod-add-color{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;}
+  .prod-add-color:hover{border-color:var(--fg);}
+  .tag-checks{display:flex;flex-wrap:wrap;gap:14px;}
+  .tag-checks label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg);font-weight:400;letter-spacing:0;text-transform:none;}
+  .variant-table{margin-top:14px;border-top:1px solid var(--line);padding-top:14px;}
+  .variant-table-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:10px;}
+  .variant-row{display:grid;grid-template-columns:1fr 1fr 1fr 90px auto;gap:8px;margin-bottom:8px;align-items:center;}
+  .variant-row input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:8px 9px;color:var(--fg);font-family:inherit;font-size:12px;}
+  .variant-row-remove{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;}
+  .variant-add,.variant-save{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;margin-right:8px;}
+  .variant-add:hover,.variant-save:hover{border-color:var(--fg);}
 </style>
 </head>
 <body>
@@ -161,8 +179,54 @@
           <div><label for="npSubEn">Description courte (anglais)</label><input id="npSubEn" /></div>
           <div><label for="npSubFr">Description courte (français)</label><input id="npSubFr" /></div>
           <div><label for="npSizes">Tailles (séparées par virgule)</label><input id="npSizes" placeholder="S, M, L, XL" /></div>
+          <div><label for="npMaterial">Matière</label><input id="npMaterial" placeholder="ex: Coton, Cuir, Acier inoxydable" /></div>
+          <div id="npFitField"><label for="npFit">Coupe</label>
+            <select id="npFit">
+              <option value="">—</option>
+              <option value="slim">Slim</option>
+              <option value="regular">Regular</option>
+              <option value="oversized">Oversized</option>
+            </select>
+          </div>
+          <div id="npCareField"><label for="npCare">Entretien</label><input id="npCare" placeholder="ex: Lavage à 30°C, ne pas sécher en machine" /></div>
+          <div id="npVolumeField" style="display:none;"><label for="npVolume">Volume (ml)</label><input id="npVolume" type="number" step="1" min="0" /></div>
+          <div id="npFamilyField" style="display:none;"><label for="npFamily">Famille olfactive</label>
+            <select id="npFamily">
+              <option value="">—</option>
+              <option value="boise">Boisé</option>
+              <option value="floral">Floral</option>
+              <option value="fruite">Fruité</option>
+              <option value="oriental">Oriental</option>
+              <option value="frais">Frais / Aquatique</option>
+            </select>
+          </div>
+          <div id="npConcentrationField" style="display:none;"><label for="npConcentration">Concentration</label>
+            <select id="npConcentration">
+              <option value="">—</option>
+              <option value="edp">Eau de Parfum</option>
+              <option value="edt">Eau de Toilette</option>
+              <option value="edc">Eau de Cologne</option>
+            </select>
+          </div>
+          <div><label for="npCost">Coût de revient (privé, jamais visible client)</label><input id="npCost" type="number" step="0.01" min="0" /></div>
           <div><label for="npImage">Photo</label><input id="npImage" type="file" accept="image/*" /></div>
         </div>
+        <div class="prod-colors-field">
+          <label>Couleurs</label>
+          <div class="color-rows" id="npColorRows"></div>
+          <button type="button" class="prod-add-color" id="npAddColor">+ Ajouter une couleur</button>
+        </div>
+        <div class="prod-tags-field">
+          <label>Tags (plusieurs possibles — indépendant de l'étiquette ci-dessus)</label>
+          <div class="tag-checks">
+            <label><input type="checkbox" class="np-tag" value="nouveautes" /> Nouveautés</label>
+            <label><input type="checkbox" class="np-tag" value="tendance" /> Tendance</label>
+            <label><input type="checkbox" class="np-tag" value="promotions" /> Promotions</label>
+            <label><input type="checkbox" class="np-tag" value="coffrets" /> Coffrets Cadeaux</label>
+          </div>
+        </div>
+        <label class="prod-active-label"><input type="checkbox" id="npSoldOut" /> Marquer en rupture de stock</label>
+        <br /><br />
         <button type="submit" class="staff-btn" id="newProductBtn">Ajouter le produit</button>
         <div class="staff-error" id="newProductError"></div>
       </form>
@@ -377,11 +441,63 @@ const newProductBtn = document.getElementById('newProductBtn');
 const newProductError = document.getElementById('newProductError');
 const productList = document.getElementById('productList');
 const npGender = document.getElementById('npGender');
+const npType = document.getElementById('npType');
 const npKidsGroupField = document.getElementById('npKidsGroupField');
+const npFitField = document.getElementById('npFitField');
+const npCareField = document.getElementById('npCareField');
+const npVolumeField = document.getElementById('npVolumeField');
+const npFamilyField = document.getElementById('npFamilyField');
+const npConcentrationField = document.getElementById('npConcentrationField');
+const npColorRows = document.getElementById('npColorRows');
 
 npGender.addEventListener('change', () => {
   npKidsGroupField.style.display = npGender.value === 'kids' ? 'block' : 'none';
 });
+
+function syncTypeFields(typeSelect, fitField, careField, volumeField, familyField, concentrationField){
+  const isClothing = typeSelect.value === 'clothing';
+  const isFragrance = typeSelect.value === 'fragrance';
+  fitField.style.display = isClothing ? '' : 'none';
+  careField.style.display = isClothing ? '' : 'none';
+  volumeField.style.display = isFragrance ? '' : 'none';
+  familyField.style.display = isFragrance ? '' : 'none';
+  concentrationField.style.display = isFragrance ? '' : 'none';
+}
+npType.addEventListener('change', () => syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField));
+syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField);
+
+function addColorRow(container, name, hex){
+  const row = document.createElement('div');
+  row.className = 'color-row';
+  row.innerHTML = `
+    <input type="color" class="color-hex" value="${hex || '#000000'}" />
+    <input type="text" class="color-name" placeholder="Nom de la couleur (ex: Noir Mat)" value="${escAttr(name || '')}" />
+    <button type="button" class="color-row-remove">✕</button>
+  `;
+  row.querySelector('.color-row-remove').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
+function readColorRows(container){
+  return [...container.querySelectorAll('.color-row')]
+    .map(row => ({ name: row.querySelector('.color-name').value.trim(), hex: row.querySelector('.color-hex').value }))
+    .filter(c => c.name);
+}
+document.getElementById('npAddColor').addEventListener('click', () => addColorRow(npColorRows));
+addColorRow(npColorRows);
+
+function addVariantRow(container, v){
+  const row = document.createElement('div');
+  row.className = 'variant-row';
+  row.innerHTML = `
+    <input class="v-size" placeholder="Taille (ex: M, 42)" value="${escAttr(v && v.size)}" />
+    <input class="v-color" placeholder="Couleur (optionnel)" value="${escAttr(v && v.color_name)}" />
+    <input class="v-sku" placeholder="SKU (optionnel)" value="${escAttr(v && v.sku)}" />
+    <input class="v-stock" type="number" step="1" min="0" placeholder="Stock" value="${v && v.stock != null ? v.stock : 0}" />
+    <button type="button" class="variant-row-remove">✕</button>
+  `;
+  row.querySelector('.variant-row-remove').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
 
 newProductForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -409,17 +525,30 @@ newProductForm.addEventListener('submit', async (e) => {
       image_url = pub.publicUrl;
     }
     const gender = npGender.value;
+    const type = npType.value;
     const wasVal = document.getElementById('npWas').value;
     const sizesRaw = document.getElementById('npSizes').value.trim();
+    const volumeVal = document.getElementById('npVolume').value;
+    const colors = readColorRows(npColorRows);
+    const tags = [...document.querySelectorAll('.np-tag:checked')].map(cb => cb.value);
     const { error } = await sb.from('products').insert({
       id,
       gender,
-      type: document.getElementById('npType').value,
+      type,
       kids_group: gender === 'kids' ? document.getElementById('npKidsGroup').value : null,
       tag: document.getElementById('npTag').value || null,
+      tags: tags.length ? tags : null,
       price,
       was: wasVal ? parseFloat(wasVal) : null,
       sizes: sizesRaw ? sizesRaw.split(',').map(s => s.trim()).filter(Boolean) : null,
+      colors: colors.length ? colors : null,
+      material: document.getElementById('npMaterial').value.trim() || null,
+      fit: type === 'clothing' ? (document.getElementById('npFit').value || null) : null,
+      care_instructions: type === 'clothing' ? (document.getElementById('npCare').value.trim() || null) : null,
+      volume_ml: type === 'fragrance' && volumeVal ? parseInt(volumeVal, 10) : null,
+      olfactory_family: type === 'fragrance' ? (document.getElementById('npFamily').value || null) : null,
+      concentration: type === 'fragrance' ? (document.getElementById('npConcentration').value || null) : null,
+      sold_out: document.getElementById('npSoldOut').checked,
       name_en: nameEn,
       name_fr: nameFr,
       sub_en: document.getElementById('npSubEn').value.trim(),
@@ -428,8 +557,15 @@ newProductForm.addEventListener('submit', async (e) => {
       active: true,
     });
     if (error) throw error;
+    const costVal = document.getElementById('npCost').value;
+    if (costVal) {
+      await sb.from('product_costs').upsert({ product_id: id, cost_price: parseFloat(costVal) });
+    }
     newProductForm.reset();
     npKidsGroupField.style.display = 'none';
+    npColorRows.innerHTML = '';
+    addColorRow(npColorRows);
+    syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField);
     renderProductsStaff();
   } catch (err) {
     newProductError.textContent = 'Erreur : ' + (err.message || err);
@@ -439,17 +575,33 @@ newProductForm.addEventListener('submit', async (e) => {
   }
 });
 
+const PROD_MERCH_TAGS = [['nouveautes', 'Nouveautés'], ['tendance', 'Tendance'], ['promotions', 'Promotions'], ['coffrets', 'Coffrets Cadeaux']];
+const PROD_FITS = [['', '—'], ['slim', 'Slim'], ['regular', 'Regular'], ['oversized', 'Oversized']];
+const PROD_FAMILIES = [['', '—'], ['boise', 'Boisé'], ['floral', 'Floral'], ['fruite', 'Fruité'], ['oriental', 'Oriental'], ['frais', 'Frais / Aquatique']];
+const PROD_CONCENTRATIONS = [['', '—'], ['edp', 'Eau de Parfum'], ['edt', 'Eau de Toilette'], ['edc', 'Eau de Cologne']];
+
 async function renderProductsStaff(){
-  const { data: rows } = await sb.from('products').select('*').order('created_at', { ascending: true });
+  const [{ data: rows }, { data: costRows }, { data: variantRows }] = await Promise.all([
+    sb.from('products').select('*').order('created_at', { ascending: true }),
+    sb.from('product_costs').select('product_id,cost_price'),
+    sb.from('product_variants').select('*').order('created_at', { ascending: true }),
+  ]);
   productList.innerHTML = '';
   if (!rows || !rows.length) {
     productList.innerHTML = '<p class="staff-empty">Aucun produit pour l’instant.</p>';
     return;
   }
+  const costByProduct = {};
+  (costRows || []).forEach(c => { costByProduct[c.product_id] = c.cost_price; });
+  const variantsByProduct = {};
+  (variantRows || []).forEach(v => { (variantsByProduct[v.product_id] = variantsByProduct[v.product_id] || []).push(v); });
+
   rows.forEach(p => {
     const row = document.createElement('div');
     row.className = 'prod-card';
     row.dataset.id = p.id;
+    const isClothing = (p.type || 'clothing') === 'clothing';
+    const isFragrance = p.type === 'fragrance';
     row.innerHTML = `
       <div class="prod-top">
         <img class="prod-thumb" src="${p.image_url || ''}" style="${p.image_url ? '' : 'display:none;'}" />
@@ -466,17 +618,49 @@ async function renderProductsStaff(){
             <div><label>Description (EN)</label><input class="f-sub-en" value="${escAttr(p.sub_en)}" /></div>
             <div><label>Description (FR)</label><input class="f-sub-fr" value="${escAttr(p.sub_fr)}" /></div>
             <div><label>Tailles (séparées par virgule)</label><input class="f-sizes" value="${escAttr((p.sizes || []).join(', '))}" /></div>
+            <div><label>Matière</label><input class="f-material" value="${escAttr(p.material)}" /></div>
+            <div class="f-fit-field" style="${isClothing ? '' : 'display:none;'}"><label>Coupe</label><select class="f-fit">${PROD_FITS.map(([v, l]) => `<option value="${v}" ${v === (p.fit || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div class="f-care-field" style="${isClothing ? '' : 'display:none;'}"><label>Entretien</label><input class="f-care" value="${escAttr(p.care_instructions)}" /></div>
+            <div class="f-volume-field" style="${isFragrance ? '' : 'display:none;'}"><label>Volume (ml)</label><input class="f-volume" type="number" step="1" min="0" value="${p.volume_ml ?? ''}" /></div>
+            <div class="f-family-field" style="${isFragrance ? '' : 'display:none;'}"><label>Famille olfactive</label><select class="f-family">${PROD_FAMILIES.map(([v, l]) => `<option value="${v}" ${v === (p.olfactory_family || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div class="f-concentration-field" style="${isFragrance ? '' : 'display:none;'}"><label>Concentration</label><select class="f-concentration">${PROD_CONCENTRATIONS.map(([v, l]) => `<option value="${v}" ${v === (p.concentration || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Coût de revient (privé)</label><input class="f-cost" type="number" step="0.01" min="0" value="${costByProduct[p.id] ?? ''}" /></div>
             <div><label>Photo</label><input class="f-image" type="file" accept="image/*" /></div>
+          </div>
+          <div class="prod-colors-field">
+            <label>Couleurs</label>
+            <div class="color-rows"></div>
+            <button type="button" class="prod-add-color">+ Ajouter une couleur</button>
+          </div>
+          <div class="prod-tags-field">
+            <label>Tags (plusieurs possibles)</label>
+            <div class="tag-checks">${PROD_MERCH_TAGS.map(([v, l]) => `<label><input type="checkbox" class="f-tag-check" value="${v}" ${(p.tags || []).includes(v) ? 'checked' : ''} /> ${l}</label>`).join('')}</div>
           </div>
           <div class="prod-foot">
             <label class="prod-active-label"><input type="checkbox" class="f-active" ${p.active ? 'checked' : ''} /> Actif (visible sur le site)</label>
+            <label class="prod-active-label"><input type="checkbox" class="f-sold-out" ${p.sold_out ? 'checked' : ''} /> Rupture de stock (forcer)</label>
             <button type="button" class="slot-save prod-save">Enregistrer</button>
             <button type="button" class="prod-delete">Supprimer</button>
             <span class="staff-error prod-error"></span>
           </div>
+          <div class="variant-table">
+            <div class="variant-table-title">Stock par variante (taille / couleur) — optionnel ; sans ligne ici, la taille reste toujours disponible</div>
+            <div class="variant-rows"></div>
+            <button type="button" class="variant-add">+ Ajouter une variante</button>
+            <button type="button" class="variant-save">Enregistrer le stock</button>
+            <span class="staff-error variant-error"></span>
+          </div>
         </div>
       </div>
     `;
+    const colorContainer = row.querySelector('.color-rows');
+    (p.colors || []).forEach(c => addColorRow(colorContainer, c.name, c.hex));
+    row.querySelector('.prod-add-color').addEventListener('click', () => addColorRow(colorContainer));
+
+    const variantContainer = row.querySelector('.variant-rows');
+    (variantsByProduct[p.id] || []).forEach(v => addVariantRow(variantContainer, v));
+    row.querySelector('.variant-add').addEventListener('click', () => addVariantRow(variantContainer));
+
     productList.appendChild(row);
   });
 
@@ -484,6 +668,18 @@ async function renderProductsStaff(){
     sel.addEventListener('change', () => {
       const field = sel.closest('.prod-card').querySelector('.f-kids-group-field');
       field.style.display = sel.value === 'kids' ? '' : 'none';
+    });
+  });
+  productList.querySelectorAll('.f-type').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const card = sel.closest('.prod-card');
+      const isClothing = sel.value === 'clothing';
+      const isFragrance = sel.value === 'fragrance';
+      card.querySelector('.f-fit-field').style.display = isClothing ? '' : 'none';
+      card.querySelector('.f-care-field').style.display = isClothing ? '' : 'none';
+      card.querySelector('.f-volume-field').style.display = isFragrance ? '' : 'none';
+      card.querySelector('.f-family-field').style.display = isFragrance ? '' : 'none';
+      card.querySelector('.f-concentration-field').style.display = isFragrance ? '' : 'none';
     });
   });
 
@@ -497,16 +693,29 @@ async function renderProductsStaff(){
       btn.textContent = 'Enregistrement…';
       try {
         const gender = row.querySelector('.f-gender').value;
+        const type = row.querySelector('.f-type').value;
+        const colors = readColorRows(row.querySelector('.color-rows'));
+        const tags = [...row.querySelectorAll('.f-tag-check:checked')].map(cb => cb.value);
+        const volumeVal = row.querySelector('.f-volume').value;
         const update = {
           gender,
-          type: row.querySelector('.f-type').value,
+          type,
           kids_group: gender === 'kids' ? row.querySelector('.f-kids-group').value : null,
           tag: row.querySelector('.f-tag').value || null,
+          tags: tags.length ? tags : null,
           price: parseFloat(row.querySelector('.f-price').value) || 0,
           was: row.querySelector('.f-was').value ? parseFloat(row.querySelector('.f-was').value) : null,
           sizes: row.querySelector('.f-sizes').value.trim()
             ? row.querySelector('.f-sizes').value.trim().split(',').map(s => s.trim()).filter(Boolean)
             : null,
+          colors: colors.length ? colors : null,
+          material: row.querySelector('.f-material').value.trim() || null,
+          fit: type === 'clothing' ? (row.querySelector('.f-fit').value || null) : null,
+          care_instructions: type === 'clothing' ? (row.querySelector('.f-care').value.trim() || null) : null,
+          volume_ml: type === 'fragrance' && volumeVal ? parseInt(volumeVal, 10) : null,
+          olfactory_family: type === 'fragrance' ? (row.querySelector('.f-family').value || null) : null,
+          concentration: type === 'fragrance' ? (row.querySelector('.f-concentration').value || null) : null,
+          sold_out: row.querySelector('.f-sold-out').checked,
           name_en: row.querySelector('.f-name-en').value.trim(),
           name_fr: row.querySelector('.f-name-fr').value.trim(),
           sub_en: row.querySelector('.f-sub-en').value.trim(),
@@ -525,6 +734,9 @@ async function renderProductsStaff(){
         }
         const { error } = await sb.from('products').update(update).eq('id', id);
         if (error) throw error;
+        const costVal = row.querySelector('.f-cost').value;
+        if (costVal) await sb.from('product_costs').upsert({ product_id: id, cost_price: parseFloat(costVal) });
+        else await sb.from('product_costs').delete().eq('product_id', id);
         btn.textContent = 'Enregistré ✓';
         if (update.image_url) { renderProductsStaff(); return; }
         setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1500);
@@ -532,6 +744,35 @@ async function renderProductsStaff(){
         errEl.textContent = 'Erreur : ' + (err.message || err);
         btn.disabled = false;
         btn.textContent = 'Enregistrer';
+      }
+    });
+  });
+
+  productList.querySelectorAll('.variant-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      const id = row.dataset.id;
+      const errEl = row.querySelector('.variant-error');
+      errEl.textContent = '';
+      btn.disabled = true;
+      try {
+        const variants = [...row.querySelectorAll('.variant-row')].map(vr => ({
+          product_id: id,
+          size: vr.querySelector('.v-size').value.trim(),
+          color_name: vr.querySelector('.v-color').value.trim() || null,
+          sku: vr.querySelector('.v-sku').value.trim() || null,
+          stock: parseInt(vr.querySelector('.v-stock').value, 10) || 0,
+        })).filter(v => v.size);
+        await sb.from('product_variants').delete().eq('product_id', id);
+        if (variants.length) {
+          const { error } = await sb.from('product_variants').insert(variants);
+          if (error) throw error;
+        }
+        btn.textContent = 'Enregistré ✓';
+        setTimeout(() => { btn.textContent = 'Enregistrer le stock'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        errEl.textContent = 'Erreur : ' + (err.message || err);
+        btn.disabled = false;
       }
     });
   });

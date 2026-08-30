@@ -450,6 +450,15 @@ main > section{
 }
 .size-chip:hover{border-color:var(--fg);color:var(--fg);}
 .size-chip.active{border-color:var(--fg);color:var(--invert-fg);background:var(--invert-bg);}
+.size-chip.is-out,.size-chip:disabled{color:var(--line);text-decoration:line-through;cursor:not-allowed;}
+.size-chip.is-out:hover,.size-chip:disabled:hover{border-color:var(--line);color:var(--line);}
+.product-colors{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.color-swatch{
+  width:16px;height:16px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  display:inline-block;
+}
 .product-size-note{
   margin-top:6px;
   font-size:10px;
@@ -498,6 +507,8 @@ main > section{
   border-radius:2px;
   z-index:2;
 }
+.product-tag-soldout{background:var(--bg);color:var(--fg-dim);border:1px solid var(--line);}
+.quick-add:disabled{opacity:.5;cursor:not-allowed;}
 .quick-add-wrap{
   position:absolute;
   left:10px;right:10px;bottom:10px;

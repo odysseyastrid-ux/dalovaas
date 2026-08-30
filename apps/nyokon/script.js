@@ -17,67 +17,86 @@ function getSb(){
 
 const SIZES_APPAREL = ['S','M','L','XL'];
 const SIZES_KIDS = ['4-5Y','6-7Y','8-9Y','10-11Y'];
-const SIZES_SHOES = ['40','41','42','43','44','45'];
 
+// Shoe sizes are stored as the EU value; SHOE_SIZE_CHART gives the US
+// and UK equivalents shown once a customer picks a size (approximate
+// standard conversions — real per-brand sizing can vary slightly).
+const SHOE_SIZE_CHART = {
+  '39': { us:'6.5',  uk:'5.5' },
+  '40': { us:'7',    uk:'6'   },
+  '41': { us:'8',    uk:'7'   },
+  '42': { us:'8.5',  uk:'7.5' },
+  '43': { us:'9.5',  uk:'8.5' },
+  '44': { us:'10.5', uk:'9.5' },
+  '45': { us:'11',   uk:'10'  },
+  '46': { us:'12',   uk:'11'  },
+};
+const SIZES_SHOES = Object.keys(SHOE_SIZE_CHART);
+
+// Every product has a gender (men/women/kids/unisex — unisex shows
+// under both Men and Women) and a type (clothing/shoes/bags/
+// accessories/fragrance), so all subcategories nest inside Hommes/
+// Femmes/Enfants instead of sitting as their own top-level tabs. Kids
+// items also carry kidsGroup (girls/boys/unisex).
 const FALLBACK_PRODUCTS = [
   // Men
-  { id:'m1', price:168, was:null, category:'men', tag:'new', sizes:SIZES_APPAREL,
+  { id:'m1', price:168, was:null, gender:'men', type:'clothing', tag:'new', sizes:SIZES_APPAREL,
     name:{en:'Flight Bomber Jacket', fr:'Blouson Bomber'}, sub:{en:'Navy', fr:'Marine'} },
-  { id:'m2', price:98,  was:null, category:'men', tag:'new', sizes:SIZES_APPAREL,
+  { id:'m2', price:98,  was:null, gender:'men', type:'clothing', tag:'new', sizes:SIZES_APPAREL,
     name:{en:'Oversized Hoodie', fr:'Hoodie Oversize'}, sub:{en:'Off-Black', fr:'Noir Anthracite'} },
-  { id:'m3', price:110, was:130,  category:'men', tag:'sale', sizes:SIZES_APPAREL,
+  { id:'m3', price:110, was:130,  gender:'men', type:'clothing', tag:'sale', sizes:SIZES_APPAREL,
     name:{en:'Cargo Pant', fr:'Pantalon Cargo'}, sub:{en:'Charcoal', fr:'Anthracite'} },
-  { id:'m4', price:145, was:null, category:'men', tag:null, sizes:SIZES_APPAREL,
+  { id:'m4', price:145, was:null, gender:'men', type:'clothing', tag:null, sizes:SIZES_APPAREL,
     name:{en:'Denim Jacket', fr:'Veste en Jean'}, sub:{en:'Washed Blue', fr:'Bleu Délavé'} },
 
   // Women
-  { id:'w1', price:128, was:null, category:'women', tag:'new', sizes:SIZES_APPAREL,
+  { id:'w1', price:128, was:null, gender:'women', type:'clothing', tag:'new', sizes:SIZES_APPAREL,
     name:{en:'Cropped Puffer Vest', fr:'Doudoune Crop Sans Manches'}, sub:{en:'Black', fr:'Noir'} },
-  { id:'w2', price:118, was:null, category:'women', tag:null, sizes:SIZES_APPAREL,
+  { id:'w2', price:118, was:null, gender:'women', type:'clothing', tag:null, sizes:SIZES_APPAREL,
     name:{en:'Wide Leg Trouser', fr:'Pantalon Large'}, sub:{en:'Sand', fr:'Sable'} },
-  { id:'w3', price:96,  was:null, category:'women', tag:'new', sizes:SIZES_APPAREL,
+  { id:'w3', price:96,  was:null, gender:'women', type:'clothing', tag:'new', sizes:SIZES_APPAREL,
     name:{en:'Pleated Midi Skirt', fr:'Jupe Midi Plissée'}, sub:{en:'Ivory', fr:'Ivoire'} },
-  { id:'w4', price:38,  was:null, category:'women', tag:null, sizes:SIZES_APPAREL,
+  { id:'w4', price:38,  was:null, gender:'women', type:'clothing', tag:null, sizes:SIZES_APPAREL,
     name:{en:'Ribbed Tank Top', fr:'Débardeur Côtelé'}, sub:{en:'White', fr:'Blanc'} },
 
   // Kids
-  { id:'k1', price:58, was:null, category:'kids', tag:'new', sizes:SIZES_KIDS,
+  { id:'k1', price:58, was:null, gender:'kids', type:'clothing', kidsGroup:'unisex', tag:'new', sizes:SIZES_KIDS,
     name:{en:'Kids Logo Hoodie', fr:'Hoodie Logo Enfant'}, sub:{en:'Grey Marl', fr:'Gris Chiné'} },
-  { id:'k2', price:52, was:null, category:'kids', tag:null, sizes:SIZES_KIDS,
+  { id:'k2', price:52, was:null, gender:'kids', type:'clothing', kidsGroup:'unisex', tag:null, sizes:SIZES_KIDS,
     name:{en:'Kids Cargo Pant', fr:'Pantalon Cargo Enfant'}, sub:{en:'Khaki', fr:'Kaki'} },
-  { id:'k3', price:64, was:null, category:'kids', tag:'new', sizes:SIZES_KIDS,
+  { id:'k3', price:64, was:null, gender:'kids', type:'clothing', kidsGroup:'unisex', tag:'new', sizes:SIZES_KIDS,
     name:{en:'Kids Windbreaker', fr:'Coupe-Vent Enfant'}, sub:{en:'Red', fr:'Rouge'} },
 
   // Shoes
-  { id:'s1', price:145, was:null, category:'shoes', tag:'new', sizes:SIZES_SHOES,
+  { id:'s1', price:145, was:null, gender:'unisex', type:'shoes', tag:'new', sizes:SIZES_SHOES,
     name:{en:'Chunky Trainer', fr:'Sneaker Chunky'}, sub:{en:'White / Black', fr:'Blanc / Noir'} },
-  { id:'s2', price:110, was:null, category:'shoes', tag:null, sizes:SIZES_SHOES,
+  { id:'s2', price:110, was:null, gender:'unisex', type:'shoes', tag:null, sizes:SIZES_SHOES,
     name:{en:'Low-Top Sneaker', fr:'Sneaker Basse'}, sub:{en:'Triple White', fr:'Tout Blanc'} },
-  { id:'s3', price:158, was:185,  category:'shoes', tag:'sale', sizes:SIZES_SHOES,
+  { id:'s3', price:158, was:185,  gender:'unisex', type:'shoes', tag:'sale', sizes:SIZES_SHOES,
     name:{en:'Combat Boot', fr:'Rangers'}, sub:{en:'Black Leather', fr:'Cuir Noir'} },
 
   // Bags
-  { id:'b1', price:64,  was:null, category:'bags', tag:null,
+  { id:'b1', price:64,  was:null, gender:'unisex', type:'bags', tag:null,
     name:{en:'Crossbody Bag', fr:'Sacoche Bandoulière'}, sub:{en:'Black Nylon', fr:'Nylon Noir'} },
-  { id:'b2', price:48,  was:null, category:'bags', tag:'new',
+  { id:'b2', price:48,  was:null, gender:'unisex', type:'bags', tag:'new',
     name:{en:'Canvas Tote Bag', fr:'Tote Bag en Toile'}, sub:{en:'Natural', fr:'Écru'} },
-  { id:'b3', price:135, was:null, category:'bags', tag:'new',
+  { id:'b3', price:135, was:null, gender:'unisex', type:'bags', tag:'new',
     name:{en:'Weekend Duffel', fr:'Sac Week-end'}, sub:{en:'Olive', fr:'Olive'} },
 
   // Accessories
-  { id:'a1', price:32, was:null, category:'accessories', tag:null,
+  { id:'a1', price:32, was:null, gender:'unisex', type:'accessories', tag:null,
     name:{en:'Beanie', fr:'Bonnet'}, sub:{en:'Black', fr:'Noir'} },
-  { id:'a2', price:34, was:null, category:'accessories', tag:null,
+  { id:'a2', price:34, was:null, gender:'unisex', type:'accessories', tag:null,
     name:{en:'Snapback Cap', fr:'Casquette Snapback'}, sub:{en:'Black', fr:'Noir'} },
-  { id:'a3', price:42, was:null, category:'accessories', tag:'new',
+  { id:'a3', price:42, was:null, gender:'unisex', type:'accessories', tag:'new',
     name:{en:'Reversible Belt', fr:'Ceinture Réversible'}, sub:{en:'Black / Brown', fr:'Noir / Marron'} },
 
   // Fragrance
-  { id:'f1', price:78,  was:null, category:'fragrance', tag:'new',
+  { id:'f1', price:78,  was:null, gender:'unisex', type:'fragrance', tag:'new',
     name:{en:'Eau de Parfum 50ml', fr:'Eau de Parfum 50ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
-  { id:'f2', price:110, was:null, category:'fragrance', tag:null,
+  { id:'f2', price:110, was:null, gender:'unisex', type:'fragrance', tag:null,
     name:{en:'Eau de Parfum 100ml', fr:'Eau de Parfum 100ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
-  { id:'f3', price:28,  was:null, category:'fragrance', tag:null,
+  { id:'f3', price:28,  was:null, gender:'unisex', type:'fragrance', tag:null,
     name:{en:'Travel Spray 15ml', fr:'Vaporisateur Nomade 15ml'}, sub:{en:'Signature Scent', fr:'Fragrance Signature'} },
 ];
 
@@ -114,8 +133,11 @@ const TRANSLATIONS = {
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
     shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
     filter_all:'ALL', filter_men:'MEN', filter_women:'WOMEN', filter_kids:'KIDS',
-    filter_shoes:'SHOES', filter_bags:'BAGS', filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
+    filter_clothing:'CLOTHING', filter_shoes:'SHOES', filter_bags:'BAGS',
+    filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
+    filter_girls:'GIRLS', filter_boys:'BOYS',
     quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', sizes_label:'Sizes',
+    size_choose_error:'Please select a size.',
     editorial_eyebrow:'THE STORY', editorial_title:'NOT OFF THE RACK.',
     editorial_text:"nyøkøn started as one-off pieces made for friends. Every drop is small-batch, cut and finished by hand, built for people who want something that doesn't look like everyone else's closet. This is where you swap in your real brand copy — origin story, materials, what makes a nyøkøn piece different.",
     editorial_cta:'OUR STORY',
@@ -151,8 +173,11 @@ const TRANSLATIONS = {
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
     shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
     filter_all:'TOUT', filter_men:'HOMME', filter_women:'FEMME', filter_kids:'ENFANT',
-    filter_shoes:'CHAUSSURES', filter_bags:'SACS', filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
+    filter_clothing:'VÊTEMENTS', filter_shoes:'CHAUSSURES', filter_bags:'SACS',
+    filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
+    filter_girls:'FILLES', filter_boys:'GARÇONS',
     quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', sizes_label:'Tailles',
+    size_choose_error:'Choisis une taille.',
     editorial_eyebrow:"L'HISTOIRE", editorial_title:'PAS DU PRÊT-À-PORTER.',
     editorial_text:"nyøkøn a commencé avec des pièces uniques faites pour des amis. Chaque drop est produit en petite série, coupé et fini à la main, pensé pour ceux qui ne veulent pas ressembler à tout le monde. C'est ici que tu remplaces ce texte par ton vrai discours de marque — l'histoire d'origine, les matières, ce qui rend une pièce nyøkøn différente.",
     editorial_cta:'NOTRE HISTOIRE',
@@ -225,13 +250,34 @@ function loadCurrency(){
 }
 
 let currentCurrency = loadCurrency();
-let currentFilter = 'all';
+// Products nest gender (men/women/kids — unisex items show under both
+// men and women) > type (clothing/shoes/bags/accessories/fragrance),
+// with an extra girls/boys split inside kids.
+let currentGender = 'all';
+let currentType = 'all';
+let currentKidsGroup = 'all';
 let searchQuery = '';
 
-function renderProducts(filter=currentFilter){
-  currentFilter = filter;
+function sizeChartNote(type, size){
+  if (type !== 'shoes') return '';
+  const c = SHOE_SIZE_CHART[size];
+  return c ? `EU ${size} — US ${c.us} / UK ${c.uk}` : '';
+}
+
+function renderProducts(){
   grid.innerHTML = '';
-  let list = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
+  let list = PRODUCTS.filter(p => {
+    if (currentGender !== 'all'){
+      if (currentGender === 'kids'){ if (p.gender !== 'kids') return false; }
+      else if (p.gender !== currentGender && p.gender !== 'unisex') return false;
+    }
+    if (currentType !== 'all' && p.type !== currentType) return false;
+    if (currentGender === 'kids' && currentKidsGroup !== 'all'){
+      const kg = p.kidsGroup || 'unisex';
+      if (kg !== currentKidsGroup && kg !== 'unisex') return false;
+    }
+    return true;
+  });
   if (searchQuery){
     const q = searchQuery.toLowerCase();
     list = list.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(q));
@@ -242,6 +288,7 @@ function renderProducts(filter=currentFilter){
     const sub = p.sub[currentLang] || p.sub.en;
     const card = document.createElement('div');
     card.className = 'product-card';
+    card.dataset.type = p.type;
     card.innerHTML = `
       <div class="product-media">
         ${p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
@@ -260,7 +307,8 @@ function renderProducts(filter=currentFilter){
         <div>
           <div class="product-name">${name}</div>
           <div class="product-sub">${sub}</div>
-          ${p.sizes ? `<div class="product-sizes">${t('sizes_label')}: ${p.sizes.join(' · ')}</div>` : ''}
+          ${p.sizes ? `<div class="product-sizes">${p.sizes.map(s => `<button type="button" class="size-chip" data-size="${s}">${s}</button>`).join('')}</div>
+          <div class="product-size-note"></div>` : ''}
         </div>
         <div class="product-price">
           ${p.was ? `<span class="was">${money(p.was)}</span>` : ''}${money(p.price)}
@@ -271,27 +319,63 @@ function renderProducts(filter=currentFilter){
   }
 }
 
+// Size chips (product cards render their own — event delegation since
+// the grid is rebuilt on every filter/search/currency/language change).
+grid.addEventListener('click', (e) => {
+  const chip = e.target.closest('.size-chip');
+  if (!chip) return;
+  const card = chip.closest('.product-card');
+  card.querySelectorAll('.size-chip').forEach(c => c.classList.toggle('active', c === chip));
+  card.dataset.selectedSize = chip.dataset.size;
+  const note = card.querySelector('.product-size-note');
+  if (note){
+    note.classList.remove('is-error');
+    note.textContent = sizeChartNote(card.dataset.type, chip.dataset.size);
+  }
+});
+
 function refreshFilterLabels(){
   document.querySelectorAll('.filter').forEach(btn => {
-    const key = 'filter_' + btn.dataset.filter;
+    const key = 'filter_' + (btn.dataset.gender || btn.dataset.type || btn.dataset.kidsGroup);
     if (TRANSLATIONS.en[key]) btn.textContent = t(key);
   });
 }
 
-function setActiveFilter(filter){
-  document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
-  renderProducts(filter);
+const filtersKidsRow = document.getElementById('filtersKids');
+
+function setGender(gender){
+  currentGender = gender;
+  document.querySelectorAll('#filtersGender .filter').forEach(b => b.classList.toggle('active', b.dataset.gender === gender));
+  filtersKidsRow.hidden = gender !== 'kids';
+  if (gender !== 'kids') currentKidsGroup = 'all';
+  renderProducts();
+}
+function setType(type){
+  currentType = type;
+  document.querySelectorAll('#filtersType .filter').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  renderProducts();
+}
+function setKidsGroup(group){
+  currentKidsGroup = group;
+  document.querySelectorAll('#filtersKids .filter').forEach(b => b.classList.toggle('active', b.dataset.kidsGroup === group));
+  renderProducts();
 }
 
-document.querySelectorAll('.filter').forEach(btn => {
-  btn.addEventListener('click', () => setActiveFilter(btn.dataset.filter));
+document.querySelectorAll('#filtersGender .filter').forEach(btn => {
+  btn.addEventListener('click', () => setGender(btn.dataset.gender));
+});
+document.querySelectorAll('#filtersType .filter').forEach(btn => {
+  btn.addEventListener('click', () => setType(btn.dataset.type));
+});
+document.querySelectorAll('#filtersKids .filter').forEach(btn => {
+  btn.addEventListener('click', () => setKidsGroup(btn.dataset.kidsGroup));
 });
 
-// Category links in the header dropdown jump to the shop section and
-// pre-select the matching filter pill.
-document.querySelectorAll('[data-filter]').forEach(link => {
+// Gender links in the header dropdown jump to the shop section and
+// pre-select the matching gender pill.
+document.querySelectorAll('[data-gender]').forEach(link => {
   if (link.classList.contains('filter')) return; // pills handled above
-  link.addEventListener('click', () => setActiveFilter(link.dataset.filter));
+  link.addEventListener('click', () => setGender(link.dataset.gender));
 });
 
 // Search
@@ -326,7 +410,7 @@ dropdowns.forEach(dd => {
       trigger.setAttribute('aria-expanded', 'true');
     }
   });
-  dd.querySelectorAll('a[data-filter]').forEach(link => {
+  dd.querySelectorAll('a[data-gender]').forEach(link => {
     link.addEventListener('click', () => closeDropdown(dd));
   });
 });
@@ -353,7 +437,7 @@ function renderCart(){
   } else {
     cartItemsEl.innerHTML = [...cart.values()].map(item => `
       <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);">
-        <span>${item.name[currentLang] || item.name.en} × ${item.qty}</span>
+        <span>${item.name[currentLang] || item.name.en}${item.size ? ' — ' + item.size : ''} × ${item.qty}</span>
         <span>${money(item.price * item.qty)}</span>
       </div>
     `).join('');
@@ -369,9 +453,20 @@ grid.addEventListener('click', (e) => {
   if (!btn) return;
   const product = PRODUCTS.find(p => p.id === btn.dataset.id);
   if (!product) return;
-  const existing = cart.get(product.id);
+  const card = btn.closest('.product-card');
+  const note = card.querySelector('.product-size-note');
+  let size = null;
+  if (product.sizes && product.sizes.length){
+    size = card.dataset.selectedSize || null;
+    if (!size){
+      if (note){ note.textContent = t('size_choose_error'); note.classList.add('is-error'); }
+      return;
+    }
+  }
+  const key = size ? `${product.id}::${size}` : product.id;
+  const existing = cart.get(key);
   if (existing) existing.qty += 1;
-  else cart.set(product.id, { ...product, qty: 1 });
+  else cart.set(key, { ...product, size, qty: 1 });
   renderCart();
   openCart();
 });
@@ -517,7 +612,7 @@ grid.addEventListener('click', (e) => {
       const rate = (CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0]).rate;
       const totalUSD = [...cart.values()].reduce((sum, i) => sum + i.price * i.qty, 0);
       const items = [...cart.values()].map(i => ({
-        id: i.id, name: i.name[currentLang] || i.name.en, price: i.price, qty: i.qty,
+        id: i.id, name: i.name[currentLang] || i.name.en, size: i.size || null, price: i.price, qty: i.qty,
       }));
 
       const { error: insertError } = await sb.from('orders').insert({
@@ -631,7 +726,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   try {
     const { data, error } = await sb
       .from('products')
-      .select('id,category,tag,price,was,sizes,name_en,name_fr,sub_en,sub_fr,image_url')
+      .select('id,gender,type,kids_group,tag,price,was,sizes,name_en,name_fr,sub_en,sub_fr,image_url')
       .eq('active', true)
       .order('created_at', { ascending: true });
     if (error || !data || !data.length) return;
@@ -639,7 +734,9 @@ document.getElementById('year').textContent = new Date().getFullYear();
       id: r.id,
       price: Number(r.price),
       was: r.was != null ? Number(r.was) : null,
-      category: r.category,
+      gender: r.gender || 'unisex',
+      type: r.type || 'clothing',
+      kidsGroup: r.kids_group || null,
       tag: r.tag || null,
       sizes: r.sizes && r.sizes.length ? r.sizes : null,
       image: r.image_url || null,

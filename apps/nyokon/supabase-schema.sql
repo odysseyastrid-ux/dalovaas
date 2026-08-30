@@ -263,3 +263,40 @@ insert into public.products (id, category, tag, price, was, sizes, name_en, name
   ('f2','fragrance',null,110,null,null,'Eau de Parfum 100ml','Eau de Parfum 100ml','Signature Scent','Fragrance Signature'),
   ('f3','fragrance',null,28,null,null,'Travel Spray 15ml','Vaporisateur Nomade 15ml','Signature Scent','Fragrance Signature')
 on conflict (id) do nothing;
+
+-- Taxonomy upgrade: products now nest under a top-level gender (men /
+-- women / kids / unisex — unisex items show under both Homme and
+-- Femme) with a subcategory type (clothing / shoes / bags /
+-- accessories / fragrance), so every subcategory lives inside Hommes,
+-- Femmes or Enfants instead of sitting as its own top-level tab. Kids
+-- items also carry kids_group (girls / boys / unisex). This backfills
+-- gender/type/kids_group from the old flat `category` column so
+-- nothing breaks for rows that already exist; `category` itself is
+-- kept (unused going forward) rather than dropped, so this is safe to
+-- re-run and never destroys data.
+
+alter table public.products add column if not exists gender text;
+alter table public.products add column if not exists type text;
+alter table public.products add column if not exists kids_group text;
+alter table public.products alter column category drop not null;
+
+update public.products set gender = case
+    when category = 'men' then 'men'
+    when category = 'women' then 'women'
+    when category = 'kids' then 'kids'
+    else 'unisex'
+  end
+where gender is null;
+
+update public.products set type = case
+    when category in ('men','women','kids') then 'clothing'
+    when category in ('shoes','bags','accessories','fragrance') then category
+    else 'clothing'
+  end
+where type is null;
+
+update public.products set kids_group = 'unisex'
+where gender = 'kids' and kids_group is null;
+
+alter table public.products alter column gender set default 'unisex';
+alter table public.products alter column type set default 'clothing';

@@ -427,14 +427,38 @@ main > section{
 .search-input::placeholder{color:var(--fg-dim);}
 .search-input:focus{outline:none;border-color:var(--fg);}
 .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+.filters[hidden]{display:none;}
+.filters-sub{margin-top:-22px;margin-bottom:32px;}
+.filters-sub .filter{padding:6px 13px;font-size:10px;}
 .no-results{color:var(--fg-dim);padding:40px 0;text-align:center;}
 .product-sizes{
-  margin-top:8px;
-  font-size:11px;
-  letter-spacing:.04em;
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.size-chip{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.02em;
+  padding:5px 9px;
+  border:1px solid var(--line);
+  border-radius:3px;
   color:var(--fg-dim);
+  background:transparent;
   font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+.size-chip:hover{border-color:var(--fg);color:var(--fg);}
+.size-chip.active{border-color:var(--fg);color:var(--invert-fg);background:var(--invert-bg);}
+.product-size-note{
+  margin-top:6px;
+  font-size:10px;
+  letter-spacing:.02em;
+  color:var(--fg-dim);
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height:14px;
+}
+.product-size-note.is-error{color:#e05a4e;}
 .filter{
   font-size:11px;
   font-weight:700;

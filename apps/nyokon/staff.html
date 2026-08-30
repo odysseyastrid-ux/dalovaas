@@ -120,15 +120,30 @@
       <form id="newProductForm">
         <div class="prod-grid">
           <div>
-            <label for="npCategory">Catégorie</label>
-            <select id="npCategory">
+            <label for="npGender">Genre</label>
+            <select id="npGender">
               <option value="men">Homme</option>
               <option value="women">Femme</option>
               <option value="kids">Enfant</option>
+              <option value="unisex">Unisexe (visible côté Homme et Femme)</option>
+            </select>
+          </div>
+          <div>
+            <label for="npType">Sous-catégorie</label>
+            <select id="npType">
+              <option value="clothing">Vêtements</option>
               <option value="shoes">Chaussures</option>
               <option value="bags">Sacs</option>
               <option value="accessories">Accessoires</option>
               <option value="fragrance">Parfum</option>
+            </select>
+          </div>
+          <div id="npKidsGroupField" style="display:none;">
+            <label for="npKidsGroup">Enfant : fille / garçon</label>
+            <select id="npKidsGroup">
+              <option value="unisex">Fille et garçon</option>
+              <option value="girls">Fille</option>
+              <option value="boys">Garçon</option>
             </select>
           </div>
           <div><label for="npNameEn">Nom (anglais)</label><input id="npNameEn" required /></div>
@@ -347,16 +362,26 @@ function slugify(s){
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'produit';
 }
 
-const PROD_CATEGORIES = [
-  ['men', 'Homme'], ['women', 'Femme'], ['kids', 'Enfant'], ['shoes', 'Chaussures'],
-  ['bags', 'Sacs'], ['accessories', 'Accessoires'], ['fragrance', 'Parfum'],
+const PROD_GENDERS = [
+  ['men', 'Homme'], ['women', 'Femme'], ['kids', 'Enfant'], ['unisex', 'Unisexe (Homme et Femme)'],
 ];
+const PROD_TYPES = [
+  ['clothing', 'Vêtements'], ['shoes', 'Chaussures'], ['bags', 'Sacs'],
+  ['accessories', 'Accessoires'], ['fragrance', 'Parfum'],
+];
+const PROD_KIDS_GROUPS = [['unisex', 'Fille et garçon'], ['girls', 'Fille'], ['boys', 'Garçon']];
 const PROD_TAGS = [['', 'Aucune'], ['new', 'Nouveau'], ['sale', 'Promo']];
 
 const newProductForm = document.getElementById('newProductForm');
 const newProductBtn = document.getElementById('newProductBtn');
 const newProductError = document.getElementById('newProductError');
 const productList = document.getElementById('productList');
+const npGender = document.getElementById('npGender');
+const npKidsGroupField = document.getElementById('npKidsGroupField');
+
+npGender.addEventListener('change', () => {
+  npKidsGroupField.style.display = npGender.value === 'kids' ? 'block' : 'none';
+});
 
 newProductForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -383,11 +408,14 @@ newProductForm.addEventListener('submit', async (e) => {
       const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
       image_url = pub.publicUrl;
     }
+    const gender = npGender.value;
     const wasVal = document.getElementById('npWas').value;
     const sizesRaw = document.getElementById('npSizes').value.trim();
     const { error } = await sb.from('products').insert({
       id,
-      category: document.getElementById('npCategory').value,
+      gender,
+      type: document.getElementById('npType').value,
+      kids_group: gender === 'kids' ? document.getElementById('npKidsGroup').value : null,
       tag: document.getElementById('npTag').value || null,
       price,
       was: wasVal ? parseFloat(wasVal) : null,
@@ -401,6 +429,7 @@ newProductForm.addEventListener('submit', async (e) => {
     });
     if (error) throw error;
     newProductForm.reset();
+    npKidsGroupField.style.display = 'none';
     renderProductsStaff();
   } catch (err) {
     newProductError.textContent = 'Erreur : ' + (err.message || err);
@@ -426,7 +455,9 @@ async function renderProductsStaff(){
         <img class="prod-thumb" src="${p.image_url || ''}" style="${p.image_url ? '' : 'display:none;'}" />
         <div class="prod-body">
           <div class="prod-grid">
-            <div><label>Catégorie</label><select class="f-category">${PROD_CATEGORIES.map(([v, l]) => `<option value="${v}" ${v === p.category ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Genre</label><select class="f-gender">${PROD_GENDERS.map(([v, l]) => `<option value="${v}" ${v === (p.gender || 'unisex') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Sous-catégorie</label><select class="f-type">${PROD_TYPES.map(([v, l]) => `<option value="${v}" ${v === (p.type || 'clothing') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div class="f-kids-group-field" style="${(p.gender || 'unisex') === 'kids' ? '' : 'display:none;'}"><label>Enfant : fille / garçon</label><select class="f-kids-group">${PROD_KIDS_GROUPS.map(([v, l]) => `<option value="${v}" ${v === (p.kids_group || 'unisex') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
             <div><label>Nom (EN)</label><input class="f-name-en" value="${escAttr(p.name_en)}" /></div>
             <div><label>Nom (FR)</label><input class="f-name-fr" value="${escAttr(p.name_fr)}" /></div>
             <div><label>Prix (USD)</label><input class="f-price" type="number" step="0.01" min="0" value="${p.price}" /></div>
@@ -449,6 +480,13 @@ async function renderProductsStaff(){
     productList.appendChild(row);
   });
 
+  productList.querySelectorAll('.f-gender').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const field = sel.closest('.prod-card').querySelector('.f-kids-group-field');
+      field.style.display = sel.value === 'kids' ? '' : 'none';
+    });
+  });
+
   productList.querySelectorAll('.prod-save').forEach(btn => {
     btn.addEventListener('click', async () => {
       const row = btn.closest('.prod-card');
@@ -458,8 +496,11 @@ async function renderProductsStaff(){
       btn.disabled = true;
       btn.textContent = 'Enregistrement…';
       try {
+        const gender = row.querySelector('.f-gender').value;
         const update = {
-          category: row.querySelector('.f-category').value,
+          gender,
+          type: row.querySelector('.f-type').value,
+          kids_group: gender === 'kids' ? row.querySelector('.f-kids-group').value : null,
           tag: row.querySelector('.f-tag').value || null,
           price: parseFloat(row.querySelector('.f-price').value) || 0,
           was: row.querySelector('.f-was').value ? parseFloat(row.querySelector('.f-was').value) : null,
@@ -657,7 +698,7 @@ async function renderOrders(){
   orders.forEach(order => {
     const row = document.createElement('div');
     row.className = 'order-row';
-    const itemsSummary = (order.items || []).map(i => `${i.name} ×${i.qty}`).join(', ');
+    const itemsSummary = (order.items || []).map(i => `${i.name}${i.size ? ' (' + i.size + ')' : ''} ×${i.qty}`).join(', ');
     row.innerHTML = `
       <div class="order-head">
         <span class="order-ref">${order.ref}</span>

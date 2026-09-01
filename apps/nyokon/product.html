@@ -80,6 +80,8 @@ const T = {
     added:'Added to cart', view_cart:'VIEW CART', choose_size:'Please select a size.',
     also_like:'YOU MAY ALSO LIKE', not_found:'Product not found.',
     back_to_shop:'← Back to shop', go_back:'Go back',
+    details_title:'DETAILS', fit_label:'Fit', material_label:'Material', care_label:'Care',
+    origin_label:'Made in', delivery_label:'Delivery', delivery_default:'3–5 business days',
   },
   fr: {
     back:'RETOUR', colour:'Couleur', colours:'Couleurs', sizes:'TAILLES',
@@ -87,6 +89,8 @@ const T = {
     added:'Ajouté au panier', view_cart:'VOIR LE PANIER', choose_size:'Choisis une taille.',
     also_like:'VOUS AIMEREZ AUSSI', not_found:'Produit introuvable.',
     back_to_shop:'← Retour à la boutique', go_back:'Retour en arrière',
+    details_title:'DÉTAILS', fit_label:'Coupe', material_label:'Matière', care_label:'Entretien',
+    origin_label:'Fabriqué en', delivery_label:'Livraison', delivery_default:'3 à 5 jours ouvrés',
   },
 };
 function t(key){ return T[currentLang][key] || T.en[key] || key; }
@@ -176,7 +180,7 @@ function render({ row, variants, images }){
       <div class="pdp-gallery">
         <div class="pdp-gallery-main">
           <button type="button" class="pdp-gallery-nav pdp-gallery-prev" aria-label="Previous">‹</button>
-          <img id="pdpGalleryImg" src="" alt="${name}" />
+          <div id="pdpGalleryMedia"></div>
           <button type="button" class="pdp-gallery-nav pdp-gallery-next" aria-label="Next">›</button>
           <span class="pdp-gallery-counter" id="pdpGalleryCounter"></span>
           ${row.model_stats ? `<span class="pdp-gallery-model">${row.model_stats}</span>` : ''}
@@ -204,27 +208,38 @@ function render({ row, variants, images }){
           }).join('')}</div>
         </div>` : ''}
         <div class="pdp-note" id="pdpNote"></div>
-        ${row.material ? `<div class="pdp-desc">${row.material}${row.care_instructions ? ' — ' + row.care_instructions : ''}</div>` : ''}
+        <div class="pdp-facts">
+          ${row.fit ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('fit_label')}</span><span>${row.fit}</span></div>` : ''}
+          ${row.material ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('material_label')}</span><span>${row.material}</span></div>` : ''}
+          ${row.care_instructions ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('care_label')}</span><span>${row.care_instructions}</span></div>` : ''}
+          ${row.origin_country ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('origin_label')}</span><span>${row.origin_country}</span></div>` : ''}
+          <div class="pdp-fact"><span class="pdp-fact-label">${t('delivery_label')}</span><span>${row.delivery_estimate || t('delivery_default')}</span></div>
+        </div>
       </div>
     </div>
     <div class="pdp-related" id="pdpRelated"></div>
   `;
 
-  const galleryImg = document.getElementById('pdpGalleryImg');
+  const galleryMedia = document.getElementById('pdpGalleryMedia');
   const galleryCounter = document.getElementById('pdpGalleryCounter');
   const galleryDots = document.getElementById('pdpGalleryDots');
   let gallery = galleryFor(images, selectedColor);
   if (!gallery.length && row.image_url) gallery = [row.image_url];
 
+  function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || ''); }
+
   function renderGallery(){
     if (!gallery.length){
-      galleryImg.removeAttribute('src');
+      galleryMedia.innerHTML = '';
       galleryCounter.textContent = '';
       galleryDots.innerHTML = '';
       return;
     }
     galleryIdx = Math.max(0, Math.min(galleryIdx, gallery.length - 1));
-    galleryImg.src = gallery[galleryIdx];
+    const url = gallery[galleryIdx];
+    galleryMedia.innerHTML = isVideoUrl(url)
+      ? `<video src="${url}" autoplay muted loop playsinline controls></video>`
+      : `<img src="${url}" alt="${name}" />`;
     galleryCounter.textContent = `${galleryIdx + 1}/${gallery.length}`;
     galleryDots.innerHTML = gallery.map((_, i) => `<span class="pdp-gallery-dot${i === galleryIdx ? ' active' : ''}"></span>`).join('');
   }

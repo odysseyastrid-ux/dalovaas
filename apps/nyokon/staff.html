@@ -216,6 +216,8 @@
           </div>
           <div><label for="npCost">Coût de revient (privé, jamais visible client)</label><input id="npCost" type="number" step="0.01" min="0" /></div>
           <div><label for="npModelStats">Info mannequin (optionnel)</label><input id="npModelStats" placeholder="ex: Mannequin fait 187cm, porte du M" /></div>
+          <div><label for="npOrigin">Pays d'origine</label><input id="npOrigin" placeholder="ex: Cameroun, Turquie" /></div>
+          <div><label for="npDelivery">Délai de livraison</label><input id="npDelivery" placeholder="ex: 3 à 5 jours ouvrés, Fait sur commande — 2 semaines" /></div>
           <div><label for="npImage">Photo</label><input id="npImage" type="file" accept="image/*" /></div>
         </div>
         <div class="prod-colors-field">
@@ -533,15 +535,21 @@ function addVariantRow(container, v){
   container.appendChild(row);
 }
 
+function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || ''); }
+
 function addGalleryRow(container, img){
   const row = document.createElement('div');
   row.className = 'gallery-row';
   row.dataset.existingUrl = (img && img.url) || '';
+  const url = img && img.url;
+  const thumb = url && isVideoUrl(url)
+    ? `<video class="gallery-row-thumb" src="${url}" muted></video>`
+    : `<img class="gallery-row-thumb" src="${url || ''}" style="${url ? '' : 'display:none;'}" />`;
   row.innerHTML = `
-    <img class="gallery-row-thumb" src="${img && img.url ? img.url : ''}" style="${img && img.url ? '' : 'display:none;'}" />
+    ${thumb}
     <input class="g-color" placeholder="Couleur (optionnel)" value="${escAttr(img && img.color_name)}" />
-    <input class="g-position" type="number" step="1" min="0" placeholder="Ordre" value="${img && img.position != null ? img.position : 0}" />
-    <input class="g-file" type="file" accept="image/*" />
+    <input class="g-position" type="number" step="1" min="0" placeholder="Ordre (vidéo mannequin = 0)" value="${img && img.position != null ? img.position : 0}" />
+    <input class="g-file" type="file" accept="image/*,video/*" />
     <button type="button" class="variant-row-remove">✕</button>
   `;
   row.querySelector('.variant-row-remove').addEventListener('click', () => row.remove());
@@ -599,6 +607,8 @@ newProductForm.addEventListener('submit', async (e) => {
       concentration: type === 'fragrance' ? (document.getElementById('npConcentration').value || null) : null,
       sold_out: document.getElementById('npSoldOut').checked,
       model_stats: document.getElementById('npModelStats').value.trim() || null,
+      origin_country: document.getElementById('npOrigin').value.trim() || null,
+      delivery_estimate: document.getElementById('npDelivery').value.trim() || null,
       name_en: nameEn,
       name_fr: nameFr,
       sub_en: document.getElementById('npSubEn').value.trim(),
@@ -679,6 +689,8 @@ async function renderProductsStaff(){
             <div class="f-concentration-field" style="${isFragrance ? '' : 'display:none;'}"><label>Concentration</label><select class="f-concentration">${PROD_CONCENTRATIONS.map(([v, l]) => `<option value="${v}" ${v === (p.concentration || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
             <div><label>Coût de revient (privé)</label><input class="f-cost" type="number" step="0.01" min="0" value="${costByProduct[p.id] ?? ''}" /></div>
             <div><label>Info mannequin (optionnel)</label><input class="f-model-stats" value="${escAttr(p.model_stats)}" placeholder="ex: Mannequin fait 187cm, porte du M" /></div>
+            <div><label>Pays d'origine</label><input class="f-origin" value="${escAttr(p.origin_country)}" placeholder="ex: Cameroun, Turquie" /></div>
+            <div><label>Délai de livraison</label><input class="f-delivery" value="${escAttr(p.delivery_estimate)}" placeholder="ex: 3 à 5 jours ouvrés" /></div>
             <div><label>Photo (fiche produit)</label><input class="f-image" type="file" accept="image/*" /></div>
           </div>
           <div class="prod-colors-field">
@@ -782,6 +794,8 @@ async function renderProductsStaff(){
           concentration: type === 'fragrance' ? (row.querySelector('.f-concentration').value || null) : null,
           sold_out: row.querySelector('.f-sold-out').checked,
           model_stats: row.querySelector('.f-model-stats').value.trim() || null,
+          origin_country: row.querySelector('.f-origin').value.trim() || null,
+          delivery_estimate: row.querySelector('.f-delivery').value.trim() || null,
           name_en: row.querySelector('.f-name-en').value.trim(),
           name_fr: row.querySelector('.f-name-fr').value.trim(),
           sub_en: row.querySelector('.f-sub-en').value.trim(),

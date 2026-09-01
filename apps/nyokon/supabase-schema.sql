@@ -545,3 +545,10 @@ $$;
 
 revoke all on function public.redeem_loyalty_points(text, integer) from public;
 grant execute on function public.redeem_loyalty_points(text, integer) to anon, authenticated;
+
+-- Product detail page additions: country of origin and a per-product
+-- delivery estimate (falls back to a generic message client-side when
+-- left blank, since made-to-order pieces can have a much longer lead
+-- time than in-stock items).
+alter table public.products add column if not exists origin_country text;
+alter table public.products add column if not exists delivery_estimate text;

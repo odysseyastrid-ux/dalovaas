@@ -1267,6 +1267,14 @@ function applyPromotionText(){
     b.width = '';
     window.scrollTo(0, y);
     section.classList.add('is-unlocked');
+
+    // Jump straight into the site instead of leaving the finished intro
+    // sitting there as a full-screen block the customer still has to
+    // scroll past — fade it out, then remove it from the layout so the
+    // real hero/shop content takes its place immediately.
+    section.style.transition = 'opacity .5s ease';
+    section.style.opacity = '0';
+    setTimeout(() => { section.style.display = 'none'; }, 500);
   }
 
   engageLock();

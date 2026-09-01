@@ -1166,9 +1166,11 @@ function applyPromotionText(){
   // The cinematic intro is a first-impression splash, not something a
   // customer should have to sit through every time they navigate back to
   // the shop (e.g. tapping the cart icon from a product page reloads
-  // index.html fresh). Play it once per browser session, then skip it.
-  let seenThisSession = false;
-  try { seenThisSession = sessionStorage.getItem('nyokon-intro-seen') === '1'; } catch (e) { /* storage unavailable */ }
+  // index.html fresh). localStorage (not sessionStorage) so it stays
+  // skipped even in a new tab or after reopening the browser — a
+  // customer who has already seen it should never see it again.
+  let seenBefore = false;
+  try { seenBefore = localStorage.getItem('nyokon-intro-seen') === '1'; } catch (e) { /* storage unavailable */ }
 
   function skipIntroImmediately(collapse){
     section.classList.add('is-unlocked');
@@ -1190,7 +1192,7 @@ function applyPromotionText(){
     skipIntroImmediately(false);
     return;
   }
-  if (seenThisSession) {
+  if (seenBefore) {
     skipIntroImmediately(true);
     return;
   }
@@ -1255,7 +1257,7 @@ function applyPromotionText(){
     if (!locked) return;
     locked = false;
     introCompleted = true;
-    try { sessionStorage.setItem('nyokon-intro-seen', '1'); } catch (e) { /* storage unavailable */ }
+    try { localStorage.setItem('nyokon-intro-seen', '1'); } catch (e) { /* storage unavailable */ }
     const y = lockedScrollY;
     const b = document.body.style;
     b.position = '';

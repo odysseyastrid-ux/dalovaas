@@ -128,13 +128,14 @@ const TRANSLATIONS = {
     announce:'FREE SHIPPING ON ORDERS 25,000 FCFA+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
     nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
     settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
-    intro_eyebrow:'STEP IN', intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL', intro_skip:'SKIP',
+    intro_eyebrow:'STEP IN', intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL',
     hero_eyebrow:'DRY SEASON COLLECTION', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
     shop_title:'THE COLLECTION', search_placeholder:'SEARCH', no_results:'No products match your search.',
     filter_all:'ALL', filter_men:'MEN', filter_women:'WOMEN', filter_kids:'KIDS',
     filter_clothing:'CLOTHING', filter_shoes:'SHOES', filter_bags:'BAGS',
     filter_accessories:'ACCESSORIES', filter_fragrance:'FRAGRANCE',
+    filter_jewelry:'JEWELRY', filter_sport:'SPORT', filter_lingerie:'LINGERIE',
     filter_girls:'GIRLS', filter_boys:'BOYS',
     quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', tag_sold_out:'SOLD OUT', sizes_label:'Sizes',
     color_singular:'Colour', color_plural:'Colours',
@@ -187,13 +188,14 @@ const TRANSLATIONS = {
     announce:'LIVRAISON GRATUITE DÈS 25 000 FCFA  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
     nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
     settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
-    intro_eyebrow:'ENTREZ', intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER', intro_skip:'PASSER',
+    intro_eyebrow:'ENTREZ', intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER',
     hero_eyebrow:'COLLECTION SAISON SÈCHE', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',
     shop_title:'LA COLLECTION', search_placeholder:'RECHERCHER', no_results:'Aucun produit ne correspond à ta recherche.',
     filter_all:'TOUT', filter_men:'HOMME', filter_women:'FEMME', filter_kids:'ENFANT',
     filter_clothing:'VÊTEMENTS', filter_shoes:'CHAUSSURES', filter_bags:'SACS',
     filter_accessories:'ACCESSOIRES', filter_fragrance:'PARFUMS',
+    filter_jewelry:'BIJOUX', filter_sport:'SPORT', filter_lingerie:'LINGERIE',
     filter_girls:'FILLES', filter_boys:'GARÇONS',
     quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', tag_sold_out:'ÉPUISÉ', sizes_label:'Tailles',
     color_singular:'Couleur', color_plural:'Couleurs',
@@ -451,7 +453,11 @@ document.getElementById('sortSelect').addEventListener('change', (e) => {
 function refreshFilterLabels(){
   document.querySelectorAll('.filter').forEach(btn => {
     const key = 'filter_' + (btn.dataset.gender || btn.dataset.type || btn.dataset.kidsGroup);
-    if (TRANSLATIONS.en[key]) btn.textContent = t(key);
+    if (!TRANSLATIONS.en[key]) return;
+    // Type filters carry an icon alongside the text — only retranslate the
+    // label span so the icon isn't wiped out by textContent.
+    const label = btn.querySelector('.filter-label');
+    if (label) label.textContent = t(key); else btn.textContent = t(key);
   });
 }
 
@@ -1158,7 +1164,6 @@ function applyPromotionText(){
   const taglineEl = document.getElementById('introHeroTagline');
   const hintEl = document.getElementById('introHeroHint');
   const progressBar = document.getElementById('introHeroProgress');
-  const skipBtn = document.getElementById('introHeroSkip');
   const scrubDistance = 1400;
 
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1326,7 +1331,6 @@ function applyPromotionText(){
   window.addEventListener('keydown', onKeydown);
 
   function advanceIntro(){ targetProgress = 1; hasStartedScrolling = true; releaseLock(); }
-  skipBtn.addEventListener('click', advanceIntro);
 
   // The animated "SCROLL" hint doubles as a tappable "next" control —
   // useful on trackpads/mobile where a customer taps instead of scrolling.

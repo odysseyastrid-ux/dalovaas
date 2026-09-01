@@ -28,7 +28,6 @@
     <svg width="14" height="18" viewBox="0 0 14 18"><path d="M7 1 L7 17 M2 12 L7 17 L12 12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
   <div class="intro-hero-progress" aria-hidden="true"><div class="intro-hero-progress-bar" id="introHeroProgress"></div></div>
-  <button type="button" class="intro-hero-skip" id="introHeroSkip" data-i18n="intro_skip"></button>
 </section>
 
 <div class="starfield" aria-hidden="true">
@@ -156,12 +155,15 @@
       <button class="filter" data-gender="kids" data-i18n="filter_kids"></button>
     </div>
     <div class="filters filters-sub" id="filtersType">
-      <button class="filter active" data-type="all" data-i18n="filter_all"></button>
-      <button class="filter" data-type="clothing" data-i18n="filter_clothing"></button>
-      <button class="filter" data-type="shoes" data-i18n="filter_shoes"></button>
-      <button class="filter" data-type="bags" data-i18n="filter_bags"></button>
-      <button class="filter" data-type="accessories" data-i18n="filter_accessories"></button>
-      <button class="filter" data-type="fragrance" data-i18n="filter_fragrance"></button>
+      <button class="filter active" data-type="all"><span class="filter-label" data-i18n="filter_all"></span></button>
+      <button class="filter" data-type="clothing"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3 3 6v4l2-.6V21h14V9.4L21 10V6l-6-3-1 2h-4L9 3Z"/></svg><span class="filter-label" data-i18n="filter_clothing"></span></button>
+      <button class="filter" data-type="shoes"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 14.5v3A2.5 2.5 0 0 0 5.5 20h13a2.5 2.5 0 0 0 2.5-2.5v-1c0-1-.7-1.6-1.7-2l-3.6-1.6-1.7 1-4.5-3-2.8 1L4 13l-1 1.5Z"/></svg><span class="filter-label" data-i18n="filter_shoes"></span></button>
+      <button class="filter" data-type="bags"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M5.5 8h13l1 12.5a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5L5.5 8Z"/></svg><span class="filter-label" data-i18n="filter_bags"></span></button>
+      <button class="filter" data-type="accessories"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><path d="M10 12h4M4 10.5 2 9.5M20 10.5l2-1"/></svg><span class="filter-label" data-i18n="filter_accessories"></span></button>
+      <button class="filter" data-type="jewelry"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3-4.5 5.5L12 21l4.5-12.5L12 3Z"/><path d="M7.5 8.5h9"/></svg><span class="filter-label" data-i18n="filter_jewelry"></span></button>
+      <button class="filter" data-type="fragrance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3h4v2.4h-4z"/><path d="M9 5.4h6l1.3 3.4V19a2 2 0 0 1-2 2h-4.6a2 2 0 0 1-2-2V8.8L9 5.4Z"/></svg><span class="filter-label" data-i18n="filter_fragrance"></span></button>
+      <button class="filter" data-type="sport"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9.5v5M2 10.5v3M20 9.5v5M22 10.5v3M6.5 12h11"/></svg><span class="filter-label" data-i18n="filter_sport"></span></button>
+      <button class="filter" data-type="lingerie"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8c3 1.2 5 2.2 8 4-3 1.8-5 2.8-8 4V8Z"/><path d="M20 8c-3 1.2-5 2.2-8 4 3 1.8 5 2.8 8 4V8Z"/></svg><span class="filter-label" data-i18n="filter_lingerie"></span></button>
     </div>
     <div class="filters filters-sub" id="filtersKids" hidden>
       <button class="filter active" data-kids-group="all" data-i18n="filter_all"></button>

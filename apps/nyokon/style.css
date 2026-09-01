@@ -428,10 +428,42 @@ main > section{
 }
 .search-input::placeholder{color:var(--fg-dim);}
 .search-input:focus{outline:none;border-color:var(--fg);}
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
 .filters[hidden]{display:none;}
-.filters-sub{margin-top:-22px;margin-bottom:32px;}
-.filters-sub .filter{padding:6px 13px;font-size:10px;}
+#filtersGender .filter{
+  font-size:13px;
+  padding:11px 22px;
+  border-radius:24px;
+  border-width:1.5px;
+}
+#filtersGender .filter.active{
+  background:var(--invert-bg);
+  color:var(--invert-fg);
+  border-color:var(--invert-bg);
+}
+#filtersGender .filter:hover{border-color:var(--fg);color:var(--fg);}
+.filters-sub{
+  margin-top:0;
+  margin-bottom:32px;
+  padding:12px 14px;
+  background:var(--bg-alt);
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.filters-sub .filter{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 14px;
+  font-size:11px;
+  background:var(--bg);
+}
+.filters-sub .filter svg{flex-shrink:0;}
+.filters-sub .filter.active{
+  background:var(--accent);
+  color:#0b0b0c;
+  border-color:var(--accent);
+}
 .no-results{color:var(--fg-dim);padding:40px 0;text-align:center;}
 .shop-toolbar{
   display:flex;
@@ -1072,27 +1104,6 @@ main > section{
 @media (prefers-reduced-motion: reduce){
   .intro-hero-hint svg{animation:none;}
 }
-.intro-hero-skip{
-  position:absolute;
-  top:clamp(16px,3vh,28px);
-  right:clamp(16px,4vw,32px);
-  z-index:2;
-  color:rgba(242,244,248,.8);
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:.14em;
-  padding:8px 14px;
-  border:1px solid rgba(242,244,248,.35);
-  border-radius:20px;
-  background:rgba(5,7,13,.3);
-  transition:border-color .2s ease, color .2s ease;
-}
-.intro-hero-skip:hover,.intro-hero-skip:focus-visible{
-  color:#0b0b0c;
-  background:#d1ff3c;
-  border-color:#d1ff3c;
-}
-
 /* Product detail page (product.html) */
 .pdp-back{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);}
 .pdp-back:hover{color:var(--fg);}

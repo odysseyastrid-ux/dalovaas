@@ -138,6 +138,10 @@ const TRANSLATIONS = {
     filter_girls:'GIRLS', filter_boys:'BOYS',
     quick_add:'QUICK ADD', tag_new:'NEW', tag_sale:'SALE', tag_sold_out:'SOLD OUT', sizes_label:'Sizes',
     color_singular:'Colour', color_plural:'Colours',
+    filter_favorites:'FAVOURITES', sort_label:'Sort', sort_featured:'FEATURED',
+    sort_price_asc:'PRICE: LOW TO HIGH', sort_price_desc:'PRICE: HIGH TO LOW', sort_newest:'NEWEST',
+    result_count_singular:'{n} product', result_count_plural:'{n} products',
+    no_favorites:'You have not favourited any products yet.',
     quick_add_title:'QUICK ADD', quick_add_submit:'ADD TO CART',
     pdp_you_may_also_like:'YOU MAY ALSO LIKE', pdp_size_not_in_stock:'Size not in stock?',
     pdp_back:'BACK', pdp_add_to_cart:'ADD TO CART', pdp_added:'Added to cart',
@@ -193,6 +197,10 @@ const TRANSLATIONS = {
     filter_girls:'FILLES', filter_boys:'GARÇONS',
     quick_add:'AJOUT RAPIDE', tag_new:'NOUVEAU', tag_sale:'SOLDE', tag_sold_out:'ÉPUISÉ', sizes_label:'Tailles',
     color_singular:'Couleur', color_plural:'Couleurs',
+    filter_favorites:'FAVORIS', sort_label:'Trier', sort_featured:'RECOMMANDÉS',
+    sort_price_asc:'PRIX CROISSANT', sort_price_desc:'PRIX DÉCROISSANT', sort_newest:'NOUVEAUTÉS',
+    result_count_singular:'{n} produit', result_count_plural:'{n} produits',
+    no_favorites:"Tu n'as encore ajouté aucun produit à tes favoris.",
     quick_add_title:'AJOUT RAPIDE', quick_add_submit:'AJOUTER AU PANIER',
     pdp_you_may_also_like:'VOUS AIMEREZ AUSSI', pdp_size_not_in_stock:'Taille indisponible ?',
     pdp_back:'RETOUR', pdp_add_to_cart:'AJOUTER AU PANIER', pdp_added:'Ajouté au panier',
@@ -263,6 +271,7 @@ function applyStaticTranslations(){
 
 const grid = document.getElementById('productGrid');
 const noResultsEl = document.getElementById('noResults');
+const resultCountEl = document.getElementById('resultCount');
 const cart = new Map();
 
 // Persisted so the cart survives navigating to a product page and back
@@ -305,6 +314,19 @@ let currentGender = 'all';
 let currentType = 'all';
 let currentKidsGroup = 'all';
 let searchQuery = '';
+let currentSort = 'featured';
+let favoritesOnly = false;
+
+function loadFavorites(){
+  try {
+    const raw = localStorage.getItem('nyokon-favorites');
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch (e) { return new Set(); }
+}
+function saveFavorites(){
+  try { localStorage.setItem('nyokon-favorites', JSON.stringify([...favorites])); } catch (e) { /* localStorage unavailable */ }
+}
+const favorites = loadFavorites();
 
 function sizeChartNote(type, size){
   if (type !== 'shoes') return '';
@@ -330,11 +352,21 @@ function renderProducts(){
     const q = searchQuery.toLowerCase();
     list = list.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(q));
   }
+  if (favoritesOnly) list = list.filter(p => favorites.has(p.id));
+  if (currentSort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
+  else if (currentSort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
+  else if (currentSort === 'newest') list = [...list].sort((a, b) => PRODUCTS.indexOf(b) - PRODUCTS.indexOf(a));
+
   noResultsEl.hidden = list.length > 0;
+  noResultsEl.textContent = favoritesOnly ? t('no_favorites') : t('no_results');
+  resultCountEl.textContent = t(list.length === 1 ? 'result_count_singular' : 'result_count_plural').replace('{n}', list.length);
+
   for (const p of list){
     const name = p.name[currentLang] || p.name.en;
     const sub = p.sub[currentLang] || p.sub.en;
     const initialImage = colorImage(p, p.colors && p.colors.length ? p.colors[0].name : null);
+    const altImage = p.gallery && p.gallery.length > 1 ? p.gallery.find(url => url !== initialImage) : null;
+    const isFavorite = favorites.has(p.id);
     const card = document.createElement('div');
     card.className = 'product-card';
     card.dataset.id = p.id;
@@ -344,9 +376,12 @@ function renderProducts(){
       <div class="product-media">
         ${p.soldOut ? `<span class="product-tag product-tag-soldout">${t('tag_sold_out')}</span>`
           : p.tag ? `<span class="product-tag">${t('tag_' + p.tag)}</span>` : ''}
+        <button type="button" class="product-favorite-btn${isFavorite ? ' active' : ''}" data-id="${p.id}" aria-pressed="${isFavorite}" aria-label="${t('filter_favorites')}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7.5-4.7-10-9.3C.3 8.1 2 4.5 5.6 4c2-.3 3.9.6 5 2.2C11.7 4.6 13.6 3.7 15.6 4c3.6.5 5.3 4.1 3.6 7.7C16.7 16.3 12 21 12 21z"/></svg>
+        </button>
         <a class="product-media-link" href="${pdpHref}" aria-label="${name}">
           ${initialImage
-            ? `<img class="product-photo" src="${initialImage}" alt="${name}">`
+            ? `<img class="product-photo" src="${initialImage}" alt="${name}">${altImage ? `<img class="product-photo product-photo-alt" src="${altImage}" alt="">` : ''}`
             : `<div class="placeholder-img primary" data-placeholder="${name.toUpperCase()}"></div>
           <div class="placeholder-img secondary" data-placeholder="${name.toUpperCase()} — ALT"></div>`}
         </a>
@@ -388,7 +423,29 @@ grid.addEventListener('click', (e) => {
     return;
   }
   const fab = e.target.closest('.quick-add-fab');
-  if (fab) openQuickAdd(fab.dataset.id);
+  if (fab) { openQuickAdd(fab.dataset.id); return; }
+  const favBtn = e.target.closest('.product-favorite-btn');
+  if (favBtn){
+    const id = favBtn.dataset.id;
+    if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+    saveFavorites();
+    favBtn.classList.toggle('active', favorites.has(id));
+    favBtn.setAttribute('aria-pressed', favorites.has(id));
+    if (favoritesOnly) renderProducts();
+  }
+});
+
+const favoritesToggleBtn = document.getElementById('favoritesToggle');
+favoritesToggleBtn.addEventListener('click', () => {
+  favoritesOnly = !favoritesOnly;
+  favoritesToggleBtn.classList.toggle('active', favoritesOnly);
+  favoritesToggleBtn.setAttribute('aria-pressed', favoritesOnly);
+  renderProducts();
+});
+
+document.getElementById('sortSelect').addEventListener('change', (e) => {
+  currentSort = e.target.value;
+  renderProducts();
 });
 
 function refreshFilterLabels(){

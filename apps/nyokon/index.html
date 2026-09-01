@@ -169,6 +169,22 @@
       <button class="filter" data-kids-group="boys" data-i18n="filter_boys"></button>
     </div>
 
+    <div class="shop-toolbar">
+      <span class="result-count" id="resultCount"></span>
+      <div class="shop-toolbar-actions">
+        <button type="button" class="favorites-toggle" id="favoritesToggle" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7.5-4.7-10-9.3C.3 8.1 2 4.5 5.6 4c2-.3 3.9.6 5 2.2C11.7 4.6 13.6 3.7 15.6 4c3.6.5 5.3 4.1 3.6 7.7C16.7 16.3 12 21 12 21z"/></svg>
+          <span data-i18n="filter_favorites"></span>
+        </button>
+        <select class="sort-select" id="sortSelect" data-i18n-aria="sort_label" aria-label="Sort">
+          <option value="featured" data-i18n="sort_featured"></option>
+          <option value="price-asc" data-i18n="sort_price_asc"></option>
+          <option value="price-desc" data-i18n="sort_price_desc"></option>
+          <option value="newest" data-i18n="sort_newest"></option>
+        </select>
+      </div>
+    </div>
+
     <div class="product-grid" id="productGrid">
       <!-- Product cards are generated from PRODUCTS in script.js -->
     </div>

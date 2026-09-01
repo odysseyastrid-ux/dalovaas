@@ -433,6 +433,39 @@ main > section{
 .filters-sub{margin-top:-22px;margin-bottom:32px;}
 .filters-sub .filter{padding:6px 13px;font-size:10px;}
 .no-results{color:var(--fg-dim);padding:40px 0;text-align:center;}
+.shop-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-top:-14px;
+  margin-bottom:24px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line);
+}
+.result-count{font-size:11px;letter-spacing:.04em;color:var(--fg-dim);}
+.shop-toolbar-actions{display:flex;align-items:center;gap:14px;}
+.favorites-toggle{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;
+  color:var(--fg-dim);
+}
+.favorites-toggle svg{transition:fill .15s ease, stroke .15s ease;}
+.favorites-toggle:hover{color:var(--fg);}
+.favorites-toggle.active{color:var(--fg);}
+.favorites-toggle.active svg{fill:#e05a4e;stroke:#e05a4e;}
+.sort-select{
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:20px;
+  color:var(--fg);
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.04em;
+  padding:7px 14px;
+}
+.sort-select:focus{outline:none;border-color:var(--fg);}
 .product-sizes{
   margin-top:10px;
   display:flex;
@@ -510,6 +543,18 @@ main > section{
   z-index:2;
 }
 .product-tag-soldout{background:var(--bg);color:var(--fg-dim);border:1px solid var(--line);}
+.product-favorite-btn{
+  position:absolute;top:8px;right:8px;z-index:2;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--header-bg);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--fg);
+}
+.product-favorite-btn svg{transition:fill .15s ease, stroke .15s ease, transform .15s ease;}
+.product-favorite-btn:hover svg{transform:scale(1.1);}
+.product-favorite-btn.active svg{fill:#e05a4e;stroke:#e05a4e;}
+.product-photo-alt{opacity:0;transition:opacity .3s ease;}
+.product-card:hover .product-photo-alt{opacity:1;}
 .product-info{
   display:flex;
   justify-content:space-between;

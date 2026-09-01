@@ -1049,7 +1049,7 @@ main > section{
   font-weight:700;
   letter-spacing:.3em;
   transition:opacity .4s ease;
-  pointer-events:none;
+  cursor:pointer;
 }
 .intro-hero-hint svg{animation:introHintBounce 1.6s ease-in-out infinite;}
 @keyframes introHintBounce{

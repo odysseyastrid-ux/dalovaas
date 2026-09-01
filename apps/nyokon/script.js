@@ -1162,6 +1162,7 @@ function applyPromotionText(){
     titleEl.style.opacity = '0';
     taglineEl.style.opacity = '1';
     hintEl.style.opacity = '0';
+    hintEl.style.pointerEvents = 'none';
     progressBar.style.transform = 'scaleX(1)';
     return;
   }
@@ -1175,6 +1176,7 @@ function applyPromotionText(){
   let isSeeking = false;
   let pendingTime = null;
   let locked = false;
+  let introCompleted = false;
   let lockedScrollY = 0;
   let touchStartY = 0;
   let rafId = 0;
@@ -1224,6 +1226,7 @@ function applyPromotionText(){
   function releaseLock(){
     if (!locked) return;
     locked = false;
+    introCompleted = true;
     const y = lockedScrollY;
     const b = document.body.style;
     b.position = '';
@@ -1264,7 +1267,12 @@ function applyPromotionText(){
   }
 
   function onWindowScroll(){
-    if (!locked && window.scrollY <= 0) engageLock();
+    // Only re-engage the intro if it was interrupted before the customer
+    // ever finished it (e.g. a very early manual scroll). Once they've
+    // completed or skipped the intro, scrolling back to the top of the
+    // page (to reach the cart icon in the sticky header, for example)
+    // must never re-trap them in it again.
+    if (!locked && !introCompleted && window.scrollY <= 0) engageLock();
   }
 
   function onKeydown(e){
@@ -1278,7 +1286,19 @@ function applyPromotionText(){
   window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('scroll', onWindowScroll, { passive: true });
   window.addEventListener('keydown', onKeydown);
-  skipBtn.addEventListener('click', () => { targetProgress = 1; releaseLock(); });
+
+  function advanceIntro(){ targetProgress = 1; hasStartedScrolling = true; releaseLock(); }
+  skipBtn.addEventListener('click', advanceIntro);
+
+  // The animated "SCROLL" hint doubles as a tappable "next" control —
+  // useful on trackpads/mobile where a customer taps instead of scrolling.
+  hintEl.removeAttribute('aria-hidden');
+  hintEl.setAttribute('role', 'button');
+  hintEl.setAttribute('tabindex', '0');
+  hintEl.addEventListener('click', advanceIntro);
+  hintEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advanceIntro(); }
+  });
 
   // Safety net: never let a stuck video or missed input trap the page.
   setTimeout(() => { if (locked) releaseLock(); }, 12000);
@@ -1297,6 +1317,7 @@ function applyPromotionText(){
     titleEl.style.filter = `blur(${(1 - titleT) * 10}px)`;
 
     hintEl.style.opacity = hasStartedScrolling ? '0' : '1';
+    hintEl.style.pointerEvents = hasStartedScrolling ? 'none' : 'auto';
 
     const taglineT = clamp((currentProgress - 0.82) / 0.18, 0, 1);
     taglineEl.style.opacity = String(taglineT);

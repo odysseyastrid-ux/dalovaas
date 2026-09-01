@@ -545,6 +545,14 @@ document.querySelector('.cart-link').addEventListener('click', (e) => { e.preven
 document.getElementById('cartClose').addEventListener('click', closeCart);
 cartScrim.addEventListener('click', closeCart);
 
+// The cart icon on product.html can't open a drawer that only exists on
+// this page, so it links here with #cart instead — open the drawer
+// straight away so it doesn't feel like the click did nothing.
+if (location.hash === '#cart') {
+  openCart();
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
 function renderCart(){
   if (cart.size === 0){
     cartItemsEl.innerHTML = `<p>${t('cart_empty')}</p>`;
@@ -1155,7 +1163,14 @@ function applyPromotionText(){
 
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (reducedMotion) {
+  // The cinematic intro is a first-impression splash, not something a
+  // customer should have to sit through every time they navigate back to
+  // the shop (e.g. tapping the cart icon from a product page reloads
+  // index.html fresh). Play it once per browser session, then skip it.
+  let seenThisSession = false;
+  try { seenThisSession = sessionStorage.getItem('nyokon-intro-seen') === '1'; } catch (e) { /* storage unavailable */ }
+
+  function skipIntroImmediately(collapse){
     section.classList.add('is-unlocked');
     video.classList.add('is-ready');
     titleEl.classList.add('is-drawn');
@@ -1164,6 +1179,19 @@ function applyPromotionText(){
     hintEl.style.opacity = '0';
     hintEl.style.pointerEvents = 'none';
     progressBar.style.transform = 'scaleX(1)';
+    // Once the intro has already played this session, a fresh page load
+    // (e.g. tapping the cart icon on a product page, which reloads
+    // index.html) should open straight on the shop, not park the customer
+    // in front of the same splash screen again with scrolling to do.
+    if (collapse) section.style.display = 'none';
+  }
+
+  if (reducedMotion) {
+    skipIntroImmediately(false);
+    return;
+  }
+  if (seenThisSession) {
+    skipIntroImmediately(true);
     return;
   }
 
@@ -1227,6 +1255,7 @@ function applyPromotionText(){
     if (!locked) return;
     locked = false;
     introCompleted = true;
+    try { sessionStorage.setItem('nyokon-intro-seen', '1'); } catch (e) { /* storage unavailable */ }
     const y = lockedScrollY;
     const b = document.body.style;
     b.position = '';

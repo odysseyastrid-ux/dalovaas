@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn — Staff</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  body{background:var(--bg);color:var(--fg);min-height:100vh;}
+  .staff-wrap{max-width:640px;margin:0 auto;padding:60px 20px 100px;}
+  .staff-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
+  .staff-header a{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);}
+  .staff-title{font-family:var(--font-display);font-size:clamp(28px,5vw,40px);margin-bottom:8px;}
+  .staff-sub{color:var(--fg-dim);font-size:13px;margin-bottom:36px;}
+  .staff-card{border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+  .staff-field{margin-bottom:16px;}
+  .staff-field label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:8px;}
+  .staff-field input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;color:var(--fg);font-family:inherit;font-size:14px;}
+  .staff-field input:focus{outline:none;border-color:var(--fg);}
+  .staff-btn{display:inline-block;padding:13px 28px;font-size:12px;font-weight:700;letter-spacing:.08em;border-radius:999px;background:var(--invert-bg);color:var(--invert-fg);border:none;cursor:pointer;}
+  .staff-btn:hover{background:#d1ff3c;color:#0b0b0c;}
+  .staff-btn:disabled{opacity:.5;cursor:default;}
+  .staff-error{color:#e05a4e;font-size:13px;margin-top:12px;}
+  .staff-note{color:var(--fg-dim);font-size:12px;margin-top:12px;}
+  #dashboard{display:none;}
+  .slot-row{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--line);}
+  .slot-row:first-child{border-top:none;}
+  .slot-info{display:flex;align-items:center;gap:14px;min-width:0;}
+  .slot-thumb{width:56px;height:56px;border-radius:4px;object-fit:cover;background:var(--bg-alt);flex-shrink:0;}
+  .slot-name{font-size:13px;font-weight:700;letter-spacing:.04em;}
+  .slot-status{font-size:11px;color:var(--fg-dim);margin-top:2px;}
+  .slot-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .slot-actions input[type=file]{font-size:11px;max-width:130px;}
+  .slot-save{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;}
+  .slot-save:hover{border-color:var(--fg);}
+  .slot-save:disabled{opacity:.4;cursor:default;}
+  .signout{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);background:none;border:none;cursor:pointer;}
+  .signout:hover{color:var(--fg);}
+  .staff-section-title{font-family:var(--font-display);font-size:22px;margin:44px 0 8px;}
+  .order-row{padding:16px 0;border-top:1px solid var(--line);}
+  .order-row:first-child{border-top:none;}
+  .order-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;}
+  .order-ref{font-weight:700;font-size:13px;}
+  .order-total{font-family:var(--font-display);font-size:15px;}
+  .order-meta{font-size:12px;color:var(--fg-dim);margin-bottom:6px;}
+  .order-items{font-size:12px;color:var(--fg-dim);margin-bottom:10px;}
+  .order-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .order-status{font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);}
+  .order-receipt-link{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink);text-decoration:underline;cursor:pointer;background:none;border:none;}
+  .staff-empty{color:var(--fg-dim);font-size:13px;padding:8px 0;}
+  .promo-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line);}
+  .promo-row:first-child{border-top:none;}
+  .promo-status{font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:10px;margin-right:8px;}
+  .promo-status.is-live{background:#d1ff3c;color:#0b0b0c;}
+  .promo-status.is-upcoming{background:var(--bg-alt);color:var(--fg-dim);}
+  .promo-status.is-past{background:var(--bg-alt);color:var(--fg-dim);opacity:.6;}
+  .promo-title{font-size:13px;}
+  .promo-dates{font-size:11px;color:var(--fg-dim);margin-top:2px;}
+  .promo-delete{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;flex-shrink:0;}
+  .bar-row{display:flex;align-items:center;gap:12px;padding:8px 0;}
+  .bar-label{width:140px;flex-shrink:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bar-track{flex:1;background:var(--bg-alt);border-radius:4px;height:16px;overflow:hidden;}
+  .bar-fill{height:100%;background:#d1ff3c;border-radius:4px;}
+  .bar-value{width:32px;flex-shrink:0;font-size:12px;font-weight:700;text-align:right;}
+  .prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+  .prod-grid label{display:block;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:4px;}
+  .prod-grid input,.prod-grid select{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;color:var(--fg);font-family:inherit;font-size:13px;}
+  .prod-grid input:focus,.prod-grid select:focus{outline:none;border-color:var(--fg);}
+  .prod-card{border-top:1px solid var(--line);padding:20px 0;}
+  .prod-card:first-child{border-top:none;}
+  .prod-top{display:flex;gap:14px;align-items:flex-start;}
+  .prod-thumb{width:64px;height:64px;border-radius:4px;object-fit:cover;background:var(--bg-alt);flex-shrink:0;}
+  .prod-body{flex:1;min-width:0;}
+  .prod-foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:2px;}
+  .prod-active-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg-dim);cursor:pointer;}
+  .prod-delete{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;}
+  .prod-error{margin:0;}
+  .prod-colors-field,.prod-tags-field{margin-bottom:16px;}
+  .prod-colors-field label,.prod-tags-field label{display:block;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:8px;}
+  .color-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  .color-row{display:flex;align-items:center;gap:8px;}
+  .color-row input[type=color]{width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer;}
+  .color-row input[type=text]{flex:1;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;color:var(--fg);font-family:inherit;font-size:13px;}
+  .color-row-remove{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;flex-shrink:0;}
+  .prod-add-color{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;}
+  .prod-add-color:hover{border-color:var(--fg);}
+  .tag-checks{display:flex;flex-wrap:wrap;gap:14px;}
+  .tag-checks label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fg);font-weight:400;letter-spacing:0;text-transform:none;}
+  .variant-table{margin-top:14px;border-top:1px solid var(--line);padding-top:14px;}
+  .variant-table-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:10px;}
+  .variant-row{display:grid;grid-template-columns:1fr 1fr 1fr 90px auto;gap:8px;margin-bottom:8px;align-items:center;}
+  .variant-row input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:8px 9px;color:var(--fg);font-family:inherit;font-size:12px;}
+  .variant-row-remove{font-size:11px;font-weight:700;color:#e05a4e;background:none;border:none;cursor:pointer;}
+  .variant-add,.variant-save,.gallery-add,.gallery-save{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;margin-right:8px;}
+  .variant-add:hover,.variant-save:hover,.gallery-add:hover,.gallery-save:hover{border-color:var(--fg);}
+  .gallery-row{display:grid;grid-template-columns:44px 1fr 70px 1fr auto;gap:8px;margin-bottom:8px;align-items:center;}
+  .gallery-row input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:8px 9px;color:var(--fg);font-family:inherit;font-size:12px;}
+  .gallery-row-thumb{width:44px;height:44px;border-radius:4px;object-fit:cover;background:var(--bg-alt);}
+</style>
+</head>
+<body>
+<div class="staff-wrap">
+  <div class="staff-header">
+    <a href="index.html">← nyøkøn</a>
+    <button class="signout" id="signOutBtn" style="display:none;">Se déconnecter</button>
+  </div>
+
+  <div id="loginView">
+    <h1 class="staff-title">Espace staff</h1>
+    <p class="staff-sub">Connecte-toi pour gérer les photos du site.</p>
+    <div class="staff-card">
+      <form id="loginForm">
+        <div class="staff-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" required autocomplete="username" />
+        </div>
+        <div class="staff-field">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="staff-btn" id="loginBtn">Se connecter</button>
+        <div class="staff-error" id="loginError"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard">
+    <h1 class="staff-title">Photos du site</h1>
+    <p class="staff-sub">Choisis une photo pour chaque emplacement, puis clique sur "Enregistrer". Le site se met à jour pour tous les visiteurs immédiatement.</p>
+    <div class="staff-card" id="slotList"></div>
+
+    <h2 class="staff-section-title">Produits</h2>
+    <p class="staff-sub">Le catalogue affiché sur le site. Ajoute, modifie, désactive ou supprime un produit — c'est visible immédiatement pour les clients.</p>
+    <div class="staff-card">
+      <form id="newProductForm">
+        <div class="prod-grid">
+          <div>
+            <label for="npGender">Genre</label>
+            <select id="npGender">
+              <option value="men">Homme</option>
+              <option value="women">Femme</option>
+              <option value="kids">Enfant</option>
+              <option value="unisex">Unisexe (visible côté Homme et Femme)</option>
+            </select>
+          </div>
+          <div>
+            <label for="npType">Sous-catégorie</label>
+            <select id="npType">
+              <option value="clothing">Vêtements</option>
+              <option value="shoes">Chaussures</option>
+              <option value="bags">Sacs</option>
+              <option value="accessories">Accessoires</option>
+              <option value="jewelry">Bijoux</option>
+              <option value="fragrance">Parfum</option>
+              <option value="sport">Sport</option>
+              <option value="lingerie">Lingerie</option>
+            </select>
+          </div>
+          <div id="npKidsGroupField" style="display:none;">
+            <label for="npKidsGroup">Enfant : fille / garçon</label>
+            <select id="npKidsGroup">
+              <option value="unisex">Fille et garçon</option>
+              <option value="girls">Fille</option>
+              <option value="boys">Garçon</option>
+            </select>
+          </div>
+          <div><label for="npNameEn">Nom (anglais)</label><input id="npNameEn" required /></div>
+          <div><label for="npNameFr">Nom (français)</label><input id="npNameFr" required /></div>
+          <div><label for="npPrice">Prix (USD)</label><input id="npPrice" type="number" step="0.01" min="0" required /></div>
+          <div><label for="npWas">Prix barré (optionnel)</label><input id="npWas" type="number" step="0.01" min="0" /></div>
+          <div>
+            <label for="npTag">Étiquette</label>
+            <select id="npTag">
+              <option value="">Aucune</option>
+              <option value="new">Nouveau</option>
+              <option value="sale">Promo</option>
+            </select>
+          </div>
+          <div><label for="npSubEn">Description courte (anglais)</label><input id="npSubEn" /></div>
+          <div><label for="npSubFr">Description courte (français)</label><input id="npSubFr" /></div>
+          <div><label for="npSizes">Tailles (séparées par virgule)</label><input id="npSizes" placeholder="S, M, L, XL" /></div>
+          <div><label for="npMaterial">Matière</label><input id="npMaterial" placeholder="ex: Coton, Cuir, Acier inoxydable" /></div>
+          <div id="npFitField"><label for="npFit">Coupe</label>
+            <select id="npFit">
+              <option value="">—</option>
+              <option value="slim">Slim</option>
+              <option value="regular">Regular</option>
+              <option value="oversized">Oversized</option>
+            </select>
+          </div>
+          <div id="npCareField"><label for="npCare">Entretien</label><input id="npCare" placeholder="ex: Lavage à 30°C, ne pas sécher en machine" /></div>
+          <div id="npVolumeField" style="display:none;"><label for="npVolume">Volume (ml)</label><input id="npVolume" type="number" step="1" min="0" /></div>
+          <div id="npFamilyField" style="display:none;"><label for="npFamily">Famille olfactive</label>
+            <select id="npFamily">
+              <option value="">—</option>
+              <option value="boise">Boisé</option>
+              <option value="floral">Floral</option>
+              <option value="fruite">Fruité</option>
+              <option value="oriental">Oriental</option>
+              <option value="frais">Frais / Aquatique</option>
+            </select>
+          </div>
+          <div id="npConcentrationField" style="display:none;"><label for="npConcentration">Concentration</label>
+            <select id="npConcentration">
+              <option value="">—</option>
+              <option value="edp">Eau de Parfum</option>
+              <option value="edt">Eau de Toilette</option>
+              <option value="edc">Eau de Cologne</option>
+            </select>
+          </div>
+          <div><label for="npCost">Coût de revient (privé, jamais visible client)</label><input id="npCost" type="number" step="0.01" min="0" /></div>
+          <div><label for="npModelStats">Info mannequin (optionnel)</label><input id="npModelStats" placeholder="ex: Mannequin fait 187cm, porte du M" /></div>
+          <div><label for="npOrigin">Pays d'origine</label><input id="npOrigin" placeholder="ex: Cameroun, Turquie" /></div>
+          <div><label for="npDelivery">Délai de livraison</label><input id="npDelivery" placeholder="ex: 3 à 5 jours ouvrés, Fait sur commande — 2 semaines" /></div>
+          <div><label for="npImage">Photo</label><input id="npImage" type="file" accept="image/*" /></div>
+        </div>
+        <div class="prod-colors-field">
+          <label>Couleurs</label>
+          <div class="color-rows" id="npColorRows"></div>
+          <button type="button" class="prod-add-color" id="npAddColor">+ Ajouter une couleur</button>
+        </div>
+        <div class="prod-tags-field">
+          <label>Tags (plusieurs possibles — indépendant de l'étiquette ci-dessus)</label>
+          <div class="tag-checks">
+            <label><input type="checkbox" class="np-tag" value="nouveautes" /> Nouveautés</label>
+            <label><input type="checkbox" class="np-tag" value="tendance" /> Tendance</label>
+            <label><input type="checkbox" class="np-tag" value="promotions" /> Promotions</label>
+            <label><input type="checkbox" class="np-tag" value="coffrets" /> Coffrets Cadeaux</label>
+          </div>
+        </div>
+        <label class="prod-active-label"><input type="checkbox" id="npSoldOut" /> Marquer en rupture de stock</label>
+        <br /><br />
+        <button type="submit" class="staff-btn" id="newProductBtn">Ajouter le produit</button>
+        <div class="staff-error" id="newProductError"></div>
+      </form>
+    </div>
+    <div id="productList"></div>
+
+    <h2 class="staff-section-title">Paiement</h2>
+    <p class="staff-sub">Numéros affichés aux clients pour Orange Money / MTN MoMo au moment de la commande.</p>
+    <div class="staff-card">
+      <form id="paymentSettingsForm">
+        <div class="staff-field">
+          <label for="orangeMoneyNumber">Numéro Orange Money</label>
+          <input type="text" id="orangeMoneyNumber" placeholder="ex: 6XX XXX XXX" />
+        </div>
+        <div class="staff-field">
+          <label for="orangeMoneyName">Nom du titulaire (Orange Money)</label>
+          <input type="text" id="orangeMoneyName" placeholder="ex: Jean Dupont" />
+        </div>
+        <div class="staff-field">
+          <label for="mtnMomoNumber">Numéro MTN MoMo</label>
+          <input type="text" id="mtnMomoNumber" placeholder="ex: 6XX XXX XXX" />
+        </div>
+        <div class="staff-field">
+          <label for="mtnMomoName">Nom du titulaire (MTN MoMo)</label>
+          <input type="text" id="mtnMomoName" placeholder="ex: Jean Dupont" />
+        </div>
+        <button type="submit" class="staff-btn" id="paymentSettingsBtn">Enregistrer</button>
+        <div class="staff-error" id="paymentSettingsError"></div>
+      </form>
+    </div>
+
+    <h2 class="staff-section-title">Fidélité</h2>
+    <p class="staff-sub">Les clients gagnent des points automatiquement dès qu'une commande passe en "confirmed" (en FCFA uniquement), et peuvent les utiliser pour payer une commande complète.</p>
+    <div class="staff-card">
+      <form id="loyaltySettingsForm">
+        <div class="staff-field">
+          <label for="loyaltyEarnDivisor">FCFA dépensés pour gagner 1 point</label>
+          <input type="number" id="loyaltyEarnDivisor" min="1" step="1" placeholder="ex: 100" />
+        </div>
+        <div class="staff-field">
+          <label for="loyaltyPointValue">Valeur d'1 point en FCFA (à la dépense)</label>
+          <input type="number" id="loyaltyPointValue" min="1" step="1" placeholder="ex: 10" />
+        </div>
+        <button type="submit" class="staff-btn" id="loyaltySettingsBtn">Enregistrer</button>
+        <div class="staff-error" id="loyaltySettingsError"></div>
+      </form>
+    </div>
+    <div class="staff-card" id="loyaltyLookup">
+      <p class="staff-sub" style="margin-bottom:12px;">Vérifier le solde de points d'un client :</p>
+      <div class="staff-field" style="margin-bottom:8px;">
+        <input type="text" id="loyaltyPhoneInput" placeholder="Numéro de téléphone" />
+      </div>
+      <button type="button" class="slot-save" id="loyaltyLookupBtn">Rechercher</button>
+      <p class="staff-sub" id="loyaltyLookupResult" style="margin-top:10px;"></p>
+    </div>
+
+    <h2 class="staff-section-title">Promotions</h2>
+    <p class="staff-sub">Programme une campagne à l'avance — elle remplace automatiquement le bandeau du site pendant sa période, sans que tu aies besoin d'y penser le jour J.</p>
+    <div class="staff-card">
+      <form id="promoForm">
+        <div class="staff-field">
+          <label for="promoTitleEn">Texte du bandeau (anglais)</label>
+          <input type="text" id="promoTitleEn" placeholder="ex: BLACK FRIDAY — 30% OFF EVERYTHING" required />
+        </div>
+        <div class="staff-field">
+          <label for="promoTitleFr">Texte du bandeau (français)</label>
+          <input type="text" id="promoTitleFr" placeholder="ex: BLACK FRIDAY — 30% SUR TOUT" required />
+        </div>
+        <div class="staff-field">
+          <label for="promoStart">Début</label>
+          <input type="datetime-local" id="promoStart" required />
+        </div>
+        <div class="staff-field">
+          <label for="promoEnd">Fin</label>
+          <input type="datetime-local" id="promoEnd" required />
+        </div>
+        <button type="submit" class="staff-btn" id="promoSubmitBtn">Programmer</button>
+        <div class="staff-error" id="promoError"></div>
+      </form>
+    </div>
+    <div class="staff-card" id="promoList"></div>
+
+    <h2 class="staff-section-title">Meilleures ventes</h2>
+    <p class="staff-sub">Quantités vendues, à partir des commandes confirmées.</p>
+    <div class="staff-card" id="bestSellers"></div>
+
+    <h2 class="staff-section-title">Commandes récentes</h2>
+    <div class="staff-card" id="ordersList"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const SLOTS = [
+  { slot: 'hero', label: 'Hero (page d’accueil)' },
+  { slot: 'lookbook_1', label: 'Lookbook 01' },
+  { slot: 'lookbook_2', label: 'Lookbook 02' },
+  { slot: 'lookbook_3', label: 'Lookbook 03' },
+  { slot: 'lookbook_4', label: 'Lookbook 04' },
+  { slot: 'lookbook_5', label: 'Lookbook 05' },
+  { slot: 'lookbook_6', label: 'Lookbook 06' },
+];
+
+const loginView = document.getElementById('loginView');
+const dashboard = document.getElementById('dashboard');
+const signOutBtn = document.getElementById('signOutBtn');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+const loginBtn = document.getElementById('loginBtn');
+const slotList = document.getElementById('slotList');
+
+function showDashboard(){
+  loginView.style.display = 'none';
+  dashboard.style.display = 'block';
+  signOutBtn.style.display = 'inline-block';
+  renderSlots();
+  renderProductsStaff();
+  loadPaymentSettings();
+  loadLoyaltySettings();
+  renderPromotions();
+  renderBestSellers();
+  renderOrders();
+}
+function showLogin(){
+  loginView.style.display = 'block';
+  dashboard.style.display = 'none';
+  signOutBtn.style.display = 'none';
+}
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.textContent = '';
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Connexion…';
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'Se connecter';
+  if (error) {
+    loginError.textContent = 'Identifiants incorrects.';
+    return;
+  }
+  showDashboard();
+});
+
+signOutBtn.addEventListener('click', async () => {
+  await sb.auth.signOut();
+  showLogin();
+});
+
+async function renderSlots(){
+  const { data: rows } = await sb.from('site_images').select('slot,image_url');
+  const currentBySlot = {};
+  (rows || []).forEach(r => { currentBySlot[r.slot] = r.image_url; });
+
+  slotList.innerHTML = '';
+  SLOTS.forEach(({ slot, label }) => {
+    const row = document.createElement('div');
+    row.className = 'slot-row';
+
+    const currentUrl = currentBySlot[slot];
+    row.innerHTML = `
+      <div class="slot-info">
+        <img class="slot-thumb" src="${currentUrl || ''}" style="${currentUrl ? '' : 'display:none;'}" />
+        <div>
+          <div class="slot-name">${label}</div>
+          <div class="slot-status">${currentUrl ? 'Photo actuelle en ligne' : 'Placeholder par défaut'}</div>
+        </div>
+      </div>
+      <div class="slot-actions">
+        <input type="file" accept="image/*" data-slot="${slot}" />
+        <button type="button" class="slot-save" data-slot="${slot}" disabled>Enregistrer</button>
+      </div>
+    `;
+    slotList.appendChild(row);
+  });
+
+  slotList.querySelectorAll('input[type=file]').forEach(input => {
+    input.addEventListener('change', () => {
+      const btn = slotList.querySelector(`.slot-save[data-slot="${input.dataset.slot}"]`);
+      btn.disabled = !input.files.length;
+    });
+  });
+
+  slotList.querySelectorAll('.slot-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const slot = btn.dataset.slot;
+      const input = slotList.querySelector(`input[data-slot="${slot}"]`);
+      const file = input.files[0];
+      if (!file) return;
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+      try {
+        const ext = file.name.split('.').pop();
+        const path = `${slot}-${Date.now()}.${ext}`;
+        const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: publicUrlData } = sb.storage.from('site-images').getPublicUrl(path);
+        const { error: dbError } = await sb.from('site_images').upsert({
+          slot,
+          image_url: publicUrlData.publicUrl,
+          updated_at: new Date().toISOString(),
+        });
+        if (dbError) throw dbError;
+        btn.textContent = 'Enregistré ✓';
+        renderSlots();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+        alert('Erreur : ' + (err.message || err));
+      }
+    });
+  });
+}
+
+function escAttr(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+function slugify(s){
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'produit';
+}
+
+const PROD_GENDERS = [
+  ['men', 'Homme'], ['women', 'Femme'], ['kids', 'Enfant'], ['unisex', 'Unisexe (Homme et Femme)'],
+];
+const PROD_TYPES = [
+  ['clothing', 'Vêtements'], ['shoes', 'Chaussures'], ['bags', 'Sacs'],
+  ['accessories', 'Accessoires'], ['jewelry', 'Bijoux'], ['fragrance', 'Parfum'],
+  ['sport', 'Sport'], ['lingerie', 'Lingerie'],
+];
+const PROD_KIDS_GROUPS = [['unisex', 'Fille et garçon'], ['girls', 'Fille'], ['boys', 'Garçon']];
+const PROD_TAGS = [['', 'Aucune'], ['new', 'Nouveau'], ['sale', 'Promo']];
+
+const newProductForm = document.getElementById('newProductForm');
+const newProductBtn = document.getElementById('newProductBtn');
+const newProductError = document.getElementById('newProductError');
+const productList = document.getElementById('productList');
+const npGender = document.getElementById('npGender');
+const npType = document.getElementById('npType');
+const npKidsGroupField = document.getElementById('npKidsGroupField');
+const npFitField = document.getElementById('npFitField');
+const npCareField = document.getElementById('npCareField');
+const npVolumeField = document.getElementById('npVolumeField');
+const npFamilyField = document.getElementById('npFamilyField');
+const npConcentrationField = document.getElementById('npConcentrationField');
+const npColorRows = document.getElementById('npColorRows');
+
+npGender.addEventListener('change', () => {
+  npKidsGroupField.style.display = npGender.value === 'kids' ? 'block' : 'none';
+});
+
+function syncTypeFields(typeSelect, fitField, careField, volumeField, familyField, concentrationField){
+  const isClothing = typeSelect.value === 'clothing';
+  const isFragrance = typeSelect.value === 'fragrance';
+  fitField.style.display = isClothing ? '' : 'none';
+  careField.style.display = isClothing ? '' : 'none';
+  volumeField.style.display = isFragrance ? '' : 'none';
+  familyField.style.display = isFragrance ? '' : 'none';
+  concentrationField.style.display = isFragrance ? '' : 'none';
+}
+npType.addEventListener('change', () => syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField));
+syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField);
+
+function addColorRow(container, name, hex){
+  const row = document.createElement('div');
+  row.className = 'color-row';
+  row.innerHTML = `
+    <input type="color" class="color-hex" value="${hex || '#000000'}" />
+    <input type="text" class="color-name" placeholder="Nom de la couleur (ex: Noir Mat)" value="${escAttr(name || '')}" />
+    <button type="button" class="color-row-remove">✕</button>
+  `;
+  row.querySelector('.color-row-remove').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
+function readColorRows(container){
+  return [...container.querySelectorAll('.color-row')]
+    .map(row => ({ name: row.querySelector('.color-name').value.trim(), hex: row.querySelector('.color-hex').value }))
+    .filter(c => c.name);
+}
+document.getElementById('npAddColor').addEventListener('click', () => addColorRow(npColorRows));
+addColorRow(npColorRows);
+
+function addVariantRow(container, v){
+  const row = document.createElement('div');
+  row.className = 'variant-row';
+  row.innerHTML = `
+    <input class="v-size" placeholder="Taille (ex: M, 42)" value="${escAttr(v && v.size)}" />
+    <input class="v-color" placeholder="Couleur (optionnel)" value="${escAttr(v && v.color_name)}" />
+    <input class="v-sku" placeholder="SKU (optionnel)" value="${escAttr(v && v.sku)}" />
+    <input class="v-stock" type="number" step="1" min="0" placeholder="Stock" value="${v && v.stock != null ? v.stock : 0}" />
+    <button type="button" class="variant-row-remove">✕</button>
+  `;
+  row.querySelector('.variant-row-remove').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
+
+function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || ''); }
+
+function addGalleryRow(container, img){
+  const row = document.createElement('div');
+  row.className = 'gallery-row';
+  row.dataset.existingUrl = (img && img.url) || '';
+  const url = img && img.url;
+  const thumb = url && isVideoUrl(url)
+    ? `<video class="gallery-row-thumb" src="${url}" muted></video>`
+    : `<img class="gallery-row-thumb" src="${url || ''}" style="${url ? '' : 'display:none;'}" />`;
+  row.innerHTML = `
+    ${thumb}
+    <input class="g-color" placeholder="Couleur (optionnel)" value="${escAttr(img && img.color_name)}" />
+    <input class="g-position" type="number" step="1" min="0" placeholder="Ordre (vidéo mannequin = 0)" value="${img && img.position != null ? img.position : 0}" />
+    <input class="g-file" type="file" accept="image/*,video/*" />
+    <button type="button" class="variant-row-remove">✕</button>
+  `;
+  row.querySelector('.variant-row-remove').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
+
+newProductForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  newProductError.textContent = '';
+  const nameEn = document.getElementById('npNameEn').value.trim();
+  const nameFr = document.getElementById('npNameFr').value.trim();
+  const price = parseFloat(document.getElementById('npPrice').value);
+  if (!nameEn || !nameFr || !(price >= 0)) {
+    newProductError.textContent = 'Nom (EN/FR) et prix sont requis.';
+    return;
+  }
+  newProductBtn.disabled = true;
+  newProductBtn.textContent = 'Ajout…';
+  try {
+    const id = slugify(nameEn) + '-' + Date.now().toString(36);
+    let image_url = null;
+    const fileInput = document.getElementById('npImage');
+    if (fileInput.files.length) {
+      const file = fileInput.files[0];
+      const ext = file.name.split('.').pop();
+      const path = `${id}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
+      image_url = pub.publicUrl;
+    }
+    const gender = npGender.value;
+    const type = npType.value;
+    const wasVal = document.getElementById('npWas').value;
+    const sizesRaw = document.getElementById('npSizes').value.trim();
+    const volumeVal = document.getElementById('npVolume').value;
+    const colors = readColorRows(npColorRows);
+    const tags = [...document.querySelectorAll('.np-tag:checked')].map(cb => cb.value);
+    const { error } = await sb.from('products').insert({
+      id,
+      gender,
+      type,
+      kids_group: gender === 'kids' ? document.getElementById('npKidsGroup').value : null,
+      tag: document.getElementById('npTag').value || null,
+      tags: tags.length ? tags : null,
+      price,
+      was: wasVal ? parseFloat(wasVal) : null,
+      sizes: sizesRaw ? sizesRaw.split(',').map(s => s.trim()).filter(Boolean) : null,
+      colors: colors.length ? colors : null,
+      material: document.getElementById('npMaterial').value.trim() || null,
+      fit: type === 'clothing' ? (document.getElementById('npFit').value || null) : null,
+      care_instructions: type === 'clothing' ? (document.getElementById('npCare').value.trim() || null) : null,
+      volume_ml: type === 'fragrance' && volumeVal ? parseInt(volumeVal, 10) : null,
+      olfactory_family: type === 'fragrance' ? (document.getElementById('npFamily').value || null) : null,
+      concentration: type === 'fragrance' ? (document.getElementById('npConcentration').value || null) : null,
+      sold_out: document.getElementById('npSoldOut').checked,
+      model_stats: document.getElementById('npModelStats').value.trim() || null,
+      origin_country: document.getElementById('npOrigin').value.trim() || null,
+      delivery_estimate: document.getElementById('npDelivery').value.trim() || null,
+      name_en: nameEn,
+      name_fr: nameFr,
+      sub_en: document.getElementById('npSubEn').value.trim(),
+      sub_fr: document.getElementById('npSubFr').value.trim(),
+      image_url,
+      active: true,
+    });
+    if (error) throw error;
+    const costVal = document.getElementById('npCost').value;
+    if (costVal) {
+      await sb.from('product_costs').upsert({ product_id: id, cost_price: parseFloat(costVal) });
+    }
+    newProductForm.reset();
+    npKidsGroupField.style.display = 'none';
+    npColorRows.innerHTML = '';
+    addColorRow(npColorRows);
+    syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField);
+    renderProductsStaff();
+  } catch (err) {
+    newProductError.textContent = 'Erreur : ' + (err.message || err);
+  } finally {
+    newProductBtn.disabled = false;
+    newProductBtn.textContent = 'Ajouter le produit';
+  }
+});
+
+const PROD_MERCH_TAGS = [['nouveautes', 'Nouveautés'], ['tendance', 'Tendance'], ['promotions', 'Promotions'], ['coffrets', 'Coffrets Cadeaux']];
+const PROD_FITS = [['', '—'], ['slim', 'Slim'], ['regular', 'Regular'], ['oversized', 'Oversized']];
+const PROD_FAMILIES = [['', '—'], ['boise', 'Boisé'], ['floral', 'Floral'], ['fruite', 'Fruité'], ['oriental', 'Oriental'], ['frais', 'Frais / Aquatique']];
+const PROD_CONCENTRATIONS = [['', '—'], ['edp', 'Eau de Parfum'], ['edt', 'Eau de Toilette'], ['edc', 'Eau de Cologne']];
+
+async function renderProductsStaff(){
+  const [{ data: rows }, { data: costRows }, { data: variantRows }, { data: imageRows }] = await Promise.all([
+    sb.from('products').select('*').order('created_at', { ascending: true }),
+    sb.from('product_costs').select('product_id,cost_price'),
+    sb.from('product_variants').select('*').order('created_at', { ascending: true }),
+    sb.from('product_images').select('*').order('position', { ascending: true }),
+  ]);
+  productList.innerHTML = '';
+  if (!rows || !rows.length) {
+    productList.innerHTML = '<p class="staff-empty">Aucun produit pour l’instant.</p>';
+    return;
+  }
+  const costByProduct = {};
+  (costRows || []).forEach(c => { costByProduct[c.product_id] = c.cost_price; });
+  const variantsByProduct = {};
+  (variantRows || []).forEach(v => { (variantsByProduct[v.product_id] = variantsByProduct[v.product_id] || []).push(v); });
+  const imagesByProduct = {};
+  (imageRows || []).forEach(img => { (imagesByProduct[img.product_id] = imagesByProduct[img.product_id] || []).push(img); });
+
+  rows.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'prod-card';
+    row.dataset.id = p.id;
+    const isClothing = (p.type || 'clothing') === 'clothing';
+    const isFragrance = p.type === 'fragrance';
+    row.innerHTML = `
+      <div class="prod-top">
+        <img class="prod-thumb" src="${p.image_url || ''}" style="${p.image_url ? '' : 'display:none;'}" />
+        <div class="prod-body">
+          <div class="prod-grid">
+            <div><label>Genre</label><select class="f-gender">${PROD_GENDERS.map(([v, l]) => `<option value="${v}" ${v === (p.gender || 'unisex') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Sous-catégorie</label><select class="f-type">${PROD_TYPES.map(([v, l]) => `<option value="${v}" ${v === (p.type || 'clothing') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div class="f-kids-group-field" style="${(p.gender || 'unisex') === 'kids' ? '' : 'display:none;'}"><label>Enfant : fille / garçon</label><select class="f-kids-group">${PROD_KIDS_GROUPS.map(([v, l]) => `<option value="${v}" ${v === (p.kids_group || 'unisex') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Nom (EN)</label><input class="f-name-en" value="${escAttr(p.name_en)}" /></div>
+            <div><label>Nom (FR)</label><input class="f-name-fr" value="${escAttr(p.name_fr)}" /></div>
+            <div><label>Prix (USD)</label><input class="f-price" type="number" step="0.01" min="0" value="${p.price}" /></div>
+            <div><label>Prix barré</label><input class="f-was" type="number" step="0.01" min="0" value="${p.was ?? ''}" /></div>
+            <div><label>Étiquette</label><select class="f-tag">${PROD_TAGS.map(([v, l]) => `<option value="${v}" ${v === (p.tag || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Description (EN)</label><input class="f-sub-en" value="${escAttr(p.sub_en)}" /></div>
+            <div><label>Description (FR)</label><input class="f-sub-fr" value="${escAttr(p.sub_fr)}" /></div>
+            <div><label>Tailles (séparées par virgule)</label><input class="f-sizes" value="${escAttr((p.sizes || []).join(', '))}" /></div>
+            <div><label>Matière</label><input class="f-material" value="${escAttr(p.material)}" /></div>
+            <div class="f-fit-field" style="${isClothing ? '' : 'display:none;'}"><label>Coupe</label><select class="f-fit">${PROD_FITS.map(([v, l]) => `<option value="${v}" ${v === (p.fit || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div class="f-care-field" style="${isClothing ? '' : 'display:none;'}"><label>Entretien</label><input class="f-care" value="${escAttr(p.care_instructions)}" /></div>
+            <div class="f-volume-field" style="${isFragrance ? '' : 'display:none;'}"><label>Volume (ml)</label><input class="f-volume" type="number" step="1" min="0" value="${p.volume_ml ?? ''}" /></div>
+            <div class="f-family-field" style="${isFragrance ? '' : 'display:none;'}"><label>Famille olfactive</label><select class="f-family">${PROD_FAMILIES.map(([v, l]) => `<option value="${v}" ${v === (p.olfactory_family || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div class="f-concentration-field" style="${isFragrance ? '' : 'display:none;'}"><label>Concentration</label><select class="f-concentration">${PROD_CONCENTRATIONS.map(([v, l]) => `<option value="${v}" ${v === (p.concentration || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+            <div><label>Coût de revient (privé)</label><input class="f-cost" type="number" step="0.01" min="0" value="${costByProduct[p.id] ?? ''}" /></div>
+            <div><label>Info mannequin (optionnel)</label><input class="f-model-stats" value="${escAttr(p.model_stats)}" placeholder="ex: Mannequin fait 187cm, porte du M" /></div>
+            <div><label>Pays d'origine</label><input class="f-origin" value="${escAttr(p.origin_country)}" placeholder="ex: Cameroun, Turquie" /></div>
+            <div><label>Délai de livraison</label><input class="f-delivery" value="${escAttr(p.delivery_estimate)}" placeholder="ex: 3 à 5 jours ouvrés" /></div>
+            <div><label>Photo (fiche produit)</label><input class="f-image" type="file" accept="image/*" /></div>
+          </div>
+          <div class="prod-colors-field">
+            <label>Couleurs</label>
+            <div class="color-rows"></div>
+            <button type="button" class="prod-add-color">+ Ajouter une couleur</button>
+          </div>
+          <div class="prod-tags-field">
+            <label>Tags (plusieurs possibles)</label>
+            <div class="tag-checks">${PROD_MERCH_TAGS.map(([v, l]) => `<label><input type="checkbox" class="f-tag-check" value="${v}" ${(p.tags || []).includes(v) ? 'checked' : ''} /> ${l}</label>`).join('')}</div>
+          </div>
+          <div class="prod-foot">
+            <label class="prod-active-label"><input type="checkbox" class="f-active" ${p.active ? 'checked' : ''} /> Actif (visible sur le site)</label>
+            <label class="prod-active-label"><input type="checkbox" class="f-sold-out" ${p.sold_out ? 'checked' : ''} /> Rupture de stock (forcer)</label>
+            <button type="button" class="slot-save prod-save">Enregistrer</button>
+            <button type="button" class="prod-delete">Supprimer</button>
+            <span class="staff-error prod-error"></span>
+          </div>
+          <div class="variant-table">
+            <div class="variant-table-title">Stock par variante (taille / couleur) — optionnel ; sans ligne ici, la taille reste toujours disponible</div>
+            <div class="variant-rows"></div>
+            <button type="button" class="variant-add">+ Ajouter une variante</button>
+            <button type="button" class="variant-save">Enregistrer le stock</button>
+            <span class="staff-error variant-error"></span>
+          </div>
+          <div class="variant-table">
+            <div class="variant-table-title">Galerie photos — plusieurs photos par produit ; associe une photo à une couleur pour qu'elle s'affiche quand le client sélectionne cette couleur (laisse "Couleur" vide pour une photo générale)</div>
+            <div class="gallery-rows"></div>
+            <button type="button" class="gallery-add">+ Ajouter une photo</button>
+            <button type="button" class="gallery-save">Enregistrer la galerie</button>
+            <span class="staff-error gallery-error"></span>
+          </div>
+        </div>
+      </div>
+    `;
+    const colorContainer = row.querySelector('.color-rows');
+    (p.colors || []).forEach(c => addColorRow(colorContainer, c.name, c.hex));
+    row.querySelector('.prod-add-color').addEventListener('click', () => addColorRow(colorContainer));
+
+    const variantContainer = row.querySelector('.variant-rows');
+    (variantsByProduct[p.id] || []).forEach(v => addVariantRow(variantContainer, v));
+    row.querySelector('.variant-add').addEventListener('click', () => addVariantRow(variantContainer));
+
+    const galleryContainer = row.querySelector('.gallery-rows');
+    (imagesByProduct[p.id] || []).forEach(img => addGalleryRow(galleryContainer, img));
+    row.querySelector('.gallery-add').addEventListener('click', () => addGalleryRow(galleryContainer));
+
+    productList.appendChild(row);
+  });
+
+  productList.querySelectorAll('.f-gender').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const field = sel.closest('.prod-card').querySelector('.f-kids-group-field');
+      field.style.display = sel.value === 'kids' ? '' : 'none';
+    });
+  });
+  productList.querySelectorAll('.f-type').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const card = sel.closest('.prod-card');
+      const isClothing = sel.value === 'clothing';
+      const isFragrance = sel.value === 'fragrance';
+      card.querySelector('.f-fit-field').style.display = isClothing ? '' : 'none';
+      card.querySelector('.f-care-field').style.display = isClothing ? '' : 'none';
+      card.querySelector('.f-volume-field').style.display = isFragrance ? '' : 'none';
+      card.querySelector('.f-family-field').style.display = isFragrance ? '' : 'none';
+      card.querySelector('.f-concentration-field').style.display = isFragrance ? '' : 'none';
+    });
+  });
+
+  productList.querySelectorAll('.prod-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      const id = row.dataset.id;
+      const errEl = row.querySelector('.prod-error');
+      errEl.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement…';
+      try {
+        const gender = row.querySelector('.f-gender').value;
+        const type = row.querySelector('.f-type').value;
+        const colors = readColorRows(row.querySelector('.color-rows'));
+        const tags = [...row.querySelectorAll('.f-tag-check:checked')].map(cb => cb.value);
+        const volumeVal = row.querySelector('.f-volume').value;
+        const update = {
+          gender,
+          type,
+          kids_group: gender === 'kids' ? row.querySelector('.f-kids-group').value : null,
+          tag: row.querySelector('.f-tag').value || null,
+          tags: tags.length ? tags : null,
+          price: parseFloat(row.querySelector('.f-price').value) || 0,
+          was: row.querySelector('.f-was').value ? parseFloat(row.querySelector('.f-was').value) : null,
+          sizes: row.querySelector('.f-sizes').value.trim()
+            ? row.querySelector('.f-sizes').value.trim().split(',').map(s => s.trim()).filter(Boolean)
+            : null,
+          colors: colors.length ? colors : null,
+          material: row.querySelector('.f-material').value.trim() || null,
+          fit: type === 'clothing' ? (row.querySelector('.f-fit').value || null) : null,
+          care_instructions: type === 'clothing' ? (row.querySelector('.f-care').value.trim() || null) : null,
+          volume_ml: type === 'fragrance' && volumeVal ? parseInt(volumeVal, 10) : null,
+          olfactory_family: type === 'fragrance' ? (row.querySelector('.f-family').value || null) : null,
+          concentration: type === 'fragrance' ? (row.querySelector('.f-concentration').value || null) : null,
+          sold_out: row.querySelector('.f-sold-out').checked,
+          model_stats: row.querySelector('.f-model-stats').value.trim() || null,
+          origin_country: row.querySelector('.f-origin').value.trim() || null,
+          delivery_estimate: row.querySelector('.f-delivery').value.trim() || null,
+          name_en: row.querySelector('.f-name-en').value.trim(),
+          name_fr: row.querySelector('.f-name-fr').value.trim(),
+          sub_en: row.querySelector('.f-sub-en').value.trim(),
+          sub_fr: row.querySelector('.f-sub-fr').value.trim(),
+          active: row.querySelector('.f-active').checked,
+        };
+        const fileInput = row.querySelector('.f-image');
+        if (fileInput.files.length) {
+          const file = fileInput.files[0];
+          const ext = file.name.split('.').pop();
+          const path = `${id}-${Date.now()}.${ext}`;
+          const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+          if (uploadError) throw uploadError;
+          const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
+          update.image_url = pub.publicUrl;
+        }
+        const { error } = await sb.from('products').update(update).eq('id', id);
+        if (error) throw error;
+        const costVal = row.querySelector('.f-cost').value;
+        if (costVal) await sb.from('product_costs').upsert({ product_id: id, cost_price: parseFloat(costVal) });
+        else await sb.from('product_costs').delete().eq('product_id', id);
+        btn.textContent = 'Enregistré ✓';
+        if (update.image_url) { renderProductsStaff(); return; }
+        setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        errEl.textContent = 'Erreur : ' + (err.message || err);
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+      }
+    });
+  });
+
+  productList.querySelectorAll('.variant-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      const id = row.dataset.id;
+      const errEl = row.querySelector('.variant-error');
+      errEl.textContent = '';
+      btn.disabled = true;
+      try {
+        const variants = [...row.querySelectorAll('.variant-row')].map(vr => ({
+          product_id: id,
+          size: vr.querySelector('.v-size').value.trim(),
+          color_name: vr.querySelector('.v-color').value.trim() || null,
+          sku: vr.querySelector('.v-sku').value.trim() || null,
+          stock: parseInt(vr.querySelector('.v-stock').value, 10) || 0,
+        })).filter(v => v.size);
+        await sb.from('product_variants').delete().eq('product_id', id);
+        if (variants.length) {
+          const { error } = await sb.from('product_variants').insert(variants);
+          if (error) throw error;
+        }
+        btn.textContent = 'Enregistré ✓';
+        setTimeout(() => { btn.textContent = 'Enregistrer le stock'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        errEl.textContent = 'Erreur : ' + (err.message || err);
+        btn.disabled = false;
+      }
+    });
+  });
+
+  productList.querySelectorAll('.gallery-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      const id = row.dataset.id;
+      const errEl = row.querySelector('.gallery-error');
+      errEl.textContent = '';
+      btn.disabled = true;
+      try {
+        const images = [];
+        for (const gr of row.querySelectorAll('.gallery-row')) {
+          const fileInput = gr.querySelector('.g-file');
+          let url = gr.dataset.existingUrl || '';
+          if (fileInput.files.length) {
+            const file = fileInput.files[0];
+            const ext = file.name.split('.').pop();
+            const path = `${id}-gallery-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+            const { error: uploadError } = await sb.storage.from('site-images').upload(path, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { data: pub } = sb.storage.from('site-images').getPublicUrl(path);
+            url = pub.publicUrl;
+          }
+          if (!url) continue;
+          images.push({
+            product_id: id,
+            color_name: gr.querySelector('.g-color').value.trim() || null,
+            position: parseInt(gr.querySelector('.g-position').value, 10) || 0,
+            url,
+          });
+        }
+        await sb.from('product_images').delete().eq('product_id', id);
+        if (images.length) {
+          const { error } = await sb.from('product_images').insert(images);
+          if (error) throw error;
+        }
+        btn.textContent = 'Enregistré ✓';
+        renderProductsStaff();
+      } catch (err) {
+        errEl.textContent = 'Erreur : ' + (err.message || err);
+        btn.disabled = false;
+      }
+    });
+  });
+
+  productList.querySelectorAll('.prod-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      if (!confirm('Supprimer ce produit définitivement ? Cette action est irréversible.')) return;
+      await sb.from('products').delete().eq('id', row.dataset.id);
+      renderProductsStaff();
+    });
+  });
+}
+
+const paymentSettingsForm = document.getElementById('paymentSettingsForm');
+const paymentSettingsBtn = document.getElementById('paymentSettingsBtn');
+const paymentSettingsError = document.getElementById('paymentSettingsError');
+const orangeMoneyNumber = document.getElementById('orangeMoneyNumber');
+const orangeMoneyName = document.getElementById('orangeMoneyName');
+const mtnMomoNumber = document.getElementById('mtnMomoNumber');
+const mtnMomoName = document.getElementById('mtnMomoName');
+
+async function loadPaymentSettings(){
+  const { data } = await sb.from('settings').select('key,value');
+  const byKey = {};
+  (data || []).forEach(r => { byKey[r.key] = r.value; });
+  orangeMoneyNumber.value = byKey.orange_money_number || '';
+  orangeMoneyName.value = byKey.orange_money_name || '';
+  mtnMomoNumber.value = byKey.mtn_momo_number || '';
+  mtnMomoName.value = byKey.mtn_momo_name || '';
+}
+
+paymentSettingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  paymentSettingsError.textContent = '';
+  paymentSettingsBtn.disabled = true;
+  paymentSettingsBtn.textContent = 'Enregistrement…';
+  try {
+    const { error } = await sb.from('settings').upsert([
+      { key: 'orange_money_number', value: orangeMoneyNumber.value.trim() },
+      { key: 'orange_money_name', value: orangeMoneyName.value.trim() },
+      { key: 'mtn_momo_number', value: mtnMomoNumber.value.trim() },
+      { key: 'mtn_momo_name', value: mtnMomoName.value.trim() },
+    ]);
+    if (error) throw error;
+    paymentSettingsBtn.textContent = 'Enregistré ✓';
+  } catch (err) {
+    paymentSettingsError.textContent = 'Erreur : ' + (err.message || err);
+    paymentSettingsBtn.textContent = 'Enregistrer';
+  } finally {
+    paymentSettingsBtn.disabled = false;
+    setTimeout(() => { paymentSettingsBtn.textContent = 'Enregistrer'; }, 2000);
+  }
+});
+
+const loyaltySettingsForm = document.getElementById('loyaltySettingsForm');
+const loyaltySettingsBtn = document.getElementById('loyaltySettingsBtn');
+const loyaltySettingsError = document.getElementById('loyaltySettingsError');
+const loyaltyEarnDivisor = document.getElementById('loyaltyEarnDivisor');
+const loyaltyPointValue = document.getElementById('loyaltyPointValue');
+
+async function loadLoyaltySettings(){
+  const { data } = await sb.from('settings').select('key,value').in('key', ['loyalty_earn_divisor', 'loyalty_point_value']);
+  const byKey = {};
+  (data || []).forEach(r => { byKey[r.key] = r.value; });
+  loyaltyEarnDivisor.value = byKey.loyalty_earn_divisor || '100';
+  loyaltyPointValue.value = byKey.loyalty_point_value || '10';
+}
+
+loyaltySettingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loyaltySettingsError.textContent = '';
+  loyaltySettingsBtn.disabled = true;
+  loyaltySettingsBtn.textContent = 'Enregistrement…';
+  try {
+    const { error } = await sb.from('settings').upsert([
+      { key: 'loyalty_earn_divisor', value: String(parseInt(loyaltyEarnDivisor.value, 10) || 100) },
+      { key: 'loyalty_point_value', value: String(parseInt(loyaltyPointValue.value, 10) || 10) },
+    ]);
+    if (error) throw error;
+    loyaltySettingsBtn.textContent = 'Enregistré ✓';
+  } catch (err) {
+    loyaltySettingsError.textContent = 'Erreur : ' + (err.message || err);
+    loyaltySettingsBtn.textContent = 'Enregistrer';
+  } finally {
+    loyaltySettingsBtn.disabled = false;
+    setTimeout(() => { loyaltySettingsBtn.textContent = 'Enregistrer'; }, 2000);
+  }
+});
+
+document.getElementById('loyaltyLookupBtn').addEventListener('click', async () => {
+  const resultEl = document.getElementById('loyaltyLookupResult');
+  const phone = document.getElementById('loyaltyPhoneInput').value.trim();
+  if (!phone) { resultEl.textContent = 'Entre un numéro.'; return; }
+  resultEl.textContent = 'Recherche…';
+  const { data } = await sb.from('customers').select('name,points').eq('phone', phone).maybeSingle();
+  resultEl.textContent = data
+    ? `${data.name || phone} : ${data.points} points`
+    : 'Aucun client trouvé avec ce numéro.';
+});
+
+const promoForm = document.getElementById('promoForm');
+const promoSubmitBtn = document.getElementById('promoSubmitBtn');
+const promoError = document.getElementById('promoError');
+const promoList = document.getElementById('promoList');
+
+promoForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  promoError.textContent = '';
+  const titleEn = document.getElementById('promoTitleEn').value.trim();
+  const titleFr = document.getElementById('promoTitleFr').value.trim();
+  const start = document.getElementById('promoStart').value;
+  const end = document.getElementById('promoEnd').value;
+  if (!titleEn || !titleFr || !start || !end) return;
+  if (new Date(end) <= new Date(start)) {
+    promoError.textContent = 'La date de fin doit être après la date de début.';
+    return;
+  }
+  promoSubmitBtn.disabled = true;
+  try {
+    const { error } = await sb.from('promotions').insert({
+      title_en: titleEn,
+      title_fr: titleFr,
+      starts_at: new Date(start).toISOString(),
+      ends_at: new Date(end).toISOString(),
+    });
+    if (error) throw error;
+    promoForm.reset();
+    renderPromotions();
+  } catch (err) {
+    promoError.textContent = 'Erreur : ' + (err.message || err);
+  } finally {
+    promoSubmitBtn.disabled = false;
+  }
+});
+
+async function renderPromotions(){
+  const { data: promos } = await sb.from('promotions').select('*').order('starts_at', { ascending: false }).limit(20);
+  if (!promos || !promos.length) {
+    promoList.innerHTML = '<p class="staff-empty">Aucune promotion programmée.</p>';
+    return;
+  }
+  const now = new Date();
+  promoList.innerHTML = '';
+  promos.forEach(promo => {
+    const starts = new Date(promo.starts_at);
+    const ends = new Date(promo.ends_at);
+    let statusClass = 'is-upcoming', statusLabel = 'À venir';
+    if (now >= starts && now <= ends) { statusClass = 'is-live'; statusLabel = 'En cours'; }
+    else if (now > ends) { statusClass = 'is-past'; statusLabel = 'Terminée'; }
+    const row = document.createElement('div');
+    row.className = 'promo-row';
+    row.innerHTML = `
+      <div>
+        <span class="promo-status ${statusClass}">${statusLabel}</span>
+        <span class="promo-title">${promo.title_fr}</span>
+        <div class="promo-dates">${starts.toLocaleString('fr-FR')} → ${ends.toLocaleString('fr-FR')}</div>
+      </div>
+      <button type="button" class="promo-delete" data-id="${promo.id}">Supprimer</button>
+    `;
+    promoList.appendChild(row);
+  });
+  promoList.querySelectorAll('.promo-delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await sb.from('promotions').delete().eq('id', btn.dataset.id);
+      renderPromotions();
+    });
+  });
+}
+
+const bestSellersEl = document.getElementById('bestSellers');
+async function renderBestSellers(){
+  const { data: orders } = await sb.from('orders').select('items').eq('status', 'confirmed');
+  const counts = {};
+  (orders || []).forEach(order => {
+    (order.items || []).forEach(item => {
+      counts[item.name] = (counts[item.name] || 0) + item.qty;
+    });
+  });
+  const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  if (!ranked.length) {
+    bestSellersEl.innerHTML = '<p class="staff-empty">Pas encore de commande confirmée.</p>';
+    return;
+  }
+  const max = ranked[0][1];
+  bestSellersEl.innerHTML = ranked.map(([name, qty]) => `
+    <div class="bar-row">
+      <div class="bar-label">${name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, (qty / max) * 100)}%"></div></div>
+      <div class="bar-value">${qty}</div>
+    </div>
+  `).join('');
+}
+
+const ordersList = document.getElementById('ordersList');
+const PAYMENT_LABELS = { orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', cash: 'Cash', bank_card: 'Carte bancaire', fidelity: 'Points fidélité' };
+const STATUS_OPTIONS = ['pending', 'confirmed', 'cancelled'];
+
+async function renderOrders(){
+  const { data: orders, error } = await sb
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error || !orders || !orders.length) {
+    ordersList.innerHTML = '<p class="staff-empty">Aucune commande pour l’instant.</p>';
+    return;
+  }
+  ordersList.innerHTML = '';
+  orders.forEach(order => {
+    const row = document.createElement('div');
+    row.className = 'order-row';
+    const itemsSummary = (order.items || []).map(i => {
+      const variant = [i.color, i.size].filter(Boolean).join(', ');
+      return `${i.name}${variant ? ' (' + variant + ')' : ''} ×${i.qty}`;
+    }).join(', ');
+    row.innerHTML = `
+      <div class="order-head">
+        <span class="order-ref">${order.ref}</span>
+        <span class="order-total">${order.subtotal} ${order.currency}</span>
+      </div>
+      <div class="order-meta">${order.customer_name} — ${order.customer_phone} — ${order.fulfillment}${order.city ? ' — ' + order.city : ''}${order.address ? ' — ' + order.address : ''} — ${PAYMENT_LABELS[order.payment_method] || order.payment_method}</div>
+      <div class="order-items">${itemsSummary}</div>
+      <div class="order-actions">
+        <select class="order-status" data-id="${order.id}">
+          ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === order.status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+        ${order.receipt_path ? `<button type="button" class="order-receipt-link" data-path="${order.receipt_path}">Voir le reçu</button>` : ''}
+      </div>
+    `;
+    ordersList.appendChild(row);
+  });
+
+  ordersList.querySelectorAll('.order-status').forEach(select => {
+    select.addEventListener('change', async () => {
+      await sb.from('orders').update({ status: select.value }).eq('id', select.dataset.id);
+    });
+  });
+  ordersList.querySelectorAll('.order-receipt-link').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { data, error: signError } = await sb.storage.from('order-receipts').createSignedUrl(btn.dataset.path, 300);
+      if (signError || !data) { alert('Impossible d’ouvrir le reçu.'); return; }
+      window.open(data.signedUrl, '_blank');
+    });
+  });
+}
+
+(async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showDashboard();
+  else showLogin();
+})();
+</script>
+</body>
+</html>

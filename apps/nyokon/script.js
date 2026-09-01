@@ -1163,14 +1163,13 @@ function applyPromotionText(){
 
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // The cinematic intro is a first-impression splash, not something a
-  // customer should have to sit through every time they navigate back to
-  // the shop (e.g. tapping the cart icon from a product page reloads
-  // index.html fresh). localStorage (not sessionStorage) so it stays
-  // skipped even in a new tab or after reopening the browser — a
-  // customer who has already seen it should never see it again.
+  // The cinematic intro plays once per visit — sessionStorage so it
+  // doesn't replay every time the customer navigates back to the shop
+  // within the same visit (e.g. tapping the cart icon from a product
+  // page reloads index.html fresh), but it's shown again on a genuinely
+  // new visit (new tab, or reopening the site later).
   let seenBefore = false;
-  try { seenBefore = localStorage.getItem('nyokon-intro-seen') === '1'; } catch (e) { /* storage unavailable */ }
+  try { seenBefore = sessionStorage.getItem('nyokon-intro-seen') === '1'; } catch (e) { /* storage unavailable */ }
 
   function skipIntroImmediately(collapse){
     section.classList.add('is-unlocked');
@@ -1257,7 +1256,7 @@ function applyPromotionText(){
     if (!locked) return;
     locked = false;
     introCompleted = true;
-    try { localStorage.setItem('nyokon-intro-seen', '1'); } catch (e) { /* storage unavailable */ }
+    try { sessionStorage.setItem('nyokon-intro-seen', '1'); } catch (e) { /* storage unavailable */ }
     const y = lockedScrollY;
     const b = document.body.style;
     b.position = '';

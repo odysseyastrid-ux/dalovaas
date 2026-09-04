@@ -1,0 +1,127 @@
+// Zone selector: which area, then a first-time-client discount message
+  let selectedZone = '';
+  let discountClaimed = false;
+  const zoneBackdrop = document.getElementById('zoneBackdrop');
+  const zoneTag = document.getElementById('zoneTag');
+  const zoneStep1 = document.getElementById('zoneStep1');
+  const zoneStep2 = document.getElementById('zoneStep2');
+  const zoneStep2Text = document.getElementById('zoneStep2Text');
+
+  function closeZoneModal(){
+    zoneBackdrop.classList.remove('show');
+  }
+
+  function chooseZone(zone){
+    selectedZone = zone;
+    if (zone){
+      zoneTag.textContent = 'Serving ' + zone;
+      zoneTag.classList.add('show');
+      zoneStep2Text.textContent = 'Get 15% off your first cleaning in ' + zone + '.';
+      zoneStep1.style.display = 'none';
+      zoneStep2.style.display = 'block';
+    } else {
+      closeZoneModal();
+    }
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(() => zoneBackdrop.classList.add('show'), 350);
+  });
+
+  document.querySelectorAll('.zone-btn[data-zone]').forEach(btn => {
+    btn.addEventListener('click', () => chooseZone(btn.dataset.zone));
+  });
+  document.getElementById('zoneSkip').addEventListener('click', () => chooseZone(''));
+  document.getElementById('zoneClose').addEventListener('click', closeZoneModal);
+  document.getElementById('zoneClaim').addEventListener('click', () => {
+    discountClaimed = true;
+    closeZoneModal();
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  });
+  zoneBackdrop.addEventListener('click', (e) => {
+    if (e.target === zoneBackdrop) closeZoneModal();
+  });
+
+  // Smooth-scroll every in-page link ourselves, instead of relying on default
+  // anchor navigation (which can misbehave inside an embedded preview).
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const id = link.getAttribute('href').slice(1);
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // Mobile menu toggle
+  const burger = document.getElementById('burgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    burger.classList.toggle('open', isOpen);
+    burger.setAttribute('aria-expanded', isOpen);
+  });
+  // Close mobile menu after tapping any link in it
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      burger.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Quote request form: validate, then hand off to the visitor's email app
+  const form = document.getElementById('quoteForm');
+  const note = document.getElementById('formNote');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let valid = true;
+    const nameField = document.getElementById('qName').closest('.field');
+    const contactField = document.getElementById('qContact').closest('.field');
+    nameField.classList.toggle('invalid', document.getElementById('qName').value.trim() === '');
+    contactField.classList.toggle('invalid', document.getElementById('qContact').value.trim() === '');
+    if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) valid = false;
+
+    if (!valid){
+      note.textContent = 'Please fill in your name and a way to reach you.';
+      note.classList.remove('sent');
+      return;
+    }
+
+    const name = document.getElementById('qName').value.trim();
+    const contact = document.getElementById('qContact').value.trim();
+    const service = document.getElementById('qService').value;
+    const frequency = document.getElementById('qFrequency').value;
+    const message = document.getElementById('qMsg').value.trim();
+    const freqDiscounts = { 'Weekly': 15, 'Biweekly': 10, 'Monthly': 10, 'One-time': 0 };
+    const discountPct = freqDiscounts[frequency] || 0;
+
+    const subject = `Free quote request: ${service}`;
+    const body =
+      `Name: ${name}\n` +
+      `Phone or email: ${contact}\n` +
+      `Area: ${selectedZone || 'Not specified'}\n` +
+      `Frequency: ${frequency}\n` +
+      `Service: ${service}\n` +
+      `Discount: ${discountPct > 0 ? discountPct + '% ' + frequency.toLowerCase() + ' discount' : 'None'}\n` +
+      `First-time offer: ${discountClaimed ? '15% first cleaning offer claimed' : 'Not claimed'}\n` +
+      `Notes: ${message || '(none)'}\n`;
+
+    const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+
+    note.textContent = 'Opening your email app with your request filled in...';
+    note.classList.add('sent');
+  });

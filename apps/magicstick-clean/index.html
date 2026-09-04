@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magicstick Clean | Residential Cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- Reusable badge mark (checkmark + single sparkle, matches saved logo) -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0B5D52"/>
+      <stop offset="100%" stop-color="#164E45"/>
+    </linearGradient>
+    <symbol id="checkIcon" viewBox="0 0 24 24">
+      <path d="M4 12.5 L9.5 18 L20 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Zone selector modal -->
+<div class="zone-backdrop" id="zoneBackdrop">
+  <div class="zone-modal">
+    <div id="zoneStep1">
+      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <h3>Which area are you in?</h3>
+      <p>So I can give you accurate scheduling and pricing.</p>
+      <div class="zone-buttons">
+        <button class="zone-btn" data-zone="Rockland-Orléans">Rockland-Orléans</button>
+        <button class="zone-btn" data-zone="Ottawa-Gatineau">Ottawa-Gatineau</button>
+      </div>
+      <button class="zone-skip" id="zoneSkip">I'm not sure / somewhere else</button>
+    </div>
+    <div id="zoneStep2" style="display:none;">
+      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <h3>You're in luck.</h3>
+      <p id="zoneStep2Text">Get 15% off your first cleaning.</p>
+      <div class="zone-buttons">
+        <button class="zone-btn zone-btn-claim" id="zoneClaim">Claim my 15% off</button>
+      </div>
+      <button class="zone-skip" id="zoneClose">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <nav class="nav wrap">
+    <a href="#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span>Magicstick Clean</span>
+    </a>
+    <div class="navlinks">
+      <a href="#gallery">Before &amp; After</a>
+      <a href="#services">Services</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="#area">Service area</a>
+      <a href="tel:3438437761" class="navcall">343-843-7761</a>
+      <a href="#contact" class="btn">Get a quote</a>
+    </div>
+    <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#gallery">Before &amp; After</a>
+    <a href="#services">Services</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+    <a href="#area">Service area</a>
+    <a href="tel:3438437761">Call 343-843-7761</a>
+    <a href="#contact">Get a quote</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="tag fade d1">First-time client special</span>
+      <span class="tag zone-tag fade d1" id="zoneTag" style="background:var(--charcoal);color:#fff;margin-left:8px;"></span>
+      <h1 class="fade d2">The clean you can check off your list.</h1>
+      <p class="lede fade d3">Magicstick Clean is a locally owned cleaning service serving Clarence-Rockland, Ottawa, and Gatineau. Homes, rentals, and businesses alike, cleaned with care.</p>
+      <div class="ctas fade d4">
+        <a href="#contact" class="btn">Get a free quote</a>
+        <a href="#services" class="btn btn-outline">See services &amp; pricing</a>
+      </div>
+      <p class="contactline fade d4">343-843-7761 &nbsp;·&nbsp; magicstickclean@gmail.com</p>
+    </div>
+    <div class="hero-badge-wrap fade d3">
+      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>See the difference</h2>
+      <p>Real jobs, real homes. No stock photos.</p>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-card">
+        <div class="ba-pair">
+          <figure class="before"><img src="assets/images/before-hardwood-floor.jpg" alt="Floor before cleaning"><figcaption>BEFORE</figcaption></figure>
+          <figure class="after"><img src="assets/images/after-hardwood-floor.jpg" alt="Floor after cleaning"><figcaption>AFTER</figcaption></figure>
+        </div>
+        <div class="ba-label">Hardwood floor reset</div>
+      </div>
+      <div class="ba-card">
+        <div class="ba-pair">
+          <figure class="before"><img src="assets/images/before-bathroom.jpg" alt="Toilet before cleaning"><figcaption>BEFORE</figcaption></figure>
+          <figure class="after"><img src="assets/images/after-bathroom.jpg" alt="Toilet after cleaning"><figcaption>AFTER</figcaption></figure>
+        </div>
+        <div class="ba-label">Bathroom deep clean</div>
+      </div>
+      <div class="ba-card">
+        <div class="ba-pair">
+          <figure class="before"><img src="assets/images/before-fridge.jpg" alt="Fridge before cleaning"><figcaption>BEFORE</figcaption></figure>
+          <figure class="after"><img src="assets/images/after-fridge.jpg" alt="Fridge after cleaning"><figcaption>AFTER</figcaption></figure>
+        </div>
+        <div class="ba-label">Fridge &amp; freezer detail</div>
+      </div>
+    </div>
+    <div class="ba-cta">
+      <a href="#contact" class="btn">Want your home to look like this?</a>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>What I offer</h2>
+      <p>Homes, rentals, and commercial spaces, all cleaned the same careful way.</p>
+    </div>
+
+    <h3 class="cat-label">Residential</h3>
+    <div class="service-row">
+      <h3>Standard Cleaning</h3>
+      <p>Regular maintenance for kitchens, bathrooms, floors, and dusting. Keeps your home consistently comfortable.</p>
+      <div class="service-price">From $130</div>
+    </div>
+    <div class="service-row">
+      <h3>Deep Cleaning</h3>
+      <p>A full top-to-bottom reset: appliances, baseboards, cabinets, windows, and everything in between.</p>
+      <div class="service-price">From $180</div>
+    </div>
+    <div class="service-row">
+      <h3>Move-In / Move-Out</h3>
+      <p>A fresh start for your next chapter, with every room cleaned before the keys change hands.</p>
+      <div class="service-price">Custom quote</div>
+    </div>
+    <div class="service-row">
+      <h3>Airbnb &amp; Short-Term Rental Turnovers</h3>
+      <p>Guest-ready resets between bookings: beds remade, bathrooms reset, restocked, and staged.</p>
+      <div class="service-price">From $100</div>
+    </div>
+
+    <h3 class="cat-label cat-label-2">Commercial &amp; specialty</h3>
+    <div class="service-row">
+      <h3>Office Cleaning</h3>
+      <p>Recurring cleaning scheduled around your business hours, not the other way around.</p>
+      <div class="service-price">Custom quote</div>
+    </div>
+    <div class="service-row">
+      <h3>Retail &amp; Store Cleaning</h3>
+      <p>Floors, fixtures, and front-of-store upkeep that keeps a shop guest-ready.</p>
+      <div class="service-price">Custom quote</div>
+    </div>
+    <div class="service-row">
+      <h3>Post-Construction &amp; Event Cleanup</h3>
+      <p>Dust and debris after a reno, or a fast reset after a hall rental or event.</p>
+      <div class="service-price">Custom quote</div>
+    </div>
+  </div>
+</section>
+
+<div class="offer">
+  <div class="wrap">
+    <div>
+      <h2>New here? Start with the deep clean.</h2>
+      <p>It sets a fresh baseline for your home, then you switch to easy standard visits from there, at an introductory rate for first-time clients.</p>
+    </div>
+    <a href="#contact" class="btn">Claim the special</a>
+  </div>
+</div>
+
+<section id="how" class="tint">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>How it works</h2>
+      <p>Booking takes about as long as making a coffee.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Reach out</h3>
+        <p>Call, text, or email for a free quote. No forms, no waiting on hold.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Get your quote</h3>
+        <p>A few quick questions about your home, then a clear price. No surprises later.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Book your clean</h3>
+        <p>Pick a day that works for you, and I'll take care of the rest.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Why Magicstick Clean</h2>
+    </div>
+    <div class="why-list">
+      <div class="why-item"><div class="dot"></div><p>Detail-oriented and reliable, every visit</p></div>
+      <div class="why-item"><div class="dot"></div><p>Flexible scheduling around your life</p></div>
+      <div class="why-item"><div class="dot"></div><p>I bring my own eco-friendly supplies</p></div>
+      <div class="why-item"><div class="dot"></div><p>Locally owned and operated</p></div>
+      <div class="why-item"><div class="dot"></div><p>Not happy? I'll come back and make it right, free</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="tint">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>How our Ottawa cleaning services compare</h2>
+      <p>What you actually get with a locally owned, hands-on cleaner.</p>
+    </div>
+    <div class="compare-scroll">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Other Companies</th>
+            <th>Magicstick Clean</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Brings own supplies &amp; equipment</td>
+            <td class="muted">Varies</td>
+            <td><svg class="check-icon"><use href="#checkIcon"/></svg></td>
+          </tr>
+          <tr>
+            <td>Flexible scheduling</td>
+            <td class="muted">Varies</td>
+            <td><svg class="check-icon"><use href="#checkIcon"/></svg></td>
+          </tr>
+          <tr>
+            <td>Same cleaner every visit</td>
+            <td class="muted">Often rotates staff</td>
+            <td><svg class="check-icon"><use href="#checkIcon"/></svg></td>
+          </tr>
+          <tr>
+            <td>Direct line to the owner</td>
+            <td class="muted">Rarely</td>
+            <td><svg class="check-icon"><use href="#checkIcon"/></svg></td>
+          </tr>
+          <tr>
+            <td>Satisfaction guarantee</td>
+            <td class="muted">Varies</td>
+            <td><svg class="check-icon"><use href="#checkIcon"/></svg></td>
+          </tr>
+          <tr>
+            <td>Locally owned &amp; operated</td>
+            <td class="muted">Varies</td>
+            <td><svg class="check-icon"><use href="#checkIcon"/></svg></td>
+          </tr>
+          <tr>
+            <td>Liability insurance</td>
+            <td class="muted">Varies</td>
+            <td class="soon">Coming soon</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="area" class="tint">
+  <div class="wrap area-wrap">
+    <div class="area-copy">
+      <h2>Proudly serving three communities</h2>
+      <p>Based in Clarence-Rockland, cleaning homes across the region, into Ottawa, and across the river into Gatineau. If you're nearby and not sure you're covered, just ask.</p>
+    </div>
+    <svg class="route-svg" viewBox="0 0 420 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M55,168 L235,95 L285,48" fill="none" stroke="#0B5D52" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round"/>
+      <circle cx="55" cy="168" r="7" fill="#0B5D52"/>
+      <circle cx="235" cy="95" r="7" fill="#0B5D52"/>
+      <circle cx="285" cy="48" r="7" fill="#C9A227"/>
+      <text x="20" y="190" font-family="Work Sans, sans-serif" font-size="15" font-weight="600" fill="#1F2937">Clarence-Rockland</text>
+      <text x="178" y="122" font-family="Work Sans, sans-serif" font-size="15" font-weight="600" fill="#1F2937">Ottawa</text>
+      <text x="245" y="34" font-family="Work Sans, sans-serif" font-size="15" font-weight="600" fill="#1F2937">Gatineau</text>
+    </svg>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Common questions</h2>
+      <p>If yours isn't here, just ask when you request a quote.</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>How much does a cleaning cost?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>It depends on the size of the space and how often you'd like visits. Starting prices for each service are listed above, and recurring visits come with a standing discount. You'll always get a clear price before booking.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>Do I need to be home during the cleaning?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Not at all. Many clients are out at work. As long as we've arranged access ahead of time, everything else takes care of itself.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>Do you bring your own supplies?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Yes, eco-friendly supplies and equipment are included at no extra cost. If you'd prefer I use products you already have, just let me know.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>What if I'm not happy with the clean?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Tell me within 24 hours and I'll come back to fix it, free of charge. Getting it right matters more than getting it done fast.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>Do you offer discounts for recurring cleanings?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Yes. Weekly visits save 15%, and biweekly or monthly visits save 10%, compared to a one-time clean. You can pick a frequency when requesting a quote.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>What's your cancellation policy?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Plans change, that's fine. Just give at least 24 hours notice where possible so the time can go to another client.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">
+          <span>Do you clean around pets?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Of course. Just let me know what pets are home so I can plan around them. For everyone's safety, aggressive or very anxious pets are best kept in another room during the visit.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="flyers">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Flyers</h2>
+      <p>Feel free to save or share these if you know someone who could use a cleaner.</p>
+    </div>
+    <div class="downloads">
+      <div class="dl-card">
+        <h3>Printable flyer</h3>
+        <p>Letter size, ready to print and post on a community board.</p>
+        <a class="btn" href="assets/magicstick-clean-flyer-print.pdf" download>Download PDF</a>
+      </div>
+      <div class="dl-card">
+        <h3>Social media flyer</h3>
+        <p>Square image, sized for Facebook, Instagram, or Nextdoor.</p>
+        <a class="btn" href="assets/magicstick-clean-flyer-social.png" download>Download image</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact-band" id="contact">
+  <div class="wrap">
+    <h2>Ready for a spotless home?</h2>
+    <p>Fill this in and I'll get back to you the same day.</p>
+
+    <form id="quoteForm" class="quote-form" novalidate>
+      <div class="form-row">
+        <div class="field">
+          <label for="qName">Name</label>
+          <input type="text" id="qName" name="name" required>
+          <span class="err">Please enter your name.</span>
+        </div>
+        <div class="field">
+          <label for="qContact">Phone or email</label>
+          <input type="text" id="qContact" name="contact" required>
+          <span class="err">Please enter a phone number or email.</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="qService">What do you need?</label>
+        <select id="qService" name="service">
+          <option>Standard Cleaning</option>
+          <option>Deep Cleaning (first-time special)</option>
+          <option>Move-In / Move-Out Cleaning</option>
+          <option>Airbnb / Rental Turnover</option>
+          <option>Office Cleaning</option>
+          <option>Retail &amp; Store Cleaning</option>
+          <option>Post-Construction &amp; Event Cleanup</option>
+          <option>Not sure yet</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="qFrequency">How often?</label>
+        <select id="qFrequency" name="frequency">
+          <option value="One-time">One-time</option>
+          <option value="Weekly">Weekly (15% off)</option>
+          <option value="Biweekly">Biweekly (10% off)</option>
+          <option value="Monthly">Monthly (10% off)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="qMsg">Anything I should know? (optional)</label>
+        <textarea id="qMsg" name="message" rows="3" placeholder="Home size, preferred days, access instructions..."></textarea>
+      </div>
+      <button type="submit" class="btn">Send quote request</button>
+      <p class="form-note" id="formNote">This opens your email app with everything filled in, ready to send to magicstickclean@gmail.com.</p>
+    </form>
+
+    <p class="contactline">or call/text 343-843-7761 &nbsp;·&nbsp; magicstickclean@gmail.com</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div>
+      <div class="foot-brand">
+        <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+        <span>Magicstick Clean</span>
+      </div>
+      <p class="fine">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
+    </div>
+    <div class="foot-contact">
+      <div>343-843-7761</div>
+      <div>magicstickclean@gmail.com</div>
+      <div class="fine">© 2026 Magicstick Clean</div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>

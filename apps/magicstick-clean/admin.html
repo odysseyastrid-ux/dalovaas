@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Dashboard | Magicstick Clean</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabaseClient.js"></script>
+</head>
+<body>
+
+<header>
+  <nav class="nav wrap">
+    <a href="index.html#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><defs><linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0B5D52"/><stop offset="100%" stop-color="#164E45"/></linearGradient></defs><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span>Magicstick Clean — Owner</span>
+    </a>
+  </nav>
+</header>
+
+<section style="padding:40px 0 24px;">
+  <div class="wrap">
+    <h1 style="font-size:30px;">Owner dashboard</h1>
+  </div>
+</section>
+
+<section id="adminApp">
+  <div class="wrap">
+
+    <div id="backendNotice" class="notice-box" hidden>
+      <p>The backend isn't configured yet — see SETUP.md to connect Supabase.</p>
+    </div>
+
+    <form id="adminLoginForm" class="auth-form" hidden style="max-width:420px;">
+      <div class="field">
+        <label for="adminEmail">Email</label>
+        <input type="email" id="adminEmail" required>
+      </div>
+      <div class="field">
+        <label for="adminPassword">Password</label>
+        <input type="password" id="adminPassword" required>
+      </div>
+      <button type="submit" class="btn">Log in</button>
+      <p class="form-note" id="adminLoginNote"></p>
+    </form>
+
+    <div id="notAdminNotice" class="notice-box" hidden>
+      <p>This account isn't set up as an admin. Add it to <code>admin_users</code> in Supabase — see SETUP.md.</p>
+    </div>
+
+    <div id="adminDashboard" hidden>
+      <div class="dash-header">
+        <div class="admin-tabs">
+          <button type="button" class="auth-tab active" data-tab="quotes">Quote requests</button>
+          <button type="button" class="auth-tab" data-tab="bookings">Bookings</button>
+        </div>
+        <button type="button" class="btn btn-outline" id="adminLogoutBtn">Log out</button>
+      </div>
+
+      <div id="quotesPanel" class="admin-panel">
+        <div class="table-scroll">
+          <table class="admin-table" id="quotesTable">
+            <thead>
+              <tr><th>Date</th><th>Name</th><th>Contact</th><th>Service</th><th>Frequency</th><th>Area</th><th>Home</th><th>Notes</th><th>Status</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="bookingsPanel" class="admin-panel" hidden>
+        <div class="table-scroll">
+          <table class="admin-table" id="bookingsTable">
+            <thead>
+              <tr><th>Date</th><th>Time</th><th>Name</th><th>Contact</th><th>Service</th><th>Area</th><th>Deposit</th><th>Status</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

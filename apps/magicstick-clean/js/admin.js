@@ -39,6 +39,14 @@
     return select;
   }
 
+  function formatHome(q) {
+    const parts = [];
+    if (q.home_type) parts.push(q.home_type);
+    if (q.bedrooms) parts.push(`${q.bedrooms} bed`);
+    if (q.bathrooms) parts.push(`${q.bathrooms} bath`);
+    return parts.length ? parts.join(', ') : '—';
+  }
+
   async function loadQuotes() {
     const { data, error } = await supabase
       .from('quote_requests')
@@ -56,6 +64,7 @@
         <td>${q.service}</td>
         <td>${q.frequency}</td>
         <td>${q.zone || '—'}</td>
+        <td>${formatHome(q)}</td>
         <td>${q.message || '—'}</td>
         <td class="status-cell"></td>
       `;

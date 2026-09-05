@@ -38,12 +38,16 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     const record = payload.record ?? payload;
 
+    const homeParts = [record.home_type, record.bedrooms && `${record.bedrooms} bed`, record.bathrooms && `${record.bathrooms} bath`]
+      .filter(Boolean);
+
     const ownerText = [
       `New quote request from ${record.name}`,
       `Contact: ${record.contact}`,
       `Service: ${record.service}`,
       `Frequency: ${record.frequency}`,
       `Area: ${record.zone || "Not specified"}`,
+      `Home: ${homeParts.length ? homeParts.join(", ") : "Not specified"}`,
       `First-time offer claimed: ${record.first_time_offer_claimed ? "Yes" : "No"}`,
       `Notes: ${record.message || "(none)"}`,
     ].join("\n");

@@ -445,9 +445,39 @@
           <option value="Monthly">Monthly (10% off)</option>
         </select>
       </div>
+
       <div class="field">
-        <label for="qMsg">Anything I should know? (optional)</label>
-        <textarea id="qMsg" name="message" rows="3" placeholder="Home size, preferred days, access instructions..."></textarea>
+        <label>Bedrooms <span class="optional-tag">(optional)</span></label>
+        <div class="pill-group" id="bedroomsGroup" role="group" aria-label="Number of bedrooms">
+          <button type="button" class="pill-btn" data-value="Studio">Studio</button>
+          <button type="button" class="pill-btn" data-value="1">1</button>
+          <button type="button" class="pill-btn" data-value="2">2</button>
+          <button type="button" class="pill-btn" data-value="3">3</button>
+          <button type="button" class="pill-btn" data-value="4">4</button>
+          <button type="button" class="pill-btn" data-value="5+">5+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Bathrooms <span class="optional-tag">(optional)</span></label>
+        <div class="pill-group" id="bathroomsGroup" role="group" aria-label="Number of bathrooms">
+          <button type="button" class="pill-btn" data-value="1">1</button>
+          <button type="button" class="pill-btn" data-value="1.5">1.5</button>
+          <button type="button" class="pill-btn" data-value="2">2</button>
+          <button type="button" class="pill-btn" data-value="2.5">2.5</button>
+          <button type="button" class="pill-btn" data-value="3+">3+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Home type <span class="optional-tag">(optional)</span></label>
+        <div class="pill-group" id="homeTypeGroup" role="group" aria-label="Home type">
+          <button type="button" class="pill-btn" data-value="House">House</button>
+          <button type="button" class="pill-btn" data-value="Apartment/Condo">Apartment / Condo</button>
+          <button type="button" class="pill-btn" data-value="Townhouse">Townhouse</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="qMsg">Anything else I should know? (optional)</label>
+        <textarea id="qMsg" name="message" rows="3" placeholder="Preferred days, access instructions, pets..."></textarea>
       </div>
       <button type="submit" class="btn">Send quote request</button>
       <p class="form-note" id="formNote">This opens your email app with everything filled in, ready to send to magicstickclean@gmail.com.</p>

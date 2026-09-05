@@ -38,6 +38,9 @@ create table quote_requests (
   zone text,
   message text not null default '',
   first_time_offer_claimed boolean not null default false,
+  bedrooms text,
+  bathrooms text,
+  home_type text,
   status quote_status not null default 'new',
   created_at timestamptz not null default now()
 );

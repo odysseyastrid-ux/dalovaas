@@ -314,6 +314,16 @@
   .field .err{display:none;color:#C0392B;font-size:13px;margin-top:5px;}
   .field.invalid .err{display:block;}
   .quote-form .btn{width:100%;text-align:center;}
+  .optional-tag{font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;}
+  .pill-group{display:flex;flex-wrap:wrap;gap:8px;}
+  .pill-btn{
+    font-family:'Work Sans',Arial,sans-serif;font-size:14.5px;font-weight:600;
+    padding:9px 18px;border-radius:100px;border:1.5px solid var(--line);
+    background:var(--cream);color:var(--charcoal);cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .pill-btn:hover{border-color:var(--teal);}
+  .pill-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
   .form-note{font-size:13px;color:var(--gray);margin-top:14px;text-align:center;}
   .form-note.sent{color:var(--teal);font-weight:600;}
 

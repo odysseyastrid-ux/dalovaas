@@ -123,6 +123,33 @@
     if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
   });
 
+  // Pill-button groups (bedrooms, bathrooms, home type): single-select,
+  // click the active one again to clear it — every field here is optional.
+  let selectedBedrooms = '';
+  let selectedBathrooms = '';
+  let selectedHomeType = '';
+
+  function setupPillGroup(groupId, onSelect) {
+    const group = document.getElementById(groupId);
+    if (!group) return;
+    group.querySelectorAll('.pill-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const wasActive = btn.classList.contains('active');
+        group.querySelectorAll('.pill-btn').forEach((b) => b.classList.remove('active'));
+        if (!wasActive) {
+          btn.classList.add('active');
+          onSelect(btn.dataset.value);
+        } else {
+          onSelect('');
+        }
+      });
+    });
+  }
+
+  setupPillGroup('bedroomsGroup', (value) => { selectedBedrooms = value; });
+  setupPillGroup('bathroomsGroup', (value) => { selectedBathrooms = value; });
+  setupPillGroup('homeTypeGroup', (value) => { selectedHomeType = value; });
+
   // Quote request form: validate, then save it to the backend (if
   // configured) or fall back to opening the visitor's email app.
   const form = document.getElementById('quoteForm');
@@ -162,9 +189,16 @@
         zone: selectedZone || null,
         message,
         first_time_offer_claimed: discountClaimed,
+        bedrooms: selectedBedrooms || null,
+        bathrooms: selectedBathrooms || null,
+        home_type: selectedHomeType || null,
       });
       if (!error) {
         form.reset();
+        document.querySelectorAll('.pill-btn.active').forEach((b) => b.classList.remove('active'));
+        selectedBedrooms = '';
+        selectedBathrooms = '';
+        selectedHomeType = '';
         note.textContent = "Thanks! Your request is in — we'll get back to you the same day.";
         note.classList.add('sent');
         return;
@@ -179,6 +213,9 @@
       `Area: ${selectedZone || 'Not specified'}\n` +
       `Frequency: ${frequency}\n` +
       `Service: ${service}\n` +
+      `Home: ${selectedHomeType || 'Not specified'}` +
+        `${selectedBedrooms ? ', ' + selectedBedrooms + ' bed' : ''}` +
+        `${selectedBathrooms ? ', ' + selectedBathrooms + ' bath' : ''}\n` +
       `Discount: ${discountPct > 0 ? discountPct + '% ' + frequency.toLowerCase() + ' discount' : 'None'}\n` +
       `First-time offer: ${discountClaimed ? '15% first cleaning offer claimed' : 'Not claimed'}\n` +
       `Notes: ${message || '(none)'}\n`;

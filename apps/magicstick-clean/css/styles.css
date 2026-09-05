@@ -363,3 +363,87 @@
   }
   .zone-tag{display:none;}
   .zone-tag.show{display:inline-block;}
+
+  /* ---------- BACKEND UI: shared (booking / account / admin pages) ---------- */
+  #bookingApp, #accountApp, #adminApp{padding:40px 0 80px;}
+  .notice-box{
+    background:var(--teal-tint);border:1.5px solid var(--line);border-radius:6px;
+    padding:20px 22px;max-width:640px;
+  }
+  .notice-box p{margin:0;color:var(--charcoal);font-size:15px;}
+  .notice-box a{color:var(--teal);font-weight:600;text-decoration:underline;}
+  .notice-success{background:#E7F1EF;border-color:var(--teal);color:var(--teal);font-weight:600;padding:16px 20px;margin-bottom:28px;max-width:640px;}
+
+  /* ---------- AUTH (login / signup / admin login) ---------- */
+  .auth-panel{max-width:440px;}
+  .auth-tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1.5px solid var(--line);}
+  .auth-tab{
+    background:none;border:none;cursor:pointer;padding:12px 4px;margin-right:20px;
+    font-family:'Work Sans',Arial,sans-serif;font-weight:600;font-size:15px;color:var(--gray);
+    border-bottom:2px solid transparent;transform:translateY(1.5px);
+  }
+  .auth-tab.active{color:var(--charcoal);border-bottom-color:var(--teal);}
+  .auth-form .field{margin-bottom:16px;}
+  .auth-form label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px;}
+  .auth-form input{
+    width:100%;font-family:'Work Sans',Arial,sans-serif;font-size:15px;
+    padding:11px 12px;border:1.5px solid var(--line);border-radius:4px;background:#fff;color:var(--charcoal);
+  }
+  .auth-form input:focus{outline:none;border-color:var(--teal);}
+  .auth-form .btn{width:100%;text-align:center;margin-top:4px;}
+
+  /* ---------- DASHBOARD (account + admin) ---------- */
+  .dash-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:8px;}
+  .bookings-list{display:flex;flex-direction:column;gap:12px;max-width:640px;}
+  .booking-card{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:16px 20px;
+  }
+  .booking-card-service{font-weight:600;font-size:15.5px;}
+  .status-pill{
+    font-size:12.5px;font-weight:700;letter-spacing:.3px;padding:5px 12px;border-radius:100px;white-space:nowrap;
+  }
+  .status-pending_payment{background:#FBF0DA;color:#9A6B10;}
+  .status-confirmed{background:var(--teal-tint);color:var(--teal);}
+  .status-completed{background:#E4E7EC;color:var(--charcoal);}
+  .status-cancelled{background:#FBE9E7;color:#B3352A;}
+
+  /* ---------- BOOKING FORM ---------- */
+  .booking-form{background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:32px;max-width:640px;}
+  .booking-form .field{margin-bottom:18px;display:flex;flex-direction:column;}
+  .booking-form label{font-size:13.5px;font-weight:600;margin-bottom:6px;}
+  .booking-form input,.booking-form select,.booking-form textarea{
+    font-family:'Work Sans',Arial,sans-serif;font-size:15px;
+    padding:11px 12px;border:1.5px solid var(--line);border-radius:4px;background:var(--cream);color:var(--charcoal);
+  }
+  .booking-form input:focus,.booking-form select:focus,.booking-form textarea:focus{outline:none;border-color:var(--teal);}
+  .booking-form .btn{width:100%;text-align:center;}
+
+  .service-options{display:flex;flex-direction:column;gap:10px;}
+  .service-option{
+    display:flex;gap:12px;align-items:flex-start;padding:14px 16px;
+    border:1.5px solid var(--line);border-radius:6px;cursor:pointer;transition:border-color .15s ease;
+  }
+  .service-option:has(input:checked){border-color:var(--teal);background:var(--teal-tint);}
+  .service-option input{width:auto;margin-top:3px;}
+  .service-option-body{display:flex;flex-direction:column;gap:2px;}
+  .service-option-name{font-weight:600;font-size:15.5px;}
+  .service-option-desc{font-size:13.5px;color:var(--gray);}
+  .service-option-price{font-size:13.5px;font-weight:600;color:var(--teal);}
+  .deposit-summary{
+    font-size:14px;font-weight:600;color:var(--charcoal);background:var(--teal-tint);
+    border-radius:4px;padding:12px 14px;margin-bottom:18px;
+  }
+
+  /* ---------- ADMIN TABLES ---------- */
+  .admin-panel{margin-top:24px;}
+  .table-scroll{overflow-x:auto;}
+  .admin-table{width:100%;border-collapse:collapse;font-size:14px;white-space:nowrap;}
+  .admin-table th, .admin-table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);}
+  .admin-table thead th{background:var(--teal);color:#fff;font-weight:600;font-size:13.5px;}
+  .admin-table tbody tr:nth-child(even){background:var(--teal-tint);}
+  .status-select{
+    font-family:'Work Sans',Arial,sans-serif;font-size:13.5px;font-weight:600;
+    padding:6px 8px;border:1.5px solid var(--line);border-radius:4px;background:#fff;color:var(--charcoal);
+    text-transform:capitalize;
+  }

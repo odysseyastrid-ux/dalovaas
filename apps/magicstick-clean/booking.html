@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Cleaning | Magicstick Clean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabaseClient.js"></script>
+</head>
+<body>
+
+<header>
+  <nav class="nav wrap">
+    <a href="index.html#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><defs><linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0B5D52"/><stop offset="100%" stop-color="#164E45"/></linearGradient></defs><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span>Magicstick Clean</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html#services">Services</a>
+      <a href="booking.html" class="btn">Book online</a>
+      <a href="account.html">My account</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero" style="padding:56px 0 40px;">
+  <div class="wrap" style="display:block;">
+    <span class="tag">Online booking</span>
+    <h1 style="font-size:40px;">Book your cleaning</h1>
+    <p class="lede">Pick a service, a date, and a time window. A refundable deposit secures your spot — the rest is due at the appointment.</p>
+  </div>
+</section>
+
+<section id="bookingApp">
+  <div class="wrap">
+
+    <div id="backendNotice" class="notice-box" hidden>
+      <p>Online booking isn't turned on yet for this site. Please use the <a href="index.html#contact">quote request form</a> or call/text <a href="tel:3438437761">343-843-7761</a> instead.</p>
+    </div>
+
+    <div id="statusBanner" class="notice-box notice-success" hidden></div>
+
+    <form id="bookingForm" class="booking-form" novalidate hidden>
+      <div class="field">
+        <label>Which service?</label>
+        <div id="serviceOptions" class="service-options"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="bDate">Date</label>
+          <input type="date" id="bDate" name="date" required>
+        </div>
+        <div class="field">
+          <label for="bTime">Time window</label>
+          <select id="bTime" name="time">
+            <option value="Morning (8am–11am)">Morning (8am–11am)</option>
+            <option value="Midday (11am–2pm)">Midday (11am–2pm)</option>
+            <option value="Afternoon (2pm–5pm)">Afternoon (2pm–5pm)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="bName">Name</label>
+          <input type="text" id="bName" name="name" required>
+        </div>
+        <div class="field">
+          <label for="bContact">Phone or email</label>
+          <input type="text" id="bContact" name="contact" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="bZone">Area</label>
+        <select id="bZone" name="zone">
+          <option value="Rockland-Orléans">Rockland-Orléans</option>
+          <option value="Ottawa-Gatineau">Ottawa-Gatineau</option>
+          <option value="Other">Other / not sure</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="bNotes">Anything I should know? (optional)</label>
+        <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..."></textarea>
+      </div>
+
+      <div id="depositSummary" class="deposit-summary"></div>
+
+      <button type="submit" class="btn" id="bookingSubmit">Pay deposit &amp; book</button>
+      <p class="form-note" id="bookingNote">You'll be redirected to Stripe to pay a refundable deposit securely. The rest is due at your appointment.</p>
+    </form>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div>
+      <div class="foot-brand">
+        <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+        <span>Magicstick Clean</span>
+      </div>
+      <p class="fine">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
+    </div>
+    <div class="foot-contact">
+      <div>343-843-7761</div>
+      <div>magicstickclean@gmail.com</div>
+      <div class="fine">© 2026 Magicstick Clean</div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/booking.js"></script>
+</body>
+</html>

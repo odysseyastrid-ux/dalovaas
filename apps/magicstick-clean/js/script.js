@@ -123,10 +123,11 @@
     if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
   });
 
-  // Quote request form: validate, then hand off to the visitor's email app
+  // Quote request form: validate, then save it to the backend (if
+  // configured) or fall back to opening the visitor's email app.
   const form = document.getElementById('quoteForm');
   const note = document.getElementById('formNote');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     let valid = true;
     const nameField = document.getElementById('qName').closest('.field');
@@ -148,6 +149,28 @@
     const message = document.getElementById('qMsg').value.trim();
     const freqDiscounts = { 'Weekly': 15, 'Biweekly': 10, 'Monthly': 10, 'One-time': 0 };
     const discountPct = freqDiscounts[frequency] || 0;
+
+    const backend = window.MagicstickBackend;
+    if (backend && backend.isBackendConfigured()) {
+      note.textContent = 'Sending your request...';
+      note.classList.remove('sent');
+      const { error } = await backend.getSupabaseClient().from('quote_requests').insert({
+        name,
+        contact,
+        service,
+        frequency,
+        zone: selectedZone || null,
+        message,
+        first_time_offer_claimed: discountClaimed,
+      });
+      if (!error) {
+        form.reset();
+        note.textContent = "Thanks! Your request is in — we'll get back to you the same day.";
+        note.classList.add('sent');
+        return;
+      }
+      console.error('Quote request insert failed, falling back to email:', error);
+    }
 
     const subject = `Free quote request: ${service}`;
     const body =

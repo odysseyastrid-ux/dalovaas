@@ -239,7 +239,8 @@
   .area-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
   @media (max-width:760px){ .area-wrap{grid-template-columns:1fr;} }
   .area-copy p{color:var(--gray);margin-top:14px;}
-  .route-svg{width:100%;height:auto;}
+  .map-embed{border:1.5px solid var(--line);border-radius:6px;overflow:hidden;line-height:0;}
+  .map-embed iframe{display:block;width:100%;height:320px;}
 
   /* ---------- FAQ ---------- */
   .faq-list{max-width:760px;}

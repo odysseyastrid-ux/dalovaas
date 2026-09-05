@@ -82,6 +82,47 @@
     });
   });
 
+  // Before/after gallery: click any photo to view it full-size
+  const photoButtons = Array.from(document.querySelectorAll('.ba-pair .photo-btn'));
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  let lightboxIndex = 0;
+
+  function showPhoto(index){
+    lightboxIndex = (index + photoButtons.length) % photoButtons.length;
+    const btn = photoButtons[lightboxIndex];
+    const img = btn.querySelector('img');
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightboxCaption.textContent = btn.dataset.caption || img.alt;
+  }
+
+  function openLightbox(index){
+    showPhoto(index);
+    lightbox.classList.add('show');
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('show');
+  }
+
+  photoButtons.forEach((btn, index) => {
+    btn.addEventListener('click', () => openLightbox(index));
+  });
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxPrev').addEventListener('click', () => showPhoto(lightboxIndex - 1));
+  document.getElementById('lightboxNext').addEventListener('click', () => showPhoto(lightboxIndex + 1));
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('show')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') showPhoto(lightboxIndex - 1);
+    if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
+  });
+
   // Quote request form: validate, then hand off to the visitor's email app
   const form = document.getElementById('quoteForm');
   const note = document.getElementById('formNote');

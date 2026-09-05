@@ -107,22 +107,22 @@
     <div class="ba-grid">
       <div class="ba-card">
         <div class="ba-pair">
-          <figure class="before"><img src="assets/images/before-hardwood-floor.jpg" alt="Floor before cleaning"><figcaption>BEFORE</figcaption></figure>
-          <figure class="after"><img src="assets/images/after-hardwood-floor.jpg" alt="Floor after cleaning"><figcaption>AFTER</figcaption></figure>
+          <figure class="before"><button class="photo-btn" type="button" data-caption="Hardwood floor reset — before"><img src="assets/images/before-hardwood-floor.jpg" alt="Floor before cleaning"></button><figcaption>BEFORE</figcaption></figure>
+          <figure class="after"><button class="photo-btn" type="button" data-caption="Hardwood floor reset — after"><img src="assets/images/after-hardwood-floor.jpg" alt="Floor after cleaning"></button><figcaption>AFTER</figcaption></figure>
         </div>
         <div class="ba-label">Hardwood floor reset</div>
       </div>
       <div class="ba-card">
         <div class="ba-pair">
-          <figure class="before"><img src="assets/images/before-bathroom.jpg" alt="Toilet before cleaning"><figcaption>BEFORE</figcaption></figure>
-          <figure class="after"><img src="assets/images/after-bathroom.jpg" alt="Toilet after cleaning"><figcaption>AFTER</figcaption></figure>
+          <figure class="before"><button class="photo-btn" type="button" data-caption="Bathroom deep clean — before"><img src="assets/images/before-bathroom.jpg" alt="Toilet before cleaning"></button><figcaption>BEFORE</figcaption></figure>
+          <figure class="after"><button class="photo-btn" type="button" data-caption="Bathroom deep clean — after"><img src="assets/images/after-bathroom.jpg" alt="Toilet after cleaning"></button><figcaption>AFTER</figcaption></figure>
         </div>
         <div class="ba-label">Bathroom deep clean</div>
       </div>
       <div class="ba-card">
         <div class="ba-pair">
-          <figure class="before"><img src="assets/images/before-fridge.jpg" alt="Fridge before cleaning"><figcaption>BEFORE</figcaption></figure>
-          <figure class="after"><img src="assets/images/after-fridge.jpg" alt="Fridge after cleaning"><figcaption>AFTER</figcaption></figure>
+          <figure class="before"><button class="photo-btn" type="button" data-caption="Fridge &amp; freezer detail — before"><img src="assets/images/before-fridge.jpg" alt="Fridge before cleaning"></button><figcaption>BEFORE</figcaption></figure>
+          <figure class="after"><button class="photo-btn" type="button" data-caption="Fridge &amp; freezer detail — after"><img src="assets/images/after-fridge.jpg" alt="Fridge after cleaning"></button><figcaption>AFTER</figcaption></figure>
         </div>
         <div class="ba-label">Fridge &amp; freezer detail</div>
       </div>
@@ -132,6 +132,16 @@
     </div>
   </div>
 </section>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close photo viewer">&times;</button>
+  <button class="lightbox-prev" id="lightboxPrev" aria-label="Previous photo">&#8249;</button>
+  <figure class="lightbox-fig">
+    <img id="lightboxImg" src="" alt="">
+    <figcaption id="lightboxCaption"></figcaption>
+  </figure>
+  <button class="lightbox-next" id="lightboxNext" aria-label="Next photo">&#8250;</button>
+</div>
 
 <section id="services">
   <div class="wrap">

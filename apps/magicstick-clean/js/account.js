@@ -1,4 +1,7 @@
 (function () {
+  const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+  const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
 
@@ -15,7 +18,7 @@
 
   document.querySelectorAll('.auth-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.auth-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.auth-tab').forEach((tb) => tb.classList.remove('active'));
       tab.classList.add('active');
       const isLogin = tab.dataset.tab === 'login';
       loginForm.hidden = !isLogin;
@@ -23,37 +26,54 @@
     });
   });
 
-  const STATUS_LABELS = {
-    pending_payment: 'Awaiting payment',
-    confirmed: 'Confirmed',
-    completed: 'Completed',
-    cancelled: 'Cancelled',
+  // Best-effort translation for Supabase Auth's own English error messages.
+  const AUTH_ERROR_KEYS = {
+    'Invalid login credentials': 'authError.invalidCredentials',
+    'User already registered': 'authError.alreadyRegistered',
   };
+  function translateAuthError(message) {
+    const key = AUTH_ERROR_KEYS[message];
+    return key ? t(key) : message;
+  }
+
+  let lastBookings = null;
+
+  function renderBookings() {
+    const list = document.getElementById('bookingsList');
+    if (!lastBookings) return;
+    if (!lastBookings.length) {
+      list.innerHTML = `<p class="fine">${t('account.bookings.empty')}</p>`;
+      return;
+    }
+    list.innerHTML = lastBookings.map((b) => {
+      const serviceName = (lang() === 'fr' && b.services?.name_fr) ? b.services.name_fr : (b.services?.name ?? b.service_id);
+      return `
+        <div class="booking-card">
+          <div>
+            <div class="booking-card-service">${serviceName}</div>
+            <div class="fine">${b.requested_date} · ${b.time_window}</div>
+          </div>
+          <span class="status-pill status-${b.status}">${t('status.' + b.status)}</span>
+        </div>
+      `;
+    }).join('');
+  }
 
   async function loadBookings() {
     const { data, error } = await supabase
       .from('bookings')
-      .select('*, services(name)')
+      .select('*, services(name, name_fr)')
       .order('requested_date', { ascending: false });
     const list = document.getElementById('bookingsList');
     if (error) {
-      list.textContent = 'Could not load your bookings right now.';
+      list.textContent = t('account.bookings.loadError');
       return;
     }
-    if (!data.length) {
-      list.innerHTML = `<p class="fine">No bookings yet. <a href="booking.html">Book your first cleaning</a>.</p>`;
-      return;
-    }
-    list.innerHTML = data.map((b) => `
-      <div class="booking-card">
-        <div>
-          <div class="booking-card-service">${b.services?.name ?? b.service_id}</div>
-          <div class="fine">${b.requested_date} · ${b.time_window}</div>
-        </div>
-        <span class="status-pill status-${b.status}">${STATUS_LABELS[b.status] ?? b.status}</span>
-      </div>
-    `).join('');
+    lastBookings = data;
+    renderBookings();
   }
+
+  document.addEventListener('magicstick:langchange', () => renderBookings());
 
   async function showDashboard(user) {
     authPanel.hidden = true;
@@ -75,13 +95,13 @@
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const note = document.getElementById('loginNote');
-    note.textContent = 'Signing in...';
+    note.textContent = t('account.login.note.signingIn');
     const { data, error } = await supabase.auth.signInWithPassword({
       email: document.getElementById('loginEmail').value.trim(),
       password: document.getElementById('loginPassword').value,
     });
     if (error) {
-      note.textContent = error.message;
+      note.textContent = translateAuthError(error.message);
       return;
     }
     showDashboard(data.user);
@@ -90,18 +110,18 @@
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const note = document.getElementById('signupNote');
-    note.textContent = 'Creating your account...';
+    note.textContent = t('account.signup.note.creating');
     const { data, error } = await supabase.auth.signUp({
       email: document.getElementById('signupEmail').value.trim(),
       password: document.getElementById('signupPassword').value,
       options: { data: { full_name: document.getElementById('signupName').value.trim() } },
     });
     if (error) {
-      note.textContent = error.message;
+      note.textContent = translateAuthError(error.message);
       return;
     }
     if (data.user && !data.session) {
-      note.textContent = 'Account created! Check your email to confirm, then log in.';
+      note.textContent = t('account.signup.note.checkEmail');
       return;
     }
     showDashboard(data.user);

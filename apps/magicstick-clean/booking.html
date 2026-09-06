@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
+<script src="js/i18n.js"></script>
 </head>
 <body>
 
@@ -21,19 +22,36 @@
       <span>Magicstick Clean</span>
     </a>
     <div class="navlinks">
-      <a href="index.html#services">Services</a>
-      <a href="booking.html" class="btn">Book online</a>
-      <a href="careers.html">Work With Us</a>
-      <a href="account.html">My account</a>
+      <a href="index.html#services" data-i18n="nav.services">Services</a>
+      <a href="booking.html" class="btn" data-i18n="nav.bookOnline">Book online</a>
+      <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+      <a href="account.html" data-i18n="nav.myAccount">My account</a>
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
     </div>
+    <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#services" data-i18n="nav.services">Services</a>
+    <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+    <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+    <a href="account.html" data-i18n="nav.myAccount">My account</a>
+    <div class="lang-toggle">
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="fr">FR</button>
+    </div>
+  </div>
 </header>
 
 <section class="hero" style="padding:56px 0 40px;">
   <div class="wrap" style="display:block;">
-    <span class="tag">Online booking</span>
-    <h1 style="font-size:40px;">Book your cleaning</h1>
-    <p class="lede">Pick a service, a date, and a time window. A refundable deposit secures your spot — the rest is due at the appointment.</p>
+    <span class="tag" data-i18n="booking.hero.tag">Online booking</span>
+    <h1 style="font-size:40px;" data-i18n="booking.hero.title">Book your cleaning</h1>
+    <p class="lede" data-i18n="booking.hero.lede">Pick a service, a date, and a time window. A refundable deposit secures your spot — the rest is due at the appointment.</p>
   </div>
 </section>
 
@@ -41,61 +59,61 @@
   <div class="wrap">
 
     <div id="backendNotice" class="notice-box" hidden>
-      <p>Online booking isn't turned on yet for this site. Please use the <a href="index.html#contact">quote request form</a> or call/text <a href="tel:3438437761">343-843-7761</a> instead.</p>
+      <p data-i18n-html="booking.notice.backend">Online booking isn't turned on yet for this site. Please use the <a href="index.html#contact">quote request form</a> or call/text <a href="tel:3438437761">343-843-7761</a> instead.</p>
     </div>
 
     <div id="statusBanner" class="notice-box notice-success" hidden></div>
 
     <form id="bookingForm" class="booking-form" novalidate hidden>
       <div class="field">
-        <label>Which service?</label>
+        <label data-i18n="booking.form.whichService">Which service?</label>
         <div id="serviceOptions" class="service-options"></div>
       </div>
 
       <div class="form-row">
         <div class="field">
-          <label for="bDate">Date</label>
+          <label for="bDate" data-i18n="booking.form.date">Date</label>
           <input type="date" id="bDate" name="date" required>
         </div>
         <div class="field">
-          <label for="bTime">Time window</label>
+          <label for="bTime" data-i18n="booking.form.timeWindow">Time window</label>
           <select id="bTime" name="time">
-            <option value="Morning (8am–11am)">Morning (8am–11am)</option>
-            <option value="Midday (11am–2pm)">Midday (11am–2pm)</option>
-            <option value="Afternoon (2pm–5pm)">Afternoon (2pm–5pm)</option>
+            <option value="Morning (8am–11am)" data-i18n="booking.form.time.morning">Morning (8am–11am)</option>
+            <option value="Midday (11am–2pm)" data-i18n="booking.form.time.midday">Midday (11am–2pm)</option>
+            <option value="Afternoon (2pm–5pm)" data-i18n="booking.form.time.afternoon">Afternoon (2pm–5pm)</option>
           </select>
         </div>
       </div>
 
       <div class="form-row">
         <div class="field">
-          <label for="bName">Name</label>
+          <label for="bName" data-i18n="booking.form.name">Name</label>
           <input type="text" id="bName" name="name" required>
         </div>
         <div class="field">
-          <label for="bContact">Phone or email</label>
+          <label for="bContact" data-i18n="booking.form.contact">Phone or email</label>
           <input type="text" id="bContact" name="contact" required>
         </div>
       </div>
 
       <div class="field">
-        <label for="bZone">Area</label>
+        <label for="bZone" data-i18n="booking.form.area">Area</label>
         <select id="bZone" name="zone">
           <option value="Rockland-Orléans">Rockland-Orléans</option>
           <option value="Ottawa-Gatineau">Ottawa-Gatineau</option>
-          <option value="Other">Other / not sure</option>
+          <option value="Other" data-i18n="booking.form.area.other">Other / not sure</option>
         </select>
       </div>
 
       <div class="field">
-        <label for="bNotes">Anything I should know? (optional)</label>
-        <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..."></textarea>
+        <label for="bNotes" data-i18n="booking.form.notes">Anything I should know? (optional)</label>
+        <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..." data-i18n-placeholder="booking.form.notesPlaceholder"></textarea>
       </div>
 
       <div id="depositSummary" class="deposit-summary"></div>
 
-      <button type="submit" class="btn" id="bookingSubmit">Pay deposit &amp; book</button>
-      <p class="form-note" id="bookingNote">You'll be redirected to Stripe to pay a refundable deposit securely. The rest is due at your appointment.</p>
+      <button type="submit" class="btn" id="bookingSubmit" data-i18n="booking.form.submit">Pay deposit &amp; book</button>
+      <p class="form-note" id="bookingNote" data-i18n="booking.form.note.default">You'll be redirected to Stripe to pay a refundable deposit securely. The rest is due at your appointment.</p>
     </form>
 
   </div>
@@ -108,12 +126,12 @@
         <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
         <span>Magicstick Clean</span>
       </div>
-      <p class="fine">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
+      <p class="fine" data-i18n="footer.tagline">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
     </div>
     <div class="foot-contact">
       <div>343-843-7761</div>
       <div>magicstickclean@gmail.com</div>
-      <div class="fine">© 2026 Magicstick Clean</div>
+      <div class="fine" data-i18n="footer.copyright">© 2026 Magicstick Clean</div>
     </div>
   </div>
 </footer>

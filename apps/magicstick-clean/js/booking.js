@@ -1,4 +1,7 @@
 (function () {
+  const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+  const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
   const statusBanner = document.getElementById('statusBanner');
@@ -9,11 +12,11 @@
   const status = params.get('status');
   if (status === 'success') {
     statusBanner.hidden = false;
-    statusBanner.textContent = "Payment received! Your booking is confirmed — check your email for the details.";
+    statusBanner.textContent = t('booking.status.success');
   } else if (status === 'cancelled') {
     statusBanner.hidden = false;
     statusBanner.classList.remove('notice-success');
-    statusBanner.textContent = 'Checkout was cancelled — no payment was taken. You can try again below.';
+    statusBanner.textContent = t('booking.status.cancelled');
   }
 
   if (!backend || !backend.isBackendConfigured()) {
@@ -32,6 +35,13 @@
     return (cents / 100).toFixed(2);
   }
 
+  function serviceName(service) {
+    return (lang() === 'fr' && service.name_fr) ? service.name_fr : service.name;
+  }
+  function serviceDescription(service) {
+    return (lang() === 'fr' && service.description_fr) ? service.description_fr : service.description;
+  }
+
   function renderServiceOptions() {
     const container = document.getElementById('serviceOptions');
     container.innerHTML = '';
@@ -41,9 +51,9 @@
       label.innerHTML = `
         <input type="radio" name="serviceId" value="${service.id}" ${index === 0 ? 'checked' : ''}>
         <span class="service-option-body">
-          <span class="service-option-name">${service.name}</span>
-          <span class="service-option-desc">${service.description}</span>
-          <span class="service-option-price">From $${centsToDollars(service.base_price_cents)} · $${centsToDollars(service.deposit_cents)} deposit today</span>
+          <span class="service-option-name">${serviceName(service)}</span>
+          <span class="service-option-desc">${serviceDescription(service)}</span>
+          <span class="service-option-price">${t('booking.priceFrom', { price: centsToDollars(service.base_price_cents) })} · ${t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) })}</span>
         </span>
       `;
       container.appendChild(label);
@@ -64,7 +74,10 @@
     const service = services.find((s) => s.id === selectedServiceId);
     const summary = document.getElementById('depositSummary');
     if (!service) { summary.textContent = ''; return; }
-    summary.textContent = `Deposit due today: $${centsToDollars(service.deposit_cents)} CAD — remaining $${centsToDollars(service.base_price_cents - service.deposit_cents)} due at the appointment.`;
+    summary.textContent = t('booking.deposit.summary', {
+      deposit: centsToDollars(service.deposit_cents),
+      remaining: centsToDollars(service.base_price_cents - service.deposit_cents),
+    });
   }
 
   async function loadServices() {
@@ -75,7 +88,7 @@
       .order('sort_order', { ascending: true });
     if (error || !data || !data.length) {
       backendNotice.hidden = false;
-      backendNotice.querySelector('p').textContent = 'Online booking is temporarily unavailable. Please use the quote request form or call/text 343-843-7761 instead.';
+      backendNotice.querySelector('p').textContent = t('booking.notice.unavailable');
       return;
     }
     services = data;
@@ -84,6 +97,12 @@
   }
 
   loadServices();
+
+  document.addEventListener('magicstick:langchange', () => {
+    if (services.length) {
+      renderServiceOptions();
+    }
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -97,12 +116,12 @@
     const notes = document.getElementById('bNotes').value.trim();
 
     if (!name || !contact || !date || !selectedServiceId) {
-      note.textContent = 'Please fill in your name, contact info, and a date.';
+      note.textContent = t('booking.form.note.invalid');
       return;
     }
 
     submitBtn.disabled = true;
-    note.textContent = 'Setting up secure checkout...';
+    note.textContent = t('booking.form.note.settingUp');
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -131,7 +150,7 @@
       window.location.href = result.url;
     } catch (err) {
       console.error(err);
-      note.textContent = 'Something went wrong starting checkout. Please try again, or call/text 343-843-7761.';
+      note.textContent = t('booking.form.note.error');
       submitBtn.disabled = false;
     }
   });

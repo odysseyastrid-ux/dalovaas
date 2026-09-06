@@ -71,7 +71,9 @@ create policy "admins can update quote requests"
 create table services (
   id text primary key,
   name text not null,
+  name_fr text not null default '',
   description text not null default '',
+  description_fr text not null default '',
   base_price_cents integer not null check (base_price_cents >= 0),
   deposit_cents integer not null check (deposit_cents >= 0),
   duration_minutes integer not null default 120,

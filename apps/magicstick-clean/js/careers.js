@@ -1,3 +1,5 @@
+const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+
 // Mobile menu toggle (same behavior as the main site)
 const burger = document.getElementById('burgerBtn');
 const mobileMenu = document.getElementById('mobileMenu');
@@ -27,7 +29,7 @@ form.addEventListener('submit', (e) => {
   if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) valid = false;
 
   if (!valid) {
-    note.textContent = 'Please fill in your name and a way to reach you.';
+    note.textContent = t('form.note.invalid');
     note.classList.remove('sent');
     return;
   }
@@ -38,17 +40,17 @@ form.addEventListener('submit', (e) => {
   const experience = document.getElementById('aExperience').value;
   const message = document.getElementById('aMsg').value.trim();
 
-  const subject = `Job application: Cleaning Technician (${availability})`;
+  const subject = t('mail.subject.application', { availability });
   const body =
-    `Name: ${name}\n` +
-    `Phone or email: ${contact}\n` +
-    `Availability: ${availability}\n` +
-    `Cleaning experience: ${experience}\n` +
-    `Notes: ${message || '(none)'}\n`;
+    `${t('mail.label.name')}: ${name}\n` +
+    `${t('mail.label.contact')}: ${contact}\n` +
+    `${t('mail.label.availability')}: ${availability}\n` +
+    `${t('mail.label.experience')}: ${experience}\n` +
+    `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
 
   const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.location.href = mailto;
 
-  note.textContent = 'Opening your email app with your application filled in...';
+  note.textContent = t('careers.form.note.opening');
   note.classList.add('sent');
 });

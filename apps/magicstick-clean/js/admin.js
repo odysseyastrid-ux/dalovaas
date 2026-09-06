@@ -1,4 +1,7 @@
 (function () {
+  const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+  const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
 
@@ -15,9 +18,17 @@
   const QUOTE_STATUSES = ['new', 'contacted', 'booked', 'declined'];
   const BOOKING_STATUSES = ['pending_payment', 'confirmed', 'completed', 'cancelled'];
 
+  const AUTH_ERROR_KEYS = {
+    'Invalid login credentials': 'authError.invalidCredentials',
+  };
+  function translateAuthError(message) {
+    const key = AUTH_ERROR_KEYS[message];
+    return key ? t(key) : message;
+  }
+
   document.querySelectorAll('.admin-tabs .auth-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.admin-tabs .auth-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.admin-tabs .auth-tab').forEach((tb) => tb.classList.remove('active'));
       tab.classList.add('active');
       const isQuotes = tab.dataset.tab === 'quotes';
       document.getElementById('quotesPanel').hidden = !isQuotes;
@@ -31,7 +42,7 @@
     options.forEach((opt) => {
       const o = document.createElement('option');
       o.value = opt;
-      o.textContent = opt.replace(/_/g, ' ');
+      o.textContent = t('status.' + opt);
       if (opt === current) o.selected = true;
       select.appendChild(o);
     });
@@ -42,20 +53,19 @@
   function formatHome(q) {
     const parts = [];
     if (q.home_type) parts.push(q.home_type);
-    if (q.bedrooms) parts.push(`${q.bedrooms} bed`);
-    if (q.bathrooms) parts.push(`${q.bathrooms} bath`);
+    if (q.bedrooms) parts.push(`${q.bedrooms} ${t('bed.suffix')}`);
+    if (q.bathrooms) parts.push(`${q.bathrooms} ${t('bath.suffix')}`);
     return parts.length ? parts.join(', ') : '—';
   }
 
-  async function loadQuotes() {
-    const { data, error } = await supabase
-      .from('quote_requests')
-      .select('*')
-      .order('created_at', { ascending: false });
+  let lastQuotes = null;
+  let lastBookings = null;
+
+  function renderQuotes() {
     const tbody = document.querySelector('#quotesTable tbody');
     tbody.innerHTML = '';
-    if (error || !data) return;
-    data.forEach((q) => {
+    if (!lastQuotes) return;
+    lastQuotes.forEach((q) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${new Date(q.created_at).toLocaleDateString()}</td>
@@ -77,24 +87,21 @@
     });
   }
 
-  async function loadBookings() {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*, services(name)')
-      .order('requested_date', { ascending: false });
+  function renderBookings() {
     const tbody = document.querySelector('#bookingsTable tbody');
     tbody.innerHTML = '';
-    if (error || !data) return;
-    data.forEach((b) => {
+    if (!lastBookings) return;
+    lastBookings.forEach((b) => {
+      const serviceName = (lang() === 'fr' && b.services?.name_fr) ? b.services.name_fr : (b.services?.name ?? b.service_id);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${b.requested_date}</td>
         <td>${b.time_window}</td>
         <td>${b.guest_name}</td>
         <td>${b.guest_contact}</td>
-        <td>${b.services?.name ?? b.service_id}</td>
+        <td>${serviceName}</td>
         <td>${b.zone || '—'}</td>
-        <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓ paid' : ''}</td>
+        <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}</td>
         <td class="status-cell"></td>
       `;
       tr.querySelector('.status-cell').appendChild(
@@ -105,6 +112,31 @@
       tbody.appendChild(tr);
     });
   }
+
+  async function loadQuotes() {
+    const { data, error } = await supabase
+      .from('quote_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error || !data) return;
+    lastQuotes = data;
+    renderQuotes();
+  }
+
+  async function loadBookings() {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*, services(name, name_fr)')
+      .order('requested_date', { ascending: false });
+    if (error || !data) return;
+    lastBookings = data;
+    renderBookings();
+  }
+
+  document.addEventListener('magicstick:langchange', () => {
+    renderQuotes();
+    renderBookings();
+  });
 
   async function showDashboard() {
     dashboard.hidden = false;
@@ -131,13 +163,13 @@
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const note = document.getElementById('adminLoginNote');
-    note.textContent = 'Signing in...';
+    note.textContent = t('account.login.note.signingIn');
     const { error } = await supabase.auth.signInWithPassword({
       email: document.getElementById('adminEmail').value.trim(),
       password: document.getElementById('adminPassword').value,
     });
     if (error) {
-      note.textContent = error.message;
+      note.textContent = translateAuthError(error.message);
       return;
     }
     loginForm.hidden = true;

@@ -12,6 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
+<script src="js/i18n.js"></script>
 </head>
 <body>
 
@@ -19,14 +20,20 @@
   <nav class="nav wrap">
     <a href="index.html#top" class="brand">
       <svg width="34" height="34" viewBox="0 0 260 260"><defs><linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0B5D52"/><stop offset="100%" stop-color="#164E45"/></linearGradient></defs><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
-      <span>Magicstick Clean — Owner</span>
+      <span data-i18n="nav.ownerBrand">Magicstick Clean — Owner</span>
     </a>
+    <div class="navlinks">
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
+    </div>
   </nav>
 </header>
 
 <section style="padding:40px 0 24px;">
   <div class="wrap">
-    <h1 style="font-size:30px;">Owner dashboard</h1>
+    <h1 style="font-size:30px;" data-i18n="admin.title">Owner dashboard</h1>
   </div>
 </section>
 
@@ -34,40 +41,50 @@
   <div class="wrap">
 
     <div id="backendNotice" class="notice-box" hidden>
-      <p>The backend isn't configured yet — see SETUP.md to connect Supabase.</p>
+      <p data-i18n="admin.notice.backend">The backend isn't configured yet — see SETUP.md to connect Supabase.</p>
     </div>
 
     <form id="adminLoginForm" class="auth-form" hidden style="max-width:420px;">
       <div class="field">
-        <label for="adminEmail">Email</label>
+        <label for="adminEmail" data-i18n="account.email">Email</label>
         <input type="email" id="adminEmail" required>
       </div>
       <div class="field">
-        <label for="adminPassword">Password</label>
+        <label for="adminPassword" data-i18n="account.password">Password</label>
         <input type="password" id="adminPassword" required>
       </div>
-      <button type="submit" class="btn">Log in</button>
+      <button type="submit" class="btn" data-i18n="account.login.submit">Log in</button>
       <p class="form-note" id="adminLoginNote"></p>
     </form>
 
     <div id="notAdminNotice" class="notice-box" hidden>
-      <p>This account isn't set up as an admin. Add it to <code>admin_users</code> in Supabase — see SETUP.md.</p>
+      <p data-i18n-html="admin.notAdmin">This account isn't set up as an admin. Add it to <code>admin_users</code> in Supabase — see SETUP.md.</p>
     </div>
 
     <div id="adminDashboard" hidden>
       <div class="dash-header">
         <div class="admin-tabs">
-          <button type="button" class="auth-tab active" data-tab="quotes">Quote requests</button>
-          <button type="button" class="auth-tab" data-tab="bookings">Bookings</button>
+          <button type="button" class="auth-tab active" data-tab="quotes" data-i18n="admin.tab.quotes">Quote requests</button>
+          <button type="button" class="auth-tab" data-tab="bookings" data-i18n="admin.tab.bookings">Bookings</button>
         </div>
-        <button type="button" class="btn btn-outline" id="adminLogoutBtn">Log out</button>
+        <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
       </div>
 
       <div id="quotesPanel" class="admin-panel">
         <div class="table-scroll">
           <table class="admin-table" id="quotesTable">
             <thead>
-              <tr><th>Date</th><th>Name</th><th>Contact</th><th>Service</th><th>Frequency</th><th>Area</th><th>Home</th><th>Notes</th><th>Status</th></tr>
+              <tr>
+                <th data-i18n="admin.col.date">Date</th>
+                <th data-i18n="admin.col.name">Name</th>
+                <th data-i18n="admin.col.contact">Contact</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.frequency">Frequency</th>
+                <th data-i18n="admin.col.area">Area</th>
+                <th data-i18n="admin.col.home">Home</th>
+                <th data-i18n="admin.col.notes">Notes</th>
+                <th data-i18n="admin.col.status">Status</th>
+              </tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -78,7 +95,16 @@
         <div class="table-scroll">
           <table class="admin-table" id="bookingsTable">
             <thead>
-              <tr><th>Date</th><th>Time</th><th>Name</th><th>Contact</th><th>Service</th><th>Area</th><th>Deposit</th><th>Status</th></tr>
+              <tr>
+                <th data-i18n="admin.col.date">Date</th>
+                <th data-i18n="admin.col.time">Time</th>
+                <th data-i18n="admin.col.name">Name</th>
+                <th data-i18n="admin.col.contact">Contact</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.area">Area</th>
+                <th data-i18n="admin.col.deposit">Deposit</th>
+                <th data-i18n="admin.col.status">Status</th>
+              </tr>
             </thead>
             <tbody></tbody>
           </table>

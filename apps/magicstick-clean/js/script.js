@@ -11,12 +11,14 @@
     zoneBackdrop.classList.remove('show');
   }
 
+  const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+
   function chooseZone(zone){
     selectedZone = zone;
     if (zone){
-      zoneTag.textContent = 'Serving ' + zone;
+      zoneTag.textContent = t('zone.tagPrefix', { zone });
       zoneTag.classList.add('show');
-      zoneStep2Text.textContent = 'Get 15% off your first cleaning in ' + zone + '.';
+      zoneStep2Text.textContent = t('zone.desc2Zone', { zone });
       zoneStep1.style.display = 'none';
       zoneStep2.style.display = 'block';
     } else {
@@ -95,7 +97,7 @@
     const img = btn.querySelector('img');
     lightboxImg.src = img.src;
     lightboxImg.alt = img.alt;
-    lightboxCaption.textContent = btn.dataset.caption || img.alt;
+    lightboxCaption.textContent = btn.dataset.captionKey ? t(btn.dataset.captionKey) : img.alt;
   }
 
   function openLightbox(index){
@@ -164,7 +166,7 @@
     if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) valid = false;
 
     if (!valid){
-      note.textContent = 'Please fill in your name and a way to reach you.';
+      note.textContent = t('form.note.invalid');
       note.classList.remove('sent');
       return;
     }
@@ -175,11 +177,12 @@
     const frequency = document.getElementById('qFrequency').value;
     const message = document.getElementById('qMsg').value.trim();
     const freqDiscounts = { 'Weekly': 15, 'Biweekly': 10, 'Monthly': 10, 'One-time': 0 };
+    const freqLowerKeys = { 'Weekly': 'freq.weekly.lower', 'Biweekly': 'freq.biweekly.lower', 'Monthly': 'freq.monthly.lower', 'One-time': 'freq.oneTime.lower' };
     const discountPct = freqDiscounts[frequency] || 0;
 
     const backend = window.MagicstickBackend;
     if (backend && backend.isBackendConfigured()) {
-      note.textContent = 'Sending your request...';
+      note.textContent = t('form.note.sending');
       note.classList.remove('sent');
       const { error } = await backend.getSupabaseClient().from('quote_requests').insert({
         name,
@@ -199,30 +202,34 @@
         selectedBedrooms = '';
         selectedBathrooms = '';
         selectedHomeType = '';
-        note.textContent = "Thanks! Your request is in — we'll get back to you the same day.";
+        note.textContent = t('form.note.success');
         note.classList.add('sent');
         return;
       }
       console.error('Quote request insert failed, falling back to email:', error);
     }
 
-    const subject = `Free quote request: ${service}`;
+    const homeParts = [selectedBedrooms && `${selectedBedrooms} ${t('bed.suffix')}`, selectedBathrooms && `${selectedBathrooms} ${t('bath.suffix')}`].filter(Boolean);
+    const homeLine = (selectedHomeType || t('common.notSpecified')) + (homeParts.length ? ', ' + homeParts.join(', ') : '');
+    const discountLine = discountPct > 0
+      ? t('mail.discount.pct', { pct: discountPct, frequency: t(freqLowerKeys[frequency]) })
+      : t('mail.discount.none');
+
+    const subject = t('mail.subject.quote', { service });
     const body =
-      `Name: ${name}\n` +
-      `Phone or email: ${contact}\n` +
-      `Area: ${selectedZone || 'Not specified'}\n` +
-      `Frequency: ${frequency}\n` +
-      `Service: ${service}\n` +
-      `Home: ${selectedHomeType || 'Not specified'}` +
-        `${selectedBedrooms ? ', ' + selectedBedrooms + ' bed' : ''}` +
-        `${selectedBathrooms ? ', ' + selectedBathrooms + ' bath' : ''}\n` +
-      `Discount: ${discountPct > 0 ? discountPct + '% ' + frequency.toLowerCase() + ' discount' : 'None'}\n` +
-      `First-time offer: ${discountClaimed ? '15% first cleaning offer claimed' : 'Not claimed'}\n` +
-      `Notes: ${message || '(none)'}\n`;
+      `${t('mail.label.name')}: ${name}\n` +
+      `${t('mail.label.contact')}: ${contact}\n` +
+      `${t('mail.label.area')}: ${selectedZone || t('common.notSpecified')}\n` +
+      `${t('mail.label.frequency')}: ${frequency}\n` +
+      `${t('mail.label.service')}: ${service}\n` +
+      `${t('mail.label.home')}: ${homeLine}\n` +
+      `${t('mail.label.discount')}: ${discountLine}\n` +
+      `${t('mail.label.firstTimeOffer')}: ${discountClaimed ? t('mail.discount.claimed') : t('mail.discount.notClaimed')}\n` +
+      `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
 
     const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
 
-    note.textContent = 'Opening your email app with your request filled in...';
+    note.textContent = t('form.note.opening');
     note.classList.add('sent');
   });

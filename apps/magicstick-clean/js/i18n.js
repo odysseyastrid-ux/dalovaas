@@ -35,6 +35,7 @@
     'zone.claim': { en: 'Claim my 15% off', fr: 'Profiter du 15% de rabais' },
     'zone.later': { en: 'Maybe later', fr: 'Peut-être plus tard' },
     'zone.tagPrefix': { en: 'Serving {zone}', fr: 'Dessert {zone}' },
+    'zone.dismiss': { en: 'Dismiss', fr: 'Fermer' },
 
     // ---------- index.html: hero ----------
     'home.hero.tag': { en: 'First-time client special', fr: 'Offre nouveaux clients' },
@@ -186,6 +187,18 @@
     'form.homeType.apartment': { en: 'Apartment / Condo', fr: 'Appartement / Condo' },
     'form.homeType.townhouse': { en: 'Townhouse', fr: 'Maison de ville' },
     'form.studio': { en: 'Studio', fr: 'Studio' },
+    'form.photos': { en: 'Photos of your home', fr: 'Photos de ta maison' },
+    'form.photos.cta': { en: 'Choose photos', fr: 'Choisir des photos' },
+    'form.photos.hint': { en: 'Up to 6 photos, 10MB each', fr: 'Jusqu’à 6 photos, 10 Mo chacune' },
+    'form.photos.tooMany': { en: 'You can attach up to 6 photos.', fr: 'Tu peux joindre jusqu’à 6 photos.' },
+    'form.photos.tooBig': { en: '{name} is over 10MB — please choose a smaller photo.', fr: '{name} dépasse 10 Mo — choisis une photo plus légère.' },
+    'form.video': { en: 'Video walkthrough', fr: 'Vidéo de visite' },
+    'form.video.cta': { en: 'Choose a video', fr: 'Choisir une vidéo' },
+    'form.video.hint': { en: 'Up to 50MB', fr: 'Jusqu’à 50 Mo' },
+    'form.video.tooBig': { en: '{name} is over 50MB — please choose a shorter video.', fr: '{name} dépasse 50 Mo — choisis une vidéo plus courte.' },
+    'form.note.uploading': { en: 'Uploading your photos and video...', fr: 'Téléversement de tes photos et de ta vidéo...' },
+    'form.note.uploadFailed': { en: 'Some files could not be uploaded, but your request was still sent.', fr: 'Certains fichiers n’ont pas pu être téléversés, mais ta demande a quand même été envoyée.' },
+    'form.note.filesNeedBackend': { en: 'Photo/video upload isn’t turned on yet, so these won’t be sent automatically — please attach them yourself in the email that opens.', fr: 'Le téléversement de photos/vidéos n’est pas encore activé — attache-les toi-même dans le courriel qui s’ouvrira.' },
     'form.message': { en: 'Anything else I should know? (optional)', fr: 'Autre chose à savoir? (optionnel)' },
     'form.messagePlaceholder': { en: 'Preferred days, access instructions, pets...', fr: 'Journées préférées, accès, animaux...' },
     'form.submit': { en: 'Send quote request', fr: 'Envoyer la demande de devis' },
@@ -346,6 +359,12 @@
     'admin.col.notes': { en: 'Notes', fr: 'Notes' },
     'admin.col.status': { en: 'Status', fr: 'Statut' },
     'admin.col.deposit': { en: 'Deposit', fr: 'Dépôt' },
+    'admin.col.files': { en: 'Files', fr: 'Fichiers' },
+    'admin.files.none': { en: '—', fr: '—' },
+    'admin.files.view': { en: 'View {count}', fr: 'Voir {count}' },
+    'admin.files.photo': { en: 'Photo {n}', fr: 'Photo {n}' },
+    'admin.files.video': { en: 'Video', fr: 'Vidéo' },
+    'admin.files.loadError': { en: 'Could not load files', fr: 'Impossible de charger les fichiers' },
   };
 
   function getLang() {

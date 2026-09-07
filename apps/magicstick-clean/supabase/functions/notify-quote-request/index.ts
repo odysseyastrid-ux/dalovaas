@@ -41,6 +41,12 @@ Deno.serve(async (req) => {
     const homeParts = [record.home_type, record.bedrooms && `${record.bedrooms} bed`, record.bathrooms && `${record.bathrooms} bath`]
       .filter(Boolean);
 
+    const photoCount = Array.isArray(record.photo_paths) ? record.photo_paths.length : 0;
+    const attachments = [
+      photoCount > 0 ? `${photoCount} photo${photoCount === 1 ? "" : "s"}` : null,
+      record.video_path ? "1 video" : null,
+    ].filter(Boolean).join(", ");
+
     const ownerText = [
       `New quote request from ${record.name}`,
       `Contact: ${record.contact}`,
@@ -48,6 +54,7 @@ Deno.serve(async (req) => {
       `Frequency: ${record.frequency}`,
       `Area: ${record.zone || "Not specified"}`,
       `Home: ${homeParts.length ? homeParts.join(", ") : "Not specified"}`,
+      `Attachments: ${attachments || "None"}${attachments ? " — view in the owner dashboard" : ""}`,
       `First-time offer claimed: ${record.first_time_offer_claimed ? "Yes" : "No"}`,
       `Notes: ${record.message || "(none)"}`,
     ].join("\n");

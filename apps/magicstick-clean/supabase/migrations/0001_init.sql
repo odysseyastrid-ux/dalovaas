@@ -41,6 +41,8 @@ create table quote_requests (
   bedrooms text,
   bathrooms text,
   home_type text,
+  photo_paths text[] not null default '{}',
+  video_path text,
   status quote_status not null default 'new',
   created_at timestamptz not null default now()
 );
@@ -187,3 +189,23 @@ create policy "admins can update bookings"
 create index bookings_requested_date_idx on bookings (requested_date);
 create index bookings_customer_id_idx on bookings (customer_id);
 create index quote_requests_created_at_idx on quote_requests (created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- quote-uploads — private storage bucket for photos/video attached to a
+-- quote request. Path convention: {quote_request_id}/{filename}. Visitors
+-- can only write (never list or read back what's in the bucket); only
+-- admins can read, via a signed URL generated in the admin dashboard.
+-- ---------------------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+  values ('quote-uploads', 'quote-uploads', false)
+  on conflict (id) do nothing;
+
+create policy "anyone can upload quote photos and videos"
+  on storage.objects for insert
+  to anon, authenticated
+  with check (bucket_id = 'quote-uploads');
+
+create policy "admins can read quote uploads"
+  on storage.objects for select
+  to authenticated
+  using (bucket_id = 'quote-uploads' and exists (select 1 from admin_users where id = auth.uid()));

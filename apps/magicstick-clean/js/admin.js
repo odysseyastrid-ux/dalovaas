@@ -61,6 +61,53 @@
   let lastQuotes = null;
   let lastBookings = null;
 
+  async function showFilesForQuote(quote, container) {
+    const paths = [...(quote.photo_paths || [])];
+    const hasVideo = Boolean(quote.video_path);
+    if (hasVideo) paths.push(quote.video_path);
+    const { data, error } = await supabase.storage.from('quote-uploads').createSignedUrls(paths, 3600);
+    if (error || !data) {
+      container.textContent = t('admin.files.loadError');
+      return;
+    }
+    container.innerHTML = '';
+    data.forEach((entry, index) => {
+      if (!entry.signedUrl) return;
+      const isVideo = hasVideo && index === data.length - 1;
+      const a = document.createElement('a');
+      a.href = entry.signedUrl;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = isVideo ? t('admin.files.video') : t('admin.files.photo', { n: index + 1 });
+      container.appendChild(a);
+    });
+  }
+
+  function filesCell(q) {
+    const count = (q.photo_paths?.length || 0) + (q.video_path ? 1 : 0);
+    if (!count) return document.createTextNode(t('admin.files.none'));
+    const wrap = document.createElement('div');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'files-btn';
+    btn.textContent = t('admin.files.view', { count });
+    const links = document.createElement('div');
+    links.className = 'files-links';
+    links.hidden = true;
+    let loaded = false;
+    btn.addEventListener('click', async () => {
+      links.hidden = !links.hidden;
+      if (!links.hidden && !loaded) {
+        loaded = true;
+        links.textContent = '…';
+        await showFilesForQuote(q, links);
+      }
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(links);
+    return wrap;
+  }
+
   function renderQuotes() {
     const tbody = document.querySelector('#quotesTable tbody');
     tbody.innerHTML = '';
@@ -75,9 +122,11 @@
         <td>${q.frequency}</td>
         <td>${q.zone || '—'}</td>
         <td>${formatHome(q)}</td>
+        <td class="files-cell"></td>
         <td>${q.message || '—'}</td>
         <td class="status-cell"></td>
       `;
+      tr.querySelector('.files-cell').appendChild(filesCell(q));
       tr.querySelector('.status-cell').appendChild(
         statusSelect(q.status, QUOTE_STATUSES, async (value) => {
           await supabase.from('quote_requests').update({ status: value }).eq('id', q.id);

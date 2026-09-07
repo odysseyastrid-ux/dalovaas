@@ -26,9 +26,14 @@ elsewhere in this repo — don't link the two.
    psql "$(supabase db url)" -f supabase/seed.sql
    ```
    This creates the `quote_requests`, `services`, `bookings`, `profiles`, and
-   `admin_users` tables with row-level security already wired up, and seeds
+   `admin_users` tables with row-level security already wired up, seeds
    the three bookable services (Standard, Deep, Airbnb Turnover) with their
-   prices and deposits.
+   prices and deposits, and creates a private `quote-uploads` storage bucket
+   for the photos/video visitors attach to a quote request (visitors can only
+   write to it; only a logged-in admin can view what's inside, via a signed
+   link in the owner dashboard). Supabase's default per-file upload limit is
+   50MB — raise it under **Storage → Settings** if you want to allow longer
+   videos than that.
 
 ## 2. Create your admin (owner) login
 
@@ -118,6 +123,13 @@ Any static host works — GitHub Pages, Netlify, Vercel. Just make sure
 | `booking.html` — online booking | Supabase + Stripe (creates a `bookings` row, redirects to Stripe Checkout for the deposit) |
 | `account.html` — customer accounts | Supabase Auth (sign up/log in, see your own bookings) |
 | `admin.html` — owner dashboard | Supabase Auth + `admin_users` (see and update all quote requests and bookings) |
+
+## Note on photo/video uploads
+
+The quote form's "Photos of your home" and "Video walkthrough" fields only
+actually upload once Supabase is connected (step 1). Without a backend, a
+visitor's email app can't be handed file attachments programmatically — the
+form tells them to attach the files themselves in the email that opens.
 
 ## Not included (yet)
 

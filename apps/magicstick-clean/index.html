@@ -28,9 +28,10 @@
   </defs>
 </svg>
 
-<!-- Zone selector modal -->
+<!-- Zone card: a dismissible corner prompt, not a page-blocking modal -->
 <div class="zone-backdrop" id="zoneBackdrop">
   <div class="zone-modal">
+    <button class="zone-modal-close" id="zoneDismiss" data-i18n-aria-label="zone.dismiss" aria-label="Dismiss">&times;</button>
     <div id="zoneStep1">
       <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
       <h3 data-i18n="zone.title1">Which area are you in?</h3>
@@ -484,6 +485,26 @@
           <button type="button" class="pill-btn" data-value="Apartment/Condo" data-i18n="form.homeType.apartment">Apartment / Condo</button>
           <button type="button" class="pill-btn" data-value="Townhouse" data-i18n="form.homeType.townhouse">Townhouse</button>
         </div>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.photos">Photos of your home</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <label class="file-drop" for="qPhotos">
+          <span data-i18n="form.photos.cta">Choose photos</span>
+          <span class="file-drop-hint" data-i18n="form.photos.hint">Up to 6 photos, 10MB each</span>
+        </label>
+        <input type="file" id="qPhotos" accept="image/*" multiple hidden>
+        <ul class="file-list" id="qPhotosList"></ul>
+        <p class="file-note" id="qPhotosNote" hidden></p>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.video">Video walkthrough</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <label class="file-drop" for="qVideo">
+          <span data-i18n="form.video.cta">Choose a video</span>
+          <span class="file-drop-hint" data-i18n="form.video.hint">Up to 50MB</span>
+        </label>
+        <input type="file" id="qVideo" accept="video/*" hidden>
+        <ul class="file-list" id="qVideoList"></ul>
+        <p class="file-note" id="qVideoNote" hidden></p>
       </div>
       <div class="field">
         <label for="qMsg" data-i18n="form.message">Anything else I should know? (optional)</label>

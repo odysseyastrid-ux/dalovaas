@@ -68,6 +68,15 @@
     });
   });
 
+  // Services accordion: click a service to see what's included
+  document.querySelectorAll('.service-item').forEach(item => {
+    item.querySelector('.service-row').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.service-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
   // Mobile menu toggle
   const burger = document.getElementById('burgerBtn');
   const mobileMenu = document.getElementById('mobileMenu');

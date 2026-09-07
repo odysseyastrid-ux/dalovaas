@@ -194,22 +194,33 @@
   .sec-head p{color:var(--gray);margin-top:12px;font-size:16px;}
 
   /* ---------- SERVICES ---------- */
+  .service-item{border-top:1px solid var(--line);}
+  .service-item:last-child{border-bottom:1px solid var(--line);}
   .service-row{
-    display:grid;grid-template-columns:1fr 1.6fr auto;gap:28px;align-items:baseline;
-    padding:28px 0;border-top:1px solid var(--line);
+    all:unset;box-sizing:border-box;
+    display:grid;grid-template-columns:1fr 1.6fr auto auto;gap:28px;align-items:baseline;
+    padding:28px 0;width:100%;cursor:pointer;
+    font-family:'Work Sans',Arial,sans-serif;
   }
-  .service-row:last-child{border-bottom:1px solid var(--line);}
-  .service-row h3{font-size:24px;}
+  .service-row h3{font-size:24px;font-family:'Libre Baskerville',Georgia,serif;font-weight:700;margin:0;}
   .service-row p{color:var(--gray);margin:0;font-size:15.5px;}
   .service-price{font-family:'Libre Baskerville',serif;font-weight:700;font-size:19px;white-space:nowrap;}
+  .service-icon{font-size:22px;color:var(--gold);flex:none;transition:transform .2s ease;}
+  .service-item.open .service-icon{transform:rotate(45deg);}
+  .service-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .service-item.open .service-detail{max-height:600px;}
+  .service-detail p{color:var(--gray);font-size:15px;margin:0 0 26px;max-width:75ch;}
   .cat-label{
     font-family:'Work Sans',Arial,sans-serif;font-size:14px;font-weight:600;
     color:var(--gold);margin:0 0 4px;padding-top:18px;
   }
   .cat-label-2{margin-top:8px;}
   @media (max-width:700px){
-    .service-row{grid-template-columns:1fr;gap:8px;}
-    .service-price{order:3;}
+    .service-row{grid-template-columns:1fr auto;gap:6px 8px;}
+    .service-row h3{grid-column:1 / 2;}
+    .service-row p{grid-column:1 / -1;}
+    .service-price{grid-column:1;}
+    .service-icon{grid-column:2;grid-row:1;justify-self:end;}
   }
 
   /* ---------- OFFER BAND ---------- */

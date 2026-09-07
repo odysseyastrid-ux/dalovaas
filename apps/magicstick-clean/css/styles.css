@@ -87,6 +87,8 @@
     background:transparent;border:1.5px solid var(--charcoal);color:var(--charcoal);
   }
   .btn-outline:hover{background:var(--charcoal);color:#fff;}
+  .btn-outline-light{background:transparent;border:1.5px solid #fff;color:#fff;}
+  .btn-outline-light:hover{background:#fff;color:var(--charcoal);}
 
   /* ---------- HERO ---------- */
   .hero{padding:88px 0 96px;}
@@ -106,7 +108,7 @@
   .hero h1{font-size:56px;letter-spacing:-0.5px;}
   @media (max-width:640px){ .hero h1{font-size:38px;} }
   .hero p.lede{font-size:18px;color:var(--gray);margin:22px 0 30px;max-width:46ch;}
-  .hero .ctas{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+  .ctas{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
   .hero .contactline{margin-top:22px;font-size:14.5px;color:var(--gray);}
 
   .hero-badge-wrap{display:flex;justify-content:center;}
@@ -372,7 +374,11 @@
   .foot-brand span{font-family:'Libre Baskerville',serif;color:#fff;font-weight:700;font-size:17px;}
   footer .fine{font-size:13px;margin-top:6px;color:#7B828C;}
   .foot-contact{font-size:14px;line-height:1.9;text-align:right;}
-  @media (max-width:600px){ .foot-contact{text-align:left;} .foot-wrap{flex-direction:column;} }
+  .foot-links{display:flex;gap:40px;}
+  .foot-links-title{color:#fff;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+  .foot-links a{display:block;color:#9AA1AC;font-size:14px;text-decoration:none;line-height:2;}
+  .foot-links a:hover{color:#fff;}
+  @media (max-width:600px){ .foot-contact{text-align:left;} .foot-wrap{flex-direction:column;} .foot-links{gap:32px;} }
 
   /* ---------- ZONE CARD ----------
      A dismissible corner card, not a modal: it never covers the page or

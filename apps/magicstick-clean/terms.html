@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+<title>Terms of Service | Magicstick Clean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="js/i18n.js"></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0B5D52"/>
+      <stop offset="100%" stop-color="#164E45"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header>
+  <nav class="nav wrap">
+    <a href="index.html#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span>Magicstick Clean</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html#services" data-i18n="nav.services">Services</a>
+      <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+      <a href="account.html" data-i18n="nav.myAccount">My account</a>
+      <a href="index.html#contact" class="btn" data-i18n="nav.getQuote">Get a quote</a>
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
+    </div>
+    <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#services" data-i18n="nav.services">Services</a>
+    <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+    <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+    <a href="account.html" data-i18n="nav.myAccount">My account</a>
+    <a href="index.html#contact" data-i18n="nav.getQuote">Get a quote</a>
+    <div class="lang-toggle">
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="fr">FR</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" style="padding:64px 0 40px;">
+  <div class="wrap" style="display:block;max-width:70ch;">
+    <span class="tag" data-i18n="terms.hero.tag">Legal</span>
+    <h1 style="font-size:40px;" data-i18n="terms.hero.title">Terms of Service</h1>
+    <p class="lede" style="max-width:60ch;" data-i18n="terms.hero.lede">Last updated 2026. These terms apply when you request a quote, book a cleaning, or use this website.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.quotes.title">Quotes &amp; pricing</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.quotes.p1">Quotes are estimates based on the information you provide (home size, type, and any notes or photos). If your home's actual condition differs materially, the final price may be adjusted and confirmed with you before or at the time of service.</p>
+  </div>
+</section>
+
+<section class="tint">
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.deposits.title">Deposits</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.deposits.p1">Online bookings may require a deposit, paid securely through Stripe, to confirm your appointment. Deposit terms are shown at checkout before you pay.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.cancel.title">Cancellations &amp; rescheduling</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.cancel.p1">Plans change, that's fine — just give at least 24 hours' notice where possible so the time can go to another client.</p>
+  </div>
+</section>
+
+<section class="tint">
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.guarantee.title">Satisfaction guarantee</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.guarantee.p1">If you're not happy with a cleaning, tell me within 24 hours and I'll come back to fix it, free of charge.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.uploads.title">Photos &amp; videos you upload</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.uploads.p1">Any photos or videos you upload with a quote request are used only to help prepare an accurate quote for your home, and are never shared publicly.</p>
+  </div>
+</section>
+
+<section class="tint">
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.liability.title">Care &amp; liability</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.liability.p1">I take care to protect your home and belongings during every visit. Please let me know in advance about fragile, high-value, or sentimental items so I can take extra precautions around them.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.changes.title">Changes to these terms</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.changes.p1">These terms may be updated from time to time. The date at the top of this page reflects the latest update.</p>
+  </div>
+</section>
+
+<section class="tint">
+  <div class="wrap" style="max-width:70ch;display:block;">
+    <h2 data-i18n="terms.contact.title">Questions?</h2>
+    <p style="color:var(--gray);font-size:16px;" data-i18n="terms.contact.p1">Reach out any time at magicstickclean@gmail.com or 343-843-7761.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div>
+      <div class="foot-brand">
+        <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+        <span>Magicstick Clean</span>
+      </div>
+      <p class="fine" data-i18n="footer.tagline">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
+    </div>
+    <div class="foot-links">
+      <div>
+        <div class="foot-links-title" data-i18n="footer.company">Company</div>
+        <a href="about.html" data-i18n="footer.about">About us</a>
+        <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+        <a href="gift-cards.html" data-i18n="footer.giftCards">Gift cards</a>
+        <a href="index.html#faq" data-i18n="nav.faq">FAQ</a>
+      </div>
+      <div>
+        <div class="foot-links-title" data-i18n="footer.legal">Legal</div>
+        <a href="privacy.html" data-i18n="footer.privacy">Privacy policy</a>
+        <a href="terms.html" data-i18n="footer.terms">Terms of service</a>
+      </div>
+    </div>
+    <div class="foot-contact">
+      <div>343-843-7761</div>
+      <div>magicstickclean@gmail.com</div>
+      <div class="fine" data-i18n="footer.copyright">© 2026 Magicstick Clean</div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/static-page.js"></script>
+</body>
+</html>

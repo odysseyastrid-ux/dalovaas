@@ -447,14 +447,20 @@
           <option data-i18n="form.service.notSure">Not sure yet</option>
         </select>
       </div>
-      <div class="field">
-        <label for="qFrequency" data-i18n="form.frequency">How often?</label>
-        <select id="qFrequency" name="frequency">
-          <option value="One-time" data-i18n="form.frequency.oneTime">One-time</option>
-          <option value="Weekly" data-i18n="form.frequency.weekly">Weekly (15% off)</option>
-          <option value="Biweekly" data-i18n="form.frequency.biweekly">Biweekly (10% off)</option>
-          <option value="Monthly" data-i18n="form.frequency.monthly">Monthly (10% off)</option>
-        </select>
+      <div class="form-row">
+        <div class="field">
+          <label for="qFrequency" data-i18n="form.frequency">How often?</label>
+          <select id="qFrequency" name="frequency">
+            <option value="One-time" data-i18n="form.frequency.oneTime">One-time</option>
+            <option value="Weekly" data-i18n="form.frequency.weekly">Weekly (15% off)</option>
+            <option value="Biweekly" data-i18n="form.frequency.biweekly">Biweekly (10% off)</option>
+            <option value="Monthly" data-i18n="form.frequency.monthly">Monthly (10% off)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qDate"><span data-i18n="form.preferredDay">Preferred day</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+          <input type="date" id="qDate" name="preferredDate">
+        </div>
       </div>
 
       <div class="field">
@@ -484,6 +490,13 @@
           <button type="button" class="pill-btn" data-value="House" data-i18n="form.homeType.house">House</button>
           <button type="button" class="pill-btn" data-value="Apartment/Condo" data-i18n="form.homeType.apartment">Apartment / Condo</button>
           <button type="button" class="pill-btn" data-value="Townhouse" data-i18n="form.homeType.townhouse">Townhouse</button>
+        </div>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.pets">Pets at home?</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="pill-group" id="petsGroup" role="group" aria-label="Pets at home">
+          <button type="button" class="pill-btn" data-value="Yes" data-i18n="common.yes">Yes</button>
+          <button type="button" class="pill-btn" data-value="No" data-i18n="common.no">No</button>
         </div>
       </div>
       <div class="field">

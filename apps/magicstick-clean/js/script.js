@@ -126,11 +126,16 @@
     if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
   });
 
-  // Pill-button groups (bedrooms, bathrooms, home type): single-select,
+  // Preferred day: just a plain date input, can't be in the past.
+  const qDateInput = document.getElementById('qDate');
+  if (qDateInput) qDateInput.min = new Date().toISOString().slice(0, 10);
+
+  // Pill-button groups (bedrooms, bathrooms, home type, pets): single-select,
   // click the active one again to clear it — every field here is optional.
   let selectedBedrooms = '';
   let selectedBathrooms = '';
   let selectedHomeType = '';
+  let selectedPets = '';
 
   function setupPillGroup(groupId, onSelect) {
     const group = document.getElementById(groupId);
@@ -152,6 +157,7 @@
   setupPillGroup('bedroomsGroup', (value) => { selectedBedrooms = value; });
   setupPillGroup('bathroomsGroup', (value) => { selectedBathrooms = value; });
   setupPillGroup('homeTypeGroup', (value) => { selectedHomeType = value; });
+  setupPillGroup('petsGroup', (value) => { selectedPets = value; });
 
   // Photo/video attachments on the quote form. Kept as plain File objects
   // until submit — only uploaded to storage if the backend is configured.
@@ -291,6 +297,7 @@
     const service = document.getElementById('qService').value;
     const frequency = document.getElementById('qFrequency').value;
     const message = document.getElementById('qMsg').value.trim();
+    const preferredDate = document.getElementById('qDate').value;
     const freqDiscounts = { 'Weekly': 15, 'Biweekly': 10, 'Monthly': 10, 'One-time': 0 };
     const freqLowerKeys = { 'Weekly': 'freq.weekly.lower', 'Biweekly': 'freq.biweekly.lower', 'Monthly': 'freq.monthly.lower', 'One-time': 'freq.oneTime.lower' };
     const discountPct = freqDiscounts[frequency] || 0;
@@ -328,6 +335,8 @@
         bedrooms: selectedBedrooms || null,
         bathrooms: selectedBathrooms || null,
         home_type: selectedHomeType || null,
+        preferred_date: preferredDate || null,
+        pets: selectedPets || null,
         photo_paths: photoPaths,
         video_path: videoPath,
       });
@@ -337,6 +346,7 @@
         selectedBedrooms = '';
         selectedBathrooms = '';
         selectedHomeType = '';
+        selectedPets = '';
         selectedPhotos = [];
         selectedVideo = null;
         renderPhotos();
@@ -362,6 +372,8 @@
       `${t('mail.label.frequency')}: ${frequency}\n` +
       `${t('mail.label.service')}: ${service}\n` +
       `${t('mail.label.home')}: ${homeLine}\n` +
+      `${t('mail.label.preferredDay')}: ${preferredDate || t('common.notSpecified')}\n` +
+      `${t('mail.label.pets')}: ${selectedPets || t('common.notSpecified')}\n` +
       `${t('mail.label.discount')}: ${discountLine}\n` +
       `${t('mail.label.firstTimeOffer')}: ${discountClaimed ? t('mail.discount.claimed') : t('mail.discount.notClaimed')}\n` +
       `${t('mail.label.notes')}: ${message || t('common.none')}\n`;

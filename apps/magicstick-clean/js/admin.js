@@ -122,6 +122,8 @@
         <td>${q.frequency}</td>
         <td>${q.zone || '—'}</td>
         <td>${formatHome(q)}</td>
+        <td>${q.preferred_date || '—'}</td>
+        <td>${q.pets || '—'}</td>
         <td class="files-cell"></td>
         <td>${q.message || '—'}</td>
         <td class="status-cell"></td>

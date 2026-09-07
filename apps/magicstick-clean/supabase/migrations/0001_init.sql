@@ -41,6 +41,8 @@ create table quote_requests (
   bedrooms text,
   bathrooms text,
   home_type text,
+  preferred_date date,
+  pets text,
   photo_paths text[] not null default '{}',
   video_path text,
   status quote_status not null default 'new',

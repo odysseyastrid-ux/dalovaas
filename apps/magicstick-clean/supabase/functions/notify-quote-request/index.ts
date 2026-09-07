@@ -54,6 +54,8 @@ Deno.serve(async (req) => {
       `Frequency: ${record.frequency}`,
       `Area: ${record.zone || "Not specified"}`,
       `Home: ${homeParts.length ? homeParts.join(", ") : "Not specified"}`,
+      `Preferred day: ${record.preferred_date || "Not specified"}`,
+      `Pets: ${record.pets || "Not specified"}`,
       `Attachments: ${attachments || "None"}${attachments ? " — view in the owner dashboard" : ""}`,
       `First-time offer claimed: ${record.first_time_offer_claimed ? "Yes" : "No"}`,
       `Notes: ${record.message || "(none)"}`,

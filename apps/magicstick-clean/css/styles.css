@@ -205,6 +205,8 @@
   .service-row h3{font-size:24px;font-family:'Libre Baskerville',Georgia,serif;font-weight:700;margin:0;}
   .service-row p{color:var(--gray);margin:0;font-size:15.5px;}
   .service-price{font-family:'Libre Baskerville',serif;font-weight:700;font-size:19px;white-space:nowrap;}
+  .service-toggle{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .service-toggle-label{font-size:10.5px;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;font-family:'Work Sans',Arial,sans-serif;white-space:nowrap;}
   .service-icon{font-size:22px;color:var(--gold);flex:none;transition:transform .2s ease;}
   .service-item.open .service-icon{transform:rotate(45deg);}
   .service-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;}
@@ -220,7 +222,8 @@
     .service-row h3{grid-column:1 / 2;}
     .service-row p{grid-column:1 / -1;}
     .service-price{grid-column:1;}
-    .service-icon{grid-column:2;grid-row:1;justify-self:end;}
+    .service-toggle{grid-column:2;grid-row:1;justify-self:end;}
+    .service-toggle-label{display:none;}
   }
 
   /* ---------- OFFER BAND ---------- */

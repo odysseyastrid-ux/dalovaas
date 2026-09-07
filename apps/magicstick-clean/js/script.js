@@ -61,19 +61,35 @@
 
   // FAQ accordion
   document.querySelectorAll('.faq-item').forEach(item => {
-    item.querySelector('.faq-q').addEventListener('click', () => {
+    const btn = item.querySelector('.faq-q');
+    btn.addEventListener('click', () => {
       const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => {
+        i.classList.remove('open');
+        const b = i.querySelector('.faq-q');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
     });
   });
 
   // Services accordion: click a service to see what's included
   document.querySelectorAll('.service-item').forEach(item => {
-    item.querySelector('.service-row').addEventListener('click', () => {
+    const btn = item.querySelector('.service-row');
+    btn.addEventListener('click', () => {
       const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.service-item.open').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
+      document.querySelectorAll('.service-item.open').forEach(i => {
+        i.classList.remove('open');
+        const b = i.querySelector('.service-row');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
     });
   });
 

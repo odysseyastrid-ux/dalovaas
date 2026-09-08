@@ -395,39 +395,41 @@
   @media (max-width:600px){ .foot-contact{text-align:left;} .foot-wrap{flex-direction:column;} .foot-links{gap:32px;} }
 
   /* ---------- ZONE CARD ----------
-     A dismissible corner card, not a modal: it never covers the page or
-     blocks scroll/clicks, so visitors can keep reading while it's up. */
+     A dismissible centered card, not a blocking modal: there is no
+     full-page dim layer, so the page underneath stays scrollable and
+     clickable — visitors can keep reading while it's up. */
   .zone-backdrop{
-    position:fixed;right:20px;bottom:20px;left:auto;top:auto;
-    max-width:380px;width:calc(100% - 40px);
+    position:fixed;top:50%;left:50%;right:auto;bottom:auto;
+    transform:translate(-50%,-50%) scale(.97);
+    max-width:460px;width:calc(100% - 40px);
     z-index:200;
-    opacity:0;pointer-events:none;transform:translateY(16px);
+    opacity:0;pointer-events:none;
     transition:opacity .3s ease, transform .3s ease;
   }
-  .zone-backdrop.show{opacity:1;pointer-events:auto;transform:translateY(0);}
-  @media (max-width:480px){ .zone-backdrop{right:12px;bottom:12px;left:12px;max-width:none;width:auto;} }
+  .zone-backdrop.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  @media (max-width:480px){ .zone-backdrop{width:calc(100% - 24px);} }
   .zone-modal{
     position:relative;
     background:var(--cream);
-    padding:30px 28px 26px;border-radius:8px;text-align:center;
-    box-shadow:0 12px 40px rgba(31,41,55,.22);border:1px solid var(--line);
+    padding:44px 36px 36px;border-radius:12px;text-align:center;
+    box-shadow:0 24px 64px rgba(31,41,55,.30);border:1px solid var(--line);
   }
   .zone-modal-close{
-    position:absolute;top:10px;right:10px;width:28px;height:28px;
+    position:absolute;top:14px;right:14px;width:32px;height:32px;
     display:flex;align-items:center;justify-content:center;
     background:none;border:none;border-radius:100px;cursor:pointer;
-    color:var(--gray);font-size:18px;line-height:1;
+    color:var(--gray);font-size:20px;line-height:1;
     transition:background .15s ease;
   }
   .zone-modal-close:hover{background:var(--teal-tint);color:var(--charcoal);}
-  .zone-modal svg{width:40px;height:40px;margin-bottom:12px;}
-  .zone-modal h3{font-size:20px;margin-bottom:6px;}
-  .zone-modal p{color:var(--gray);font-size:14px;margin:0 0 18px;}
-  .zone-buttons{display:flex;flex-direction:column;gap:10px;}
+  .zone-modal svg{width:56px;height:56px;margin-bottom:16px;}
+  .zone-modal h3{font-size:28px;margin-bottom:10px;}
+  .zone-modal p{color:var(--gray);font-size:16px;margin:0 0 24px;}
+  .zone-buttons{display:flex;flex-direction:column;gap:12px;}
   .zone-btn{
-    display:block;width:100%;padding:13px 18px;
-    background:#fff;border:1.5px solid var(--line);border-radius:6px;
-    font-family:'Work Sans',Arial,sans-serif;font-weight:600;font-size:15px;
+    display:block;width:100%;padding:16px 20px;
+    background:#fff;border:1.5px solid var(--line);border-radius:8px;
+    font-family:'Work Sans',Arial,sans-serif;font-weight:600;font-size:16.5px;
     color:var(--charcoal);cursor:pointer;text-align:left;
     transition:border-color .15s ease, background .15s ease;
   }

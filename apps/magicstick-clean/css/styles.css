@@ -262,12 +262,12 @@
   .why-item p{margin:0;font-size:15.5px;}
   .why-wrap{display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;}
   .why-list-single{grid-template-columns:1fr;max-width:none;}
-  .why-img-wrap{border:1.5px solid var(--line);border-radius:6px;overflow:hidden;line-height:0;}
-  .why-img-wrap img{width:100%;height:340px;object-fit:cover;display:block;}
+  .why-badge-wrap{display:flex;justify-content:center;align-items:center;}
+  .why-badge-wrap svg{width:100%;max-width:300px;height:auto;}
   @media (max-width:760px){
     .why-wrap{grid-template-columns:1fr;}
-    .why-img-wrap{order:-1;}
-    .why-img-wrap img{height:220px;}
+    .why-badge-wrap{order:-1;}
+    .why-badge-wrap svg{max-width:220px;}
   }
 
   /* ---------- TESTIMONIALS ---------- */

@@ -39,7 +39,7 @@
     'zone.dismiss': { en: 'Dismiss', fr: 'Fermer' },
     'zone.step3.title': { en: 'Almost done.', fr: 'Presque fini.' },
     'zone.step3.desc': { en: "Just your name and a way to reach you — you'll fill in the rest of the details next.", fr: 'Juste ton nom et un moyen de te joindre — tu rempliras le reste des détails ensuite.' },
-    'zone.step3.submit': { en: 'Continue to my quote', fr: 'Continuer vers mon devis' },
+    'zone.step3.submit': { en: 'Save', fr: 'Enregistrer' },
 
     // ---------- index.html: hero ----------
     'home.hero.tag': { en: 'First-time client special', fr: 'Offre nouveaux clients' },

@@ -14,6 +14,21 @@
 
   const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
 
+  // The quote form stays hidden until a visitor actually asks for a quote —
+  // clicking any "Get a quote" link (nav, hero, offer band, or elsewhere on
+  // the site linking to "#contact" / "index.html#contact") reveals it.
+  const contactSection = document.getElementById('contact');
+  function revealQuoteForm(){
+    if (contactSection) contactSection.hidden = false;
+  }
+  if (location.hash === '#contact') revealQuoteForm();
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#contact') revealQuoteForm();
+  });
+  document.querySelectorAll('a[href$="#contact"]').forEach(link => {
+    link.addEventListener('click', revealQuoteForm);
+  });
+
   function chooseZone(zone){
     selectedZone = zone;
     if (zone){
@@ -55,6 +70,7 @@
     document.getElementById('qName').value = nameInput.value.trim();
     document.getElementById('qContact').value = contactInput.value.trim();
     closeZoneModal();
+    revealQuoteForm();
     document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
   });
   zoneBackdrop.addEventListener('click', (e) => {

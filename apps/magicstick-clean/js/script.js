@@ -6,6 +6,7 @@
   const zoneStep1 = document.getElementById('zoneStep1');
   const zoneStep2 = document.getElementById('zoneStep2');
   const zoneStep2Text = document.getElementById('zoneStep2Text');
+  const zoneStep3 = document.getElementById('zoneStep3');
 
   function closeZoneModal(){
     zoneBackdrop.classList.remove('show');
@@ -37,7 +38,22 @@
   document.getElementById('zoneClose').addEventListener('click', closeZoneModal);
   document.getElementById('zoneDismiss').addEventListener('click', closeZoneModal);
   document.getElementById('zoneClaim').addEventListener('click', () => {
+    zoneStep2.style.display = 'none';
+    zoneStep3.style.display = 'block';
+  });
+  document.getElementById('zoneLeadForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nameInput = document.getElementById('zName');
+    const contactInput = document.getElementById('zContact');
+    const nameField = nameInput.closest('.field');
+    const contactField = contactInput.closest('.field');
+    nameField.classList.toggle('invalid', nameInput.value.trim() === '');
+    contactField.classList.toggle('invalid', contactInput.value.trim() === '');
+    if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) return;
+
     discountClaimed = true;
+    document.getElementById('qName').value = nameInput.value.trim();
+    document.getElementById('qContact').value = contactInput.value.trim();
     closeZoneModal();
     document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
   });
@@ -55,23 +71,6 @@
       if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  });
-
-  // FAQ accordion
-  document.querySelectorAll('.faq-item').forEach(item => {
-    const btn = item.querySelector('.faq-q');
-    btn.addEventListener('click', () => {
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(i => {
-        i.classList.remove('open');
-        const b = i.querySelector('.faq-q');
-        if (b) b.setAttribute('aria-expanded', 'false');
-      });
-      if (!wasOpen) {
-        item.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
       }
     });
   });
@@ -108,47 +107,6 @@
       burger.classList.remove('open');
       burger.setAttribute('aria-expanded', 'false');
     });
-  });
-
-  // Before/after gallery: click any photo to view it full-size
-  const photoButtons = Array.from(document.querySelectorAll('.ba-pair .photo-btn'));
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImg = document.getElementById('lightboxImg');
-  const lightboxCaption = document.getElementById('lightboxCaption');
-  let lightboxIndex = 0;
-
-  function showPhoto(index){
-    lightboxIndex = (index + photoButtons.length) % photoButtons.length;
-    const btn = photoButtons[lightboxIndex];
-    const img = btn.querySelector('img');
-    lightboxImg.src = img.src;
-    lightboxImg.alt = img.alt;
-    lightboxCaption.textContent = btn.dataset.captionKey ? t(btn.dataset.captionKey) : img.alt;
-  }
-
-  function openLightbox(index){
-    showPhoto(index);
-    lightbox.classList.add('show');
-  }
-
-  function closeLightbox(){
-    lightbox.classList.remove('show');
-  }
-
-  photoButtons.forEach((btn, index) => {
-    btn.addEventListener('click', () => openLightbox(index));
-  });
-  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
-  document.getElementById('lightboxPrev').addEventListener('click', () => showPhoto(lightboxIndex - 1));
-  document.getElementById('lightboxNext').addEventListener('click', () => showPhoto(lightboxIndex + 1));
-  lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) closeLightbox();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (!lightbox.classList.contains('show')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') showPhoto(lightboxIndex - 1);
-    if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
   });
 
   // Preferred day: just a plain date input, can't be in the past.

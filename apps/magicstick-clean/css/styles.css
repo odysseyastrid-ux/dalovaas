@@ -439,6 +439,8 @@
     text-align:center;font-weight:700;
   }
   .zone-btn-claim:hover{background:#B7911F;border-color:#B7911F;}
+  .zone-lead-form{text-align:left;margin-top:8px;}
+  .zone-lead-form .field{margin-bottom:14px;}
   .zone-skip{
     display:inline-block;margin-top:14px;font-size:13px;color:var(--gray);
     text-decoration:underline;cursor:pointer;background:none;border:none;

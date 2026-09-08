@@ -15,6 +15,7 @@
     'nav.workWithUs': { en: 'Work With Us', fr: 'Travailler avec nous' },
     'nav.myAccount': { en: 'My account', fr: 'Mon compte' },
     'nav.getQuote': { en: 'Get a quote', fr: 'Demander un devis' },
+    'nav.learnMore': { en: 'Learn more', fr: 'En savoir plus' },
     'nav.ownerBrand': { en: 'Magicstick Clean — Owner', fr: 'Magicstick Clean — Propriétaire' },
     'footer.tagline': { en: 'Trusted home cleaning in Clarence-Rockland, Ottawa & Gatineau', fr: 'Entretien ménager de confiance à Clarence-Rockland, Ottawa et Gatineau' },
     'footer.copyright': { en: '© 2026 Magicstick Clean', fr: '© 2026 Magicstick Clean' },
@@ -36,6 +37,9 @@
     'zone.later': { en: 'Maybe later', fr: 'Peut-être plus tard' },
     'zone.tagPrefix': { en: 'Serving {zone}', fr: 'Dessert {zone}' },
     'zone.dismiss': { en: 'Dismiss', fr: 'Fermer' },
+    'zone.step3.title': { en: 'Almost done.', fr: 'Presque fini.' },
+    'zone.step3.desc': { en: "Just your name and a way to reach you — you'll fill in the rest of the details next.", fr: 'Juste ton nom et un moyen de te joindre — tu rempliras le reste des détails ensuite.' },
+    'zone.step3.submit': { en: 'Continue to my quote', fr: 'Continuer vers mon devis' },
 
     // ---------- index.html: hero ----------
     'home.hero.tag': { en: 'First-time client special', fr: 'Offre nouveaux clients' },
@@ -474,6 +478,12 @@
     'home.testimonials.ctaLink': { en: 'Share your experience', fr: 'Partager votre expérience' },
 
     'form.sameDayReminder': { en: '⏱ I typically reply within the same day.', fr: '⏱ Je réponds habituellement le jour même.' },
+
+    'learnMore.hero.tag': { en: 'Learn more', fr: 'En savoir plus' },
+    'learnMore.hero.title': { en: 'Real results, real answers', fr: 'De vrais résultats, de vraies réponses' },
+    'learnMore.hero.lede': { en: 'Before & after photos, how booking works, what clients are saying, and everything else you might want to know before reaching out.', fr: 'Photos avant/après, comment fonctionne la réservation, ce que disent les clients, et tout ce que vous voudriez savoir avant de nous contacter.' },
+    'learnMore.cta.title': { en: 'Ready when you are.', fr: 'Prêt quand vous le serez.' },
+    'learnMore.cta.desc': { en: 'Request a free quote, or book your first cleaning online.', fr: 'Demandez un devis gratuit, ou réservez votre premier ménage en ligne.' },
   };
 
   function getLang() {

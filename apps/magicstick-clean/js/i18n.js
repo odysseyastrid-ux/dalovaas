@@ -47,6 +47,7 @@
     'home.hero.lede': { en: 'Magicstick Clean is a locally owned cleaning service serving Clarence-Rockland, Ottawa, and Gatineau. Homes, rentals, and businesses alike, cleaned with care.', fr: 'Magicstick Clean est une entreprise de nettoyage locale desservant Clarence-Rockland, Ottawa et Gatineau. Maisons, locations et commerces, nettoyés avec soin.' },
     'home.hero.ctaQuote': { en: 'Get a free quote', fr: 'Devis gratuit' },
     'home.hero.ctaServices': { en: 'See services & pricing', fr: 'Voir services et prix' },
+    'home.hero.coverTag': { en: 'A clean, comfortable home for your whole family', fr: 'Une maison propre et confortable pour toute la famille' },
 
     // ---------- index.html: gallery ----------
     'home.gallery.title': { en: 'See the difference', fr: 'Vois la différence' },

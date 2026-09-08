@@ -341,12 +341,23 @@
 
   /* ---------- CONTACT ---------- */
   .contact-band{
+    position:relative;
     background:var(--teal);color:#fff;text-align:center;padding:80px 0;
   }
   .contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;}
   .contact-band p{color:#CFE7E3;font-size:16px;margin-bottom:30px;}
   .contact-band .btn{background:var(--gold);color:var(--charcoal);}
   .contact-band .contactline{margin-top:22px;font-size:15px;color:#CFE7E3;}
+
+  .quote-close{
+    position:absolute;top:20px;right:24px;width:40px;height:40px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:100px;
+    color:#fff;font-size:26px;line-height:1;text-decoration:none;
+    transition:background .15s ease;
+  }
+  .quote-close:hover{background:rgba(255,255,255,.24);}
+  @media (max-width:600px){ .quote-close{top:14px;right:14px;width:36px;height:36px;font-size:22px;} }
 
   /* ---------- QUOTE FORM ---------- */
   .quote-form{

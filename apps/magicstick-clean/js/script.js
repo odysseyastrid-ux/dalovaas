@@ -25,8 +25,20 @@
   window.addEventListener('hashchange', () => {
     if (location.hash === '#contact') revealQuoteForm();
   });
+
+  // The zone card ("Which area are you in?") only shows once a visitor
+  // actually asks for a quote — not automatically on every page load.
+  let zoneModalShown = false;
+  function maybeShowZoneModal(){
+    if (zoneModalShown) return;
+    zoneModalShown = true;
+    setTimeout(() => zoneBackdrop.classList.add('show'), 150);
+  }
   document.querySelectorAll('a[href$="#contact"]').forEach(link => {
-    link.addEventListener('click', revealQuoteForm);
+    link.addEventListener('click', () => {
+      revealQuoteForm();
+      maybeShowZoneModal();
+    });
   });
 
   function chooseZone(zone){
@@ -41,10 +53,6 @@
       closeZoneModal();
     }
   }
-
-  window.addEventListener('load', () => {
-    setTimeout(() => zoneBackdrop.classList.add('show'), 350);
-  });
 
   document.querySelectorAll('.zone-btn[data-zone]').forEach(btn => {
     btn.addEventListener('click', () => chooseZone(btn.dataset.zone));

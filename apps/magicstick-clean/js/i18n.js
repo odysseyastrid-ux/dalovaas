@@ -104,6 +104,12 @@
     'home.services.retail.detail': { en: 'Floors, entryways, fitting rooms, and display fixtures kept spotless so your shop always looks its best for customers. Scheduled around your opening hours. Custom quote based on store size and how often you’d like visits.', fr: 'Planchers, entrées, cabines d’essayage et présentoirs gardés impeccables pour que ton commerce soit toujours à son meilleur pour la clientèle. Planifié autour de tes heures d’ouverture. Devis sur mesure selon la taille du commerce et la fréquence souhaitée.' },
     'home.services.postConstruction.detail': { en: 'Fine dust and debris removed from every surface (including light fixtures and vents), floors deep-cleaned, and windows wiped down after a renovation — or a fast turnaround clean after a hall rental, party, or event. Custom quote based on the scope of the mess.', fr: 'Poussière fine et débris retirés de toutes les surfaces (incluant les luminaires et bouches d’aération), planchers nettoyés en profondeur, et fenêtres essuyées après une rénovation — ou un nettoyage rapide après la location d’une salle, une fête ou un événement. Devis sur mesure selon l’ampleur du travail.' },
 
+    // ---------- index.html: highlights (gallery/testimonials tabs) ----------
+    'home.highlights.title': { en: 'See it for yourself', fr: 'À toi de voir' },
+    'home.highlights.subtitle': { en: 'Real results, and real words from real clients.', fr: 'De vrais résultats, et de vrais mots de vrais clients.' },
+    'home.highlights.tabGallery': { en: 'Gallery', fr: 'Galerie' },
+    'home.highlights.tabTestimonials': { en: 'Testimonials', fr: 'Témoignages' },
+
     // ---------- index.html: offer band ----------
     'home.offer.title': { en: 'New here? Start with the deep clean.', fr: 'Nouveau client? Commence avec le nettoyage en profondeur.' },
     'home.offer.desc': { en: 'It sets a fresh baseline for your home, then you switch to easy standard visits from there, at an introductory rate for first-time clients.', fr: 'Ça établit une base fraîche pour ta maison, puis tu passes à des visites standard, à un tarif de bienvenue pour les nouveaux clients.' },

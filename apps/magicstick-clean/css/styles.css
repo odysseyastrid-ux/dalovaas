@@ -277,6 +277,20 @@
   .why-item .dot{width:7px;height:7px;background:var(--gold);margin-top:9px;flex:none;}
   .why-item p{margin:0;font-size:15.5px;}
 
+  /* ---------- HIGHLIGHTS TABS ---------- */
+  .tabs-nav{display:flex;gap:8px;border-bottom:1px solid var(--line);margin-bottom:36px;}
+  .tab-btn{
+    background:none;border:none;cursor:pointer;
+    padding:12px 20px;font-family:inherit;font-size:15px;font-weight:600;color:var(--gray);
+    border-bottom:2.5px solid transparent;margin-bottom:-1px;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .tab-btn:hover{color:var(--charcoal);}
+  .tab-btn.active{color:var(--teal);border-color:var(--teal);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:tabFadeIn .25s ease;}
+  @keyframes tabFadeIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);}}
+
   /* ---------- TESTIMONIALS ---------- */
   .testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:8px;}
   @media (max-width:760px){ .testimonial-grid{grid-template-columns:1fr;} }

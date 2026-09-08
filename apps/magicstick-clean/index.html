@@ -163,6 +163,80 @@
   </div>
 </section>
 
+<section id="highlights" class="tint">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 data-i18n="home.highlights.title">See it for yourself</h2>
+      <p data-i18n="home.highlights.subtitle">Real results, and real words from real clients.</p>
+    </div>
+    <div class="tabs-nav" role="tablist">
+      <button type="button" class="tab-btn active" id="tab-btn-gallery" data-tab="gallery" role="tab" aria-selected="true" aria-controls="tab-gallery" data-i18n="home.highlights.tabGallery">Gallery</button>
+      <button type="button" class="tab-btn" id="tab-btn-testimonials" data-tab="testimonials" role="tab" aria-selected="false" aria-controls="tab-testimonials" data-i18n="home.highlights.tabTestimonials">Testimonials</button>
+    </div>
+    <div class="tabs-panels">
+      <div class="tab-panel active" id="tab-gallery" role="tabpanel" aria-labelledby="tab-btn-gallery">
+        <div class="ba-grid">
+          <div class="ba-card">
+            <div class="ba-pair">
+              <figure class="before"><button class="photo-btn" type="button" data-caption-key="home.gallery.hardwoodBefore"><img src="assets/images/before-hardwood-floor.jpg" alt="Floor before cleaning"></button><figcaption data-i18n="home.gallery.before">BEFORE</figcaption></figure>
+              <figure class="after"><button class="photo-btn" type="button" data-caption-key="home.gallery.hardwoodAfter"><img src="assets/images/after-hardwood-floor.jpg" alt="Floor after cleaning"></button><figcaption data-i18n="home.gallery.after">AFTER</figcaption></figure>
+            </div>
+            <div class="ba-label" data-i18n="home.gallery.hardwood">Hardwood floor reset</div>
+          </div>
+          <div class="ba-card">
+            <div class="ba-pair">
+              <figure class="before"><button class="photo-btn" type="button" data-caption-key="home.gallery.bathroomBefore"><img src="assets/images/before-bathroom.jpg" alt="Toilet before cleaning"></button><figcaption data-i18n="home.gallery.before">BEFORE</figcaption></figure>
+              <figure class="after"><button class="photo-btn" type="button" data-caption-key="home.gallery.bathroomAfter"><img src="assets/images/after-bathroom.jpg" alt="Toilet after cleaning"></button><figcaption data-i18n="home.gallery.after">AFTER</figcaption></figure>
+            </div>
+            <div class="ba-label" data-i18n="home.gallery.bathroom">Bathroom deep clean</div>
+          </div>
+          <div class="ba-card">
+            <div class="ba-pair">
+              <figure class="before"><button class="photo-btn" type="button" data-caption-key="home.gallery.fridgeBefore"><img src="assets/images/before-fridge.jpg" alt="Fridge before cleaning"></button><figcaption data-i18n="home.gallery.before">BEFORE</figcaption></figure>
+              <figure class="after"><button class="photo-btn" type="button" data-caption-key="home.gallery.fridgeAfter"><img src="assets/images/after-fridge.jpg" alt="Fridge after cleaning"></button><figcaption data-i18n="home.gallery.after">AFTER</figcaption></figure>
+            </div>
+            <div class="ba-label" data-i18n="home.gallery.fridge">Fridge &amp; freezer detail</div>
+          </div>
+        </div>
+        <div class="ba-cta">
+          <a href="quote.html" class="btn" data-i18n="home.gallery.cta">Want your home to look like this?</a>
+        </div>
+      </div>
+      <div class="tab-panel" id="tab-testimonials" role="tabpanel" aria-labelledby="tab-btn-testimonials" hidden>
+        <div class="testimonial-grid">
+          <!-- Placeholder slots: replace each with a real client's name + quote once available. -->
+          <div class="testimonial-card testimonial-placeholder">
+            <span class="testimonial-quote-mark">&ldquo;</span>
+            <p data-i18n="home.testimonials.placeholder">Your review could be here</p>
+          </div>
+          <div class="testimonial-card testimonial-placeholder">
+            <span class="testimonial-quote-mark">&ldquo;</span>
+            <p data-i18n="home.testimonials.placeholder">Your review could be here</p>
+          </div>
+          <div class="testimonial-card testimonial-placeholder">
+            <span class="testimonial-quote-mark">&ldquo;</span>
+            <p data-i18n="home.testimonials.placeholder">Your review could be here</p>
+          </div>
+        </div>
+        <p class="testimonial-cta-line">
+          <span data-i18n="home.testimonials.cta">Had a cleaning already? I'd be grateful for a few words.</span>
+          <a href="quote.html" data-i18n="home.testimonials.ctaLink">Share your experience</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close photo viewer">&times;</button>
+  <button class="lightbox-prev" id="lightboxPrev" aria-label="Previous photo">&#8249;</button>
+  <figure class="lightbox-fig">
+    <img id="lightboxImg" src="" alt="">
+    <figcaption id="lightboxCaption"></figcaption>
+  </figure>
+  <button class="lightbox-next" id="lightboxNext" aria-label="Next photo">&#8250;</button>
+</div>
+
 <div class="offer">
   <div class="wrap">
     <div>

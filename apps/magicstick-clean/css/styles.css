@@ -212,8 +212,18 @@
   .service-icon{font-size:22px;color:var(--gold);flex:none;transition:transform .2s ease;}
   .service-item.open .service-icon{transform:rotate(45deg);}
   .service-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;}
-  .service-item.open .service-detail{max-height:600px;}
+  .service-item.open .service-detail{max-height:900px;}
   .service-detail p{color:var(--gray);font-size:15px;margin:0 0 26px;max-width:75ch;}
+  .service-detail-inner{display:flex;gap:24px;align-items:flex-start;}
+  .service-detail-inner p{margin:0 0 26px;}
+  .service-detail-img{
+    width:180px;height:130px;object-fit:cover;border-radius:6px;flex:none;
+    border:1px solid var(--line);
+  }
+  @media (max-width:600px){
+    .service-detail-inner{flex-direction:column;}
+    .service-detail-img{width:100%;height:160px;}
+  }
   .cat-label{
     font-family:'Work Sans',Arial,sans-serif;font-size:14px;font-weight:600;
     color:var(--gold);margin:0 0 4px;padding-top:18px;
@@ -250,6 +260,15 @@
   .why-item{display:flex;gap:12px;align-items:flex-start;padding:6px 0;}
   .why-item .dot{width:7px;height:7px;background:var(--gold);margin-top:9px;flex:none;}
   .why-item p{margin:0;font-size:15.5px;}
+  .why-wrap{display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;}
+  .why-list-single{grid-template-columns:1fr;max-width:none;}
+  .why-img-wrap{border:1.5px solid var(--line);border-radius:6px;overflow:hidden;line-height:0;}
+  .why-img-wrap img{width:100%;height:340px;object-fit:cover;display:block;}
+  @media (max-width:760px){
+    .why-wrap{grid-template-columns:1fr;}
+    .why-img-wrap{order:-1;}
+    .why-img-wrap img{height:220px;}
+  }
 
   /* ---------- TESTIMONIALS ---------- */
   .testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:8px;}
@@ -283,7 +302,7 @@
   .faq-icon{font-size:20px;color:var(--gold);flex:none;margin-left:16px;transition:transform .2s ease;}
   .faq-item.open .faq-icon{transform:rotate(45deg);}
   .faq-a{max-height:0;overflow:hidden;transition:max-height .25s ease;}
-  .faq-item.open .faq-a{max-height:200px;}
+  .faq-item.open .faq-a{max-height:500px;}
   .faq-a p{margin:0 4px 18px;color:var(--gray);font-size:15px;max-width:65ch;}
 
   /* ---------- DOWNLOADS ---------- */

@@ -251,6 +251,19 @@
   .why-item .dot{width:7px;height:7px;background:var(--gold);margin-top:9px;flex:none;}
   .why-item p{margin:0;font-size:15.5px;}
 
+  /* ---------- TESTIMONIALS ---------- */
+  .testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:8px;}
+  @media (max-width:760px){ .testimonial-grid{grid-template-columns:1fr;} }
+  .testimonial-card{
+    background:var(--cream);border:1.5px dashed var(--line);border-radius:8px;
+    padding:28px 24px;text-align:center;
+  }
+  .testimonial-quote-mark{display:block;font-family:'Libre Baskerville',Georgia,serif;font-size:40px;color:var(--line);line-height:1;margin-bottom:8px;}
+  .testimonial-placeholder p{color:var(--gray);font-size:14px;font-style:italic;margin:0;}
+  .testimonial-cta-line{margin-top:28px;text-align:center;font-size:15px;color:var(--gray);}
+  .testimonial-cta-line a{color:var(--teal);font-weight:600;text-decoration:none;margin-left:6px;}
+  .testimonial-cta-line a:hover{text-decoration:underline;}
+
   /* ---------- SERVICE AREA ---------- */
   .area-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
   @media (max-width:760px){ .area-wrap{grid-template-columns:1fr;} }
@@ -366,6 +379,7 @@
   .file-note.error{color:#C0392B;}
   .form-note{font-size:13px;color:var(--gray);margin-top:14px;text-align:center;}
   .form-note.sent{color:var(--teal);font-weight:600;}
+  .quote-form .form-reassurance{font-size:13.5px;color:var(--teal);font-weight:600;margin:-6px 0 14px;text-align:center;}
 
   /* ---------- FOOTER ---------- */
   footer{padding:48px 0;background:var(--charcoal);color:#9AA1AC;}

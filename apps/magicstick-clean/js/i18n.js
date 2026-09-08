@@ -466,6 +466,14 @@
     'terms.changes.p1': { en: 'These terms may be updated from time to time. The date at the top of this page reflects the latest update.', fr: 'Ces conditions peuvent être mises à jour de temps à autre. La date en haut de cette page reflète la plus récente mise à jour.' },
     'terms.contact.title': { en: 'Questions?', fr: 'Des questions?' },
     'terms.contact.p1': { en: 'Reach out any time at magicstickclean@gmail.com or 343-843-7761.', fr: 'Écrivez-nous en tout temps à magicstickclean@gmail.com ou au 343-843-7761.' },
+
+    'home.testimonials.title': { en: 'What clients are saying', fr: 'Ce que disent les clients' },
+    'home.testimonials.subtitle': { en: 'Magicstick Clean is a new local business — real reviews are on their way. Here\'s what I show up to earn every visit.', fr: 'Magicstick Clean est une nouvelle entreprise locale — les vrais avis s’en viennent. Voici ce que je m’efforce de mériter à chaque visite.' },
+    'home.testimonials.placeholder': { en: 'Your review could be here', fr: 'Votre avis pourrait être ici' },
+    'home.testimonials.cta': { en: 'Had a cleaning already? I\'d be grateful for a few words.', fr: 'Vous avez déjà eu un ménage? J’apprécierais quelques mots de votre part.' },
+    'home.testimonials.ctaLink': { en: 'Share your experience', fr: 'Partager votre expérience' },
+
+    'form.sameDayReminder': { en: '⏱ I typically reply within the same day.', fr: '⏱ Je réponds habituellement le jour même.' },
   };
 
   function getLang() {

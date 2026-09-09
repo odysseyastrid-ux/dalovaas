@@ -942,15 +942,13 @@ quickAddSubmitBtn.addEventListener('click', () => {
   });
 })();
 
-// Theme (light/dark)
+// Theme (dark by default — light is an explicit opt-in via the toggle,
+// independent of the visitor's system preference).
 function loadTheme(){
   try { return localStorage.getItem('nyokon-theme'); } catch (e) { return null; }
 }
-function systemPrefersDark(){
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
 function applyTheme(theme){
-  if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+  if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
   else document.documentElement.removeAttribute('data-theme');
 }
 
@@ -959,24 +957,16 @@ applyTheme(currentTheme);
 
 const themeToggle = document.getElementById('themeToggle');
 function syncThemeToggle(){
-  const isDark = currentTheme === 'dark' || (!currentTheme && systemPrefersDark());
-  themeToggle.classList.toggle('is-dark', isDark);
+  themeToggle.classList.toggle('is-dark', currentTheme !== 'light');
 }
 syncThemeToggle();
 
 themeToggle.addEventListener('click', () => {
-  const isDark = currentTheme === 'dark' || (!currentTheme && systemPrefersDark());
-  currentTheme = isDark ? 'light' : 'dark';
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
   applyTheme(currentTheme);
   try { localStorage.setItem('nyokon-theme', currentTheme); } catch (e) { /* localStorage unavailable */ }
   syncThemeToggle();
 });
-
-if (window.matchMedia) {
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (!currentTheme) syncThemeToggle();
-  });
-}
 
 // Currency
 const currencySelects = document.querySelectorAll('.currency-select');

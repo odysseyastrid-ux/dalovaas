@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
@@ -106,11 +106,10 @@ document.getElementById('pdpBack').textContent = t('back');
 
 // Respect the theme already chosen on the main site (same localStorage
 // key as script.js) — no theme toggle here, just don't clash with it.
+// The site defaults to dark, so only an explicit "light" choice changes it.
 (function applyStoredTheme(){
   try {
-    const saved = localStorage.getItem('nyokon-theme');
-    const dark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    if (dark) document.documentElement.dataset.theme = 'dark';
+    if (localStorage.getItem('nyokon-theme') === 'light') document.documentElement.dataset.theme = 'light';
   } catch (e) {}
 })();
 

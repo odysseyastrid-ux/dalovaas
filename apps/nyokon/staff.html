@@ -31,6 +31,12 @@
   .staff-btn{display:inline-block;padding:13px 28px;font-size:12px;font-weight:700;letter-spacing:.08em;border-radius:999px;background:var(--invert-bg);color:var(--invert-fg);border:none;cursor:pointer;}
   .staff-btn:hover{background:#d1ff3c;color:#0b0b0c;}
   .staff-btn:disabled{opacity:.5;cursor:default;}
+  .staff-btn-secondary{
+    display:inline-block;padding:13px 24px;font-size:12px;font-weight:700;letter-spacing:.08em;
+    border-radius:999px;background:transparent;color:var(--fg);border:1px solid var(--line);
+    cursor:pointer;margin-left:10px;
+  }
+  .staff-btn-secondary:hover{border-color:var(--fg);}
   .staff-error{color:#e05a4e;font-size:13px;margin-top:12px;}
   .staff-note{color:var(--fg-dim);font-size:12px;margin-top:12px;}
 
@@ -86,6 +92,7 @@
     margin-bottom:18px;flex-shrink:0;
   }
   .staff-nav-item{
+    position:relative;
     display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;
     padding:11px 4px;border-radius:12px;
     font-size:10.5px;font-weight:700;letter-spacing:.02em;color:#a6a6ad;
@@ -100,15 +107,32 @@
      background, not just a tint. */
   .staff-nav-item[data-panel="products"]{color:#6ea8e8;}
   .staff-nav-item[data-panel="orders"]{color:#f0916a;}
+  .staff-nav-item[data-panel="clients"]{color:#e0ab4c;}
   .staff-nav-item[data-panel="payment"]{color:#5cd1a5;}
   .staff-nav-item[data-panel="loyalty"]{color:#f090b5;}
   .staff-nav-item[data-panel="promotions"]{color:#a89bf5;}
   .staff-nav-item[data-panel="photos"]{color:#4fc3b8;}
   .staff-nav-item.is-active{color:#0b0b0c!important;}
+  .staff-nav-badge{
+    position:absolute;top:4px;right:10px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:9px;background:#e0432f;color:#fff;font-size:10px;font-weight:800;
+    display:none;align-items:center;justify-content:center;line-height:1;
+  }
+  .staff-nav-item.is-active .staff-nav-badge{background:#0b0b0c;}
   .staff-nav-spacer{flex:1;}
-  .staff-nav-back{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;font-size:9px;font-weight:700;color:#7a7a80;}
+  .staff-nav-back{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;font-size:9px;font-weight:700;color:#7a7a80;background:none;}
   .staff-nav-back:hover{color:#f5f4f0;}
   .staff-nav-back svg{width:18px;height:18px;}
+  .staff-nav-back.is-armed{color:var(--accent);}
+
+  .staff-toast-stack{position:fixed;bottom:18px;right:18px;z-index:500;display:flex;flex-direction:column-reverse;gap:10px;max-width:300px;}
+  .staff-toast{
+    background:#14161a;color:#f5f4f0;border-radius:12px;padding:13px 16px;
+    font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);
+    cursor:pointer;border-left:4px solid var(--accent);animation:staff-toast-in .25s ease-out;
+  }
+  .staff-toast b{color:var(--accent);}
+  @keyframes staff-toast-in{from{transform:translateY(10px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 
   .staff-main{flex:1;min-width:0;padding:32px 40px 120px;max-width:1400px;}
   .staff-panel{display:none;}
@@ -275,6 +299,58 @@
   .staff-panel[data-panel="loyalty"] .staff-section-title{--section-color:var(--c-pink);}
   .staff-panel[data-panel="promotions"] .staff-section-title{--section-color:var(--c-violet);}
   .staff-panel[data-panel="photos"] .staff-section-title{--section-color:var(--c-teal);}
+  .staff-panel[data-panel="clients"] .staff-section-title{--section-color:#e0ab4c;}
+
+  .panel-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .panel-actions .staff-title,.panel-actions .staff-sub{margin-bottom:0;}
+  .panel-actions-btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .print-btn{
+    font-size:12.5px;font-weight:700;letter-spacing:.04em;padding:9px 16px;border-radius:20px;
+    border:1px solid var(--line);background:#fff;color:var(--fg);cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .print-btn:hover{border-color:var(--fg);}
+  .print-btn svg{width:15px;height:15px;flex-shrink:0;}
+
+  .client-search{width:100%;max-width:360px;margin-bottom:18px;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:11px 14px;color:var(--fg);font-family:inherit;font-size:13.5px;}
+  .client-search:focus{outline:none;border-color:var(--c-amber, #c98500);}
+  .client-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 0;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .client-row:first-child{border-top:none;}
+  .client-name{font-weight:700;font-size:14px;}
+  .client-meta{font-size:13px;color:var(--fg-dim);margin-top:3px;}
+  .client-stats{display:flex;gap:22px;align-items:center;flex-shrink:0;}
+  .client-stat{text-align:right;}
+  .client-stat-value{font-family:var(--font-display);font-size:16px;}
+  .client-stat-label{font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);text-transform:uppercase;}
+
+  /* Printable sheets (statistics report + customer invoice) — kept off
+     screen at all times, revealed only inside @media print by hiding
+     everything else, so window.print() (→ "Save as PDF" in the browser's
+     print dialog) needs no PDF library at all. */
+  #printSheet{display:none;}
+  .print-header{display:flex;align-items:center;gap:16px;border-bottom:3px solid #0b0b0c;padding-bottom:16px;margin-bottom:24px;}
+  .print-logo{height:40px;width:auto;}
+  .print-biz-name{font-family:var(--font-display,'Archivo Black',sans-serif);font-size:20px;}
+  .print-biz-meta{font-size:12px;color:#555;margin-top:2px;line-height:1.5;}
+  .print-doc-title{font-size:22px;font-weight:800;margin:18px 0 2px;}
+  .print-doc-sub{font-size:12.5px;color:#555;margin-bottom:22px;}
+  .print-kpi-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:22px;}
+  .print-kpi{border:1px solid #ddd;border-radius:10px;padding:12px 18px;}
+  .print-kpi-label{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em;}
+  .print-kpi-value{font-size:19px;font-weight:800;margin-top:3px;}
+  .print-table{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:13px;}
+  .print-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#666;border-bottom:2px solid #0b0b0c;padding:6px 8px;}
+  .print-table td{padding:8px;border-bottom:1px solid #ddd;}
+  .print-table td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .print-section-title{font-size:15px;font-weight:800;margin:22px 0 10px;}
+  .print-total-row td{font-weight:800;border-top:2px solid #0b0b0c;border-bottom:none;}
+  .print-footer{margin-top:30px;font-size:11px;color:#888;}
+  @media print{
+    html,body{background:#fff!important;}
+    body > *:not(#printSheet){display:none!important;}
+    #printSheet{display:block!important;color:#0b0b0c;background:#fff;padding:0;font-family:Arial,Helvetica,sans-serif;}
+    @page{margin:16mm;}
+  }
 </style>
 </head>
 <body>
@@ -318,6 +394,11 @@
       <button type="button" class="staff-nav-item" data-panel="orders">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l1 5H5l1-5Z"/><path d="M5 8h14l-1.2 11a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 12a3 3 0 0 0 6 0"/></svg>
         Commandes
+        <span class="staff-nav-badge" id="ordersNavBadge"></span>
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="clients">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
       </button>
       <button type="button" class="staff-nav-item" data-panel="payment">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
@@ -336,6 +417,10 @@
         Photos
       </button>
       <div class="staff-nav-spacer"></div>
+      <button type="button" class="staff-nav-back" id="notifPermBtn" style="border:none;background:none;cursor:pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span id="notifPermLabel">Alertes</span>
+      </button>
       <a href="index.html" class="staff-nav-back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
         Le site
@@ -345,11 +430,22 @@
         Sortir
       </button>
     </nav>
+    <div class="staff-toast-stack" id="staffToastStack"></div>
     <main class="staff-main">
 
       <section class="staff-panel" data-panel="stats">
-        <h1 class="staff-title">Tableau de bord</h1>
-        <p class="staff-sub">Vue d'ensemble des ventes et de l'activité du site.</p>
+        <div class="panel-actions">
+          <div>
+            <h1 class="staff-title">Tableau de bord</h1>
+            <p class="staff-sub">Vue d'ensemble des ventes et de l'activité du site.</p>
+          </div>
+          <div class="panel-actions-btns">
+            <button type="button" class="print-btn" id="printStatsBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+              Imprimer / PDF
+            </button>
+          </div>
+        </div>
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-grid">
           <div class="chart-card is-funnel">
@@ -503,6 +599,7 @@
         <label class="prod-active-label"><input type="checkbox" id="npSoldOut" /> Marquer en rupture de stock</label>
         <br /><br />
         <button type="submit" class="staff-btn" id="newProductBtn">Ajouter le produit</button>
+        <button type="button" class="staff-btn-secondary" id="resetProductFormBtn">Réinitialiser</button>
         <div class="staff-error" id="newProductError"></div>
       </form>
     </div>
@@ -532,6 +629,31 @@
         </div>
         <button type="submit" class="staff-btn" id="paymentSettingsBtn">Enregistrer</button>
         <div class="staff-error" id="paymentSettingsError"></div>
+      </form>
+    </div>
+
+    <h2 class="staff-section-title">Informations de l'entreprise</h2>
+    <p class="staff-sub">Affichées sur les factures et les rapports PDF imprimables.</p>
+    <div class="staff-card">
+      <form id="bizSettingsForm">
+        <div class="staff-field">
+          <label for="bizName">Nom de l'entreprise</label>
+          <input type="text" id="bizName" placeholder="nyøkøn" />
+        </div>
+        <div class="staff-field">
+          <label for="bizAddress">Adresse</label>
+          <input type="text" id="bizAddress" placeholder="ex: Douala, Cameroun" />
+        </div>
+        <div class="staff-field">
+          <label for="bizPhone">Téléphone</label>
+          <input type="text" id="bizPhone" placeholder="ex: 6XX XXX XXX" />
+        </div>
+        <div class="staff-field">
+          <label for="bizEmail">Email</label>
+          <input type="email" id="bizEmail" placeholder="ex: contact@nyokon.com" />
+        </div>
+        <button type="submit" class="staff-btn" id="bizSettingsBtn">Enregistrer</button>
+        <div class="staff-error" id="bizSettingsError"></div>
       </form>
     </div>
 
@@ -598,8 +720,27 @@
         <div class="staff-card" id="ordersList"></div>
       </section>
 
+      <section class="staff-panel" data-panel="clients">
+        <h1 class="staff-title">Clients</h1>
+        <p class="staff-sub">Tous les clients qui ont déjà passé commande — coordonnées, historique et points de fidélité au même endroit.</p>
+        <input type="text" class="client-search" id="clientSearch" placeholder="Rechercher un nom ou un numéro…" />
+        <div class="staff-card" id="clientsList"></div>
+      </section>
+
     </main>
   </div>
+</div>
+
+<div id="printSheet">
+  <div class="print-header">
+    <img src="assets/nyokon-wordmark.png" alt="" class="print-logo" id="printLogo" />
+    <div>
+      <div class="print-biz-name" id="printBizName">nyøkøn</div>
+      <div class="print-biz-meta" id="printBizMeta"></div>
+    </div>
+  </div>
+  <div id="printBody"></div>
+  <div class="print-footer" id="printFooter"></div>
 </div>
 
 <script>
@@ -622,6 +763,178 @@ const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_UR
 const XOF_RATE = 600;
 function usdToXof(usd){ return usd == null || usd === '' ? '' : Math.round(usd * XOF_RATE); }
 function xofToUsd(xof){ return xof / XOF_RATE; }
+
+// Company info shown on printable PDF statistics and customer invoices —
+// stored in the same key/value `settings` table as the payment numbers,
+// editable from the Paiement panel below.
+let bizSettings = { biz_name: 'nyøkøn', biz_address: '', biz_phone: '', biz_email: '' };
+async function loadBizSettings(){
+  const { data } = await sb.from('settings').select('key,value').in('key', ['biz_name', 'biz_address', 'biz_phone', 'biz_email']);
+  (data || []).forEach(r => { if (r.value) bizSettings[r.key] = r.value; });
+  document.getElementById('bizName').value = bizSettings.biz_name === 'nyøkøn' ? '' : bizSettings.biz_name;
+  document.getElementById('bizAddress').value = bizSettings.biz_address;
+  document.getElementById('bizPhone').value = bizSettings.biz_phone;
+  document.getElementById('bizEmail').value = bizSettings.biz_email;
+  document.getElementById('printBizName').textContent = bizSettings.biz_name || 'nyøkøn';
+}
+
+// Printable statistics report and customer invoices — both just fill in
+// #printSheet then call window.print(), so "PDF" is whatever the browser's
+// own print dialog offers ("Enregistrer en PDF" / "Save as PDF"), with no
+// PDF library needed at all.
+function printBizMetaLine(){
+  return [bizSettings.biz_address, bizSettings.biz_phone, bizSettings.biz_email].filter(Boolean).join(' · ');
+}
+function doPrint(){
+  document.getElementById('printBizMeta').textContent = printBizMetaLine();
+  window.print();
+}
+
+async function printStats(){
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const { data } = await sb.from('orders').select('status,subtotal,currency,payment_method,created_at').gte('created_at', since.toISOString());
+  const orders = data || [];
+  const revenueStatuses = new Set(['confirmed', 'shipped', 'delivered']);
+  const revenueOrders = orders.filter(o => revenueStatuses.has(o.status));
+  const totalRevenueXOF = revenueOrders.reduce((sum, o) => sum + toXOF(o.subtotal, o.currency), 0);
+  const avgBasketXOF = revenueOrders.length ? totalRevenueXOF / revenueOrders.length : 0;
+  const pendingCount = orders.filter(o => o.status === 'pending').length;
+  const cancelledCount = orders.filter(o => o.status === 'cancelled').length;
+
+  const statusCounts = {};
+  orders.forEach(o => { statusCounts[o.status] = (statusCounts[o.status] || 0) + 1; });
+  const paymentCounts = {};
+  orders.forEach(o => { paymentCounts[o.payment_method] = (paymentCounts[o.payment_method] || 0) + 1; });
+
+  document.getElementById('printBody').innerHTML = `
+    <div class="print-doc-title">Rapport statistique</div>
+    <div class="print-doc-sub">30 derniers jours — généré le ${new Date().toLocaleString('fr-FR', { dateStyle:'long', timeStyle:'short' })}</div>
+    <div class="print-kpi-row">
+      <div class="print-kpi"><div class="print-kpi-label">Chiffre d'affaires</div><div class="print-kpi-value">${formatXOF(totalRevenueXOF)}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Commandes</div><div class="print-kpi-value">${orders.length}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Panier moyen</div><div class="print-kpi-value">${formatXOF(avgBasketXOF)}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">En attente</div><div class="print-kpi-value">${pendingCount}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Annulées</div><div class="print-kpi-value">${cancelledCount}</div></div>
+    </div>
+    <div class="print-section-title">Commandes par statut</div>
+    <table class="print-table">
+      <tr><th>Statut</th><th class="num">Commandes</th></tr>
+      ${STATUS_OPTIONS.map(([v, l]) => `<tr><td>${l}</td><td class="num">${statusCounts[v] || 0}</td></tr>`).join('')}
+    </table>
+    <div class="print-section-title">Répartition des paiements</div>
+    <table class="print-table">
+      <tr><th>Mode de paiement</th><th class="num">Commandes</th></tr>
+      ${Object.keys(paymentCounts).map(m => `<tr><td>${PAYMENT_LABELS[m] || m}</td><td class="num">${paymentCounts[m]}</td></tr>`).join('')}
+    </table>
+  `;
+  document.getElementById('printFooter').textContent = 'nyøkøn — rapport généré automatiquement depuis l’espace staff.';
+  doPrint();
+}
+
+function printInvoice(order){
+  const itemsRows = (order.items || []).map(i => {
+    const variant = [i.color, i.size].filter(Boolean).join(', ');
+    const lineTotal = (i.price * i.qty).toLocaleString('fr-FR');
+    return `<tr><td>${i.name}${variant ? ' — ' + variant : ''}</td><td class="num">${i.qty}</td><td class="num">${i.price.toLocaleString('fr-FR')} ${order.currency}</td><td class="num">${lineTotal} ${order.currency}</td></tr>`;
+  }).join('');
+  document.getElementById('printBody').innerHTML = `
+    <div class="print-doc-title">Facture — Commande N° ${order.ref}</div>
+    <div class="print-doc-sub">Passée le ${new Date(order.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })} — Statut : ${(STATUS_OPTIONS.find(s => s[0] === order.status) || [,order.status])[1]}</div>
+    <div class="print-kpi-row">
+      <div class="print-kpi"><div class="print-kpi-label">Client</div><div class="print-kpi-value" style="font-size:14px;">${order.customer_name}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Téléphone</div><div class="print-kpi-value" style="font-size:14px;">${order.customer_phone}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Livraison</div><div class="print-kpi-value" style="font-size:14px;">${order.fulfillment === 'delivery' ? 'Livraison' : 'Retrait'}${order.city ? ' — ' + order.city : ''}</div></div>
+    </div>
+    ${order.address ? `<div class="print-doc-sub">Adresse : ${order.address}</div>` : ''}
+    <table class="print-table">
+      <tr><th>Article</th><th class="num">Qté</th><th class="num">Prix unitaire</th><th class="num">Total</th></tr>
+      ${itemsRows}
+      <tr class="print-total-row"><td colspan="3">Total (${PAYMENT_LABELS[order.payment_method] || order.payment_method})</td><td class="num">${Number(order.subtotal).toLocaleString('fr-FR')} ${order.currency}</td></tr>
+    </table>
+  `;
+  document.getElementById('printFooter').textContent = `Facture générée le ${new Date().toLocaleDateString('fr-FR')} — merci de votre confiance.`;
+  doPrint();
+}
+
+// New-order alerts: a poll (works everywhere, no setup) plus an optional
+// Supabase Realtime subscription for near-instant delivery once the
+// schema's `alter publication supabase_realtime add table orders` has
+// been run — if that channel never fires, the poll still catches it.
+const ORDER_SEEN_KEY = 'nyokon_staff_last_order_seen';
+let latestKnownOrderTime = localStorage.getItem(ORDER_SEEN_KEY) || new Date(0).toISOString();
+let unseenOrderCount = 0;
+let orderAlertsStarted = false;
+
+function updateOrdersBadge(){
+  const badge = document.getElementById('ordersNavBadge');
+  if (!badge) return;
+  if (unseenOrderCount > 0) {
+    badge.textContent = unseenOrderCount > 9 ? '9+' : String(unseenOrderCount);
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+function markOrdersSeen(){
+  unseenOrderCount = 0;
+  updateOrdersBadge();
+  try { localStorage.setItem(ORDER_SEEN_KEY, latestKnownOrderTime); } catch (e) {}
+}
+function playNotifSound(){
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 880;
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.16, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    o.start(); o.stop(ctx.currentTime + 0.5);
+  } catch (e) {}
+}
+function showOrderToast(order){
+  const stack = document.getElementById('staffToastStack');
+  if (!stack) return;
+  const el = document.createElement('div');
+  el.className = 'staff-toast';
+  el.innerHTML = `<b>Nouvelle commande</b><br>${order.ref} — ${Number(order.subtotal).toLocaleString('fr-FR')} ${order.currency}`;
+  el.addEventListener('click', () => { showPanel('orders'); el.remove(); });
+  stack.appendChild(el);
+  setTimeout(() => el.remove(), 9000);
+}
+async function checkForNewOrders(isInitial){
+  if (!sb) return;
+  const { data } = await sb
+    .from('orders')
+    .select('id,ref,subtotal,currency,created_at')
+    .gt('created_at', latestKnownOrderTime)
+    .order('created_at', { ascending: true });
+  if (!data || !data.length) return;
+  latestKnownOrderTime = data[data.length - 1].created_at;
+  unseenOrderCount += data.length;
+  updateOrdersBadge();
+  if (!isInitial) {
+    data.forEach(showOrderToast);
+    playNotifSound();
+    if (window.Notification && Notification.permission === 'granted') {
+      data.forEach(o => {
+        try { new Notification('nyøkøn — nouvelle commande', { body: `${o.ref} — ${Number(o.subtotal).toLocaleString('fr-FR')} ${o.currency}` }); } catch (e) {}
+      });
+    }
+    renderOrders();
+    renderStats();
+  }
+}
+function startOrderAlerts(){
+  if (orderAlertsStarted || !sb) return;
+  orderAlertsStarted = true;
+  checkForNewOrders(true);
+  setInterval(() => checkForNewOrders(false), 45000);
+  try {
+    sb.channel('staff-orders-alerts')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, () => checkForNewOrders(false))
+      .subscribe();
+  } catch (e) {}
+}
 
 const SLOTS = [
   { slot: 'hero', label: 'Hero (page d’accueil)' },
@@ -651,10 +964,13 @@ function showDashboard(){
   renderProductsStaff();
   loadPaymentSettings();
   loadLoyaltySettings();
+  loadBizSettings();
   renderPromotions();
   renderBestSellers();
   renderOrders();
   renderStats();
+  renderCustomers();
+  startOrderAlerts();
 }
 function showLogin(){
   loginWrap.style.display = 'block';
@@ -664,6 +980,7 @@ function showLogin(){
 function showPanel(name){
   document.querySelectorAll('.staff-panel').forEach(p => p.classList.toggle('is-active', p.dataset.panel === name));
   staffNav.querySelectorAll('.staff-nav-item').forEach(b => b.classList.toggle('is-active', b.dataset.panel === name));
+  if (name === 'orders') markOrdersSeen();
 }
 staffNav.querySelectorAll('.staff-nav-item').forEach(btn => {
   btn.addEventListener('click', () => showPanel(btn.dataset.panel));
@@ -1023,17 +1340,7 @@ newProductForm.addEventListener('submit', async (e) => {
     if (costVal) {
       await sb.from('product_costs').upsert({ product_id: id, cost_price: xofToUsd(parseFloat(costVal)) });
     }
-    newProductForm.reset();
-    npKidsGroupField.style.display = 'none';
-    npColorRows.innerHTML = '';
-    addColorRow(npColorRows);
-    syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField);
-    npMaterial.innerHTML = selectOptionsHTML(MATERIAL_OPTIONS, '', true);
-    npCare.innerHTML = selectOptionsHTML(CARE_OPTIONS, '', true);
-    npOrigin.innerHTML = selectOptionsHTML(ORIGIN_OPTIONS, DEFAULT_ORIGIN, false);
-    npDelivery.innerHTML = selectOptionsHTML(DELIVERY_OPTIONS, DEFAULT_DELIVERY, false);
-    [npMaterialOther, npCareOther, npOriginOther, npDeliveryOther].forEach(el => { el.style.display = 'none'; el.value = ''; });
-    refreshNpSizeChips();
+    resetNewProductForm();
     renderProductsStaff();
   } catch (err) {
     newProductError.textContent = 'Erreur : ' + (err.message || err);
@@ -1041,6 +1348,24 @@ newProductForm.addEventListener('submit', async (e) => {
     newProductBtn.disabled = false;
     newProductBtn.textContent = 'Ajouter le produit';
   }
+});
+
+function resetNewProductForm(){
+  newProductForm.reset();
+  npKidsGroupField.style.display = 'none';
+  npColorRows.innerHTML = '';
+  addColorRow(npColorRows);
+  syncTypeFields(npType, npFitField, npCareField, npVolumeField, npFamilyField, npConcentrationField);
+  npMaterial.innerHTML = selectOptionsHTML(MATERIAL_OPTIONS, '', true);
+  npCare.innerHTML = selectOptionsHTML(CARE_OPTIONS, '', true);
+  npOrigin.innerHTML = selectOptionsHTML(ORIGIN_OPTIONS, DEFAULT_ORIGIN, false);
+  npDelivery.innerHTML = selectOptionsHTML(DELIVERY_OPTIONS, DEFAULT_DELIVERY, false);
+  [npMaterialOther, npCareOther, npOriginOther, npDeliveryOther].forEach(el => { el.style.display = 'none'; el.value = ''; });
+  refreshNpSizeChips();
+  newProductError.textContent = '';
+}
+document.getElementById('resetProductFormBtn').addEventListener('click', () => {
+  if (confirm('Réinitialiser tous les champs du formulaire ?')) resetNewProductForm();
 });
 
 const PROD_MERCH_TAGS = [['nouveautes', 'Nouveautés'], ['tendance', 'Tendance'], ['promotions', 'Promotions'], ['coffrets', 'Coffrets Cadeaux']];
@@ -1389,6 +1714,38 @@ paymentSettingsForm.addEventListener('submit', async (e) => {
   }
 });
 
+const bizSettingsForm = document.getElementById('bizSettingsForm');
+const bizSettingsBtn = document.getElementById('bizSettingsBtn');
+const bizSettingsError = document.getElementById('bizSettingsError');
+bizSettingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  bizSettingsError.textContent = '';
+  bizSettingsBtn.disabled = true;
+  bizSettingsBtn.textContent = 'Enregistrement…';
+  try {
+    const name = document.getElementById('bizName').value.trim() || 'nyøkøn';
+    const address = document.getElementById('bizAddress').value.trim();
+    const phone = document.getElementById('bizPhone').value.trim();
+    const email = document.getElementById('bizEmail').value.trim();
+    const { error } = await sb.from('settings').upsert([
+      { key: 'biz_name', value: name },
+      { key: 'biz_address', value: address },
+      { key: 'biz_phone', value: phone },
+      { key: 'biz_email', value: email },
+    ]);
+    if (error) throw error;
+    bizSettings = { biz_name: name, biz_address: address, biz_phone: phone, biz_email: email };
+    document.getElementById('printBizName').textContent = name;
+    bizSettingsBtn.textContent = 'Enregistré ✓';
+  } catch (err) {
+    bizSettingsError.textContent = 'Erreur : ' + (err.message || err);
+    bizSettingsBtn.textContent = 'Enregistrer';
+  } finally {
+    bizSettingsBtn.disabled = false;
+    setTimeout(() => { bizSettingsBtn.textContent = 'Enregistrer'; }, 2000);
+  }
+});
+
 const loyaltySettingsForm = document.getElementById('loyaltySettingsForm');
 const loyaltySettingsBtn = document.getElementById('loyaltySettingsBtn');
 const loyaltySettingsError = document.getElementById('loyaltySettingsError');
@@ -1681,6 +2038,8 @@ const STATUS_OPTIONS = [
   ['cancelled', 'Annulée'],
 ];
 
+let ordersCache = [];
+
 async function renderOrders(){
   const { data: orders, error } = await sb
     .from('orders')
@@ -1688,9 +2047,11 @@ async function renderOrders(){
     .order('created_at', { ascending: false })
     .limit(30);
   if (error || !orders || !orders.length) {
+    ordersCache = [];
     ordersList.innerHTML = '<p class="staff-empty">Aucune commande pour l’instant.</p>';
     return;
   }
+  ordersCache = orders;
   ordersList.innerHTML = '';
   orders.forEach(order => {
     const row = document.createElement('div');
@@ -1710,6 +2071,7 @@ async function renderOrders(){
         <select class="order-status" data-id="${order.id}">
           ${STATUS_OPTIONS.map(([v, l]) => `<option value="${v}" ${v === order.status ? 'selected' : ''}>${l}</option>`).join('')}
         </select>
+        <button type="button" class="order-receipt-link order-invoice-link" data-id="${order.id}">Facture</button>
         ${order.receipt_path ? `<button type="button" class="order-receipt-link" data-path="${order.receipt_path}">Voir le reçu</button>` : ''}
       </div>
     `;
@@ -1721,14 +2083,74 @@ async function renderOrders(){
       await sb.from('orders').update({ status: select.value }).eq('id', select.dataset.id);
     });
   });
-  ordersList.querySelectorAll('.order-receipt-link').forEach(btn => {
+  ordersList.querySelectorAll('.order-receipt-link[data-path]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const { data, error: signError } = await sb.storage.from('order-receipts').createSignedUrl(btn.dataset.path, 300);
       if (signError || !data) { alert('Impossible d’ouvrir le reçu.'); return; }
       window.open(data.signedUrl, '_blank');
     });
   });
+  ordersList.querySelectorAll('.order-invoice-link').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const order = ordersCache.find(o => o.id === btn.dataset.id);
+      if (order) printInvoice(order);
+    });
+  });
 }
+
+document.getElementById('printStatsBtn').addEventListener('click', printStats);
+
+const notifPermBtn = document.getElementById('notifPermBtn');
+const notifPermLabel = document.getElementById('notifPermLabel');
+function refreshNotifPermLabel(){
+  if (!window.Notification) { notifPermBtn.style.display = 'none'; return; }
+  const granted = Notification.permission === 'granted';
+  notifPermLabel.textContent = granted ? 'Alertes ON' : 'Alertes';
+  notifPermBtn.classList.toggle('is-armed', granted);
+}
+notifPermBtn.addEventListener('click', async () => {
+  if (!window.Notification) return;
+  if (Notification.permission === 'default') await Notification.requestPermission();
+  refreshNotifPermLabel();
+});
+refreshNotifPermLabel();
+
+// Clients: every phone number that has ever ordered, kept up to date by
+// the orders_upsert_customer trigger in supabase-schema.sql (any status,
+// not just confirmed) — one organized directory instead of the old
+// one-phone-at-a-time lookup in the Fidélité panel.
+let customersCache = [];
+const clientsList = document.getElementById('clientsList');
+function renderClientRows(rows){
+  if (!rows.length) {
+    clientsList.innerHTML = '<p class="staff-empty">Aucun client trouvé.</p>';
+    return;
+  }
+  clientsList.innerHTML = rows.map(c => `
+    <div class="client-row">
+      <div>
+        <div class="client-name">${c.name || 'Sans nom'}</div>
+        <div class="client-meta">${c.phone}${c.city ? ' — ' + c.city : ''}${c.address ? ' — ' + c.address : ''}</div>
+      </div>
+      <div class="client-stats">
+        <div class="client-stat"><div class="client-stat-value">${c.orders_count || 0}</div><div class="client-stat-label">Commandes</div></div>
+        <div class="client-stat"><div class="client-stat-value">${c.points || 0}</div><div class="client-stat-label">Points</div></div>
+        <div class="client-stat"><div class="client-stat-value">${c.last_order_at ? new Date(c.last_order_at).toLocaleDateString('fr-FR') : '—'}</div><div class="client-stat-label">Dernière commande</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+async function renderCustomers(){
+  const { data, error } = await sb.from('customers').select('*').order('last_order_at', { ascending: false });
+  if (error || !data) { clientsList.innerHTML = '<p class="staff-empty">Impossible de charger les clients.</p>'; return; }
+  customersCache = data;
+  renderClientRows(customersCache);
+}
+document.getElementById('clientSearch').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) { renderClientRows(customersCache); return; }
+  renderClientRows(customersCache.filter(c => (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)));
+});
 
 (async function init(){
   if (!sb) { showLogin(); return; }

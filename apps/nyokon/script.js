@@ -805,8 +805,10 @@ quickAddSubmitBtn.addEventListener('click', () => {
       return;
     }
     try {
-      const { data } = await sb.from('customers').select('points').eq('phone', phone).maybeSingle();
-      const points = (data && data.points) || 0;
+      // customers is staff-only to read directly (it now carries address/
+      // city too) — this RPC exposes just the points count for one phone.
+      const { data } = await sb.rpc('get_loyalty_points', { p_phone: phone });
+      const points = data || 0;
       const pointValue = parseFloat(paymentSettings.loyalty_point_value) || 10;
       const pointsWorth = Math.round(points * pointValue);
       const total = cartTotalInCurrentCurrency();

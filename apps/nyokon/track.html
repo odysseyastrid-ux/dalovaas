@@ -14,6 +14,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=5" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  /* Printable invoice sheet — hidden on screen, revealed only inside
+     @media print (everything else hidden), so "PDF" is just the
+     browser's own print dialog ("Save as PDF") — no library needed. */
+  #printSheet{display:none;}
+  .print-header{display:flex;align-items:center;gap:16px;border-bottom:3px solid #0b0b0c;padding-bottom:16px;margin-bottom:24px;}
+  .print-logo{height:40px;width:auto;}
+  .print-biz-name{font-family:'Archivo Black',sans-serif;font-size:20px;}
+  .print-biz-meta{font-size:12px;color:#555;margin-top:2px;line-height:1.5;}
+  .print-doc-title{font-size:22px;font-weight:800;margin:18px 0 2px;}
+  .print-doc-sub{font-size:12.5px;color:#555;margin-bottom:22px;}
+  .print-kpi-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:22px;}
+  .print-kpi{border:1px solid #ddd;border-radius:10px;padding:12px 18px;}
+  .print-kpi-label{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em;}
+  .print-kpi-value{font-size:14px;font-weight:800;margin-top:3px;}
+  .print-table{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:13px;}
+  .print-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#666;border-bottom:2px solid #0b0b0c;padding:6px 8px;}
+  .print-table td{padding:8px;border-bottom:1px solid #ddd;}
+  .print-table td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .print-total-row td{font-weight:800;border-top:2px solid #0b0b0c;border-bottom:none;}
+  .print-footer{margin-top:30px;font-size:11px;color:#888;}
+  @media print{
+    html,body{background:#fff!important;}
+    body > *:not(#printSheet){display:none!important;}
+    #printSheet{display:block!important;color:#0b0b0c;background:#fff;padding:0;font-family:Arial,Helvetica,sans-serif;}
+    @page{margin:16mm;}
+  }
+</style>
 </head>
 <body>
 
@@ -24,6 +52,18 @@
 </header>
 
 <main class="track" id="trackRoot"></main>
+
+<div id="printSheet">
+  <div class="print-header">
+    <img src="assets/nyokon-wordmark.png" alt="" class="print-logo" id="printLogo" />
+    <div>
+      <div class="print-biz-name" id="printBizName">nyøkøn</div>
+      <div class="print-biz-meta" id="printBizMeta"></div>
+    </div>
+  </div>
+  <div id="printBody"></div>
+  <div class="print-footer" id="printFooter"></div>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
@@ -50,6 +90,10 @@ const T = {
     step_pending:'Received', step_confirmed:'Confirmed', step_shipped:'Out for delivery', step_delivered:'Delivered',
     status_cancelled:'This order was cancelled — contact us if you have questions.',
     live_note:'This page updates automatically — no need to refresh.',
+    print_invoice:'Print invoice', invoice_title:'Invoice — Order No.', invoice_placed:'Placed on', invoice_status:'Status',
+    invoice_customer:'Customer', invoice_phone:'Phone', invoice_fulfillment:'Fulfillment', invoice_address:'Address',
+    invoice_item:'Item', invoice_qty:'Qty', invoice_unit_price:'Unit price', invoice_total:'Total',
+    invoice_footer:'Invoice generated on', invoice_thanks:'thank you for your order.',
   },
   fr: {
     back:'RETOUR', title:'SUIVRE MA COMMANDE',
@@ -62,6 +106,10 @@ const T = {
     step_pending:'Reçue', step_confirmed:'Confirmée', step_shipped:'En livraison', step_delivered:'Livrée',
     status_cancelled:'Cette commande a été annulée — contacte-nous si tu as des questions.',
     live_note:'Cette page se met à jour automatiquement — pas besoin de rafraîchir.',
+    print_invoice:'Imprimer la facture', invoice_title:'Facture — Commande N°', invoice_placed:'Passée le', invoice_status:'Statut',
+    invoice_customer:'Client', invoice_phone:'Téléphone', invoice_fulfillment:'Récupération', invoice_address:'Adresse',
+    invoice_item:'Article', invoice_qty:'Qté', invoice_unit_price:'Prix unitaire', invoice_total:'Total',
+    invoice_footer:'Facture générée le', invoice_thanks:'merci de ta confiance.',
   },
 };
 function t(key){ return T[currentLang][key] || T.en[key] || key; }
@@ -123,6 +171,46 @@ async function fetchOrder(ref){
   } catch (e) { return null; }
 }
 
+// Business info for the printable invoice — public settings table, same
+// one staff.html edits under Paiement → Informations de l'entreprise.
+let bizSettings = { biz_name: 'nyøkøn', biz_address: '', biz_phone: '', biz_email: '' };
+async function loadBizSettings(){
+  if (!sb) return;
+  try {
+    const { data } = await sb.from('settings').select('key,value').in('key', ['biz_name', 'biz_address', 'biz_phone', 'biz_email']);
+    (data || []).forEach(r => { if (r.value) bizSettings[r.key] = r.value; });
+  } catch (e) {}
+}
+loadBizSettings();
+
+function printInvoice(order){
+  document.getElementById('printBizName').textContent = bizSettings.biz_name || 'nyøkøn';
+  document.getElementById('printBizMeta').textContent = [bizSettings.biz_address, bizSettings.biz_phone, bizSettings.biz_email].filter(Boolean).join(' · ');
+  const statusLabel = order.status === 'cancelled' ? t('status_cancelled') : t('step_' + order.status);
+  const placedDate = new Date(order.created_at).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { day:'numeric', month:'long', year:'numeric' });
+  const itemsRows = (order.items || []).map(i => {
+    const variant = [i.color, i.size].filter(Boolean).join(', ');
+    return `<tr><td>${i.name}${variant ? ' — ' + variant : ''}</td><td class="num">${i.qty}</td><td class="num">${money(i.price, order.currency)}</td><td class="num">${money(i.price * i.qty, order.currency)}</td></tr>`;
+  }).join('');
+  document.getElementById('printBody').innerHTML = `
+    <div class="print-doc-title">${t('invoice_title')} ${order.ref}</div>
+    <div class="print-doc-sub">${t('invoice_placed')} ${placedDate} — ${t('invoice_status')} : ${statusLabel}</div>
+    <div class="print-kpi-row">
+      ${order.customer_name ? `<div class="print-kpi"><div class="print-kpi-label">${t('invoice_customer')}</div><div class="print-kpi-value">${order.customer_name}</div></div>` : ''}
+      ${order.customer_phone ? `<div class="print-kpi"><div class="print-kpi-label">${t('invoice_phone')}</div><div class="print-kpi-value">${order.customer_phone}</div></div>` : ''}
+      <div class="print-kpi"><div class="print-kpi-label">${t('invoice_fulfillment')}</div><div class="print-kpi-value">${order.fulfillment === 'delivery' ? t('delivery') : t('pickup')}${order.city ? ' — ' + order.city : ''}</div></div>
+    </div>
+    ${order.address ? `<div class="print-doc-sub">${t('invoice_address')} : ${order.address}</div>` : ''}
+    <table class="print-table">
+      <tr><th>${t('invoice_item')}</th><th class="num">${t('invoice_qty')}</th><th class="num">${t('invoice_unit_price')}</th><th class="num">${t('invoice_total')}</th></tr>
+      ${itemsRows}
+      <tr class="print-total-row"><td colspan="3">${t('subtotal_label')}</td><td class="num">${money(order.subtotal, order.currency)}</td></tr>
+    </table>
+  `;
+  document.getElementById('printFooter').textContent = `${t('invoice_footer')} ${new Date().toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US')} — ${t('invoice_thanks')}`;
+  window.print();
+}
+
 function renderOrder(order){
   const root = document.getElementById('trackRoot');
   const cancelled = order.status === 'cancelled';
@@ -167,6 +255,7 @@ function renderOrder(order){
         </div>
       </div>
       <p class="track-live-note">${t('live_note')}</p>
+      ${cancelled ? '' : `<button type="button" class="track-another" id="printInvoiceBtn" style="margin-bottom:10px;">${t('print_invoice')}</button>`}
       <button type="button" class="track-another" id="trackAnotherBtn">${t('check_another')}</button>
     </div>
   `;
@@ -174,6 +263,8 @@ function renderOrder(order){
     history.replaceState(null, '', 'track.html');
     renderForm();
   });
+  const printBtn = document.getElementById('printInvoiceBtn');
+  if (printBtn) printBtn.addEventListener('click', () => printInvoice(order));
 }
 
 async function loadOrder(ref){

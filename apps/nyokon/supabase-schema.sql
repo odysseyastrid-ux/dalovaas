@@ -601,23 +601,30 @@ alter table public.products add column if not exists delivery_estimate text;
 -- orders, so a customer can look up their own order by ref without
 -- exposing every order (or another customer's phone number/address)
 -- to anyone with the anon key.
-create or replace function public.get_order_status(p_ref text)
+-- Dropped first because a plain CREATE OR REPLACE cannot change an
+-- existing function's return columns (adding customer_name/phone/address
+-- below, for the printable customer invoice on track.html).
+drop function if exists public.get_order_status(text);
+create function public.get_order_status(p_ref text)
 returns table (
   ref text,
   status text,
   fulfillment text,
   city text,
+  address text,
   items jsonb,
   subtotal numeric,
   currency text,
   payment_method text,
-  created_at timestamptz
+  created_at timestamptz,
+  customer_name text,
+  customer_phone text
 )
 language sql
 security definer
 set search_path = public
 as $$
-  select o.ref, o.status, o.fulfillment, o.city, o.items, o.subtotal, o.currency, o.payment_method, o.created_at
+  select o.ref, o.status, o.fulfillment, o.city, o.address, o.items, o.subtotal, o.currency, o.payment_method, o.created_at, o.customer_name, o.customer_phone
   from public.orders o
   where o.ref = p_ref;
 $$;
@@ -640,3 +647,103 @@ create policy orders_select_own
   on public.orders for select
   to authenticated
   using (user_id = auth.uid());
+
+-- Company info shown on printable PDF statistics and customer invoices
+-- (logo comes from assets/nyokon-wordmark.png directly, not stored here).
+insert into public.settings (key, value) values
+  ('biz_name', 'nyøkøn'),
+  ('biz_address', ''),
+  ('biz_phone', ''),
+  ('biz_email', '')
+on conflict (key) do nothing;
+
+-- Full customer directory: every order (any status, not just confirmed —
+-- unlike loyalty points below) records/refreshes that customer's contact
+-- info, so staff has one organized "Clients" list instead of only being
+-- able to look a single phone number up at a time.
+alter table public.customers add column if not exists address text;
+alter table public.customers add column if not exists city text;
+alter table public.customers add column if not exists orders_count integer not null default 0;
+alter table public.customers add column if not exists last_order_at timestamptz;
+
+-- customers used to be publicly readable (to check a points balance at
+-- checkout) — now that it carries address/city too, that would leak
+-- every customer's contact info to anyone with the anon key. Lock reads
+-- to staff, and replace the checkout balance check with a narrow
+-- security-definer RPC that returns only a points number for one phone.
+drop policy if exists customers_select_public on public.customers;
+drop policy if exists customers_select_staff on public.customers;
+create policy customers_select_staff
+  on public.customers for select
+  to authenticated
+  using (public.is_staff());
+
+create or replace function public.get_loyalty_points(p_phone text)
+returns integer
+language sql
+security definer
+set search_path = public
+as $$
+  select coalesce((select points from public.customers where phone = p_phone), 0);
+$$;
+
+revoke all on function public.get_loyalty_points(text) from public;
+grant execute on function public.get_loyalty_points(text) to anon, authenticated;
+
+create or replace function public.upsert_customer_from_order()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.customers (phone, name, address, city, orders_count, last_order_at, updated_at)
+  values (new.customer_phone, new.customer_name, new.address, new.city, 1, new.created_at, now())
+  on conflict (phone) do update
+    set name = coalesce(excluded.name, public.customers.name),
+        address = coalesce(excluded.address, public.customers.address),
+        city = coalesce(excluded.city, public.customers.city),
+        orders_count = public.customers.orders_count + 1,
+        last_order_at = excluded.last_order_at,
+        updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists orders_upsert_customer on public.orders;
+create trigger orders_upsert_customer
+  after insert on public.orders
+  for each row
+  execute function public.upsert_customer_from_order();
+
+-- One-time backfill for orders placed before this trigger existed.
+-- Safe to re-run: orders_count/last_order_at are merged with greatest(),
+-- never added on top of what the trigger already counted.
+insert into public.customers (phone, name, address, city, orders_count, last_order_at, updated_at)
+select
+  o.customer_phone,
+  (array_agg(o.customer_name order by o.created_at desc))[1],
+  (array_agg(o.address order by o.created_at desc) filter (where o.address is not null))[1],
+  (array_agg(o.city order by o.created_at desc) filter (where o.city is not null))[1],
+  count(*),
+  max(o.created_at),
+  now()
+from public.orders o
+group by o.customer_phone
+on conflict (phone) do update
+  set name = coalesce(public.customers.name, excluded.name),
+      address = coalesce(public.customers.address, excluded.address),
+      city = coalesce(public.customers.city, excluded.city),
+      orders_count = greatest(public.customers.orders_count, excluded.orders_count),
+      last_order_at = greatest(public.customers.last_order_at, excluded.last_order_at);
+
+-- New-order notification alarms in staff.html: lets the dashboard get an
+-- instant push via Supabase Realtime instead of only relying on its
+-- polling fallback. Idempotent — adding a table twice to the same
+-- publication errors, so this ignores that one case.
+do $$
+begin
+  alter publication supabase_realtime add table public.orders;
+exception
+  when duplicate_object then null;
+end $$;

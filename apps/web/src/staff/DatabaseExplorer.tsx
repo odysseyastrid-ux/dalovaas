@@ -95,6 +95,14 @@ export function DatabaseExplorer() {
 
   const products = useMemo(() => productStats(orders), [orders])
   const customers = useMemo(() => customerStats(orders, accountsByEmail), [orders, accountsByEmail])
+  const reviews = useMemo(
+    () =>
+      realOrders(orders)
+        .filter((o) => o.reviewed_at)
+        .sort((a, b) => (b.reviewed_at ?? '').localeCompare(a.reviewed_at ?? '')),
+    [orders],
+  )
+  const avgRating = reviews.length > 0 ? reviews.reduce((sum, o) => sum + (o.rating ?? 0), 0) / reviews.length : null
 
   const exportProducts = () => {
     if (products.length === 0) {
@@ -352,6 +360,38 @@ export function DatabaseExplorer() {
             </div>
           ))}
           {customers.length === 0 && <div className="text-xs text-[var(--color-ink)]/50">Aucune donnée pour l'instant.</div>}
+        </div>
+      </div>
+
+      <div className="mb-6 rounded-xl border border-[var(--color-divider)] bg-white p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-sm font-bold">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" className="text-[var(--color-accent)]">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            Avis clients
+          </div>
+          {avgRating != null && <div className="text-xs text-[var(--color-ink)]/60">{avgRating.toFixed(1)} / 5 · {reviews.length} avis</div>}
+        </div>
+        <div className="flex flex-col gap-3">
+          {reviews.slice(0, 20).map((o) => (
+            <div key={o.ref} className="border-b border-[var(--color-divider)] pb-2.5 text-xs last:border-0 last:pb-0">
+              <div className="mb-1 flex items-center justify-between">
+                <div className="flex gap-0.5 text-[var(--color-accent)]">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <svg key={n} width="12" height="12" viewBox="0 0 24 24" fill={n <= (o.rating ?? 0) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.75">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-[var(--color-ink)]/50">
+                  {o.customer_name || o.customer_phone} · {new Date(o.reviewed_at as string).toLocaleDateString('fr-FR')}
+                </span>
+              </div>
+              {o.review_comment && <div className="text-[var(--color-ink)]/70">{o.review_comment}</div>}
+            </div>
+          ))}
+          {reviews.length === 0 && <div className="text-xs text-[var(--color-ink)]/50">Aucun avis pour l'instant.</div>}
         </div>
       </div>
 

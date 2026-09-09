@@ -21,6 +21,10 @@ export function TrackingScreen() {
   const [now, setNow] = useState(Date.now())
   const [uploadingProof, setUploadingProof] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [ratingChoice, setRatingChoice] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [reviewComment, setReviewComment] = useState('')
+  const [submittingReview, setSubmittingReview] = useState(false)
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000)
@@ -89,6 +93,22 @@ export function TrackingScreen() {
       return
     }
     showToast(lang === 'fr' ? 'Preuve envoyée' : 'Proof uploaded')
+  }
+
+  const submitReview = async () => {
+    if (ratingChoice < 1) return
+    setSubmittingReview(true)
+    const { error } = await supabase.rpc('submit_order_review', {
+      p_ref: order.ref,
+      p_rating: ratingChoice,
+      p_comment: reviewComment.trim() || null,
+    })
+    setSubmittingReview(false)
+    if (error) {
+      showToast(error.message)
+      return
+    }
+    showToast(lang === 'fr' ? 'Merci ! +50 points ajoutés' : 'Thanks! +50 points added')
   }
 
   return (
@@ -238,6 +258,59 @@ export function TrackingScreen() {
                       ? 'Temps de trajet une fois la commande partie'
                       : 'Travel time once your order is on its way'}
                 </div>
+              </div>
+            )}
+            {order.order_status_index === 3 && (
+              <div className="mt-3 rounded-xl border border-[var(--color-divider)] bg-[var(--color-card)] p-4">
+                {order.reviewed_at ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-none gap-0.5 text-[var(--color-accent)]">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <svg key={n} width="16" height="16" viewBox="0 0 24 24" fill={n <= (order.rating ?? 0) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.75">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+                    <div className="text-xs text-[var(--color-ink)]/70">
+                      {lang === 'fr' ? 'Merci pour votre avis !' : 'Thanks for your review!'}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-1 [font-family:var(--font-heading)] text-sm font-bold">
+                      {lang === 'fr' ? 'Notez votre commande' : 'Rate your order'}
+                    </div>
+                    <div className="mb-3 text-xs text-[var(--color-ink)]/60">
+                      {lang === 'fr' ? 'Gagnez 50 points en laissant votre avis.' : 'Earn 50 points by leaving your review.'}
+                    </div>
+                    <div className="mb-3 flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setRatingChoice(n)}
+                          onMouseEnter={() => setHoverRating(n)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="text-[var(--color-accent)]"
+                        >
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill={n <= (hoverRating || ratingChoice) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder={lang === 'fr' ? 'Un commentaire (facultatif)' : 'A comment (optional)'}
+                      rows={2}
+                      className="mb-3 w-full rounded-lg border border-[var(--color-divider)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-accent)]"
+                    />
+                    <Button block disabled={ratingChoice < 1 || submittingReview} onClick={submitReview}>
+                      {submittingReview ? '…' : lang === 'fr' ? 'Envoyer mon avis' : 'Submit my review'}
+                    </Button>
+                  </>
+                )}
               </div>
             )}
           </>

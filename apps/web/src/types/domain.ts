@@ -98,6 +98,9 @@ export interface Order {
   validated_at: string | null
   ready_at: string | null
   delivered_at: string | null
+  rating: number | null
+  review_comment: string | null
+  reviewed_at: string | null
 }
 
 export interface Account {

@@ -22,7 +22,8 @@
   .staff-header a{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);}
   .staff-title{font-family:var(--font-display);font-size:clamp(28px,5vw,40px);margin-bottom:8px;}
   .staff-sub{color:var(--fg-dim);font-size:13px;margin-bottom:36px;}
-  .staff-card{border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+  .staff-card{border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:16px;}
+  #dashboard .staff-card{background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.04);}
   .staff-field{margin-bottom:16px;}
   .staff-field label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:8px;}
   .staff-field input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;color:var(--fg);font-family:inherit;font-size:14px;}
@@ -36,31 +37,57 @@
   /* Full-screen admin shell: fixed left nav + scrolling main panel area,
      replacing the old single centered column so the dashboard actually
      uses the width of a desktop screen and each area of the admin reads
-     as its own section instead of one long scroll. */
-  #dashboard{display:none;}
-  .staff-shell{display:flex;min-height:100vh;align-items:stretch;}
+     as its own section instead of one long scroll.
+
+     The dashboard runs its own light theme (card-based SaaS-admin look),
+     scoped to #dashboard only via a local override of the same custom
+     properties style.css defines on :root — every rule below still just
+     says var(--bg)/var(--fg)/etc, so this one block is the entire retheme.
+     The customer-facing pages (index/product/account/track) are untouched
+     and stay on the site's own dark theme. */
+  #dashboard{
+    display:none;
+    --bg:#f7f8fa; --bg-alt:#eef1f5; --fg:#14161a; --fg-dim:#6b7280;
+    --line:#e4e7ec; --accent-ink:#5a6b12; --invert-bg:#14161a; --invert-fg:#ffffff;
+    color-scheme:light;
+    /* body{color:var(--fg)} already resolved to the dark theme's white
+       before this element's own --fg override exists — CSS custom
+       properties are live per-subtree, but the *inherited* `color` value
+       a child receives is body's already-computed color, not a re-run of
+       var(--fg) in the child's own context. Re-declaring color here (using
+       the new local --fg) gives every plain-text descendant a correct
+       starting point to inherit from, instead of silently keeping body's
+       near-white text on this now-light background. */
+    background:var(--bg);
+    color:var(--fg);
+  }
+  .staff-shell{display:flex;min-height:100vh;align-items:stretch;background:var(--bg);}
   .staff-nav{
-    width:224px;flex-shrink:0;
-    border-right:1px solid var(--line);
-    padding:28px 14px;
-    display:flex;flex-direction:column;gap:2px;
+    width:88px;flex-shrink:0;
+    background:#0b0b0c;
+    padding:20px 10px;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
     position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
   }
   .staff-nav-brand{
-    font-family:var(--font-display);font-size:16px;padding:0 12px;margin-bottom:20px;
+    width:36px;height:36px;border-radius:10px;background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-size:14px;color:#0b0b0c;
+    margin-bottom:18px;flex-shrink:0;
   }
-  .staff-nav-brand span{display:block;font-family:var(--font-body);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--fg-dim);margin-top:2px;text-transform:uppercase;}
   .staff-nav-item{
-    display:block;width:100%;text-align:left;
-    padding:11px 12px;border-radius:var(--radius);
-    font-size:13px;font-weight:600;color:var(--fg-dim);
+    display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;
+    padding:10px 4px;border-radius:12px;
+    font-size:9px;font-weight:700;letter-spacing:.03em;color:#7a7a80;
     background:none;border:none;cursor:pointer;
   }
-  .staff-nav-item:hover{color:var(--fg);background:var(--bg-alt);}
-  .staff-nav-item.is-active{color:#0b0b0c;background:var(--accent);font-weight:700;}
+  .staff-nav-item svg{width:19px;height:19px;flex-shrink:0;}
+  .staff-nav-item:hover{color:#f5f4f0;background:#1c1c1f;}
+  .staff-nav-item.is-active{color:#0b0b0c;background:var(--accent);}
   .staff-nav-spacer{flex:1;}
-  .staff-nav-back{display:block;padding:11px 12px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);}
-  .staff-nav-back:hover{color:var(--fg);}
+  .staff-nav-back{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;font-size:9px;font-weight:700;color:#7a7a80;}
+  .staff-nav-back:hover{color:#f5f4f0;}
+  .staff-nav-back svg{width:18px;height:18px;}
 
   .staff-main{flex:1;min-width:0;padding:32px 40px 120px;max-width:1400px;}
   .staff-panel{display:none;}
@@ -72,28 +99,49 @@
     .staff-nav{
       width:100%;height:auto;position:static;
       flex-direction:row;overflow-x:auto;overflow-y:visible;
-      padding:14px 16px;gap:6px;border-right:none;border-bottom:1px solid var(--line);
+      padding:10px 12px;gap:2px;
     }
     .staff-nav-brand,.staff-nav-spacer{display:none;}
-    .staff-nav-item{white-space:nowrap;flex-shrink:0;}
-    .staff-nav-back{white-space:nowrap;flex-shrink:0;}
+    .staff-nav-item{white-space:nowrap;flex-shrink:0;flex-direction:row;font-size:11px;padding:9px 12px;}
+    .staff-nav-item svg{width:16px;height:16px;}
+    .staff-nav-back{white-space:nowrap;flex-shrink:0;flex-direction:row;}
     .staff-main{padding:24px 16px 100px;}
   }
 
   /* Stats dashboard */
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
-  .kpi-tile{border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
-  .kpi-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:10px;text-transform:uppercase;}
-  .kpi-value{font-family:var(--font-display);font-size:clamp(22px,2.6vw,30px);font-variant-numeric:tabular-nums;}
-  .chart-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px;}
+  .kpi-tile{background:var(--bg-alt);border-radius:16px;padding:20px;}
+  .kpi-label{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--fg-dim);margin-bottom:14px;}
+  .kpi-value{font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);font-variant-numeric:tabular-nums;}
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
   @media (max-width:1100px){.chart-grid{grid-template-columns:1fr;}}
-  .chart-card{border:1px solid var(--line);border-radius:var(--radius);padding:22px;}
-  .chart-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .chart-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 1px 2px rgba(16,24,40,.04);}
+  .chart-title{font-size:14px;font-weight:800;margin-bottom:4px;}
   .chart-sub{font-size:11px;color:var(--fg-dim);margin-bottom:18px;}
   .revenue-chart{display:flex;align-items:flex-end;gap:5px;height:160px;}
   .revenue-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
-  .revenue-bar{width:100%;max-width:26px;background:var(--accent);border-radius:2px 2px 0 0;min-height:2px;}
+  .revenue-bar{width:100%;max-width:26px;background:var(--fg);border-radius:3px 3px 0 0;min-height:2px;}
   .revenue-bar-day{font-size:9px;color:var(--fg-dim);white-space:nowrap;}
+
+  /* Funnel (order fulfillment: pending -> confirmed -> shipped -> delivered) */
+  .funnel-chart{display:flex;gap:20px;align-items:center;}
+  .funnel-shape{flex-shrink:0;}
+  .funnel-legend{display:flex;flex-direction:column;gap:10px;flex:1;}
+  .funnel-legend-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .funnel-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .funnel-legend-label{flex:1;color:var(--fg-dim);}
+  .funnel-legend-value{font-weight:700;font-variant-numeric:tabular-nums;}
+  .funnel-total{margin-top:16px;font-size:13px;color:var(--fg-dim);}
+  .funnel-total b{font-family:var(--font-display);font-size:16px;color:var(--fg);font-weight:400;}
+
+  /* Donut (payment method mix) */
+  .donut-chart{display:flex;gap:20px;align-items:center;}
+  .donut-legend{display:flex;flex-direction:column;gap:10px;flex:1;}
+  .donut-legend-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .donut-legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+  .donut-legend-label{flex:1;color:var(--fg-dim);}
+  .donut-legend-value{font-weight:700;font-variant-numeric:tabular-nums;}
+
   .status-chart{display:flex;flex-direction:column;gap:12px;}
   .status-bar-row{display:flex;align-items:center;gap:10px;}
   .status-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
@@ -115,8 +163,6 @@
   .slot-save{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;}
   .slot-save:hover{border-color:var(--fg);}
   .slot-save:disabled{opacity:.4;cursor:default;}
-  .signout{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);background:none;border:none;cursor:pointer;}
-  .signout:hover{color:var(--fg);}
   .staff-section-title{font-family:var(--font-display);font-size:22px;margin:44px 0 8px;}
   .order-row{padding:16px 0;border-top:1px solid var(--line);}
   .order-row:first-child{border-top:none;}
@@ -208,17 +254,44 @@
 <div id="dashboard">
   <div class="staff-shell">
     <nav class="staff-nav" id="staffNav">
-      <div class="staff-nav-brand">nyøkøn<span>Staff</span></div>
-      <button type="button" class="staff-nav-item" data-panel="stats">Tableau de bord</button>
-      <button type="button" class="staff-nav-item" data-panel="products">Produits</button>
-      <button type="button" class="staff-nav-item" data-panel="orders">Commandes</button>
-      <button type="button" class="staff-nav-item" data-panel="payment">Paiement</button>
-      <button type="button" class="staff-nav-item" data-panel="loyalty">Fidélité</button>
-      <button type="button" class="staff-nav-item" data-panel="promotions">Promotions</button>
-      <button type="button" class="staff-nav-item" data-panel="photos">Photos</button>
+      <div class="staff-nav-brand" title="nyøkøn Staff">N</div>
+      <button type="button" class="staff-nav-item" data-panel="stats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Tableau
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        Produits
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l1 5H5l1-5Z"/><path d="M5 8h14l-1.2 11a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z"/><path d="M9 12a3 3 0 0 0 6 0"/></svg>
+        Commandes
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="payment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
+        Paiement
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="loyalty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.1c2-.2 3.7.8 6 3 2.3-2.2 4-3.2 6-3 3.6.4 5.5 3.9 4 7.6C19.5 16.4 12 21 12 21Z"/></svg>
+        Fidélité
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="promotions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5-5 18-4-8-8-4Z"/><path d="M12 14 3 11"/></svg>
+        Promos
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="photos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg>
+        Photos
+      </button>
       <div class="staff-nav-spacer"></div>
-      <a href="index.html" class="staff-nav-back">← Retour au site</a>
-      <button class="signout" id="signOutBtn">Se déconnecter</button>
+      <a href="index.html" class="staff-nav-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+        Le site
+      </a>
+      <button type="button" class="staff-nav-back" id="signOutBtn" style="border:none;background:none;cursor:pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Sortir
+      </button>
     </nav>
     <main class="staff-main">
 
@@ -228,15 +301,20 @@
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="chart-grid">
           <div class="chart-card">
-            <div class="chart-title">Chiffre d'affaires par jour</div>
-            <div class="chart-sub">14 derniers jours — commandes confirmées, expédiées ou livrées, converties en FCFA</div>
-            <div class="revenue-chart" id="revenueChart"></div>
+            <div class="chart-title">Entonnoir des commandes</div>
+            <div class="chart-sub">30 derniers jours — de reçue à livrée</div>
+            <div class="funnel-chart" id="funnelChart"></div>
           </div>
           <div class="chart-card">
-            <div class="chart-title">Commandes par statut</div>
+            <div class="chart-title">Répartition des paiements</div>
             <div class="chart-sub">30 derniers jours</div>
-            <div class="status-chart" id="statusChart"></div>
+            <div class="donut-chart" id="donutChart"></div>
           </div>
+        </div>
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div class="chart-title">Chiffre d'affaires par jour</div>
+          <div class="chart-sub">14 derniers jours — commandes confirmées, expédiées ou livrées, converties en FCFA</div>
+          <div class="revenue-chart" id="revenueChart"></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">Meilleures ventes</div>
@@ -1245,16 +1323,20 @@ function formatXOF(amount){
   return new Intl.NumberFormat('fr-FR', { style:'currency', currency:'XOF', maximumFractionDigits:0 }).format(amount || 0);
 }
 
-// Fixed order + fixed colors (dataviz categorical slots, validated against
-// this page's dark card surface #131315) so a status always reads as the
-// same color everywhere in the dashboard, never reassigned by rank/count.
-const ORDER_STATUS_ORDER = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
-const ORDER_STATUS_LABELS = { pending:'En attente', confirmed:'Confirmée', shipped:'En livraison', delivered:'Livrée', cancelled:'Annulée' };
-const ORDER_STATUS_COLORS = { pending:'#3987e5', confirmed:'#d95926', shipped:'#199e70', delivered:'#c98500', cancelled:'#d55181' };
+// Fixed order + fixed colors (dataviz categorical slots) so a status or
+// payment method always reads as the same color everywhere in the
+// dashboard, never reassigned by rank/count. Validated with the skill's
+// validator against this dashboard's actual chart-card surface (#ffffff,
+// light mode) — see the code-review notes for the exact command.
+const FUNNEL_STAGES = ['pending', 'confirmed', 'shipped', 'delivered'];
+const FUNNEL_LABELS = { pending:'Reçue', confirmed:'Confirmée', shipped:'Expédiée', delivered:'Livrée' };
+const FUNNEL_COLORS = { pending:'#2a78d6', confirmed:'#eb6834', shipped:'#1baf7a', delivered:'#eda100' };
+
+const PAYMENT_COLORS = { orange_money:'#2a78d6', mtn_momo:'#eb6834', cash:'#1baf7a', bank_card:'#eda100', fidelity:'#e87ba4' };
 
 async function renderStats(){
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const { data } = await sb.from('orders').select('status,subtotal,currency,created_at').gte('created_at', since.toISOString());
+  const { data } = await sb.from('orders').select('status,subtotal,currency,payment_method,created_at').gte('created_at', since.toISOString());
   const orders = data || [];
 
   const revenueStatuses = new Set(['confirmed', 'shipped', 'delivered']);
@@ -1293,20 +1375,82 @@ async function renderStats(){
     </div>
   `).join('');
 
-  const statusCounts = {};
-  ORDER_STATUS_ORDER.forEach(s => { statusCounts[s] = 0; });
-  orders.forEach(o => { if (statusCounts[o.status] != null) statusCounts[o.status]++; });
-  const maxStatus = Math.max(1, ...Object.values(statusCounts));
-  document.getElementById('statusChart').innerHTML = ORDER_STATUS_ORDER.map(s => `
-    <div class="status-bar-row">
-      <span class="status-swatch" style="background:${ORDER_STATUS_COLORS[s]}"></span>
-      <span class="status-bar-label">${ORDER_STATUS_LABELS[s]}</span>
-      <div class="status-bar-track" title="${statusCounts[s]} commande${statusCounts[s] === 1 ? '' : 's'}">
-        <div class="status-bar-fill" style="width:${Math.max(3, (statusCounts[s] / maxStatus) * 100)}%;background:${ORDER_STATUS_COLORS[s]}"></div>
-      </div>
-      <span class="status-bar-value">${statusCounts[s]}</span>
+  // Funnel: how many of this window's (non-cancelled) orders have reached
+  // at least each stage. Orders only carry their CURRENT status, not a
+  // history, but the stage order is a real pipeline staff moves orders
+  // through one step at a time (see STATUS_OPTIONS) — so "at shipped"
+  // implies "already went through confirmed", making a cumulative funnel
+  // a fair read even without a status-change log.
+  const nonCancelled = orders.filter(o => o.status !== 'cancelled');
+  const cancelledCount = orders.length - nonCancelled.length;
+  const stageIndex = s => FUNNEL_STAGES.indexOf(s);
+  const funnelCounts = FUNNEL_STAGES.map((stage, i) => nonCancelled.filter(o => stageIndex(o.status) >= i).length);
+  const funnelMax = funnelCounts[0] || 1;
+
+  const fw = 190, fh = 150, fSegH = fh / FUNNEL_STAGES.length;
+  let funnelSvg = `<svg width="${fw}" height="${fh}" viewBox="0 0 ${fw} ${fh}" role="img" aria-label="Entonnoir des commandes">`;
+  FUNNEL_STAGES.forEach((stage, i) => {
+    const topW = Math.max(6, (funnelCounts[i] / funnelMax) * fw);
+    const nextCount = i < FUNNEL_STAGES.length - 1 ? funnelCounts[i + 1] : funnelCounts[i] * 0.86;
+    const botW = Math.max(6, (nextCount / funnelMax) * fw);
+    const y0 = i * fSegH, y1 = y0 + fSegH - 2;
+    const tx0 = (fw - topW) / 2, tx1 = (fw + topW) / 2;
+    const bx0 = (fw - botW) / 2, bx1 = (fw + botW) / 2;
+    funnelSvg += `<path d="M${tx0},${y0} L${tx1},${y0} L${bx1},${y1} L${bx0},${y1} Z" fill="${FUNNEL_COLORS[stage]}"><title>${FUNNEL_LABELS[stage]}: ${funnelCounts[i]}</title></path>`;
+  });
+  funnelSvg += '</svg>';
+
+  document.getElementById('funnelChart').innerHTML = `
+    <div class="funnel-shape">${funnelSvg}</div>
+    <div class="funnel-legend">
+      ${FUNNEL_STAGES.map((s, i) => `
+        <div class="funnel-legend-row">
+          <span class="funnel-legend-dot" style="background:${FUNNEL_COLORS[s]}"></span>
+          <span class="funnel-legend-label">${FUNNEL_LABELS[s]}</span>
+          <span class="funnel-legend-value">${funnelCounts[i]}</span>
+        </div>
+      `).join('')}
+      <div class="funnel-total">Total <b>${nonCancelled.length}</b>${cancelledCount ? ` · ${cancelledCount} annulée${cancelledCount === 1 ? '' : 's'} (hors entonnoir)` : ''}</div>
     </div>
-  `).join('');
+  `;
+
+  // Donut: payment method mix, same fixed slot-per-method colors as the
+  // legend rows beside it, so the ring is never the only place identity
+  // lives (satisfies "never color alone" even with the light-surface
+  // contrast warn the validator flagged for a couple of these hues).
+  const paymentCounts = {};
+  orders.forEach(o => { paymentCounts[o.payment_method] = (paymentCounts[o.payment_method] || 0) + 1; });
+  const paymentMethods = Object.keys(PAYMENT_COLORS).filter(m => paymentCounts[m]);
+  const donutTotal = paymentMethods.reduce((sum, m) => sum + paymentCounts[m], 0);
+
+  const dSize = 150, dR = dSize / 2 - 14, dC = dSize / 2, circumference = 2 * Math.PI * dR;
+  let offsetAcc = 0;
+  let donutSvg = `<svg width="${dSize}" height="${dSize}" viewBox="0 0 ${dSize} ${dSize}" role="img" aria-label="Répartition des paiements">`;
+  if (!donutTotal) {
+    donutSvg += `<circle cx="${dC}" cy="${dC}" r="${dR}" fill="none" stroke="var(--line)" stroke-width="18"/>`;
+  } else {
+    paymentMethods.forEach(m => {
+      const frac = paymentCounts[m] / donutTotal;
+      const dash = frac * circumference;
+      donutSvg += `<circle cx="${dC}" cy="${dC}" r="${dR}" fill="none" stroke="${PAYMENT_COLORS[m]}" stroke-width="18" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offsetAcc}" transform="rotate(-90 ${dC} ${dC})"><title>${PAYMENT_LABELS[m] || m}: ${paymentCounts[m]}</title></circle>`;
+      offsetAcc += dash;
+    });
+  }
+  donutSvg += `<text x="${dC}" y="${dC}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="var(--fg)">${donutTotal}</text>`;
+  donutSvg += '</svg>';
+
+  document.getElementById('donutChart').innerHTML = `
+    <div>${donutSvg}</div>
+    <div class="donut-legend">
+      ${paymentMethods.length ? paymentMethods.map(m => `
+        <div class="donut-legend-row">
+          <span class="donut-legend-dot" style="background:${PAYMENT_COLORS[m]}"></span>
+          <span class="donut-legend-label">${PAYMENT_LABELS[m] || m}</span>
+          <span class="donut-legend-value">${paymentCounts[m]}</span>
+        </div>
+      `).join('') : '<p class="staff-empty">Aucune commande sur cette période.</p>'}
+    </div>
+  `;
 }
 
 const bestSellersEl = document.getElementById('bestSellers');

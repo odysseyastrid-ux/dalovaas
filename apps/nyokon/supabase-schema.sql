@@ -147,6 +147,11 @@ create table if not exists public.orders (
 
 alter table public.orders enable row level security;
 
+-- Added later (customer accounts), but must exist before the insert
+-- policy below references it — moved up here so the file runs top to
+-- bottom in one pass on a fresh project too.
+alter table public.orders add column if not exists user_id uuid references auth.users(id) on delete set null;
+
 drop policy if exists orders_insert_public on public.orders;
 create policy orders_insert_public
   on public.orders for insert
@@ -627,9 +632,9 @@ grant execute on function public.get_order_status(text) to anon, authenticated;
 -- track.html, exactly as before — this is additive, nothing existing
 -- breaks. See the staff/is_staff() block at the top of this file for why
 -- the older "to authenticated using (true)" staff policies had to change
--- alongside this.
-alter table public.orders add column if not exists user_id uuid references auth.users(id) on delete set null;
-
+-- alongside this. (orders.user_id itself is added earlier in this file,
+-- right after the orders table, since the insert policy up there needs
+-- it to already exist.)
 drop policy if exists orders_select_own on public.orders;
 create policy orders_select_own
   on public.orders for select

@@ -181,8 +181,6 @@ const TRANSLATIONS = {
     checkout_error_receipt:'Please attach a screenshot of your payment before submitting.',
     checkout_error_generic:'Something went wrong. Please try again.',
     checkout_error_stock:"Sorry, one of the sizes in your cart just sold out. Please review your cart and try again.",
-    checkout_confirm_title:'Order received', checkout_confirm_note:'We will confirm your order and payment shortly.',
-    checkout_continue:'CONTINUE SHOPPING', checkout_ref_prefix:'Order ',
   },
   fr: {
     announce:'LIVRAISON GRATUITE DÈS 25 000 FCFA  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
@@ -241,8 +239,6 @@ const TRANSLATIONS = {
     checkout_error_receipt:'Merci de joindre une capture de ton paiement avant de valider.',
     checkout_error_generic:'Une erreur est survenue. Réessaie.',
     checkout_error_stock:"Désolé, une des tailles de ton panier vient d'être épuisée. Vérifie ton panier et réessaie.",
-    checkout_confirm_title:'Commande reçue', checkout_confirm_note:'Nous allons confirmer ta commande et ton paiement sous peu.',
-    checkout_continue:'CONTINUER MES ACHATS', checkout_ref_prefix:'Commande ',
   },
 };
 const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
@@ -670,15 +666,12 @@ quickAddSubmitBtn.addEventListener('click', () => {
 (function initCheckout(){
   const cartFooter = document.getElementById('cartFooter');
   const checkoutView = document.getElementById('checkoutView');
-  const checkoutConfirm = document.getElementById('checkoutConfirm');
   const cartCheckoutBtn = document.getElementById('cartCheckoutBtn');
   const checkoutBack = document.getElementById('checkoutBack');
-  const checkoutContinueBtn = document.getElementById('checkoutContinueBtn');
   const checkoutAddressField = document.getElementById('checkoutAddressField');
   const checkoutPaymentDetails = document.getElementById('checkoutPaymentDetails');
   const checkoutError = document.getElementById('checkoutError');
   const checkoutSubmitBtn = document.getElementById('checkoutSubmitBtn');
-  const checkoutRef = document.getElementById('checkoutRef');
   if (!checkoutView) return;
 
   let paymentSettings = { orange_money_number: '', orange_money_name: '', mtn_momo_number: '', mtn_momo_name: '' };
@@ -693,21 +686,14 @@ quickAddSubmitBtn.addEventListener('click', () => {
 
   function showCart(){
     checkoutView.style.display = 'none';
-    checkoutConfirm.style.display = 'none';
     cartItemsEl.style.display = '';
     cartFooter.style.display = '';
   }
   function showCheckoutForm(){
     cartItemsEl.style.display = 'none';
     cartFooter.style.display = 'none';
-    checkoutConfirm.style.display = 'none';
     checkoutView.style.display = 'flex';
     renderPaymentDetails();
-  }
-  function showConfirm(ref){
-    checkoutView.style.display = 'none';
-    checkoutRef.textContent = t('checkout_ref_prefix') + ref;
-    checkoutConfirm.style.display = 'flex';
   }
 
   cartCheckoutBtn.addEventListener('click', () => {
@@ -715,7 +701,6 @@ quickAddSubmitBtn.addEventListener('click', () => {
     showCheckoutForm();
   });
   checkoutBack.addEventListener('click', showCart);
-  checkoutContinueBtn.addEventListener('click', () => { showCart(); closeCart(); });
 
   checkoutView.querySelectorAll('input[name=fulfillment]').forEach(r => {
     r.addEventListener('change', () => {
@@ -931,9 +916,11 @@ quickAddSubmitBtn.addEventListener('click', () => {
 
       cart.clear();
       renderCart();
-      checkoutView.reset();
-      checkoutAddressField.style.display = 'none';
-      showConfirm(ref);
+      // Take the customer straight to a real tracking page — order
+      // reference, delivery details, and a status they can check back on —
+      // instead of a small confirmation panel inside the cart drawer.
+      location.href = `track.html?ref=${encodeURIComponent(ref)}`;
+      return;
     } catch (err) {
       checkoutError.textContent = t('checkout_error_generic');
     } finally {

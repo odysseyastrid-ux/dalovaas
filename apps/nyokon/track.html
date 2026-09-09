@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn</title>
+<meta name="description" content="nyøkøn — track your order." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="pdp-back" id="trackBack">BACK</a>
+  <a href="index.html" class="wordmark"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <span></span>
+</header>
+
+<main class="track" id="trackRoot"></main>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+function loadLang(){
+  try { const s = localStorage.getItem('nyokon-lang'); if (s === 'en' || s === 'fr') return s; } catch (e) {}
+  return DEFAULT_LANG;
+}
+const currentLang = loadLang();
+document.documentElement.lang = currentLang;
+
+const T = {
+  en: {
+    back:'BACK', title:'TRACK YOUR ORDER',
+    intro:'Enter the order reference from your confirmation to see its status.',
+    ref_label:'ORDER REFERENCE', ref_placeholder:'e.g. NYK-1A2B3C', track_btn:'TRACK ORDER',
+    not_found:"We couldn't find an order with that reference. Check it and try again.",
+    order_ref:'Order', placed_on:'Placed on', items_label:'ITEMS', subtotal_label:'SUBTOTAL',
+    fulfillment_label:'FULFILLMENT', pickup:'Pickup', delivery:'Delivery',
+    city_label:'City', check_another:'Track another order',
+    step_pending:'Received', step_confirmed:'Confirmed', step_shipped:'Out for delivery', step_delivered:'Delivered',
+    status_cancelled:'This order was cancelled — contact us if you have questions.',
+    live_note:'This page updates automatically — no need to refresh.',
+  },
+  fr: {
+    back:'RETOUR', title:'SUIVRE MA COMMANDE',
+    intro:'Entre le numéro de commande reçu à la confirmation pour voir son statut.',
+    ref_label:'NUMÉRO DE COMMANDE', ref_placeholder:'ex: NYK-1A2B3C', track_btn:'SUIVRE',
+    not_found:"Aucune commande trouvée avec ce numéro. Vérifie-le et réessaie.",
+    order_ref:'Commande', placed_on:'Passée le', items_label:'ARTICLES', subtotal_label:'SOUS-TOTAL',
+    fulfillment_label:'RÉCUPÉRATION', pickup:'Retrait', delivery:'Livraison',
+    city_label:'Ville', check_another:'Suivre une autre commande',
+    step_pending:'Reçue', step_confirmed:'Confirmée', step_shipped:'En livraison', step_delivered:'Livrée',
+    status_cancelled:'Cette commande a été annulée — contacte-nous si tu as des questions.',
+    live_note:'Cette page se met à jour automatiquement — pas besoin de rafraîchir.',
+  },
+};
+function t(key){ return T[currentLang][key] || T.en[key] || key; }
+document.getElementById('trackBack').textContent = t('back');
+
+(function applyStoredTheme(){
+  try {
+    if (localStorage.getItem('nyokon-theme') === 'light') document.documentElement.dataset.theme = 'light';
+  } catch (e) {}
+})();
+
+const STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
+let pollTimer = null;
+
+function money(amount, currency){
+  try { return new Intl.NumberFormat(currentLang === 'fr' ? 'fr-FR' : 'en-US', { style:'currency', currency, maximumFractionDigits:0 }).format(amount); }
+  catch (e) { return `${amount} ${currency}`; }
+}
+
+function renderForm(errorMsg){
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  const root = document.getElementById('trackRoot');
+  root.innerHTML = `
+    <div class="track-form">
+      <h1 class="track-title">${t('title')}</h1>
+      <p class="track-intro">${t('intro')}</p>
+      <form id="trackForm">
+        <label class="track-label" for="trackRefInput">${t('ref_label')}</label>
+        <input type="text" id="trackRefInput" placeholder="${t('ref_placeholder')}" autocomplete="off" />
+        ${errorMsg ? `<p class="track-error">${errorMsg}</p>` : ''}
+        <span class="gbtn-wrap gbtn-bar" style="margin-top:16px;">
+          <span class="g-light"></span>
+          <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+          <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+          <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+          <button type="submit" class="btn btn-light full">${t('track_btn')}</button>
+        </span>
+      </form>
+    </div>
+  `;
+  const params = new URLSearchParams(location.search);
+  const prefill = params.get('ref');
+  if (prefill) document.getElementById('trackRefInput').value = prefill;
+  document.getElementById('trackForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ref = document.getElementById('trackRefInput').value.trim();
+    if (!ref) return;
+    history.replaceState(null, '', `track.html?ref=${encodeURIComponent(ref)}`);
+    loadOrder(ref);
+  });
+}
+
+async function fetchOrder(ref){
+  if (!sb || !ref) return null;
+  try {
+    const { data, error } = await sb.rpc('get_order_status', { p_ref: ref });
+    if (error || !data || !data.length) return null;
+    return data[0];
+  } catch (e) { return null; }
+}
+
+function renderOrder(order){
+  const root = document.getElementById('trackRoot');
+  const cancelled = order.status === 'cancelled';
+  const stepIdx = STEPS.indexOf(order.status);
+  const placedDate = new Date(order.created_at).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { day:'numeric', month:'short', year:'numeric' });
+
+  root.innerHTML = `
+    <div class="track-result">
+      <div class="track-ref-row">
+        <span class="track-ref">${t('order_ref')} ${order.ref}</span>
+        <span class="track-date">${t('placed_on')} ${placedDate}</span>
+      </div>
+      ${cancelled ? `
+        <p class="track-cancelled">${t('status_cancelled')}</p>
+      ` : `
+        <div class="track-steps">
+          ${STEPS.map((s, i) => `
+            <div class="track-step${i <= stepIdx ? ' is-done' : ''}${i === stepIdx ? ' is-current' : ''}">
+              <span class="track-step-dot"></span>
+              <span class="track-step-label">${t('step_' + s)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `}
+      <div class="track-details">
+        <div class="track-detail-row">
+          <span class="track-detail-label">${t('fulfillment_label')}</span>
+          <span>${order.fulfillment === 'delivery' ? t('delivery') : t('pickup')}${order.city ? ' — ' + order.city : ''}</span>
+        </div>
+      </div>
+      <div class="track-items">
+        <div class="track-items-label">${t('items_label')}</div>
+        ${(order.items || []).map(i => `
+          <div class="track-item-row">
+            <span>${i.name}${i.color || i.size ? ' — ' + [i.color, i.size].filter(Boolean).join(', ') : ''} × ${i.qty}</span>
+            <span>${money(i.price * i.qty, order.currency)}</span>
+          </div>
+        `).join('')}
+        <div class="track-item-row track-subtotal-row">
+          <span>${t('subtotal_label')}</span>
+          <span>${money(order.subtotal, order.currency)}</span>
+        </div>
+      </div>
+      <p class="track-live-note">${t('live_note')}</p>
+      <button type="button" class="track-another" id="trackAnotherBtn">${t('check_another')}</button>
+    </div>
+  `;
+  document.getElementById('trackAnotherBtn').addEventListener('click', () => {
+    history.replaceState(null, '', 'track.html');
+    renderForm();
+  });
+}
+
+async function loadOrder(ref){
+  const order = await fetchOrder(ref);
+  if (!order) {
+    renderForm(t('not_found'));
+    return;
+  }
+  renderOrder(order);
+  if (pollTimer) clearInterval(pollTimer);
+  // Polling instead of a push subscription — status changes are staff-driven
+  // and infrequent, so a periodic re-check is enough to feel "live" without
+  // needing a public realtime-eligible policy on the orders table.
+  pollTimer = setInterval(async () => {
+    const fresh = await fetchOrder(ref);
+    if (fresh && document.getElementById('trackRoot').querySelector('.track-result')) renderOrder(fresh);
+  }, 20000);
+}
+
+(function init(){
+  const params = new URLSearchParams(location.search);
+  const ref = params.get('ref');
+  if (ref) loadOrder(ref);
+  else renderForm();
+})();
+</script>
+</body>
+</html>

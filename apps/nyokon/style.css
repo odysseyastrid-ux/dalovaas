@@ -308,7 +308,16 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   content:'';
   position:absolute;
   inset:0;
-  background:#14140f;
+  /* Solid lime base — always the visible result, on every device. The
+     layers below only ever ADD brightness on top of it (no mix-blend-mode),
+     so the button can never render dark-on-dark: mix-blend-mode:difference
+     used to sit here, which actually inverts bright colors to a dark
+     result — on a near-black base that made the button read as black
+     text on near-black; on this lime base it produced dark purple/black,
+     just as unreadable, and worse now that the page itself is dark by
+     default too. blend-mode support is also inconsistent across mobile
+     GPUs, so the CTA could disappear entirely if it didn't render. */
+  background:#d1ff3c;
   z-index:0;
 }
 .gbtn-wrap .g-light{
@@ -321,7 +330,7 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   top:50%;
   margin-top:-0.6rem;
   border-radius:50px;
-  background-color:#fff5;
+  background-color:#fff8;
   filter:blur(6px);
   animation:gPulse 3s ease-in-out infinite;
 }
@@ -332,11 +341,9 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   left:-160%;
   width:500%;
   aspect-ratio:1;
-  background:radial-gradient(ellipse at 65% 180%, #fff, #d1ff3c, #fff, #d1ff3c, #fff, #d1ff3c, #fff);
-  mix-blend-mode:difference;
+  background:radial-gradient(ellipse at 65% 180%, rgba(255,255,255,.6), rgba(255,255,255,0) 62%);
   animation:gRotate 20s linear infinite;
 }
-.gbtn-wrap .g-layer:last-child{mix-blend-mode:color-dodge;}
 .gbtn-wrap > a,.gbtn-wrap > button{
   position:relative;
   z-index:2;
@@ -806,10 +813,6 @@ main > section{
 .checkout-error{color:#e05a4e;font-size:13px;min-height:0;}
 .checkout-back{align-self:center;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);}
 .checkout-back:hover{color:var(--fg);}
-.checkout-confirm{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;}
-.checkout-confirm-title{font-family:var(--font-display);font-size:22px;}
-.checkout-confirm-ref{font-size:18px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);}
-.checkout-confirm-note{font-size:13px;color:var(--fg-dim);max-width:32ch;}
 .cart-scrim{
   position:fixed;inset:0;background:rgba(0,0,0,.6);
   z-index:150;opacity:0;pointer-events:none;transition:opacity .3s ease;
@@ -1178,3 +1181,40 @@ main > section{
 .pdp-related-media img{width:100%;height:100%;object-fit:cover;display:block;}
 .pdp-related-name{font-size:13px;margin-top:10px;}
 .pdp-related-price{font-size:12px;color:var(--fg-dim);margin-top:2px;font-variant-numeric:tabular-nums;}
+
+/* Order tracking page (track.html) */
+.track{max-width:560px;margin:0 auto;padding:48px clamp(16px,4vw,48px) 120px;}
+.track-title{font-family:var(--font-display);font-size:clamp(24px,3vw,30px);margin-bottom:10px;}
+.track-intro{font-size:14px;color:var(--fg-dim);line-height:1.5;margin-bottom:28px;}
+.track-label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:8px;}
+#trackRefInput{
+  width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;color:var(--fg);font-family:inherit;font-size:15px;letter-spacing:.02em;
+}
+#trackRefInput:focus{outline:none;border-color:var(--fg);}
+.track-error{font-size:12px;color:#e05a4e;margin-top:10px;}
+.track-ref-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+.track-ref{font-family:var(--font-display);font-size:20px;}
+.track-date{font-size:12px;color:var(--fg-dim);}
+.track-cancelled{font-size:14px;color:#e05a4e;padding:16px;background:var(--bg-alt);border-radius:10px;margin-bottom:24px;}
+.track-steps{display:flex;justify-content:space-between;margin-bottom:32px;position:relative;}
+.track-steps::before{
+  content:'';position:absolute;top:6px;left:6%;right:6%;height:2px;background:var(--line);z-index:0;
+}
+.track-step{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1;flex:1;}
+.track-step-dot{width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--line);}
+.track-step.is-done .track-step-dot{background:var(--accent);border-color:var(--accent);}
+.track-step-label{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--fg-dim);text-align:center;}
+.track-step.is-done .track-step-label{color:var(--fg);}
+.track-details{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;margin-bottom:24px;}
+.track-detail-row{display:flex;gap:16px;font-size:13px;}
+.track-detail-label{flex:0 0 130px;color:var(--fg-dim);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding-top:1px;}
+.track-items-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:12px;}
+.track-item-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--line);gap:12px;}
+.track-subtotal-row{font-weight:700;border-bottom:none;font-family:var(--font-display);font-size:15px;padding-top:14px;}
+.track-live-note{font-size:11px;color:var(--fg-dim);margin-top:24px;text-align:center;}
+.track-another{
+  display:block;margin:16px auto 0;font-size:12px;font-weight:700;letter-spacing:.06em;
+  color:var(--fg-dim);text-decoration:underline;background:none;border:none;cursor:pointer;
+}
+.track-another:hover{color:var(--fg);}

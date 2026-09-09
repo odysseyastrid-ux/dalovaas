@@ -552,3 +552,32 @@ grant execute on function public.redeem_loyalty_points(text, integer) to anon, a
 -- time than in-stock items).
 alter table public.products add column if not exists origin_country text;
 alter table public.products add column if not exists delivery_estimate text;
+
+-- Order tracking, callable with just the order reference (no login) —
+-- a security definer function instead of a public SELECT policy on
+-- orders, so a customer can look up their own order by ref without
+-- exposing every order (or another customer's phone number/address)
+-- to anyone with the anon key.
+create or replace function public.get_order_status(p_ref text)
+returns table (
+  ref text,
+  status text,
+  fulfillment text,
+  city text,
+  items jsonb,
+  subtotal numeric,
+  currency text,
+  payment_method text,
+  created_at timestamptz
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select o.ref, o.status, o.fulfillment, o.city, o.items, o.subtotal, o.currency, o.payment_method, o.created_at
+  from public.orders o
+  where o.ref = p_ref;
+$$;
+
+revoke all on function public.get_order_status(text) from public;
+grant execute on function public.get_order_status(text) to anon, authenticated;

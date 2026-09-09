@@ -1101,7 +1101,13 @@ async function renderBestSellers(){
 
 const ordersList = document.getElementById('ordersList');
 const PAYMENT_LABELS = { orange_money: 'Orange Money', mtn_momo: 'MTN MoMo', cash: 'Cash', bank_card: 'Carte bancaire', fidelity: 'Points fidélité' };
-const STATUS_OPTIONS = ['pending', 'confirmed', 'cancelled'];
+const STATUS_OPTIONS = [
+  ['pending', 'En attente'],
+  ['confirmed', 'Confirmée'],
+  ['shipped', 'En livraison'],
+  ['delivered', 'Livrée'],
+  ['cancelled', 'Annulée'],
+];
 
 async function renderOrders(){
   const { data: orders, error } = await sb
@@ -1130,7 +1136,7 @@ async function renderOrders(){
       <div class="order-items">${itemsSummary}</div>
       <div class="order-actions">
         <select class="order-status" data-id="${order.id}">
-          ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === order.status ? 'selected' : ''}>${s}</option>`).join('')}
+          ${STATUS_OPTIONS.map(([v, l]) => `<option value="${v}" ${v === order.status ? 'selected' : ''}>${l}</option>`).join('')}
         </select>
         ${order.receipt_path ? `<button type="button" class="order-receipt-link" data-path="${order.receipt_path}">Voir le reçu</button>` : ''}
       </div>

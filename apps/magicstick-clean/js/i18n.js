@@ -213,6 +213,8 @@
     'form.homeType.house': { en: 'House', fr: 'Maison' },
     'form.homeType.apartment': { en: 'Apartment / Condo', fr: 'Appartement / Condo' },
     'form.homeType.townhouse': { en: 'Townhouse', fr: 'Maison de ville' },
+    'form.homeType.airbnb': { en: 'Airbnb / Rental', fr: 'Airbnb / Location' },
+    'form.homeType.moveInOut': { en: 'Move-In / Move-Out', fr: 'Emménagement / Déménagement' },
     'form.studio': { en: 'Studio', fr: 'Studio' },
     'form.photos': { en: 'Photos of your home', fr: 'Photos de ta maison' },
     'form.photos.cta': { en: 'Choose photos', fr: 'Choisir des photos' },

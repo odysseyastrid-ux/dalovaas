@@ -2,6 +2,42 @@
 -- Run this once in the Supabase SQL Editor (Database → SQL Editor → New query)
 -- for the project this site is wired to.
 
+-- Staff allow-list. Every "_staff" policy below used to just say
+-- "to authenticated using (true)" — safe only as long as the only way to
+-- become an authenticated user was staff.html's login, created by hand in
+-- the Supabase dashboard. Adding customer accounts (account.html) breaks
+-- that assumption: any customer who signs up is also "authenticated", and
+-- would otherwise inherit full staff access to every order, every
+-- customer's phone/points balance, and the payment account settings. This
+-- table plus is_staff() is the fix — staff policies now check membership
+-- here instead of trusting "authenticated" alone.
+--
+-- After running this file, add your own staff login once with:
+--   insert into public.staff (user_id)
+--   select id from auth.users where email = 'your-staff-login@example.com';
+create table if not exists public.staff (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.staff enable row level security;
+-- Deliberately no select/insert/update policy here — nobody can read or
+-- write this table through the anon/authenticated API, only is_staff()
+-- (security definer, below) and the site owner via the Supabase dashboard.
+
+create or replace function public.is_staff()
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (select 1 from public.staff where user_id = auth.uid());
+$$;
+
+revoke all on function public.is_staff() from public;
+grant execute on function public.is_staff() to anon, authenticated;
+
 create table if not exists public.site_images (
   slot text primary key,
   image_url text,
@@ -25,14 +61,14 @@ drop policy if exists site_images_insert_staff on public.site_images;
 create policy site_images_insert_staff
   on public.site_images for insert
   to authenticated
-  with check (true);
+  with check (public.is_staff());
 
 drop policy if exists site_images_update_staff on public.site_images;
 create policy site_images_update_staff
   on public.site_images for update
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 -- Storage bucket for the uploaded photo files themselves.
 insert into storage.buckets (id, name, public)
@@ -49,13 +85,13 @@ drop policy if exists site_images_bucket_insert_staff on storage.objects;
 create policy site_images_bucket_insert_staff
   on storage.objects for insert
   to authenticated
-  with check (bucket_id = 'site-images');
+  with check (bucket_id = 'site-images' and public.is_staff());
 
 drop policy if exists site_images_bucket_update_staff on storage.objects;
 create policy site_images_bucket_update_staff
   on storage.objects for update
   to authenticated
-  using (bucket_id = 'site-images');
+  using (bucket_id = 'site-images' and public.is_staff());
 
 -- Checkout: orders, editable payment account numbers, and a private
 -- bucket for uploaded mobile-money payment receipts.
@@ -84,14 +120,14 @@ drop policy if exists settings_insert_staff on public.settings;
 create policy settings_insert_staff
   on public.settings for insert
   to authenticated
-  with check (true);
+  with check (public.is_staff());
 
 drop policy if exists settings_update_staff on public.settings;
 create policy settings_update_staff
   on public.settings for update
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
@@ -115,20 +151,22 @@ drop policy if exists orders_insert_public on public.orders;
 create policy orders_insert_public
   on public.orders for insert
   to anon, authenticated
-  with check (true);
+  -- A logged-in customer may only tag an order as their own (or leave it
+  -- untagged, like a guest checkout) — never claim someone else's account.
+  with check (user_id is null or user_id = auth.uid());
 
 drop policy if exists orders_select_staff on public.orders;
 create policy orders_select_staff
   on public.orders for select
   to authenticated
-  using (true);
+  using (public.is_staff());
 
 drop policy if exists orders_update_staff on public.orders;
 create policy orders_update_staff
   on public.orders for update
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 insert into storage.buckets (id, name, public)
 values ('order-receipts', 'order-receipts', false)
@@ -144,7 +182,7 @@ drop policy if exists order_receipts_select_staff on storage.objects;
 create policy order_receipts_select_staff
   on storage.objects for select
   to authenticated
-  using (bucket_id = 'order-receipts');
+  using (bucket_id = 'order-receipts' and public.is_staff());
 
 -- Promotions: scheduled campaigns staff can create ahead of time. Only
 -- a promotion whose window (starts_at..ends_at) contains "now" and
@@ -175,20 +213,20 @@ drop policy if exists promotions_insert_staff on public.promotions;
 create policy promotions_insert_staff
   on public.promotions for insert
   to authenticated
-  with check (true);
+  with check (public.is_staff());
 
 drop policy if exists promotions_update_staff on public.promotions;
 create policy promotions_update_staff
   on public.promotions for update
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 drop policy if exists promotions_delete_staff on public.promotions;
 create policy promotions_delete_staff
   on public.promotions for delete
   to authenticated
-  using (true);
+  using (public.is_staff());
 
 -- Product catalog — staff-managed from staff.html (add/edit/hide/delete
 -- products, set prices, upload photos). Seeded below with the original
@@ -223,20 +261,20 @@ drop policy if exists products_insert_staff on public.products;
 create policy products_insert_staff
   on public.products for insert
   to authenticated
-  with check (true);
+  with check (public.is_staff());
 
 drop policy if exists products_update_staff on public.products;
 create policy products_update_staff
   on public.products for update
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 drop policy if exists products_delete_staff on public.products;
 create policy products_delete_staff
   on public.products for delete
   to authenticated
-  using (true);
+  using (public.is_staff());
 
 insert into public.products (id, category, tag, price, was, sizes, name_en, name_fr, sub_en, sub_fr) values
   ('m1','men','new',168,null,array['S','M','L','XL'],'Flight Bomber Jacket','Blouson Bomber','Navy','Marine'),
@@ -344,8 +382,8 @@ drop policy if exists product_variants_write_staff on public.product_variants;
 create policy product_variants_write_staff
   on public.product_variants for all
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 -- Cost price lives in its own staff-only table (not a column on
 -- `products`) so it is never reachable through the public anon key —
@@ -364,8 +402,8 @@ drop policy if exists product_costs_staff_only on public.product_costs;
 create policy product_costs_staff_only
   on public.product_costs for all
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 -- Product detail page: a real ordered image gallery (the "1/8" style
 -- counter needs more than one photo per product) and an optional
@@ -397,8 +435,8 @@ drop policy if exists product_images_write_staff on public.product_images;
 create policy product_images_write_staff
   on public.product_images for all
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 -- Atomic stock decrement at checkout. There's no Node/Prisma backend
 -- on this static site to hold a database transaction open across
@@ -482,8 +520,8 @@ drop policy if exists customers_write_staff on public.customers;
 create policy customers_write_staff
   on public.customers for all
   to authenticated
-  using (true)
-  with check (true);
+  using (public.is_staff())
+  with check (public.is_staff());
 
 -- Awards points the moment staff marks an order 'confirmed' (and
 -- only then, so a cancelled or still-pending order never pays out).
@@ -581,3 +619,19 @@ $$;
 
 revoke all on function public.get_order_status(text) from public;
 grant execute on function public.get_order_status(text) to anon, authenticated;
+
+-- Customer accounts (account.html): real Supabase Auth sign-up/sign-in,
+-- so a customer can see their own order history instead of only being
+-- able to look up one order at a time by reference. Orders placed as a
+-- guest (no account) keep user_id null and stay reachable only via
+-- track.html, exactly as before — this is additive, nothing existing
+-- breaks. See the staff/is_staff() block at the top of this file for why
+-- the older "to authenticated using (true)" staff policies had to change
+-- alongside this.
+alter table public.orders add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+drop policy if exists orders_select_own on public.orders;
+create policy orders_select_own
+  on public.orders for select
+  to authenticated
+  using (user_id = auth.uid());

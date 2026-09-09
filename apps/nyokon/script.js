@@ -161,7 +161,7 @@ const TRANSLATIONS = {
     footer_rights:'All rights reserved.', footer_note:'Placeholder storefront — replace product images, copy, and links.',
     cart_title:'YOUR CART', cart_empty:'Your cart is empty.', cart_subtotal:'SUBTOTAL', cart_checkout:'CHECKOUT',
     aria_currency:'Currency', aria_theme:'Toggle light/dark theme',
-    aria_search:'Search', aria_cart:'Cart', aria_cart_close:'Close cart',
+    aria_search:'Search', aria_cart:'Cart', aria_cart_close:'Close cart', aria_account:'Account',
     checkout_name_label:'FULL NAME', checkout_phone_label:'PHONE NUMBER',
     checkout_fulfillment_label:'FULFILLMENT', checkout_pickup:'Pickup', checkout_delivery:'Delivery',
     checkout_city_label:'CITY', checkout_city_placeholder:'Select your city', checkout_city_other:'Other city',
@@ -177,6 +177,8 @@ const TRANSLATIONS = {
     checkout_fidelity_changed:'Your points balance changed since this page loaded. Please try again.',
     checkout_dial:'Dial to pay', checkout_copy:'Copy', checkout_copied:'Copied',
     checkout_submit:'PLACE ORDER', checkout_back:'Back to cart',
+    checkout_next:'CONTINUE', checkout_change_method:'Change payment method',
+    checkout_processing:'Confirming your payment…',
     checkout_error_fields:'Please fill in your name and phone number.',
     checkout_error_receipt:'Please attach a screenshot of your payment before submitting.',
     checkout_error_generic:'Something went wrong. Please try again.',
@@ -219,7 +221,7 @@ const TRANSLATIONS = {
     footer_rights:'Tous droits réservés.', footer_note:'Boutique de démonstration — remplace les images produits, les textes et les liens.',
     cart_title:'TON PANIER', cart_empty:'Ton panier est vide.', cart_subtotal:'SOUS-TOTAL', cart_checkout:'COMMANDER',
     aria_currency:'Devise', aria_theme:'Basculer thème clair/sombre',
-    aria_search:'Recherche', aria_cart:'Panier', aria_cart_close:'Fermer le panier',
+    aria_search:'Recherche', aria_cart:'Panier', aria_cart_close:'Fermer le panier', aria_account:'Compte',
     checkout_name_label:'NOM COMPLET', checkout_phone_label:'NUMÉRO DE TÉLÉPHONE',
     checkout_fulfillment_label:'MODE DE RÉCUPÉRATION', checkout_pickup:'Retrait', checkout_delivery:'Livraison',
     checkout_city_label:'VILLE', checkout_city_placeholder:'Choisis ta ville', checkout_city_other:'Autre ville',
@@ -235,6 +237,8 @@ const TRANSLATIONS = {
     checkout_fidelity_changed:'Ton solde de points a changé depuis le chargement de cette page. Réessaie.',
     checkout_dial:'Composer pour payer', checkout_copy:'Copier', checkout_copied:'Copié',
     checkout_submit:'COMMANDER', checkout_back:'Retour au panier',
+    checkout_next:'CONTINUER', checkout_change_method:'Changer de mode de paiement',
+    checkout_processing:'Confirmation de ton paiement…',
     checkout_error_fields:'Merci de renseigner ton nom et ton numéro.',
     checkout_error_receipt:'Merci de joindre une capture de ton paiement avant de valider.',
     checkout_error_generic:'Une erreur est survenue. Réessaie.',
@@ -672,7 +676,34 @@ quickAddSubmitBtn.addEventListener('click', () => {
   const checkoutPaymentDetails = document.getElementById('checkoutPaymentDetails');
   const checkoutError = document.getElementById('checkoutError');
   const checkoutSubmitBtn = document.getElementById('checkoutSubmitBtn');
+  const checkoutStep1 = document.getElementById('checkoutStep1');
+  const checkoutStep2 = document.getElementById('checkoutStep2');
+  const checkoutStep1Error = document.getElementById('checkoutStep1Error');
+  const checkoutNextBtn = document.getElementById('checkoutNextBtn');
+  const checkoutChangeMethod = document.getElementById('checkoutChangeMethod');
+  const checkoutStep2Method = document.getElementById('checkoutStep2Method');
+  const payLoaderOverlay = document.getElementById('payLoaderOverlay');
   if (!checkoutView) return;
+
+  // Payment-method SELECTION (step 1) and payment-method DETAILS — account
+  // number, dial link, receipt upload (step 2) — live on two separate
+  // screens inside the drawer, so the details never compete for attention
+  // with the method grid.
+  function showStep1(){
+    checkoutStep2.style.display = 'none';
+    checkoutStep1.style.display = 'flex';
+  }
+  function showStep2(){
+    checkoutStep1.style.display = 'none';
+    checkoutStep2.style.display = 'flex';
+    const checked = checkoutView.querySelector('input[name=payment]:checked');
+    const card = checked ? checked.closest('.payment-method-card') : null;
+    checkoutStep2Method.innerHTML = card ? `
+      <span class="pm-badge ${card.querySelector('.pm-badge-logo') ? 'pm-badge-logo' : 'pm-badge-icon'}">${card.querySelector('.pm-badge').innerHTML}</span>
+      <span class="pm-label">${card.querySelector('.pm-label').textContent}</span>
+    ` : '';
+    renderPaymentDetails();
+  }
 
   let paymentSettings = { orange_money_number: '', orange_money_name: '', mtn_momo_number: '', mtn_momo_name: '' };
   (async function loadPaymentSettings(){
@@ -693,7 +724,7 @@ quickAddSubmitBtn.addEventListener('click', () => {
     cartItemsEl.style.display = 'none';
     cartFooter.style.display = 'none';
     checkoutView.style.display = 'flex';
-    renderPaymentDetails();
+    showStep1();
   }
 
   cartCheckoutBtn.addEventListener('click', () => {
@@ -701,6 +732,30 @@ quickAddSubmitBtn.addEventListener('click', () => {
     showCheckoutForm();
   });
   checkoutBack.addEventListener('click', showCart);
+  checkoutChangeMethod.addEventListener('click', showStep1);
+
+  function validateStep1(){
+    const name = document.getElementById('checkoutName').value.trim();
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    if (!name || !phone) {
+      checkoutStep1Error.textContent = t('checkout_error_fields');
+      return false;
+    }
+    const fulfillmentChoice = checkoutView.querySelector('input[name=fulfillment]:checked').value;
+    const cityValue = document.getElementById('checkoutCity').value;
+    if (fulfillmentChoice === 'delivery' && !cityValue) {
+      checkoutStep1Error.textContent = t('checkout_error_city');
+      return false;
+    }
+    checkoutStep1Error.textContent = '';
+    return true;
+  }
+
+  checkoutNextBtn.addEventListener('click', () => {
+    if (!validateStep1()) return;
+    checkoutError.textContent = '';
+    showStep2();
+  });
 
   checkoutView.querySelectorAll('input[name=fulfillment]').forEach(r => {
     r.addEventListener('change', () => {
@@ -810,18 +865,15 @@ quickAddSubmitBtn.addEventListener('click', () => {
   checkoutView.addEventListener('submit', async (e) => {
     e.preventDefault();
     checkoutError.textContent = '';
-    const name = document.getElementById('checkoutName').value.trim();
-    const phone = document.getElementById('checkoutPhone').value.trim();
-    if (!name || !phone) {
-      checkoutError.textContent = t('checkout_error_fields');
+    // Step 1's fields aren't visible from step 2, so if this somehow fires
+    // without them valid, send the customer back to step 1 to fix them
+    // instead of showing an error they can't see.
+    if (!validateStep1()) {
+      showStep1();
       return;
     }
     const fulfillmentChoice = checkoutView.querySelector('input[name=fulfillment]:checked').value;
     const cityValue = document.getElementById('checkoutCity').value;
-    if (fulfillmentChoice === 'delivery' && !cityValue) {
-      checkoutError.textContent = t('checkout_error_city');
-      return;
-    }
     const method = selectedPaymentMethod();
     if (method === 'bank_card') {
       checkoutError.textContent = t('checkout_card_unavailable');
@@ -841,6 +893,7 @@ quickAddSubmitBtn.addEventListener('click', () => {
     }
 
     checkoutSubmitBtn.disabled = true;
+    payLoaderOverlay.hidden = false;
     const ref = 'NYK-' + Date.now().toString(36).toUpperCase();
 
     try {
@@ -899,6 +952,11 @@ quickAddSubmitBtn.addEventListener('click', () => {
         id: i.id, name: i.name[currentLang] || i.name.en, size: i.size || null, color: i.color || null, price: i.price, qty: i.qty,
       }));
 
+      // Tag the order with the signed-in customer's account, if any, so it
+      // shows up in their order history on account.html. Guest checkout
+      // (no account) stays exactly as before — user_id just stays null.
+      const { data: { session } } = await sb.auth.getSession();
+
       const { error: insertError } = await sb.from('orders').insert({
         ref,
         customer_name: name,
@@ -911,20 +969,22 @@ quickAddSubmitBtn.addEventListener('click', () => {
         currency: currentCurrency,
         payment_method: method,
         receipt_path: receiptPath,
+        user_id: session ? session.user.id : null,
       });
       if (insertError) throw insertError;
 
       cart.clear();
       renderCart();
-      // Take the customer straight to a real tracking page — order
-      // reference, delivery details, and a status they can check back on —
-      // instead of a small confirmation panel inside the cart drawer.
-      location.href = `track.html?ref=${encodeURIComponent(ref)}`;
+      // Take the customer to a full-screen confirmation moment first,
+      // then on to the real tracking page — order reference, delivery
+      // details, and a status they can check back on.
+      location.href = `order-confirmed.html?ref=${encodeURIComponent(ref)}`;
       return;
     } catch (err) {
       checkoutError.textContent = t('checkout_error_generic');
     } finally {
       checkoutSubmitBtn.disabled = false;
+      payLoaderOverlay.hidden = true;
     }
   });
 })();

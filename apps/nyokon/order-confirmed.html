@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn</title>
+<meta name="description" content="nyøkøn — order confirmed." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;}
+  .matrix-container{position:fixed;inset:0;background:#000;overflow:hidden;}
+  .matrix-column{
+    position:absolute;top:-100%;
+    width:20px;height:100%;
+    font-size:16px;line-height:18px;font-weight:bold;
+    white-space:nowrap;
+    writing-mode:vertical-lr;
+    letter-spacing:1px;
+    background:linear-gradient(to bottom,
+      #ffffff 0%, #ffffff 5%,
+      #00ff41 10%, #00ff41 20%,
+      #00dd33 30%, #00bb22 40%,
+      #009911 50%, #007700 60%,
+      #005500 70%, #003300 80%,
+      rgba(0,255,65,.5) 90%, transparent 100%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
+    animation:matrixFall linear infinite;
+  }
+  @keyframes matrixFall{
+    0%{transform:translateY(-10%);opacity:1;}
+    100%{transform:translateY(200%);opacity:0;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .matrix-column{animation:none;opacity:.25;}
+  }
+
+  .confirm-overlay{
+    position:fixed;inset:0;z-index:2;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.55) 0%, rgba(0,0,0,.85) 70%, #000 100%);
+  }
+  .confirm-card{
+    width:100%;max-width:380px;
+    text-align:center;
+    color:#eafff0;
+  }
+  .confirm-check{
+    width:56px;height:56px;margin:0 auto 20px;
+    border-radius:50%;
+    border:2px solid #00ff41;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 18px rgba(0,255,65,.55);
+  }
+  .confirm-check svg{width:26px;height:26px;stroke:#00ff41;}
+  .confirm-title{
+    font-family:'Archivo Black',Georgia,serif;
+    font-size:22px;letter-spacing:.02em;
+    margin-bottom:10px;
+    text-transform:uppercase;
+  }
+  .confirm-sub{font-size:13px;color:#a7f3c1;line-height:1.5;margin-bottom:22px;}
+  .confirm-ref{
+    font-family:'Archivo Black',Georgia,serif;
+    font-size:19px;letter-spacing:.04em;
+    background:rgba(0,255,65,.08);
+    border:1px solid rgba(0,255,65,.35);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:26px;
+    color:#00ff41;
+  }
+  .confirm-btn{
+    display:block;width:100%;
+    padding:15px 20px;
+    background:#00ff41;color:#03130a;
+    font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:999px;text-decoration:none;
+    box-shadow:0 0 22px rgba(0,255,65,.45);
+    animation:confirmPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes confirmPulse{
+    0%,100%{box-shadow:0 0 14px rgba(0,255,65,.35);}
+    50%{box-shadow:0 0 30px rgba(0,255,65,.7);}
+  }
+  .confirm-note{margin-top:16px;font-size:11px;color:#5fae7c;}
+</style>
+</head>
+<body>
+
+<div class="matrix-container" id="matrixContainer"></div>
+
+<div class="confirm-overlay">
+  <div class="confirm-card">
+    <div class="confirm-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="confirm-title" id="confirmTitle">Order confirmed</div>
+    <div class="confirm-sub" id="confirmSub">We're preparing your order. You can check its status any time on the tracking page.</div>
+    <div class="confirm-ref" id="confirmRef">—</div>
+    <a class="confirm-btn" id="confirmBtn" href="track.html">Track my order</a>
+    <div class="confirm-note" id="confirmNote">Redirecting automatically…</div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const ref = params.get('ref') || '';
+
+const lang = (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+const T = {
+  en: { title:'Order confirmed', sub:"We're preparing your order. You can check its status any time on the tracking page.", track:'Track my order', note:'Redirecting automatically…' },
+  fr: { title:'Commande validée', sub:"Ta commande est en cours de préparation. Tu peux suivre son statut à tout moment sur la page de suivi.", track:'Suivre ma commande', note:'Redirection automatique…' },
+};
+const t = T[lang];
+document.getElementById('confirmTitle').textContent = t.title;
+document.getElementById('confirmSub').textContent = t.sub;
+document.getElementById('confirmNote').textContent = t.note;
+const trackBtn = document.getElementById('confirmBtn');
+trackBtn.textContent = t.track;
+trackBtn.href = 'track.html' + (ref ? `?ref=${encodeURIComponent(ref)}` : '');
+document.getElementById('confirmRef').textContent = ref || '—';
+
+if (ref) {
+  setTimeout(() => { location.href = trackBtn.href; }, 4000);
+} else {
+  document.getElementById('confirmNote').style.display = 'none';
+}
+
+const CHAR_SETS = [
+  'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+  'ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポヴァィゥェォャュョッABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'アカサタナハマヤラワイキシチニヒミリウクスツヌフムユルエケセテネヘメレオコソトノホモヨロヲン0987654321',
+  'ンヲロヨモホノトソコオレメヘネテセケエルユムフヌツスクウリミヒニチシキイワラヤマハナタサカア',
+  'ガザダバパギジヂビピグズヅブプゲゼデベペゴゾドボポヴァィゥェォャュョッ!@#$%^&*()_+-=[]{}|;:,.<>?',
+];
+function buildColumns(){
+  const container = document.getElementById('matrixContainer');
+  container.innerHTML = '';
+  const colWidth = 20;
+  const count = Math.ceil(window.innerWidth / colWidth) + 1;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const col = document.createElement('div');
+    col.className = 'matrix-column';
+    col.textContent = CHAR_SETS[i % CHAR_SETS.length];
+    col.style.left = (i * colWidth) + 'px';
+    col.style.animationDelay = (-(Math.random() * 4)).toFixed(2) + 's';
+    col.style.animationDuration = (2.3 + Math.random() * 2.2).toFixed(2) + 's';
+    frag.appendChild(col);
+  }
+  container.appendChild(frag);
+}
+buildColumns();
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(buildColumns, 200);
+});
+</script>
+</body>
+</html>

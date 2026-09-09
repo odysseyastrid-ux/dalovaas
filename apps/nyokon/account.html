@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn — Account</title>
+<meta name="description" content="nyøkøn — your account." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=4" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="pdp-back" id="accountBack">BACK</a>
+  <a href="index.html" class="wordmark"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <span></span>
+</header>
+
+<main class="account" id="accountRoot"></main>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+function loadLang(){
+  try { const s = localStorage.getItem('nyokon-lang'); if (s === 'en' || s === 'fr') return s; } catch (e) {}
+  return DEFAULT_LANG;
+}
+const currentLang = loadLang();
+document.documentElement.lang = currentLang;
+
+const T = {
+  en: {
+    back:'BACK',
+    signin_tab:'SIGN IN', signup_tab:'CREATE ACCOUNT',
+    email_label:'EMAIL', password_label:'PASSWORD',
+    signin_title:'WELCOME BACK', signin_intro:'Sign in to see your order history and loyalty points.',
+    signup_title:'CREATE YOUR ACCOUNT', signup_intro:'Track every order in one place and keep your loyalty points handy.',
+    signin_btn:'SIGN IN', signup_btn:'CREATE ACCOUNT',
+    error_fields:'Enter your email and password.',
+    error_generic:'Something went wrong. Please try again.',
+    confirm_email:'Check your email to confirm your account, then sign in.',
+    welcome_back:'Signed in as',
+    signout:'Sign out',
+    orders_label:'YOUR ORDERS', orders_empty:'No orders yet — they’ll show up here once you check out.',
+    loyalty_title:'LOYALTY CARD', loyalty_phone_label:'PHONE NUMBER (FOR YOUR POINTS)', loyalty_phone_placeholder:'e.g. 699000000',
+    loyalty_show_btn:'SHOW MY CARD', loyalty_member:'MEMBER', loyalty_points:'POINTS',
+    status_pending:'Pending', status_confirmed:'Confirmed', status_shipped:'Shipped', status_delivered:'Delivered', status_cancelled:'Cancelled',
+  },
+  fr: {
+    back:'RETOUR',
+    signin_tab:'SE CONNECTER', signup_tab:'CRÉER UN COMPTE',
+    email_label:'EMAIL', password_label:'MOT DE PASSE',
+    signin_title:'CONTENT DE TE REVOIR', signin_intro:'Connecte-toi pour voir l’historique de tes commandes et tes points fidélité.',
+    signup_title:'CRÉE TON COMPTE', signup_intro:'Retrouve toutes tes commandes au même endroit et garde tes points fidélité sous la main.',
+    signin_btn:'SE CONNECTER', signup_btn:'CRÉER MON COMPTE',
+    error_fields:'Entre ton email et ton mot de passe.',
+    error_generic:'Une erreur est survenue. Réessaie.',
+    confirm_email:'Vérifie ton email pour confirmer ton compte, puis connecte-toi.',
+    welcome_back:'Connecté en tant que',
+    signout:'Se déconnecter',
+    orders_label:'TES COMMANDES', orders_empty:'Pas encore de commande — elles apparaîtront ici après ton premier achat.',
+    loyalty_title:'CARTE FIDÉLITÉ', loyalty_phone_label:'NUMÉRO DE TÉLÉPHONE (POUR TES POINTS)', loyalty_phone_placeholder:'ex: 699000000',
+    loyalty_show_btn:'VOIR MA CARTE', loyalty_member:'MEMBRE', loyalty_points:'POINTS',
+    status_pending:'En attente', status_confirmed:'Confirmée', status_shipped:'Expédiée', status_delivered:'Livrée', status_cancelled:'Annulée',
+  },
+};
+function t(key){ return T[currentLang][key] || T.en[key] || key; }
+document.getElementById('accountBack').textContent = t('back');
+
+(function applyStoredTheme(){
+  try {
+    if (localStorage.getItem('nyokon-theme') === 'light') document.documentElement.dataset.theme = 'light';
+  } catch (e) {}
+})();
+
+function money(amount, currency){
+  try { return new Intl.NumberFormat(currentLang === 'fr' ? 'fr-FR' : 'en-US', { style:'currency', currency, maximumFractionDigits:0 }).format(amount); }
+  catch (e) { return `${amount} ${currency}`; }
+}
+
+const root = document.getElementById('accountRoot');
+let authMode = 'signin';
+
+function gbtn(label, id){
+  return `
+    <span class="gbtn-wrap" style="width:100%;">
+      <span class="g-light"></span>
+      <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+      <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+      <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+      <button type="submit" class="btn btn-light full" id="${id}">${label}</button>
+    </span>
+  `;
+}
+
+function renderAuthForm(){
+  const isSignup = authMode === 'signup';
+  root.innerHTML = `
+    <div class="account-tabs">
+      <button type="button" class="account-tab${!isSignup ? ' is-active' : ''}" id="tabSignin">${t('signin_tab')}</button>
+      <button type="button" class="account-tab${isSignup ? ' is-active' : ''}" id="tabSignup">${t('signup_tab')}</button>
+    </div>
+    <h1 class="account-title">${isSignup ? t('signup_title') : t('signin_title')}</h1>
+    <p class="account-intro">${isSignup ? t('signup_intro') : t('signin_intro')}</p>
+    <form class="account-form" id="authForm">
+      <div class="checkout-field">
+        <label>${t('email_label')}</label>
+        <input type="email" id="authEmail" autocomplete="email" required />
+      </div>
+      <div class="checkout-field">
+        <label>${t('password_label')}</label>
+        <input type="password" id="authPassword" autocomplete="${isSignup ? 'new-password' : 'current-password'}" required minlength="6" />
+      </div>
+      <p class="account-error" id="authError"></p>
+      ${gbtn(isSignup ? t('signup_btn') : t('signin_btn'), 'authSubmitBtn')}
+    </form>
+  `;
+  document.getElementById('tabSignin').addEventListener('click', () => { authMode = 'signin'; renderAuthForm(); });
+  document.getElementById('tabSignup').addEventListener('click', () => { authMode = 'signup'; renderAuthForm(); });
+  document.getElementById('authForm').addEventListener('submit', onAuthSubmit);
+}
+
+async function onAuthSubmit(e){
+  e.preventDefault();
+  const errorEl = document.getElementById('authError');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  errorEl.textContent = '';
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) { errorEl.textContent = t('error_fields'); return; }
+  if (!sb) { errorEl.textContent = t('error_generic'); return; }
+  submitBtn.disabled = true;
+  try {
+    if (authMode === 'signup') {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data.session) { renderAccount(); return; }
+      errorEl.textContent = t('confirm_email');
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      renderAccount();
+      return;
+    }
+  } catch (err) {
+    errorEl.textContent = err && err.message ? err.message : t('error_generic');
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+function statusClass(status){
+  return status ? `is-${status}` : '';
+}
+
+async function fetchOrders(userId){
+  if (!sb) return [];
+  try {
+    const { data } = await sb.from('orders')
+      .select('ref,status,items,subtotal,currency,created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending:false });
+    return data || [];
+  } catch (e) { return []; }
+}
+
+function loadLoyaltyPhone(){
+  try { return localStorage.getItem('nyokon-loyalty-phone') || ''; } catch (e) { return ''; }
+}
+function saveLoyaltyPhone(phone){
+  try { localStorage.setItem('nyokon-loyalty-phone', phone); } catch (e) {}
+}
+
+async function fetchLoyaltyPoints(phone){
+  if (!sb || !phone) return null;
+  try {
+    const { data } = await sb.from('customers').select('points').eq('phone', phone).maybeSingle();
+    return data ? data.points : 0;
+  } catch (e) { return null; }
+}
+
+function renderLoyaltyCard(container, phone, points){
+  container.innerHTML = `
+    <div class="loyalty-card">
+      <div class="loyalty-card-glow"></div>
+      <div class="loyalty-card-top">
+        <span class="loyalty-card-brand">nyøkøn</span>
+        <span class="loyalty-card-tag">${t('loyalty_member')}</span>
+      </div>
+      <div class="loyalty-card-phone">${phone}</div>
+      <div class="loyalty-card-bottom">
+        <div>
+          <div class="loyalty-card-points-label">${t('loyalty_points')}</div>
+          <div class="loyalty-card-points">${points ?? '—'}</div>
+        </div>
+        <div class="loyalty-card-barcode" aria-hidden="true"></div>
+      </div>
+    </div>
+  `;
+}
+
+async function renderLoyaltySection(){
+  const wrap = document.createElement('div');
+  wrap.className = 'account-loyalty';
+  const savedPhone = loadLoyaltyPhone();
+  wrap.innerHTML = `
+    <div class="account-orders-label">${t('loyalty_title')}</div>
+    <div id="loyaltyCardSlot"></div>
+    <div class="checkout-field" id="loyaltyPhoneField" style="margin-top:14px;">
+      <label>${t('loyalty_phone_label')}</label>
+      <input type="tel" id="loyaltyPhoneInput" placeholder="${t('loyalty_phone_placeholder')}" value="${savedPhone}" />
+    </div>
+    <button type="button" class="checkout-back" id="loyaltyShowBtn" style="margin-top:8px;">${t('loyalty_show_btn')}</button>
+  `;
+  const slot = wrap.querySelector('#loyaltyCardSlot');
+  async function showCard(phone){
+    if (!phone) return;
+    saveLoyaltyPhone(phone);
+    const points = await fetchLoyaltyPoints(phone);
+    renderLoyaltyCard(slot, phone, points);
+  }
+  wrap.querySelector('#loyaltyShowBtn').addEventListener('click', () => {
+    showCard(wrap.querySelector('#loyaltyPhoneInput').value.trim());
+  });
+  if (savedPhone) showCard(savedPhone);
+  return wrap;
+}
+
+async function renderAccount(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { authMode = 'signin'; renderAuthForm(); return; }
+  const user = session.user;
+
+  root.innerHTML = `
+    <div class="account-welcome">
+      <p class="account-intro" style="margin-bottom:4px;">${t('welcome_back')}</p>
+      <div class="account-welcome-email">${user.email}</div>
+      <button type="button" class="account-signout" id="signoutBtn">${t('signout')}</button>
+    </div>
+    <div id="loyaltySlot"></div>
+    <div style="margin-top:32px;">
+      <div class="account-orders-label">${t('orders_label')}</div>
+      <div id="ordersSlot"><p class="account-empty">…</p></div>
+    </div>
+  `;
+
+  document.getElementById('signoutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    authMode = 'signin';
+    renderAuthForm();
+  });
+
+  const loyaltySlot = document.getElementById('loyaltySlot');
+  loyaltySlot.appendChild(await renderLoyaltySection());
+
+  const ordersSlot = document.getElementById('ordersSlot');
+  const orders = await fetchOrders(user.id);
+  if (!orders.length) {
+    ordersSlot.innerHTML = `<p class="account-empty">${t('orders_empty')}</p>`;
+    return;
+  }
+  ordersSlot.innerHTML = orders.map(o => {
+    const date = new Date(o.created_at).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { day:'numeric', month:'short', year:'numeric' });
+    return `
+      <a class="account-order-row" href="track.html?ref=${encodeURIComponent(o.ref)}">
+        <div class="account-order-top">
+          <span class="account-order-ref">${o.ref}</span>
+          <span class="account-order-date">${date}</span>
+        </div>
+        <div class="account-order-bottom">
+          <span class="account-order-total">${money(o.subtotal, o.currency)}</span>
+          <span class="account-order-status ${statusClass(o.status)}">${t('status_' + o.status)}</span>
+        </div>
+      </a>
+    `;
+  }).join('');
+}
+
+(async function init(){
+  if (!sb) { renderAuthForm(); return; }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) renderAccount();
+  else renderAuthForm();
+})();
+</script>
+</body>
+</html>

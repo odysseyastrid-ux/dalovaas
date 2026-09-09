@@ -2,6 +2,23 @@
   const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
   const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
 
+  // Matrix rain background: a fixed number of columns of falling glyphs,
+  // built once at load — purely decorative, no interaction.
+  const GLYPHS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const matrixBg = document.getElementById('matrixBg');
+  if (matrixBg) {
+    const columnCount = Math.ceil(window.innerWidth / 22);
+    for (let i = 0; i < columnCount; i++) {
+      const col = document.createElement('div');
+      col.className = 'matrix-column';
+      col.textContent = GLYPHS;
+      col.style.left = ((i / columnCount) * 100) + '%';
+      col.style.animationDelay = (-Math.random() * 5).toFixed(2) + 's';
+      col.style.animationDuration = (2.5 + Math.random() * 2.5).toFixed(2) + 's';
+      matrixBg.appendChild(col);
+    }
+  }
+
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
 
@@ -16,15 +33,36 @@
   const loginForm = document.getElementById('loginForm');
   const signupForm = document.getElementById('signupForm');
 
-  document.querySelectorAll('.auth-tab').forEach((tab) => {
+  document.querySelectorAll('.portal-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.auth-tab').forEach((tb) => tb.classList.remove('active'));
+      document.querySelectorAll('.portal-tab').forEach((tb) => tb.classList.remove('active'));
       tab.classList.add('active');
       const isLogin = tab.dataset.tab === 'login';
       loginForm.hidden = !isLogin;
       signupForm.hidden = isLogin;
     });
   });
+
+  document.getElementById('forgotPasswordBtn').addEventListener('click', async () => {
+    const note = document.getElementById('loginNote');
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) {
+      note.textContent = t('account.forgotPassword.note.needEmail');
+      return;
+    }
+    await supabase.auth.resetPasswordForEmail(email);
+    note.textContent = t('account.forgotPassword.note.sent');
+  });
+
+  function oauthSignIn(provider) {
+    return async () => {
+      const note = document.getElementById('loginNote');
+      const { error } = await supabase.auth.signInWithOAuth({ provider });
+      if (error) note.textContent = t('account.oauth.notConfigured');
+    };
+  }
+  document.getElementById('googleOAuthBtn').addEventListener('click', oauthSignIn('google'));
+  document.getElementById('appleOAuthBtn').addEventListener('click', oauthSignIn('apple'));
 
   // Best-effort translation for Supabase Auth's own English error messages.
   const AUTH_ERROR_KEYS = {

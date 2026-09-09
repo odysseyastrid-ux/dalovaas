@@ -16,6 +16,20 @@ mobileMenu.querySelectorAll('a').forEach(a => {
   });
 });
 
+// Digital gift card preview: tap/click to flip (in addition to hover), and
+// keep the shown amount in sync with the form's amount picker.
+const passCard = document.getElementById('passCard');
+if (passCard) {
+  passCard.addEventListener('click', () => passCard.classList.toggle('flipped'));
+}
+const passAmount = document.getElementById('passAmount');
+const gAmountSelect = document.getElementById('gAmount');
+if (passAmount && gAmountSelect) {
+  gAmountSelect.addEventListener('change', () => {
+    passAmount.textContent = /^\$\d/.test(gAmountSelect.value) ? gAmountSelect.value : '$100';
+  });
+}
+
 // Gift card request form: validate, then hand off to the visitor's email app
 const form = document.getElementById('giftCardForm');
 const note = document.getElementById('giftCardNote');

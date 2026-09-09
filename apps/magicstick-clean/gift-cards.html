@@ -19,6 +19,30 @@
       <stop offset="0%" stop-color="#0B5D52"/>
       <stop offset="100%" stop-color="#164E45"/>
     </linearGradient>
+    <symbol id="passQR" viewBox="0 0 100 100">
+      <rect width="100" height="100" fill="#fff"/>
+      <rect x="0" y="0" width="30" height="30" fill="#151717"/>
+      <rect x="6" y="6" width="18" height="18" fill="#fff"/>
+      <rect x="11" y="11" width="8" height="8" fill="#151717"/>
+      <rect x="70" y="0" width="30" height="30" fill="#151717"/>
+      <rect x="76" y="6" width="18" height="18" fill="#fff"/>
+      <rect x="81" y="11" width="8" height="8" fill="#151717"/>
+      <rect x="0" y="70" width="30" height="30" fill="#151717"/>
+      <rect x="6" y="76" width="18" height="18" fill="#fff"/>
+      <rect x="11" y="81" width="8" height="8" fill="#151717"/>
+      <rect x="38" y="4" width="6" height="6" fill="#151717"/><rect x="48" y="4" width="6" height="6" fill="#151717"/><rect x="58" y="4" width="6" height="6" fill="#151717"/>
+      <rect x="40" y="14" width="6" height="6" fill="#151717"/><rect x="54" y="16" width="6" height="6" fill="#151717"/>
+      <rect x="36" y="24" width="6" height="6" fill="#151717"/><rect x="50" y="26" width="6" height="6" fill="#151717"/><rect x="60" y="24" width="6" height="6" fill="#151717"/>
+      <rect x="4" y="38" width="6" height="6" fill="#151717"/><rect x="14" y="42" width="6" height="6" fill="#151717"/><rect x="4" y="50" width="6" height="6" fill="#151717"/>
+      <rect x="38" y="38" width="6" height="6" fill="#151717"/><rect x="48" y="40" width="6" height="6" fill="#151717"/><rect x="58" y="38" width="6" height="6" fill="#151717"/>
+      <rect x="40" y="50" width="6" height="6" fill="#151717"/><rect x="52" y="52" width="6" height="6" fill="#151717"/><rect x="36" y="60" width="6" height="6" fill="#151717"/>
+      <rect x="70" y="40" width="6" height="6" fill="#151717"/><rect x="82" y="44" width="6" height="6" fill="#151717"/><rect x="90" y="38" width="6" height="6" fill="#151717"/>
+      <rect x="74" y="52" width="6" height="6" fill="#151717"/><rect x="86" y="56" width="6" height="6" fill="#151717"/>
+      <rect x="38" y="70" width="6" height="6" fill="#151717"/><rect x="48" y="76" width="6" height="6" fill="#151717"/><rect x="58" y="72" width="6" height="6" fill="#151717"/>
+      <rect x="40" y="86" width="6" height="6" fill="#151717"/><rect x="54" y="90" width="6" height="6" fill="#151717"/>
+      <rect x="70" y="70" width="6" height="6" fill="#151717"/><rect x="82" y="74" width="6" height="6" fill="#151717"/><rect x="90" y="82" width="6" height="6" fill="#151717"/>
+      <rect x="74" y="90" width="6" height="6" fill="#151717"/><rect x="88" y="66" width="6" height="6" fill="#151717"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -34,7 +58,7 @@
       <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
       <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
       <a href="account.html" data-i18n="nav.myAccount">My account</a>
-      <a href="quote.html" class="btn" data-i18n="nav.getQuote">Get a quote</a>
+      <a href="quote.html" class="cta-arrow"><span class="cta-arrow-text" data-i18n="nav.getQuote">Get a quote</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></a>
       <div class="lang-toggle">
         <button type="button" class="lang-btn" data-lang="en">EN</button>
         <button type="button" class="lang-btn" data-lang="fr">FR</button>
@@ -63,6 +87,47 @@
     <span class="tag" data-i18n="giftcards.hero.tag">Gift cards</span>
     <h1 style="font-size:44px;" data-i18n="giftcards.hero.title">Give the gift of a clean home</h1>
     <p class="lede" style="max-width:60ch;" data-i18n="giftcards.hero.lede">A Magicstick Clean gift card is perfect for a housewarming, a new parent, a birthday, or just because. Request one below and I'll take care of the rest.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap pass-area">
+    <div class="pass-card" id="passCard" tabindex="0">
+      <div class="pass-flip">
+        <div class="pass-face pass-front">
+          <div class="pass-holo"></div>
+          <div class="pass-notch pass-notch-l"></div>
+          <div class="pass-notch pass-notch-r"></div>
+          <header class="pass-header">
+            <div class="pass-brand">
+              <svg width="26" height="26" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+              <span data-i18n="giftcards.pass.brand">Magicstick Clean</span>
+            </div>
+            <div class="pass-label" data-i18n="giftcards.pass.label">GIFT CARD</div>
+          </header>
+          <div class="pass-contents">
+            <div class="pass-amount" id="passAmount">$100</div>
+            <div class="pass-qr"><svg><use href="#passQR"/></svg></div>
+          </div>
+        </div>
+        <div class="pass-face pass-back">
+          <div class="pass-notch pass-notch-l"></div>
+          <div class="pass-notch pass-notch-r"></div>
+          <header class="pass-header">
+            <div class="pass-brand">
+              <svg width="26" height="26" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+              <span data-i18n="giftcards.pass.brand">Magicstick Clean</span>
+            </div>
+            <div class="pass-label" data-i18n="giftcards.pass.label">GIFT CARD</div>
+          </header>
+          <div class="pass-contents pass-contents-back">
+            <div class="pass-qr"><svg><use href="#passQR"/></svg></div>
+            <p class="pass-note" data-i18n="giftcards.pass.note">Valid toward any Magicstick Clean service. No expiry — request yours below.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="pass-hint" data-i18n="giftcards.pass.hint">Hover (or tap) the card to flip it</p>
   </div>
 </section>
 

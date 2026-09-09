@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
-import { Field, Input } from '@/components/Field'
+import { Field } from '@/components/Field'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
@@ -49,7 +49,7 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: Pending
 
       <button
         onClick={signInWithGoogle}
-        className="mb-4 flex items-center justify-center gap-2.5 rounded-xl border border-[var(--color-divider)] bg-white py-3 text-sm font-bold"
+        className="mb-4 flex items-center justify-center gap-2.5 rounded-xl border border-[var(--color-divider)] bg-white py-3 text-sm font-bold transition-colors hover:border-[var(--color-accent)]"
       >
         <svg width="18" height="18" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -69,7 +69,19 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: Pending
       <div className="mb-6 text-sm text-[var(--color-ink)]/70">{t.loginDesc}</div>
       <div className="mb-4">
         <Field label={t.emailLabel}>
-          <Input type="email" placeholder="vous@exemple.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--color-divider)] bg-white px-3.5 py-3 transition-colors focus-within:border-[var(--color-accent)]">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-none text-[var(--color-ink)]/40">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <path d="M22 6l-10 7L2 6" />
+            </svg>
+            <input
+              type="email"
+              placeholder="vous@exemple.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full text-sm outline-none"
+            />
+          </div>
         </Field>
       </div>
       {error && <div className="mb-4 text-xs text-red-600">{error}</div>}

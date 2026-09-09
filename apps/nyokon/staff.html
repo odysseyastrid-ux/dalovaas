@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="style.css?v=4" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
+  *{box-sizing:border-box;}
   body{background:var(--bg);color:var(--fg);min-height:100vh;}
   .staff-wrap{max-width:640px;margin:0 auto;padding:60px 20px 100px;}
   .staff-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;}
@@ -31,7 +32,78 @@
   .staff-btn:disabled{opacity:.5;cursor:default;}
   .staff-error{color:#e05a4e;font-size:13px;margin-top:12px;}
   .staff-note{color:var(--fg-dim);font-size:12px;margin-top:12px;}
+
+  /* Full-screen admin shell: fixed left nav + scrolling main panel area,
+     replacing the old single centered column so the dashboard actually
+     uses the width of a desktop screen and each area of the admin reads
+     as its own section instead of one long scroll. */
   #dashboard{display:none;}
+  .staff-shell{display:flex;min-height:100vh;align-items:stretch;}
+  .staff-nav{
+    width:224px;flex-shrink:0;
+    border-right:1px solid var(--line);
+    padding:28px 14px;
+    display:flex;flex-direction:column;gap:2px;
+    position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
+  }
+  .staff-nav-brand{
+    font-family:var(--font-display);font-size:16px;padding:0 12px;margin-bottom:20px;
+  }
+  .staff-nav-brand span{display:block;font-family:var(--font-body);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--fg-dim);margin-top:2px;text-transform:uppercase;}
+  .staff-nav-item{
+    display:block;width:100%;text-align:left;
+    padding:11px 12px;border-radius:var(--radius);
+    font-size:13px;font-weight:600;color:var(--fg-dim);
+    background:none;border:none;cursor:pointer;
+  }
+  .staff-nav-item:hover{color:var(--fg);background:var(--bg-alt);}
+  .staff-nav-item.is-active{color:#0b0b0c;background:var(--accent);font-weight:700;}
+  .staff-nav-spacer{flex:1;}
+  .staff-nav-back{display:block;padding:11px 12px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);}
+  .staff-nav-back:hover{color:var(--fg);}
+
+  .staff-main{flex:1;min-width:0;padding:32px 40px 120px;max-width:1400px;}
+  .staff-panel{display:none;}
+  .staff-panel.is-active{display:block;}
+  .staff-panel .staff-section-title:first-child{margin-top:0;}
+
+  @media (max-width:860px){
+    .staff-shell{flex-direction:column;}
+    .staff-nav{
+      width:100%;height:auto;position:static;
+      flex-direction:row;overflow-x:auto;overflow-y:visible;
+      padding:14px 16px;gap:6px;border-right:none;border-bottom:1px solid var(--line);
+    }
+    .staff-nav-brand,.staff-nav-spacer{display:none;}
+    .staff-nav-item{white-space:nowrap;flex-shrink:0;}
+    .staff-nav-back{white-space:nowrap;flex-shrink:0;}
+    .staff-main{padding:24px 16px 100px;}
+  }
+
+  /* Stats dashboard */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
+  .kpi-tile{border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+  .kpi-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:10px;text-transform:uppercase;}
+  .kpi-value{font-family:var(--font-display);font-size:clamp(22px,2.6vw,30px);font-variant-numeric:tabular-nums;}
+  .chart-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px;}
+  @media (max-width:1100px){.chart-grid{grid-template-columns:1fr;}}
+  .chart-card{border:1px solid var(--line);border-radius:var(--radius);padding:22px;}
+  .chart-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .chart-sub{font-size:11px;color:var(--fg-dim);margin-bottom:18px;}
+  .revenue-chart{display:flex;align-items:flex-end;gap:5px;height:160px;}
+  .revenue-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
+  .revenue-bar{width:100%;max-width:26px;background:var(--accent);border-radius:2px 2px 0 0;min-height:2px;}
+  .revenue-bar-day{font-size:9px;color:var(--fg-dim);white-space:nowrap;}
+  .status-chart{display:flex;flex-direction:column;gap:12px;}
+  .status-bar-row{display:flex;align-items:center;gap:10px;}
+  .status-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+  .status-bar-label{width:78px;flex-shrink:0;font-size:12px;color:var(--fg-dim);}
+  .status-bar-track{flex:1;background:var(--bg-alt);border-radius:4px;height:14px;overflow:hidden;}
+  .status-bar-fill{height:100%;border-radius:4px;}
+  .status-bar-value{width:26px;flex-shrink:0;font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+  .chart-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;font-size:11px;color:var(--fg-dim);}
+  .chart-legend-item{display:flex;align-items:center;gap:6px;}
+  .chart-legend-swatch{width:9px;height:9px;border-radius:2px;}
   .slot-row{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--line);}
   .slot-row:first-child{border-top:none;}
   .slot-info{display:flex;align-items:center;gap:14px;min-width:0;}
@@ -108,10 +180,9 @@
 </style>
 </head>
 <body>
-<div class="staff-wrap">
+<div class="staff-wrap" id="loginWrap">
   <div class="staff-header">
     <a href="index.html">← nyøkøn</a>
-    <button class="signout" id="signOutBtn" style="display:none;">Se déconnecter</button>
   </div>
 
   <div id="loginView">
@@ -132,14 +203,57 @@
       </form>
     </div>
   </div>
+</div>
 
-  <div id="dashboard">
-    <h1 class="staff-title">Photos du site</h1>
-    <p class="staff-sub">Choisis une photo pour chaque emplacement, puis clique sur "Enregistrer". Le site se met à jour pour tous les visiteurs immédiatement.</p>
-    <div class="staff-card" id="slotList"></div>
+<div id="dashboard">
+  <div class="staff-shell">
+    <nav class="staff-nav" id="staffNav">
+      <div class="staff-nav-brand">nyøkøn<span>Staff</span></div>
+      <button type="button" class="staff-nav-item" data-panel="stats">Tableau de bord</button>
+      <button type="button" class="staff-nav-item" data-panel="products">Produits</button>
+      <button type="button" class="staff-nav-item" data-panel="orders">Commandes</button>
+      <button type="button" class="staff-nav-item" data-panel="payment">Paiement</button>
+      <button type="button" class="staff-nav-item" data-panel="loyalty">Fidélité</button>
+      <button type="button" class="staff-nav-item" data-panel="promotions">Promotions</button>
+      <button type="button" class="staff-nav-item" data-panel="photos">Photos</button>
+      <div class="staff-nav-spacer"></div>
+      <a href="index.html" class="staff-nav-back">← Retour au site</a>
+      <button class="signout" id="signOutBtn">Se déconnecter</button>
+    </nav>
+    <main class="staff-main">
 
-    <h2 class="staff-section-title">Produits</h2>
-    <p class="staff-sub">Le catalogue affiché sur le site. Ajoute, modifie, désactive ou supprime un produit — c'est visible immédiatement pour les clients.</p>
+      <section class="staff-panel" data-panel="stats">
+        <h1 class="staff-title">Tableau de bord</h1>
+        <p class="staff-sub">Vue d'ensemble des ventes et de l'activité du site.</p>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <div class="chart-title">Chiffre d'affaires par jour</div>
+            <div class="chart-sub">14 derniers jours — commandes confirmées, expédiées ou livrées, converties en FCFA</div>
+            <div class="revenue-chart" id="revenueChart"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Commandes par statut</div>
+            <div class="chart-sub">30 derniers jours</div>
+            <div class="status-chart" id="statusChart"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Meilleures ventes</div>
+          <div class="chart-sub">Quantités vendues, à partir des commandes confirmées</div>
+          <div id="bestSellers"></div>
+        </div>
+      </section>
+
+      <section class="staff-panel" data-panel="photos">
+        <h1 class="staff-title">Photos du site</h1>
+        <p class="staff-sub">Choisis une photo pour chaque emplacement, puis clique sur "Enregistrer". Le site se met à jour pour tous les visiteurs immédiatement.</p>
+        <div class="staff-card" id="slotList"></div>
+      </section>
+
+      <section class="staff-panel" data-panel="products">
+        <h1 class="staff-title">Produits</h1>
+        <p class="staff-sub">Le catalogue affiché sur le site. Ajoute, modifie, désactive ou supprime un produit — c'est visible immédiatement pour les clients.</p>
     <div class="staff-card">
       <form id="newProductForm">
         <div class="prod-grid">
@@ -175,8 +289,8 @@
           </div>
           <div><label for="npNameEn">Nom (anglais)</label><input id="npNameEn" required /></div>
           <div><label for="npNameFr">Nom (français)</label><input id="npNameFr" required /></div>
-          <div><label for="npPrice">Prix (USD)</label><input id="npPrice" type="number" step="0.01" min="0" required /></div>
-          <div><label for="npWas">Prix barré (optionnel)</label><input id="npWas" type="number" step="0.01" min="0" /></div>
+          <div><label for="npPrice">Prix (FCFA)</label><input id="npPrice" type="number" step="1" min="0" required /></div>
+          <div><label for="npWas">Prix barré (FCFA, optionnel)</label><input id="npWas" type="number" step="1" min="0" /></div>
           <div>
             <label for="npTag">Étiquette</label>
             <select id="npTag">
@@ -217,7 +331,7 @@
               <option value="edc">Eau de Cologne</option>
             </select>
           </div>
-          <div><label for="npCost">Coût de revient (privé, jamais visible client)</label><input id="npCost" type="number" step="0.01" min="0" /></div>
+          <div><label for="npCost">Coût de revient (FCFA, privé, jamais visible client)</label><input id="npCost" type="number" step="1" min="0" /></div>
           <div><label for="npModelStats">Info mannequin (optionnel)</label><input id="npModelStats" placeholder="ex: Mannequin fait 187cm, porte du M" /></div>
           <div><label for="npOrigin">Pays d'origine</label><input id="npOrigin" placeholder="ex: Cameroun, Turquie" /></div>
           <div><label for="npDelivery">Délai de livraison</label><input id="npDelivery" placeholder="ex: 3 à 5 jours ouvrés, Fait sur commande — 2 semaines" /></div>
@@ -244,9 +358,11 @@
       </form>
     </div>
     <div id="productList"></div>
+      </section>
 
-    <h2 class="staff-section-title">Paiement</h2>
-    <p class="staff-sub">Numéros affichés aux clients pour Orange Money / MTN MoMo au moment de la commande.</p>
+      <section class="staff-panel" data-panel="payment">
+        <h1 class="staff-title">Paiement</h1>
+        <p class="staff-sub">Numéros affichés aux clients pour Orange Money / MTN MoMo au moment de la commande.</p>
     <div class="staff-card">
       <form id="paymentSettingsForm">
         <div class="staff-field">
@@ -270,8 +386,11 @@
       </form>
     </div>
 
-    <h2 class="staff-section-title">Fidélité</h2>
-    <p class="staff-sub">Les clients gagnent des points automatiquement dès qu'une commande passe en "confirmed" (en FCFA uniquement), et peuvent les utiliser pour payer une commande complète.</p>
+      </section>
+
+      <section class="staff-panel" data-panel="loyalty">
+        <h1 class="staff-title">Fidélité</h1>
+        <p class="staff-sub">Les clients gagnent des points automatiquement dès qu'une commande passe en "confirmed" (en FCFA uniquement), et peuvent les utiliser pour payer une commande complète.</p>
     <div class="staff-card">
       <form id="loyaltySettingsForm">
         <div class="staff-field">
@@ -295,8 +414,11 @@
       <p class="staff-sub" id="loyaltyLookupResult" style="margin-top:10px;"></p>
     </div>
 
-    <h2 class="staff-section-title">Promotions</h2>
-    <p class="staff-sub">Programme une campagne à l'avance — elle remplace automatiquement le bandeau du site pendant sa période, sans que tu aies besoin d'y penser le jour J.</p>
+      </section>
+
+      <section class="staff-panel" data-panel="promotions">
+        <h1 class="staff-title">Promotions</h1>
+        <p class="staff-sub">Programme une campagne à l'avance — elle remplace automatiquement le bandeau du site pendant sa période, sans que tu aies besoin d'y penser le jour J.</p>
     <div class="staff-card">
       <form id="promoForm">
         <div class="staff-field">
@@ -320,20 +442,37 @@
       </form>
     </div>
     <div class="staff-card" id="promoList"></div>
+      </section>
 
-    <h2 class="staff-section-title">Meilleures ventes</h2>
-    <p class="staff-sub">Quantités vendues, à partir des commandes confirmées.</p>
-    <div class="staff-card" id="bestSellers"></div>
+      <section class="staff-panel" data-panel="orders">
+        <h1 class="staff-title">Commandes récentes</h1>
+        <div class="staff-card" id="ordersList"></div>
+      </section>
 
-    <h2 class="staff-section-title">Commandes récentes</h2>
-    <div class="staff-card" id="ordersList"></div>
+    </main>
   </div>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// If the Supabase CDN script fails to load (slow connection, ad-blocker,
+// carrier caching — the same class of network issue this site has hit
+// before), `supabase` is undefined and this used to throw right here,
+// silently killing every later statement in this script — including the
+// login form's submit listener, so the button just did nothing with no
+// error. Guard it the same way script.js does, so the page stays alive
+// enough to at least show a real error instead of going fully dead.
+const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+// Products are stored in USD (the storefront's base currency — every other
+// currency, XOF included, is derived from it via CURRENCIES in script.js).
+// Staff thinks in FCFA though, so every price field in this admin reads
+// and writes FCFA and converts at the edges, right where the value
+// crosses into/out of a Supabase call.
+const XOF_RATE = 600;
+function usdToXof(usd){ return usd == null || usd === '' ? '' : Math.round(usd * XOF_RATE); }
+function xofToUsd(xof){ return xof / XOF_RATE; }
 
 const SLOTS = [
   { slot: 'hero', label: 'Hero (page d’accueil)' },
@@ -353,10 +492,12 @@ const loginError = document.getElementById('loginError');
 const loginBtn = document.getElementById('loginBtn');
 const slotList = document.getElementById('slotList');
 
+const loginWrap = document.getElementById('loginWrap');
+const staffNav = document.getElementById('staffNav');
+
 function showDashboard(){
-  loginView.style.display = 'none';
+  loginWrap.style.display = 'none';
   dashboard.style.display = 'block';
-  signOutBtn.style.display = 'inline-block';
   renderSlots();
   renderProductsStaff();
   loadPaymentSettings();
@@ -364,16 +505,29 @@ function showDashboard(){
   renderPromotions();
   renderBestSellers();
   renderOrders();
+  renderStats();
 }
 function showLogin(){
-  loginView.style.display = 'block';
+  loginWrap.style.display = 'block';
   dashboard.style.display = 'none';
-  signOutBtn.style.display = 'none';
 }
+
+function showPanel(name){
+  document.querySelectorAll('.staff-panel').forEach(p => p.classList.toggle('is-active', p.dataset.panel === name));
+  staffNav.querySelectorAll('.staff-nav-item').forEach(b => b.classList.toggle('is-active', b.dataset.panel === name));
+}
+staffNav.querySelectorAll('.staff-nav-item').forEach(btn => {
+  btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+});
+showPanel('stats');
 
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   loginError.textContent = '';
+  if (!sb) {
+    loginError.textContent = "Impossible de charger la connexion — vérifie ta connexion internet et recharge la page.";
+    return;
+  }
   loginBtn.disabled = true;
   loginBtn.textContent = 'Connexion…';
   const email = document.getElementById('email').value.trim();
@@ -573,7 +727,7 @@ newProductForm.addEventListener('submit', async (e) => {
   newProductError.textContent = '';
   const nameEn = document.getElementById('npNameEn').value.trim();
   const nameFr = document.getElementById('npNameFr').value.trim();
-  const price = parseFloat(document.getElementById('npPrice').value);
+  const price = xofToUsd(parseFloat(document.getElementById('npPrice').value));
   if (!nameEn || !nameFr || !(price >= 0)) {
     newProductError.textContent = 'Nom (EN/FR) et prix sont requis.';
     return;
@@ -608,7 +762,7 @@ newProductForm.addEventListener('submit', async (e) => {
       tag: document.getElementById('npTag').value || null,
       tags: tags.length ? tags : null,
       price,
-      was: wasVal ? parseFloat(wasVal) : null,
+      was: wasVal ? xofToUsd(parseFloat(wasVal)) : null,
       sizes: sizesRaw ? sizesRaw.split(',').map(s => s.trim()).filter(Boolean) : null,
       colors: colors.length ? colors : null,
       material: document.getElementById('npMaterial').value.trim() || null,
@@ -631,7 +785,7 @@ newProductForm.addEventListener('submit', async (e) => {
     if (error) throw error;
     const costVal = document.getElementById('npCost').value;
     if (costVal) {
-      await sb.from('product_costs').upsert({ product_id: id, cost_price: parseFloat(costVal) });
+      await sb.from('product_costs').upsert({ product_id: id, cost_price: xofToUsd(parseFloat(costVal)) });
     }
     newProductForm.reset();
     npKidsGroupField.style.display = 'none';
@@ -687,8 +841,8 @@ async function renderProductsStaff(){
             <div class="f-kids-group-field" style="${(p.gender || 'unisex') === 'kids' ? '' : 'display:none;'}"><label>Enfant : fille / garçon</label><select class="f-kids-group">${PROD_KIDS_GROUPS.map(([v, l]) => `<option value="${v}" ${v === (p.kids_group || 'unisex') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
             <div><label>Nom (EN)</label><input class="f-name-en" value="${escAttr(p.name_en)}" /></div>
             <div><label>Nom (FR)</label><input class="f-name-fr" value="${escAttr(p.name_fr)}" /></div>
-            <div><label>Prix (USD)</label><input class="f-price" type="number" step="0.01" min="0" value="${p.price}" /></div>
-            <div><label>Prix barré</label><input class="f-was" type="number" step="0.01" min="0" value="${p.was ?? ''}" /></div>
+            <div><label>Prix (FCFA)</label><input class="f-price" type="number" step="1" min="0" value="${usdToXof(p.price)}" /></div>
+            <div><label>Prix barré (FCFA)</label><input class="f-was" type="number" step="1" min="0" value="${p.was != null ? usdToXof(p.was) : ''}" /></div>
             <div><label>Étiquette</label><select class="f-tag">${PROD_TAGS.map(([v, l]) => `<option value="${v}" ${v === (p.tag || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
             <div><label>Description (EN)</label><input class="f-sub-en" value="${escAttr(p.sub_en)}" /></div>
             <div><label>Description (FR)</label><input class="f-sub-fr" value="${escAttr(p.sub_fr)}" /></div>
@@ -699,7 +853,7 @@ async function renderProductsStaff(){
             <div class="f-volume-field" style="${isFragrance ? '' : 'display:none;'}"><label>Volume (ml)</label><input class="f-volume" type="number" step="1" min="0" value="${p.volume_ml ?? ''}" /></div>
             <div class="f-family-field" style="${isFragrance ? '' : 'display:none;'}"><label>Famille olfactive</label><select class="f-family">${PROD_FAMILIES.map(([v, l]) => `<option value="${v}" ${v === (p.olfactory_family || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
             <div class="f-concentration-field" style="${isFragrance ? '' : 'display:none;'}"><label>Concentration</label><select class="f-concentration">${PROD_CONCENTRATIONS.map(([v, l]) => `<option value="${v}" ${v === (p.concentration || '') ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-            <div><label>Coût de revient (privé)</label><input class="f-cost" type="number" step="0.01" min="0" value="${costByProduct[p.id] ?? ''}" /></div>
+            <div><label>Coût de revient (FCFA, privé)</label><input class="f-cost" type="number" step="1" min="0" value="${costByProduct[p.id] != null ? usdToXof(costByProduct[p.id]) : ''}" /></div>
             <div><label>Info mannequin (optionnel)</label><input class="f-model-stats" value="${escAttr(p.model_stats)}" placeholder="ex: Mannequin fait 187cm, porte du M" /></div>
             <div><label>Pays d'origine</label><input class="f-origin" value="${escAttr(p.origin_country)}" placeholder="ex: Cameroun, Turquie" /></div>
             <div><label>Délai de livraison</label><input class="f-delivery" value="${escAttr(p.delivery_estimate)}" placeholder="ex: 3 à 5 jours ouvrés" /></div>
@@ -792,8 +946,8 @@ async function renderProductsStaff(){
           kids_group: gender === 'kids' ? row.querySelector('.f-kids-group').value : null,
           tag: row.querySelector('.f-tag').value || null,
           tags: tags.length ? tags : null,
-          price: parseFloat(row.querySelector('.f-price').value) || 0,
-          was: row.querySelector('.f-was').value ? parseFloat(row.querySelector('.f-was').value) : null,
+          price: xofToUsd(parseFloat(row.querySelector('.f-price').value) || 0),
+          was: row.querySelector('.f-was').value ? xofToUsd(parseFloat(row.querySelector('.f-was').value)) : null,
           sizes: row.querySelector('.f-sizes').value.trim()
             ? row.querySelector('.f-sizes').value.trim().split(',').map(s => s.trim()).filter(Boolean)
             : null,
@@ -827,7 +981,7 @@ async function renderProductsStaff(){
         const { error } = await sb.from('products').update(update).eq('id', id);
         if (error) throw error;
         const costVal = row.querySelector('.f-cost').value;
-        if (costVal) await sb.from('product_costs').upsert({ product_id: id, cost_price: parseFloat(costVal) });
+        if (costVal) await sb.from('product_costs').upsert({ product_id: id, cost_price: xofToUsd(parseFloat(costVal)) });
         else await sb.from('product_costs').delete().eq('product_id', id);
         btn.textContent = 'Enregistré ✓';
         if (update.image_url) { renderProductsStaff(); return; }
@@ -1078,6 +1232,83 @@ async function renderPromotions(){
   });
 }
 
+// Same rate table as the storefront's CURRENCIES (script.js) — orders can be
+// placed in any of those currencies, so aggregate stats convert everything
+// to FCFA (XOF) using this before summing, rather than adding raw numbers
+// across currencies.
+const CURRENCY_RATES = { XOF:600, USD:1, EUR:0.92, GBP:0.79, CAD:1.37, NGN:1550, GHS:15.5, ZAR:18.5 };
+function toXOF(amount, currency){
+  const rate = CURRENCY_RATES[currency] || CURRENCY_RATES.XOF;
+  return (amount / rate) * XOF_RATE;
+}
+function formatXOF(amount){
+  return new Intl.NumberFormat('fr-FR', { style:'currency', currency:'XOF', maximumFractionDigits:0 }).format(amount || 0);
+}
+
+// Fixed order + fixed colors (dataviz categorical slots, validated against
+// this page's dark card surface #131315) so a status always reads as the
+// same color everywhere in the dashboard, never reassigned by rank/count.
+const ORDER_STATUS_ORDER = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+const ORDER_STATUS_LABELS = { pending:'En attente', confirmed:'Confirmée', shipped:'En livraison', delivered:'Livrée', cancelled:'Annulée' };
+const ORDER_STATUS_COLORS = { pending:'#3987e5', confirmed:'#d95926', shipped:'#199e70', delivered:'#c98500', cancelled:'#d55181' };
+
+async function renderStats(){
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const { data } = await sb.from('orders').select('status,subtotal,currency,created_at').gte('created_at', since.toISOString());
+  const orders = data || [];
+
+  const revenueStatuses = new Set(['confirmed', 'shipped', 'delivered']);
+  const revenueOrders = orders.filter(o => revenueStatuses.has(o.status));
+  const totalRevenueXOF = revenueOrders.reduce((sum, o) => sum + toXOF(o.subtotal, o.currency), 0);
+  const avgBasketXOF = revenueOrders.length ? totalRevenueXOF / revenueOrders.length : 0;
+  const pendingCount = orders.filter(o => o.status === 'pending').length;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-tile"><div class="kpi-label">Chiffre d'affaires (30j)</div><div class="kpi-value">${formatXOF(totalRevenueXOF)}</div></div>
+    <div class="kpi-tile"><div class="kpi-label">Commandes (30j)</div><div class="kpi-value">${orders.length}</div></div>
+    <div class="kpi-tile"><div class="kpi-label">Panier moyen</div><div class="kpi-value">${formatXOF(avgBasketXOF)}</div></div>
+    <div class="kpi-tile"><div class="kpi-label">En attente</div><div class="kpi-value">${pendingCount}</div></div>
+  `;
+
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    days.push(d);
+  }
+  const dayTotals = days.map(d => {
+    const next = new Date(d);
+    next.setDate(d.getDate() + 1);
+    const total = revenueOrders
+      .filter(o => { const c = new Date(o.created_at); return c >= d && c < next; })
+      .reduce((sum, o) => sum + toXOF(o.subtotal, o.currency), 0);
+    return { date: d, total };
+  });
+  const maxDay = Math.max(1, ...dayTotals.map(d => d.total));
+  document.getElementById('revenueChart').innerHTML = dayTotals.map(d => `
+    <div class="revenue-bar-wrap" title="${d.date.toLocaleDateString('fr-FR', { day:'numeric', month:'short' })} — ${formatXOF(d.total)}">
+      <div class="revenue-bar" style="height:${Math.max(2, (d.total / maxDay) * 100)}%"></div>
+      <div class="revenue-bar-day">${d.date.getDate()}</div>
+    </div>
+  `).join('');
+
+  const statusCounts = {};
+  ORDER_STATUS_ORDER.forEach(s => { statusCounts[s] = 0; });
+  orders.forEach(o => { if (statusCounts[o.status] != null) statusCounts[o.status]++; });
+  const maxStatus = Math.max(1, ...Object.values(statusCounts));
+  document.getElementById('statusChart').innerHTML = ORDER_STATUS_ORDER.map(s => `
+    <div class="status-bar-row">
+      <span class="status-swatch" style="background:${ORDER_STATUS_COLORS[s]}"></span>
+      <span class="status-bar-label">${ORDER_STATUS_LABELS[s]}</span>
+      <div class="status-bar-track" title="${statusCounts[s]} commande${statusCounts[s] === 1 ? '' : 's'}">
+        <div class="status-bar-fill" style="width:${Math.max(3, (statusCounts[s] / maxStatus) * 100)}%;background:${ORDER_STATUS_COLORS[s]}"></div>
+      </div>
+      <span class="status-bar-value">${statusCounts[s]}</span>
+    </div>
+  `).join('');
+}
+
 const bestSellersEl = document.getElementById('bestSellers');
 async function renderBestSellers(){
   const { data: orders } = await sb.from('orders').select('items').eq('status', 'confirmed');
@@ -1162,6 +1393,7 @@ async function renderOrders(){
 }
 
 (async function init(){
+  if (!sb) { showLogin(); return; }
   const { data: { session } } = await sb.auth.getSession();
   if (session) showDashboard();
   else showLogin();

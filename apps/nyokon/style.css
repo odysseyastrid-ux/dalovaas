@@ -1479,3 +1479,38 @@ main > section{
 @media (prefers-reduced-motion: reduce){
   .loyalty-card,.loyalty-card-glow{animation:none;}
 }
+
+/* Info pages (info.html) — Shipping / Returns / Size Guide / Contact,
+   linked from the footer's SUPPORT column. Same shell pattern as
+   track.html / account.html. */
+.info-page{max-width:720px;margin:0 auto;padding:48px clamp(16px,4vw,48px) 120px;}
+.info-title{font-family:var(--font-display);font-size:clamp(24px,3vw,30px);margin-bottom:10px;}
+.info-intro{font-size:14px;color:var(--fg-dim);line-height:1.5;margin-bottom:28px;}
+.info-tabs{display:flex;gap:4px;background:var(--bg-alt);border-radius:var(--radius);padding:4px;margin-bottom:32px;flex-wrap:wrap;}
+.info-tab{
+  flex:1;min-width:120px;text-align:center;padding:10px 8px;border-radius:calc(var(--radius) - 4px);
+  font-size:11.5px;font-weight:700;letter-spacing:.05em;color:var(--fg-dim);
+  background:none;border:none;cursor:pointer;transition:background .2s ease,color .2s ease;
+}
+.info-tab.is-active{background:var(--bg);color:var(--fg);}
+.info-section{display:none;}
+.info-section.is-active{display:block;animation:infoFadeIn .25s ease;}
+@keyframes infoFadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.info-section h2{font-family:var(--font-display);font-size:19px;margin:28px 0 10px;}
+.info-section h2:first-child{margin-top:0;}
+.info-section p{font-size:14px;color:var(--fg-dim);line-height:1.6;margin-bottom:14px;}
+.info-section ul{margin:0 0 14px;padding-left:18px;}
+.info-section li{font-size:14px;color:var(--fg-dim);line-height:1.6;margin-bottom:6px;}
+.info-section strong{color:var(--fg);font-weight:700;}
+.info-table{width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px;}
+.info-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);border-bottom:1px solid var(--line);padding:8px 10px;}
+.info-table td{padding:10px;border-bottom:1px solid var(--line);}
+.info-table td:first-child,.info-table th:first-child{padding-left:0;}
+.info-contact-card{border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+.info-contact-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--line);}
+.info-contact-row:first-child{border-top:none;}
+.info-contact-label{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);}
+.info-contact-value{font-size:14px;text-align:right;}
+.info-contact-value a{color:var(--fg);text-decoration:underline;}
+.info-contact-value a:hover{color:var(--accent-ink, var(--fg));}
+.info-empty{font-size:13px;color:var(--fg-dim);}

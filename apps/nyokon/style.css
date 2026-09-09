@@ -1141,6 +1141,18 @@ main > section{
 .pdp-sub{font-size:14px;color:var(--fg-dim);margin-top:6px;}
 .pdp-price{font-family:var(--font-display);font-size:20px;margin-top:16px;font-variant-numeric:tabular-nums;}
 .pdp-price .was{color:var(--fg-dim);text-decoration:line-through;margin-right:8px;}
+.pdp-discount-badge{
+  display:inline-block;
+  margin-left:10px;
+  padding:3px 8px;
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size:11px;
+  font-weight:700;
+  vertical-align:middle;
+  background:var(--accent);
+  color:#0b0b0c;
+  border-radius:2px;
+}
 .pdp-colors{margin-top:24px;}
 .pdp-colors-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);margin-bottom:10px;}
 .pdp-colors .color-swatch{width:22px;height:22px;}
@@ -1151,7 +1163,16 @@ main > section{
 .pdp-size-help:hover{color:var(--fg);}
 .pdp-size-grid{display:flex;flex-wrap:wrap;gap:8px;}
 .pdp-size-grid .size-chip{padding:10px 14px;font-size:12px;}
+.pdp-qty{display:flex;align-items:center;gap:16px;margin-top:24px;}
+.pdp-qty-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--fg-dim);}
+.pdp-qty-control{display:flex;align-items:center;border:1px solid var(--line);border-radius:var(--radius);}
+.pdp-qty-btn{width:34px;height:34px;font-size:16px;line-height:1;color:var(--fg);}
+.pdp-qty-btn:hover{background:var(--bg-alt);}
+.pdp-qty-value{min-width:28px;text-align:center;font-size:13px;font-variant-numeric:tabular-nums;}
 .pdp-note{font-size:12px;color:#e05a4e;margin-top:12px;min-height:14px;}
+.pdp-shipping{display:flex;flex-direction:column;gap:8px;margin-top:20px;padding:14px 16px;background:var(--bg-alt);border-radius:10px;}
+.pdp-shipping-row{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--fg-dim);}
+.pdp-shipping-row svg{flex-shrink:0;color:var(--fg);}
 .pdp-facts{margin-top:28px;border-top:1px solid var(--line);padding-top:20px;display:flex;flex-direction:column;gap:12px;}
 .pdp-fact{display:flex;gap:16px;font-size:13px;line-height:1.5;}
 .pdp-fact-label{flex:0 0 110px;color:var(--fg-dim);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding-top:1px;}

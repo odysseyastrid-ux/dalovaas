@@ -82,6 +82,10 @@ const T = {
     back_to_shop:'← Back to shop', go_back:'Go back',
     details_title:'DETAILS', fit_label:'Fit', material_label:'Material', care_label:'Care',
     origin_label:'Made in', delivery_label:'Delivery', delivery_default:'3–5 business days',
+    quantity_label:'QUANTITY',
+    shipping_fast_zone:'Douala & Yaoundé — 24–48h, free over 25,000 FCFA',
+    shipping_other_zone:'Other cities — 3–5 days',
+    shipping_cod:'Cash, Orange Money & MTN MoMo accepted',
   },
   fr: {
     back:'RETOUR', colour:'Couleur', colours:'Couleurs', sizes:'TAILLES',
@@ -91,6 +95,10 @@ const T = {
     back_to_shop:'← Retour à la boutique', go_back:'Retour en arrière',
     details_title:'DÉTAILS', fit_label:'Coupe', material_label:'Matière', care_label:'Entretien',
     origin_label:'Fabriqué en', delivery_label:'Livraison', delivery_default:'3 à 5 jours ouvrés',
+    quantity_label:'QUANTITÉ',
+    shipping_fast_zone:'Douala & Yaoundé — 24–48h, gratuit dès 25 000 FCFA',
+    shipping_other_zone:'Autres villes — 3 à 5 jours',
+    shipping_cod:'Espèces, Orange Money & MTN MoMo acceptés',
   },
 };
 function t(key){ return T[currentLang][key] || T.en[key] || key; }
@@ -174,6 +182,8 @@ function render({ row, variants, images }){
   let selectedColor = colors ? colors[0].name : null;
   let selectedSize = null;
   let galleryIdx = 0;
+  let quantity = 1;
+  const discount = (row.was && row.was > row.price) ? Math.round(100 - (row.price / row.was) * 100) : 0;
 
   root.innerHTML = `
     <div class="pdp-layout">
@@ -190,7 +200,7 @@ function render({ row, variants, images }){
       <div class="pdp-info">
         <div class="pdp-name">${name}</div>
         <div class="pdp-sub" id="pdpSub">${selectedColor || (currentLang === 'fr' ? row.sub_fr : row.sub_en) || ''}</div>
-        <div class="pdp-price">${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}</div>
+        <div class="pdp-price">${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}${discount > 0 ? `<span class="pdp-discount-badge">-${discount}%</span>` : ''}</div>
         ${colors ? `
         <div class="pdp-colors">
           <div class="pdp-colors-label" id="pdpColorsLabel"></div>
@@ -207,7 +217,20 @@ function render({ row, variants, images }){
             return `<button type="button" class="size-chip${outOfStock ? ' is-out' : ''}" data-size="${s}" ${outOfStock ? 'disabled' : ''}>${s}</button>`;
           }).join('')}</div>
         </div>` : ''}
+        <div class="pdp-qty">
+          <span class="pdp-qty-label">${t('quantity_label')}</span>
+          <div class="pdp-qty-control">
+            <button type="button" class="pdp-qty-btn" id="pdpQtyMinus" aria-label="Decrease quantity">−</button>
+            <span class="pdp-qty-value" id="pdpQtyValue">1</span>
+            <button type="button" class="pdp-qty-btn" id="pdpQtyPlus" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
         <div class="pdp-note" id="pdpNote"></div>
+        <div class="pdp-shipping">
+          <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span>${t('shipping_fast_zone')}</span></div>
+          <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span>${t('shipping_other_zone')}</span></div>
+          <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg><span>${t('shipping_cod')}</span></div>
+        </div>
         <div class="pdp-facts">
           ${row.fit ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('fit_label')}</span><span>${row.fit}</span></div>` : ''}
           ${row.material ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('material_label')}</span><span>${row.material}</span></div>` : ''}
@@ -279,6 +302,16 @@ function render({ row, variants, images }){
     });
   }
 
+  const qtyValueEl = document.getElementById('pdpQtyValue');
+  document.getElementById('pdpQtyMinus').addEventListener('click', () => {
+    quantity = Math.max(1, quantity - 1);
+    qtyValueEl.textContent = quantity;
+  });
+  document.getElementById('pdpQtyPlus').addEventListener('click', () => {
+    quantity = Math.min(10, quantity + 1);
+    qtyValueEl.textContent = quantity;
+  });
+
   document.getElementById('pdpStickyBar').hidden = false;
   document.getElementById('pdpStickyPrice').innerHTML = `${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}`;
   const stickyBtn = document.getElementById('pdpStickyBtn');
@@ -300,7 +333,7 @@ function render({ row, variants, images }){
         name: { en: row.name_en, fr: row.name_fr },
         sub: { en: row.sub_en || '', fr: row.sub_fr || '' },
       };
-      addToCart(product, selectedSize, selectedColor, 1);
+      addToCart(product, selectedSize, selectedColor, quantity);
       stickyNote.textContent = `${t('added')} — `;
       const link = document.createElement('a');
       link.href = 'index.html';

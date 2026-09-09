@@ -1,5 +1,11 @@
 :root{
   /* dark theme (default) */
+  /* Tells the browser to render native form chrome — select dropdown
+     popups, checkboxes, scrollbars — in dark styling. Without this the
+     popup a <select> opens ignores our --fg color entirely and falls back
+     to the browser's own light-mode default (near-white text on a white
+     background), which is why dropdown options were unreadable. */
+  color-scheme: dark;
   --bg:#0b0b0c;
   --bg-alt:#131315;
   --fg:#f5f4f0;
@@ -17,6 +23,7 @@
 }
 
 :root[data-theme="light"]{
+  color-scheme: light;
   --bg:#f6f2e9;
   --bg-alt:#efe8d8;
   --fg:#241a12;

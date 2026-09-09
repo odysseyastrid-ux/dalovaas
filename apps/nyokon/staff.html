@@ -514,9 +514,18 @@ function addColorRow(container, name, hex){
   container.appendChild(row);
 }
 function readColorRows(container){
+  // A row only counts as "used" if staff picked a color swatch or typed a
+  // name — an untouched default row (black, no name) is skipped. A used
+  // row that was never named still gets saved, with a generic fallback
+  // name, instead of silently disappearing (that used to make a color you
+  // picked just never show up on the site).
   return [...container.querySelectorAll('.color-row')]
-    .map(row => ({ name: row.querySelector('.color-name').value.trim(), hex: row.querySelector('.color-hex').value }))
-    .filter(c => c.name);
+    .map(row => ({
+      name: row.querySelector('.color-name').value.trim(),
+      hex: row.querySelector('.color-hex').value,
+    }))
+    .filter(c => c.name || c.hex.toLowerCase() !== '#000000')
+    .map((c, i) => ({ name: c.name || `Couleur ${i + 1}`, hex: c.hex }));
 }
 document.getElementById('npAddColor').addEventListener('click', () => addColorRow(npColorRows));
 addColorRow(npColorRows);

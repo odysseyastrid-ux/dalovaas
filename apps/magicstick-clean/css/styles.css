@@ -80,9 +80,10 @@
     border-radius:4px;
     border:none;
     cursor:pointer;
-    transition:transform .15s ease, background .15s ease;
+    box-shadow:0 4px 14px rgba(201,162,39,.35);
+    transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
   }
-  .btn:hover{background:#B7911F;transform:translateY(-1px);}
+  .btn:hover{background:#B7911F;transform:translateY(-1px);box-shadow:0 6px 18px rgba(201,162,39,.45);}
   .btn-outline{
     background:transparent;border:1.5px solid var(--charcoal);color:var(--charcoal);
   }
@@ -107,6 +108,11 @@
   }
   .hero h1{font-size:56px;letter-spacing:-0.5px;}
   @media (max-width:640px){ .hero h1{font-size:38px;} }
+  .hero h1 .accent-word{color:var(--gold);}
+  .hero h1 .flag{
+    display:inline-block;font-size:0.62em;vertical-align:0.08em;
+    margin-left:2px;line-height:1;
+  }
   .hero p.lede{font-size:18px;color:var(--gray);margin:22px 0 30px;max-width:46ch;}
   .ctas{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
   .hero .contactline{margin-top:22px;font-size:14.5px;color:var(--gray);}
@@ -212,26 +218,19 @@
   .sec-head p{color:var(--gray);margin-top:12px;font-size:16px;}
 
   /* ---------- SERVICES ---------- */
-  .service-item{border-top:1px solid var(--line);}
+  .service-item{border-top:1px solid var(--line);padding:28px 0;}
   .service-item:last-child{border-bottom:1px solid var(--line);}
   .service-row{
-    all:unset;box-sizing:border-box;
-    display:grid;grid-template-columns:1fr 1.6fr auto auto;gap:28px;align-items:baseline;
-    padding:28px 0;width:100%;cursor:pointer;
+    display:grid;grid-template-columns:1fr 1.6fr auto;gap:28px;align-items:baseline;
     font-family:'Work Sans',Arial,sans-serif;
   }
   .service-row h3{font-size:24px;font-family:'Libre Baskerville',Georgia,serif;font-weight:700;margin:0;}
   .service-row p{color:var(--gray);margin:0;font-size:15.5px;}
   .service-price{font-family:'Libre Baskerville',serif;font-weight:700;font-size:19px;white-space:nowrap;}
-  .service-toggle{display:flex;flex-direction:column;align-items:center;gap:3px;}
-  .service-toggle-label{font-size:10.5px;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;font-family:'Work Sans',Arial,sans-serif;white-space:nowrap;}
-  .service-icon{font-size:22px;color:var(--gold);flex:none;transition:transform .2s ease;}
-  .service-item.open .service-icon{transform:rotate(45deg);}
-  .service-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;}
-  .service-item.open .service-detail{max-height:900px;}
-  .service-detail p{color:var(--gray);font-size:15px;margin:0 0 26px;max-width:75ch;}
+  .service-detail{margin-top:22px;}
+  .service-detail p{color:var(--gray);font-size:15px;margin:0;max-width:75ch;}
   .service-detail-inner{display:flex;gap:24px;align-items:flex-start;}
-  .service-detail-inner p{margin:0 0 26px;}
+  .service-detail-inner p{margin:0;}
   .service-detail-img{
     width:180px;height:130px;object-fit:cover;border-radius:6px;flex:none;
     border:1px solid var(--line);
@@ -246,12 +245,7 @@
   }
   .cat-label-2{margin-top:8px;}
   @media (max-width:700px){
-    .service-row{grid-template-columns:1fr auto;gap:6px 8px;}
-    .service-row h3{grid-column:1 / 2;}
-    .service-row p{grid-column:1 / -1;}
-    .service-price{grid-column:1;}
-    .service-toggle{grid-column:2;grid-row:1;justify-self:end;}
-    .service-toggle-label{display:none;}
+    .service-row{grid-template-columns:1fr;gap:6px;}
   }
 
   /* ---------- OFFER BAND ---------- */

@@ -14,23 +14,6 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   });
 });
 
-// Services accordion: click a service to see what's included
-document.querySelectorAll('.service-item').forEach(item => {
-  const btn = item.querySelector('.service-row');
-  btn.addEventListener('click', () => {
-    const wasOpen = item.classList.contains('open');
-    document.querySelectorAll('.service-item.open').forEach(i => {
-      i.classList.remove('open');
-      const b = i.querySelector('.service-row');
-      if (b) b.setAttribute('aria-expanded', 'false');
-    });
-    if (!wasOpen) {
-      item.classList.add('open');
-      btn.setAttribute('aria-expanded', 'true');
-    }
-  });
-});
-
 // Highlights tabs (Gallery / Testimonials): only one panel shown at a time,
 // so the before/after photos and the testimonials each get their own space
 // without crowding one another off the homepage.

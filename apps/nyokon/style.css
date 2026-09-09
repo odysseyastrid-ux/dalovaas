@@ -788,10 +788,15 @@ main > section{
   font-size:12px;font-weight:800;letter-spacing:.02em;
   font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-.pm-orange .pm-badge{background:#FF7900;color:#fff;}
-.pm-mtn .pm-badge{background:#FFCC00;color:#111;}
+.pm-badge-logo{
+  width:100%;
+  height:44px;
+  padding:5px;
+  background:#fff;
+  border-radius:4px;
+}
+.pm-badge-logo img{width:100%;height:100%;object-fit:contain;display:block;}
 .pm-cash .pm-badge{background:transparent;color:var(--fg-dim);}
-.pm-card .pm-badge{background:transparent;color:#2b3a8f;}
 .pm-fidelity .pm-badge{background:transparent;color:#7a3bd1;}
 .pm-label{font-size:11px;font-weight:600;text-align:center;color:var(--fg-dim);}
 .payment-method-card:has(input:checked) .pm-label{color:var(--fg);}

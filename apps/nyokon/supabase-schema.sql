@@ -747,3 +747,26 @@ begin
 exception
   when duplicate_object then null;
 end $$;
+
+-- Staff activity log ("Journal" panel in staff.html): who did what, when
+-- — product added/edited/deleted, order status changed, promotions and
+-- settings updated. The acting staff member's email is captured directly
+-- from their session at insert time (denormalized, same pattern as
+-- orders.customer_name/phone) rather than joined from auth.users, since
+-- the client has no admin API access to resolve a user id to an email.
+create table if not exists public.activity_logs (
+  id uuid primary key default gen_random_uuid(),
+  staff_email text,
+  action text not null,
+  details text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.activity_logs enable row level security;
+
+drop policy if exists activity_logs_all_staff on public.activity_logs;
+create policy activity_logs_all_staff
+  on public.activity_logs for all
+  to authenticated
+  using (public.is_staff())
+  with check (public.is_staff());

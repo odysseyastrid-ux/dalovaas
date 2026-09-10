@@ -112,6 +112,7 @@
   .staff-nav-item[data-panel="loyalty"]{color:#f090b5;}
   .staff-nav-item[data-panel="promotions"]{color:#a89bf5;}
   .staff-nav-item[data-panel="photos"]{color:#4fc3b8;}
+  .staff-nav-item[data-panel="activity"]{color:#9a9a9f;}
   .staff-nav-item.is-active{color:#0b0b0c!important;}
   .staff-nav-badge{
     position:absolute;top:4px;right:10px;min-width:16px;height:16px;padding:0 4px;
@@ -300,6 +301,14 @@
   .staff-panel[data-panel="promotions"] .staff-section-title{--section-color:var(--c-violet);}
   .staff-panel[data-panel="photos"] .staff-section-title{--section-color:var(--c-teal);}
   .staff-panel[data-panel="clients"] .staff-section-title{--section-color:#e0ab4c;}
+  .staff-panel[data-panel="activity"] .staff-section-title{--section-color:#9a9a9f;}
+
+  .log-row{padding:13px 0;border-top:1px solid var(--line);}
+  .log-row:first-child{border-top:none;}
+  .log-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .log-action{font-weight:700;font-size:13.5px;}
+  .log-date{font-size:12px;color:var(--fg-dim);white-space:nowrap;}
+  .log-meta{font-size:13px;color:var(--fg-dim);margin-top:3px;}
 
   .panel-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
   .panel-actions .staff-title,.panel-actions .staff-sub{margin-bottom:0;}
@@ -415,6 +424,10 @@
       <button type="button" class="staff-nav-item" data-panel="photos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg>
         Photos
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+        Journal
       </button>
       <div class="staff-nav-spacer"></div>
       <button type="button" class="staff-nav-back" id="notifPermBtn" style="border:none;background:none;cursor:pointer;">
@@ -727,6 +740,12 @@
         <div class="staff-card" id="clientsList"></div>
       </section>
 
+      <section class="staff-panel" data-panel="activity">
+        <h1 class="staff-title">Journal d'activité</h1>
+        <p class="staff-sub">Qui a fait quoi dans l'espace staff — produits, commandes, promotions et réglages.</p>
+        <div class="staff-card" id="activityLogList"></div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -957,9 +976,34 @@ const slotList = document.getElementById('slotList');
 const loginWrap = document.getElementById('loginWrap');
 const staffNav = document.getElementById('staffNav');
 
+// Staff activity log ("Journal" panel): captures the signed-in staff
+// member's email straight from their own session, since the client has
+// no admin API access to resolve a user id back to an email otherwise.
+let currentStaffEmail = '';
+async function logActivity(action, details){
+  if (!sb) return;
+  try { await sb.from('activity_logs').insert({ staff_email: currentStaffEmail || null, action, details: details || null }); }
+  catch (e) {}
+}
+async function renderActivityLog(){
+  const list = document.getElementById('activityLogList');
+  const { data, error } = await sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(50);
+  if (error || !data || !data.length) { list.innerHTML = '<p class="staff-empty">Aucune activité enregistrée pour l’instant.</p>'; return; }
+  list.innerHTML = data.map(log => `
+    <div class="log-row">
+      <div class="log-head">
+        <span class="log-action">${log.action}</span>
+        <span class="log-date">${new Date(log.created_at).toLocaleString('fr-FR', { dateStyle:'medium', timeStyle:'short' })}</span>
+      </div>
+      <div class="log-meta">${log.staff_email || 'Staff'}${log.details ? ' — ' + log.details : ''}</div>
+    </div>
+  `).join('');
+}
+
 function showDashboard(){
   loginWrap.style.display = 'none';
   dashboard.style.display = 'block';
+  sb.auth.getUser().then(({ data }) => { currentStaffEmail = (data && data.user && data.user.email) || ''; });
   renderSlots();
   renderProductsStaff();
   loadPaymentSettings();
@@ -970,6 +1014,7 @@ function showDashboard(){
   renderOrders();
   renderStats();
   renderCustomers();
+  renderActivityLog();
   startOrderAlerts();
 }
 function showLogin(){
@@ -1340,6 +1385,7 @@ newProductForm.addEventListener('submit', async (e) => {
     if (costVal) {
       await sb.from('product_costs').upsert({ product_id: id, cost_price: xofToUsd(parseFloat(costVal)) });
     }
+    logActivity('Produit ajouté', `${nameFr} (${id})`);
     resetNewProductForm();
     renderProductsStaff();
   } catch (err) {
@@ -1580,6 +1626,7 @@ async function renderProductsStaff(){
         const costVal = row.querySelector('.f-cost').value;
         if (costVal) await sb.from('product_costs').upsert({ product_id: id, cost_price: xofToUsd(parseFloat(costVal)) });
         else await sb.from('product_costs').delete().eq('product_id', id);
+        logActivity('Produit modifié', `${update.name_fr} (${id})`);
         btn.textContent = 'Enregistré ✓';
         if (update.image_url) { renderProductsStaff(); return; }
         setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1500);
@@ -1667,7 +1714,9 @@ async function renderProductsStaff(){
     btn.addEventListener('click', async () => {
       const row = btn.closest('.prod-card');
       if (!confirm('Supprimer ce produit définitivement ? Cette action est irréversible.')) return;
+      const nameFr = row.querySelector('.f-name-fr').value.trim();
       await sb.from('products').delete().eq('id', row.dataset.id);
+      logActivity('Produit supprimé', `${nameFr} (${row.dataset.id})`);
       renderProductsStaff();
     });
   });
@@ -1704,6 +1753,7 @@ paymentSettingsForm.addEventListener('submit', async (e) => {
       { key: 'mtn_momo_name', value: mtnMomoName.value.trim() },
     ]);
     if (error) throw error;
+    logActivity('Paramètres de paiement modifiés');
     paymentSettingsBtn.textContent = 'Enregistré ✓';
   } catch (err) {
     paymentSettingsError.textContent = 'Erreur : ' + (err.message || err);
@@ -1736,6 +1786,7 @@ bizSettingsForm.addEventListener('submit', async (e) => {
     if (error) throw error;
     bizSettings = { biz_name: name, biz_address: address, biz_phone: phone, biz_email: email };
     document.getElementById('printBizName').textContent = name;
+    logActivity('Informations entreprise modifiées', name);
     bizSettingsBtn.textContent = 'Enregistré ✓';
   } catch (err) {
     bizSettingsError.textContent = 'Erreur : ' + (err.message || err);
@@ -1771,6 +1822,7 @@ loyaltySettingsForm.addEventListener('submit', async (e) => {
       { key: 'loyalty_point_value', value: String(parseInt(loyaltyPointValue.value, 10) || 10) },
     ]);
     if (error) throw error;
+    logActivity('Paramètres de fidélité modifiés');
     loyaltySettingsBtn.textContent = 'Enregistré ✓';
   } catch (err) {
     loyaltySettingsError.textContent = 'Erreur : ' + (err.message || err);
@@ -1818,6 +1870,7 @@ promoForm.addEventListener('submit', async (e) => {
       ends_at: new Date(end).toISOString(),
     });
     if (error) throw error;
+    logActivity('Promotion créée', titleFr);
     promoForm.reset();
     renderPromotions();
   } catch (err) {
@@ -1849,13 +1902,14 @@ async function renderPromotions(){
         <span class="promo-title">${promo.title_fr}</span>
         <div class="promo-dates">${starts.toLocaleString('fr-FR')} → ${ends.toLocaleString('fr-FR')}</div>
       </div>
-      <button type="button" class="promo-delete" data-id="${promo.id}">Supprimer</button>
+      <button type="button" class="promo-delete" data-id="${promo.id}" data-title="${escAttr(promo.title_fr)}">Supprimer</button>
     `;
     promoList.appendChild(row);
   });
   promoList.querySelectorAll('.promo-delete').forEach(btn => {
     btn.addEventListener('click', async () => {
       await sb.from('promotions').delete().eq('id', btn.dataset.id);
+      logActivity('Promotion supprimée', btn.dataset.title);
       renderPromotions();
     });
   });
@@ -2081,6 +2135,8 @@ async function renderOrders(){
   ordersList.querySelectorAll('.order-status').forEach(select => {
     select.addEventListener('change', async () => {
       await sb.from('orders').update({ status: select.value }).eq('id', select.dataset.id);
+      const order = ordersCache.find(o => o.id === select.dataset.id);
+      logActivity('Statut commande modifié', `${order ? order.ref : select.dataset.id} → ${select.value}`);
     });
   });
   ordersList.querySelectorAll('.order-receipt-link[data-path]').forEach(btn => {

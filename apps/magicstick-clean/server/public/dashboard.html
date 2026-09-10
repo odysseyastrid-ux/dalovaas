@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services Dashboard | Magicstick Clean Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--teal:#0B5D52;--charcoal:#1F2937;--gold:#C9A227;--cream:#F7F5F0;--gray:#6B7280;--line:#DDD8CC;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Work Sans',Arial,sans-serif;background:var(--cream);color:var(--charcoal);}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px;}
+  header{padding:24px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Libre Baskerville',serif;font-weight:700;font-size:18px;}
+  .badge{width:28px;height:28px;border-radius:100%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  #authNote{font-size:13.5px;color:var(--gray);}
+  #authNote a{color:var(--teal);font-weight:600;}
+  main{padding:40px 0 80px;}
+  h1{font-family:'Libre Baskerville',serif;font-size:26px;margin:0 0 24px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  th,td{text-align:left;padding:12px 14px;font-size:14px;border-bottom:1px solid var(--line);}
+  th{background:var(--cream);font-weight:700;text-transform:uppercase;font-size:11.5px;letter-spacing:.04em;color:var(--gray);}
+  tr:last-child td{border-bottom:none;}
+  .price{font-weight:700;}
+  .status{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11.5px;font-weight:700;}
+  .status.active{background:#E7F1EF;color:var(--teal);}
+  .status.inactive{background:#F0E9D8;color:var(--gray);}
+  form.add{margin-top:32px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:24px;display:none;}
+  form.add.visible{display:block;}
+  form.add h2{font-size:17px;margin:0 0 16px;}
+  form.add label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  form.add input, form.add textarea{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:6px;font-size:14px;font-family:inherit;margin-bottom:14px;}
+  form.add button{padding:10px 22px;border:none;border-radius:6px;background:var(--gold);color:var(--charcoal);font-weight:700;cursor:pointer;}
+  #formNote{font-size:13.5px;margin-top:10px;}
+</style>
+</head>
+<body>
+  <header><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+    <div class="brand"><span class="badge">✓</span> Magicstick Clean — Admin</div>
+    <p id="authNote"></p>
+  </div></header>
+  <main class="wrap">
+    <h1>Services</h1>
+    <table>
+      <thead><tr><th>Title</th><th>Category</th><th>Price</th><th>Status</th></tr></thead>
+      <tbody id="servicesBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+
+    <form class="add" id="addForm">
+      <h2>Add a service</h2>
+      <label for="title">Title</label>
+      <input type="text" id="title" required>
+      <label for="description">Description</label>
+      <textarea id="description" rows="2"></textarea>
+      <label for="price">Price (0 for custom quote)</label>
+      <input type="number" id="price" step="0.01" value="0">
+      <button type="submit">Add service</button>
+      <p id="formNote"></p>
+    </form>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('magicstick_admin_token');
+    const authNote = document.getElementById('authNote');
+    const addForm = document.getElementById('addForm');
+
+    if (token) {
+      authNote.innerHTML = 'Signed in — <a href="#" id="logoutLink">log out</a>';
+      addForm.classList.add('visible');
+      document.getElementById('logoutLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('magicstick_admin_token');
+        window.location.reload();
+      });
+    } else {
+      authNote.innerHTML = '<a href="/login.html">Log in</a> to add services';
+    }
+
+    async function loadServices() {
+      const body = document.getElementById('servicesBody');
+      try {
+        const res = await fetch('/api/services');
+        const services = await res.json();
+        if (!services.length) {
+          body.innerHTML = '<tr><td colspan="4">No services yet.</td></tr>';
+          return;
+        }
+        body.innerHTML = services.map((s) => `
+          <tr>
+            <td>${s.title}</td>
+            <td>${s.ServiceCategory ? s.ServiceCategory.name : '—'}</td>
+            <td class="price">${Number(s.price) > 0 ? '$' + Number(s.price).toFixed(2) : 'Custom quote'}</td>
+            <td><span class="status ${s.status}">${s.status}</span></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        body.innerHTML = '<tr><td colspan="4">Could not load services.</td></tr>';
+      }
+    }
+    loadServices();
+
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const note = document.getElementById('formNote');
+      note.textContent = 'Saving…';
+      try {
+        const res = await fetch('/api/services', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            title: document.getElementById('title').value.trim(),
+            description: document.getElementById('description').value.trim(),
+            price: parseFloat(document.getElementById('price').value) || 0,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          note.textContent = data.error || 'Could not save.';
+          return;
+        }
+        addForm.reset();
+        note.textContent = 'Service added.';
+        loadServices();
+      } catch (err) {
+        note.textContent = 'Could not reach the server.';
+      }
+    });
+  </script>
+</body>
+</html>

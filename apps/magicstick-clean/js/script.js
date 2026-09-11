@@ -1,5 +1,15 @@
 const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
 
+// The hero's before/after proof clip is decorative background footage —
+// respect prefers-reduced-motion by freezing it on the poster frame instead
+// of autoplaying/looping.
+const heroProofVideo = document.getElementById('heroProofVideo');
+if (heroProofVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  heroProofVideo.removeAttribute('autoplay');
+  heroProofVideo.removeAttribute('loop');
+  heroProofVideo.pause();
+}
+
 // Smooth-scroll every in-page link ourselves, instead of relying on default
 // anchor navigation (which can misbehave inside an embedded preview).
 document.querySelectorAll('a[href^="#"]').forEach(link => {

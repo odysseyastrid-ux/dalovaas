@@ -81,8 +81,19 @@
       </p>
     </div>
     <div class="hero-cover-wrap fade d3">
-      <img class="hero-cover-img" src="assets/images/family-with-dog.jpg" alt="A family relaxing at home with their dog, feeling comfortable in a freshly cleaned space" loading="eager">
-      <span class="hero-cover-tag" data-i18n="home.hero.coverTag">A clean, comfortable home for your whole family</span>
+      <video
+        class="hero-cover-img"
+        id="heroProofVideo"
+        poster="assets/images/hero-proof-poster.jpg"
+        aria-label="Real before-and-after footage from a Magicstick Clean job"
+        autoplay muted loop playsinline preload="metadata">
+        <source src="assets/videos/hero-proof.mp4" type="video/mp4">
+      </video>
+      <span class="hero-cover-badge">
+        <span class="hero-cover-dot" aria-hidden="true"></span>
+        <span data-i18n="home.hero.coverBadge">Real job, no filters</span>
+      </span>
+      <span class="hero-cover-tag" data-i18n="home.hero.coverTag">Watch us turn this around — real results, every time</span>
     </div>
   </div>
 </section>

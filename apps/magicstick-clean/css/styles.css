@@ -129,17 +129,19 @@
   .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
   @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;} .hero{padding:56px 0 64px;} }
 
-  /* The family photo, blurred and darkened, behind the hero's text — scaled
-     up so the blur's soft edges never show the section's border. */
+  /* The family photo, blurred behind the hero's text — scaled up so the
+     blur's soft edges never show the section's border. The scrim is just
+     dark enough at the left (where the text sits) for white text to read;
+     it fades out toward the right so the photo itself stays visible. */
   .hero-photo-bg{
     position:absolute;inset:0;z-index:0;
     background-image:url('../assets/images/family-with-dog.jpg');
     background-size:cover;background-position:center;
-    filter:blur(20px);transform:scale(1.15);
+    filter:blur(14px) brightness(.85);transform:scale(1.15);
   }
   .hero-photo-scrim{
     position:absolute;inset:0;z-index:0;
-    background:linear-gradient(120deg,rgba(10,33,29,.88) 0%,rgba(10,33,29,.72) 45%,rgba(10,33,29,.55) 100%);
+    background:linear-gradient(100deg,rgba(10,33,29,.72) 0%,rgba(10,33,29,.5) 40%,rgba(10,33,29,.22) 100%);
   }
 
   /* The photo is dark and busy, so the hero's text/pill/outline button get a

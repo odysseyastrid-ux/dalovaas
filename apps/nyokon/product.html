@@ -256,7 +256,17 @@ function render({ row, variants, images }){
 
   function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || ''); }
 
+  let galleryObserver = null;
+  function updateGalleryChrome(){
+    galleryCounter.textContent = gallery.length ? `${galleryIdx + 1}/${gallery.length}` : '';
+    galleryDots.querySelectorAll('.pdp-gallery-dot').forEach((d, i) => d.classList.toggle('active', i === galleryIdx));
+  }
+  // Every photo renders at once, full width, stacked — the customer
+  // scrolls through them (nothing cropped). The arrows/dots still work:
+  // they scroll the stack to the target photo instead of swapping one
+  // cropped frame for another.
   function renderGallery(){
+    if (galleryObserver) { galleryObserver.disconnect(); galleryObserver = null; }
     if (!gallery.length){
       galleryMedia.innerHTML = '';
       galleryCounter.textContent = '';
@@ -264,16 +274,36 @@ function render({ row, variants, images }){
       return;
     }
     galleryIdx = Math.max(0, Math.min(galleryIdx, gallery.length - 1));
-    const url = gallery[galleryIdx];
-    galleryMedia.innerHTML = isVideoUrl(url)
-      ? `<video src="${url}" autoplay muted loop playsinline controls></video>`
-      : `<img src="${url}" alt="${name}" />`;
-    galleryCounter.textContent = `${galleryIdx + 1}/${gallery.length}`;
-    galleryDots.innerHTML = gallery.map((_, i) => `<span class="pdp-gallery-dot${i === galleryIdx ? ' active' : ''}"></span>`).join('');
+    galleryMedia.innerHTML = gallery.map(url => isVideoUrl(url)
+      ? `<video src="${url}" muted loop playsinline controls></video>`
+      : `<img src="${url}" alt="${name}" loading="lazy" />`
+    ).join('');
+    galleryDots.innerHTML = gallery.map((_, i) => `<span class="pdp-gallery-dot" data-i="${i}"></span>`).join('');
+    updateGalleryChrome();
+    const slides = [...galleryMedia.children];
+    galleryObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          const i = slides.indexOf(entry.target);
+          if (i !== -1) { galleryIdx = i; updateGalleryChrome(); }
+        }
+      });
+    }, { root: galleryMedia, threshold: 0.5 });
+    slides.forEach(el => galleryObserver.observe(el));
+  }
+  function scrollGalleryTo(i){
+    const slides = [...galleryMedia.children];
+    if (!slides.length) return;
+    galleryIdx = (i + slides.length) % slides.length;
+    slides[galleryIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   renderGallery();
-  root.querySelector('.pdp-gallery-prev').addEventListener('click', () => { galleryIdx = (galleryIdx - 1 + gallery.length) % gallery.length; renderGallery(); });
-  root.querySelector('.pdp-gallery-next').addEventListener('click', () => { galleryIdx = (galleryIdx + 1) % gallery.length; renderGallery(); });
+  root.querySelector('.pdp-gallery-prev').addEventListener('click', () => scrollGalleryTo(galleryIdx - 1));
+  root.querySelector('.pdp-gallery-next').addEventListener('click', () => scrollGalleryTo(galleryIdx + 1));
+  galleryDots.addEventListener('click', (e) => {
+    const dot = e.target.closest('.pdp-gallery-dot');
+    if (dot) scrollGalleryTo(Number(dot.dataset.i));
+  });
 
   if (colors){
     const label = document.getElementById('pdpColorsLabel');

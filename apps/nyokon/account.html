@@ -53,7 +53,7 @@ const T = {
     signout:'Sign out',
     orders_label:'YOUR ORDERS', orders_empty:'No orders yet — they’ll show up here once you check out.',
     loyalty_title:'LOYALTY CARD', loyalty_phone_label:'PHONE NUMBER (FOR YOUR POINTS)', loyalty_phone_placeholder:'e.g. 699000000',
-    loyalty_show_btn:'SHOW MY CARD', loyalty_member:'MEMBER', loyalty_points:'POINTS',
+    loyalty_show_btn:'SHOW MY CARD', loyalty_member:'MEMBER', loyalty_points:'POINTS', loyalty_close:'Close my card',
     status_pending:'Pending', status_confirmed:'Confirmed', status_shipped:'Shipped', status_delivered:'Delivered', status_cancelled:'Cancelled',
   },
   fr: {
@@ -70,7 +70,7 @@ const T = {
     signout:'Se déconnecter',
     orders_label:'TES COMMANDES', orders_empty:'Pas encore de commande — elles apparaîtront ici après ton premier achat.',
     loyalty_title:'CARTE FIDÉLITÉ', loyalty_phone_label:'NUMÉRO DE TÉLÉPHONE (POUR TES POINTS)', loyalty_phone_placeholder:'ex: 699000000',
-    loyalty_show_btn:'VOIR MA CARTE', loyalty_member:'MEMBRE', loyalty_points:'POINTS',
+    loyalty_show_btn:'VOIR MA CARTE', loyalty_member:'MEMBRE', loyalty_points:'POINTS', loyalty_close:'Fermer ma carte',
     status_pending:'En attente', status_confirmed:'Confirmée', status_shipped:'Expédiée', status_delivered:'Livrée', status_cancelled:'Annulée',
   },
 };
@@ -184,8 +184,11 @@ function saveLoyaltyPhone(phone){
 async function fetchLoyaltyPoints(phone){
   if (!sb || !phone) return null;
   try {
-    const { data } = await sb.from('customers').select('points').eq('phone', phone).maybeSingle();
-    return data ? data.points : 0;
+    // customers is staff-only to read directly (it carries address/city
+    // too) — this RPC exposes just the points count for one phone, same
+    // one checkout uses.
+    const { data } = await sb.rpc('get_loyalty_points', { p_phone: phone });
+    return data ?? 0;
   } catch (e) { return null; }
 }
 
@@ -193,6 +196,7 @@ function renderLoyaltyCard(container, phone, points){
   container.innerHTML = `
     <div class="loyalty-card">
       <div class="loyalty-card-glow"></div>
+      <button type="button" class="loyalty-card-close" id="loyaltyCloseBtn" aria-label="${t('loyalty_close')}">✕</button>
       <div class="loyalty-card-top">
         <span class="loyalty-card-brand">nyøkøn</span>
         <span class="loyalty-card-tag">${t('loyalty_member')}</span>
@@ -214,23 +218,46 @@ async function renderLoyaltySection(){
   wrap.className = 'account-loyalty';
   const savedPhone = loadLoyaltyPhone();
   wrap.innerHTML = `
-    <div class="account-orders-label">${t('loyalty_title')}</div>
+    <div class="account-orders-label"><span class="account-label-dot"></span>${t('loyalty_title')}</div>
     <div id="loyaltyCardSlot"></div>
     <div class="checkout-field" id="loyaltyPhoneField" style="margin-top:14px;">
       <label>${t('loyalty_phone_label')}</label>
       <input type="tel" id="loyaltyPhoneInput" placeholder="${t('loyalty_phone_placeholder')}" value="${savedPhone}" />
     </div>
-    <button type="button" class="checkout-back" id="loyaltyShowBtn" style="margin-top:8px;">${t('loyalty_show_btn')}</button>
+    <span class="gbtn-wrap gbtn-bar" id="loyaltyShowWrap" style="margin-top:10px;">
+      <span class="g-light"></span>
+      <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+      <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+      <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+      <button type="button" class="btn btn-light full" id="loyaltyShowBtn">${t('loyalty_show_btn')}</button>
+    </span>
   `;
   const slot = wrap.querySelector('#loyaltyCardSlot');
+  const phoneField = wrap.querySelector('#loyaltyPhoneField');
+  const showWrap = wrap.querySelector('#loyaltyShowWrap');
+  const phoneInput = wrap.querySelector('#loyaltyPhoneInput');
+
+  function closeCard(){
+    slot.innerHTML = '';
+    phoneField.style.display = '';
+    showWrap.style.display = '';
+  }
   async function showCard(phone){
-    if (!phone) return;
+    if (!phone || phone.replace(/\D/g, '').length < 8) return;
     saveLoyaltyPhone(phone);
     const points = await fetchLoyaltyPoints(phone);
     renderLoyaltyCard(slot, phone, points);
+    phoneField.style.display = 'none';
+    showWrap.style.display = 'none';
+    slot.querySelector('#loyaltyCloseBtn').addEventListener('click', closeCard);
   }
-  wrap.querySelector('#loyaltyShowBtn').addEventListener('click', () => {
-    showCard(wrap.querySelector('#loyaltyPhoneInput').value.trim());
+  wrap.querySelector('#loyaltyShowBtn').addEventListener('click', () => showCard(phoneInput.value.trim()));
+  // Auto-reveal the card as soon as a plausible phone number is typed
+  // (or pasted) — no need to hunt for a button first.
+  let autoShowTimer = null;
+  phoneInput.addEventListener('input', () => {
+    clearTimeout(autoShowTimer);
+    autoShowTimer = setTimeout(() => showCard(phoneInput.value.trim()), 500);
   });
   if (savedPhone) showCard(savedPhone);
   return wrap;

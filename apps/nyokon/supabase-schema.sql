@@ -697,15 +697,25 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.customers (phone, name, address, city, orders_count, last_order_at, updated_at)
-  values (new.customer_phone, new.customer_name, new.address, new.city, 1, new.created_at, now())
-  on conflict (phone) do update
-    set name = coalesce(excluded.name, public.customers.name),
-        address = coalesce(excluded.address, public.customers.address),
-        city = coalesce(excluded.city, public.customers.city),
-        orders_count = public.customers.orders_count + 1,
-        last_order_at = excluded.last_order_at,
-        updated_at = now();
+  -- This is a side effect (keeping the staff "Clients" directory up to
+  -- date), never the reason an order should fail to place. Anything
+  -- that goes wrong in here is swallowed so the insert into orders
+  -- always succeeds regardless — this is exactly the bug that made
+  -- checkout fail with a generic error right after "Commander" instead
+  -- of reaching the order-confirmed/tracking page.
+  begin
+    insert into public.customers (phone, name, address, city, orders_count, last_order_at, updated_at)
+    values (new.customer_phone, new.customer_name, new.address, new.city, 1, new.created_at, now())
+    on conflict (phone) do update
+      set name = coalesce(excluded.name, public.customers.name),
+          address = coalesce(excluded.address, public.customers.address),
+          city = coalesce(excluded.city, public.customers.city),
+          orders_count = public.customers.orders_count + 1,
+          last_order_at = excluded.last_order_at,
+          updated_at = now();
+  exception when others then
+    null;
+  end;
   return new;
 end;
 $$;

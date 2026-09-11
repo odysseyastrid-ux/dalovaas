@@ -983,6 +983,7 @@ quickAddSubmitBtn.addEventListener('click', () => {
       location.href = `order-confirmed.html?ref=${encodeURIComponent(ref)}`;
       return;
     } catch (err) {
+      console.error('Checkout failed:', err);
       checkoutError.textContent = t('checkout_error_generic');
     } finally {
       checkoutSubmitBtn.disabled = false;

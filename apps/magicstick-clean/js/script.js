@@ -1,5 +1,22 @@
 const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
 
+// The homepage nav floats transparent over the hero's photo, then becomes
+// the site's normal solid cream bar once it's scrolled past the hero (or
+// as soon as the mobile menu opens under it, so a solid dropdown never
+// hangs beneath a see-through bar).
+const siteHeader = document.getElementById('siteHeader');
+const headerFloatsOnPhoto = Boolean(siteHeader && siteHeader.classList.contains('header-on-photo'));
+function updateHeaderScrolled() {
+  if (!headerFloatsOnPhoto) return;
+  const heroEl = document.querySelector('.hero');
+  const threshold = heroEl ? Math.max(heroEl.offsetHeight - 120, 60) : 60;
+  siteHeader.classList.toggle('scrolled', window.scrollY > threshold);
+}
+if (headerFloatsOnPhoto) {
+  updateHeaderScrolled();
+  window.addEventListener('scroll', updateHeaderScrolled, { passive: true });
+}
+
 // The hero's before/after proof clip is decorative background footage —
 // respect prefers-reduced-motion by freezing it on the poster frame instead
 // of autoplaying/looping.
@@ -113,6 +130,10 @@ burger.addEventListener('click', () => {
   const isOpen = mobileMenu.classList.toggle('open');
   burger.classList.toggle('open', isOpen);
   burger.setAttribute('aria-expanded', isOpen);
+  if (headerFloatsOnPhoto) {
+    if (isOpen) siteHeader.classList.add('scrolled');
+    else updateHeaderScrolled();
+  }
 });
 mobileMenu.querySelectorAll('a').forEach(a => {
   a.addEventListener('click', () => {

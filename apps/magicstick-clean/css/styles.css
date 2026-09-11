@@ -37,6 +37,25 @@
     background:var(--cream);
     border-bottom:1px solid var(--line);
   }
+
+  /* On the homepage only: the nav floats transparent over the hero's photo
+     (so the photo runs edge-to-edge behind it, like the reference site),
+     then turns into the site's normal solid cream bar once the visitor
+     scrolls past the hero (toggled by js/script.js). */
+  header.header-on-photo{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    background:transparent;border-bottom-color:transparent;
+    transition:background .3s ease, border-color .3s ease;
+  }
+  header.header-on-photo:not(.scrolled) .brand span,
+  header.header-on-photo:not(.scrolled) .navlinks > a:not(.navcall),
+  header.header-on-photo:not(.scrolled) .navcall{color:#fff;}
+  header.header-on-photo:not(.scrolled) .navlinks a::after{background:#fff;}
+  header.header-on-photo:not(.scrolled) .lang-toggle{border-color:rgba(255,255,255,.4);}
+  header.header-on-photo:not(.scrolled) .lang-btn{color:#fff;}
+  header.header-on-photo:not(.scrolled) .lang-btn.active{background:#fff;color:var(--charcoal);}
+  header.header-on-photo:not(.scrolled) .burger span{background:#fff;}
+  header.header-on-photo.scrolled{background:var(--cream);border-bottom-color:var(--line);}
   .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
   .brand{display:flex;align-items:center;gap:10px;}
   .brand span{font-family:'Libre Baskerville',serif;font-weight:700;font-size:19px;}
@@ -66,6 +85,11 @@
     background:var(--cream);border-top:1px solid var(--line);
     max-height:0;overflow:hidden;transition:max-height .25s ease;
   }
+  /* On the homepage the header floats over the photo (position:fixed), so
+     an open mobile menu overlays the hero below it rather than pushing it
+     down — a shadow reads it as a distinct floating panel instead of
+     looking like it just runs into the hero content underneath. */
+  header.header-on-photo .mobile-menu.open{box-shadow:0 16px 32px rgba(0,0,0,.25);}
   .mobile-menu.open{max-height:400px;overflow-y:auto;}
   @media (max-width:1300px){ .mobile-menu{display:flex;} }
   .mobile-menu a{padding:14px 32px;border-bottom:1px solid var(--line);font-size:15px;}
@@ -99,13 +123,17 @@
     transition:opacity .5s ease;
   }
   .splash-gate.splash-hide{opacity:0;pointer-events:none;}
-  /* The animated teal/gold shader fills the letterboxed space left by
-     .splash-photo's object-fit:contain below (so the mismatch between the
-     photo's aspect ratio and the screen's never shows an empty bar), and
-     the photo's own edges fade into it via a mask, instead of sitting on
-     top as a hard-edged rectangle. */
-  .splash-shader-bg{position:absolute;inset:0;overflow:hidden;}
-  .splash-shader-bg canvas{display:block;width:100%;height:100%;}
+  /* A blurred, darkened copy of the same photo fills the letterboxed space
+     left by .splash-photo's object-fit:contain below (so the mismatch
+     between the photo's aspect ratio and the screen's never shows an empty
+     bar), and the photo's own edges fade into it via a mask, instead of
+     sitting on top as a hard-edged rectangle. */
+  .splash-photo-backdrop{
+    position:absolute;inset:0;
+    background-image:url('../assets/images/fridge-before-after.jpg');
+    background-size:cover;background-position:center;
+    filter:blur(30px) brightness(.55);transform:scale(1.15);
+  }
   .splash-photo{
     position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
     -webkit-mask-image:radial-gradient(ellipse 85% 85% at center,#000 65%,transparent 100%);

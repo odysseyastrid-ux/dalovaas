@@ -123,9 +123,9 @@
   @media (prefers-reduced-motion:reduce){ .splash-gate{transition:none;} }
 
   /* ---------- HERO ---------- */
-  /* #121212 matches the shader's darkest color, so there's no flash/mismatch
-     while js/hero-shader.js loads (or if it can't — offline, no WebGL). */
-  .hero{padding:88px 0 96px;position:relative;overflow:hidden;background:#121212;}
+  /* #0A211D matches the shader's darkest color (teal-black), so there's no
+     flash/mismatch while js/hero-shader.js loads (or if it can't — no WebGL). */
+  .hero{padding:88px 0 96px;position:relative;overflow:hidden;background:#0A211D;}
   .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
   @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;} .hero{padding:56px 0 64px;} }
 

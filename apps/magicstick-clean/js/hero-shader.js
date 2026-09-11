@@ -1,18 +1,18 @@
-// Animated Warp shader behind the hero's text and CTAs, built with Paper
-// Shaders' vanilla (non-React) package, loaded straight from a CDN since
-// this site has no bundler. Runs entirely on top of the hero's solid dark
-// fallback background (see .hero in styles.css), so a network hiccup or a
-// browser without WebGL just leaves that flat color in place.
-const container = document.getElementById('heroShaderBg');
+// Animated Warp shader behind the hero's text and CTAs, in the site's own
+// teal/gold palette. Built with Paper Shaders' vanilla (non-React) package,
+// vendored as a single pre-bundled, tree-shaken file (js/vendor/paper-
+// shaders-warp.min.js — just ShaderMount + the warp shader + its color
+// parser, built with esbuild) so there's no runtime CDN fetch or ES module
+// import chain to depend on.
+(function () {
+  const container = document.getElementById('heroShaderBg');
+  const lib = window.PaperShadersWarp;
+  if (!container || !lib) return;
 
-if (container) {
   try {
-    const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = await import(
-      'https://cdn.jsdelivr.net/npm/@paper-design/shaders@0.0.80/dist/index.js'
-    );
-
+    const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = lib;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const colors = ['#121212', '#9470ff', '#121212', '#8838ff'].map(getShaderColorFromString);
+    const colors = ['#0A211D', '#0B5D52', '#127A6C', '#C9A227'].map(getShaderColorFromString);
 
     new ShaderMount(
       container,
@@ -41,6 +41,6 @@ if (container) {
       reducedMotion ? 0 : 1
     );
   } catch (err) {
-    // Offline, CDN blocked, or no WebGL — leave the solid fallback color.
+    // No WebGL — leave the solid fallback color (see .hero in styles.css).
   }
-}
+})();

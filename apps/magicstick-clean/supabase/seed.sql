@@ -1,14 +1,23 @@
+-- Categories for the admin dashboard's Services tab (not shown publicly).
+insert into service_categories (id, name, name_fr, sort_order) values
+  ('residential', 'Residential', 'Résidentiel', 1),
+  ('commercial', 'Commercial', 'Commercial', 2)
+on conflict (id) do update set
+  name = excluded.name,
+  name_fr = excluded.name_fr;
+
 -- Bookable services catalog (mirrors the pricing shown on the site).
 -- Move-In/Move-Out, Office, Retail, and Post-Construction stay
 -- custom-quote-only and are intentionally not seeded here.
 
-insert into services (id, name, name_fr, description, description_fr, base_price_cents, deposit_cents, duration_minutes, sort_order) values
-  ('standard', 'Standard Cleaning', 'Nettoyage standard', 'Regular maintenance for kitchens, bathrooms, floors, and dusting.', 'Entretien régulier des cuisines, salles de bain, planchers et époussetage.', 13000, 3000, 120, 1),
-  ('deep', 'Deep Cleaning', 'Nettoyage en profondeur', 'A full top-to-bottom reset: appliances, baseboards, cabinets, windows, and everything in between.', 'Une remise à neuf complète : électroménagers, plinthes, armoires, fenêtres et tout le reste.', 18000, 5000, 240, 2),
-  ('airbnb', 'Airbnb & Short-Term Rental Turnover', 'Roulement Airbnb et location court terme', 'Guest-ready resets between bookings: beds remade, bathrooms reset, restocked, and staged.', 'Prêt pour les invités entre les réservations : lits refaits, salles de bain nettoyées, réapprovisionnées et mises en scène.', 10000, 2500, 90, 3)
+insert into services (id, name, name_fr, description, description_fr, base_price_cents, deposit_cents, duration_minutes, sort_order, category_id) values
+  ('standard', 'Standard Cleaning', 'Nettoyage standard', 'Regular maintenance for kitchens, bathrooms, floors, and dusting.', 'Entretien régulier des cuisines, salles de bain, planchers et époussetage.', 13000, 3000, 120, 1, 'residential'),
+  ('deep', 'Deep Cleaning', 'Nettoyage en profondeur', 'A full top-to-bottom reset: appliances, baseboards, cabinets, windows, and everything in between.', 'Une remise à neuf complète : électroménagers, plinthes, armoires, fenêtres et tout le reste.', 18000, 5000, 240, 2, 'residential'),
+  ('airbnb', 'Airbnb & Short-Term Rental Turnover', 'Roulement Airbnb et location court terme', 'Guest-ready resets between bookings: beds remade, bathrooms reset, restocked, and staged.', 'Prêt pour les invités entre les réservations : lits refaits, salles de bain nettoyées, réapprovisionnées et mises en scène.', 10000, 2500, 90, 3, 'residential')
 on conflict (id) do update set
   name_fr = excluded.name_fr,
-  description_fr = excluded.description_fr;
+  description_fr = excluded.description_fr,
+  category_id = excluded.category_id;
 
 -- Terms of Service sections shown on /terms.html. summary_tldr is the short
 -- accordion preview; full_content is a placeholder here — replace with the

@@ -30,9 +30,9 @@
     tab.addEventListener('click', () => {
       document.querySelectorAll('.admin-tabs .auth-tab').forEach((tb) => tb.classList.remove('active'));
       tab.classList.add('active');
-      const isQuotes = tab.dataset.tab === 'quotes';
-      document.getElementById('quotesPanel').hidden = !isQuotes;
-      document.getElementById('bookingsPanel').hidden = isQuotes;
+      document.getElementById('quotesPanel').hidden = tab.dataset.tab !== 'quotes';
+      document.getElementById('bookingsPanel').hidden = tab.dataset.tab !== 'bookings';
+      document.getElementById('servicesPanel').hidden = tab.dataset.tab !== 'services';
     });
   });
 
@@ -164,6 +164,154 @@
     });
   }
 
+  let currentAdminId = null;
+  let lastCategories = [];
+  let lastServices = null;
+
+  async function logActivity(action, details) {
+    await supabase.from('activity_logs').insert({ admin_id: currentAdminId, action, details });
+  }
+
+  function categorySelect(current, onchange) {
+    const select = document.createElement('select');
+    select.className = 'status-select';
+    const none = document.createElement('option');
+    none.value = '';
+    none.textContent = '—';
+    select.appendChild(none);
+    lastCategories.forEach((cat) => {
+      const o = document.createElement('option');
+      o.value = cat.id;
+      o.textContent = lang() === 'fr' && cat.name_fr ? cat.name_fr : cat.name;
+      if (cat.id === current) o.selected = true;
+      select.appendChild(o);
+    });
+    select.addEventListener('change', () => onchange(select.value || null));
+    return select;
+  }
+
+  function activeSelect(current, onchange) {
+    return statusSelect(current ? 'active' : 'inactive', ['active', 'inactive'], (value) => onchange(value === 'active'));
+  }
+
+  function moneyInput(cents, onchange) {
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '0';
+    input.step = '0.01';
+    input.style.width = '90px';
+    input.value = (cents / 100).toFixed(2);
+    input.addEventListener('change', () => {
+      const value = Math.round(parseFloat(input.value || '0') * 100);
+      if (!Number.isFinite(value) || value < 0) return;
+      onchange(value);
+    });
+    return input;
+  }
+
+  function renderServices() {
+    const tbody = document.querySelector('#servicesTable tbody');
+    tbody.innerHTML = '';
+    if (!lastServices) return;
+    lastServices.forEach((s) => {
+      const name = lang() === 'fr' && s.name_fr ? s.name_fr : s.name;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${name}</td>
+        <td class="category-cell"></td>
+        <td class="price-cell"></td>
+        <td class="deposit-cell"></td>
+        <td>${s.duration_minutes} ${t('admin.services.minutes')}</td>
+        <td class="active-cell"></td>
+      `;
+      tr.querySelector('.category-cell').appendChild(
+        categorySelect(s.category_id, async (value) => {
+          await supabase.from('services').update({ category_id: value }).eq('id', s.id);
+          logActivity('update_service_category', `${s.id} -> ${value || '—'}`);
+        })
+      );
+      tr.querySelector('.price-cell').appendChild(
+        moneyInput(s.base_price_cents, async (cents) => {
+          await supabase.from('services').update({ base_price_cents: cents }).eq('id', s.id);
+          logActivity('update_service_price', `${s.id} -> $${(cents / 100).toFixed(2)}`);
+        })
+      );
+      tr.querySelector('.deposit-cell').appendChild(
+        moneyInput(s.deposit_cents, async (cents) => {
+          await supabase.from('services').update({ deposit_cents: cents }).eq('id', s.id);
+          logActivity('update_service_deposit', `${s.id} -> $${(cents / 100).toFixed(2)}`);
+        })
+      );
+      tr.querySelector('.active-cell').appendChild(
+        activeSelect(s.active, async (value) => {
+          await supabase.from('services').update({ active: value }).eq('id', s.id);
+          logActivity('update_service_status', `${s.id} -> ${value ? 'active' : 'inactive'}`);
+        })
+      );
+      tbody.appendChild(tr);
+    });
+  }
+
+  function fillCategoryPicker() {
+    const select = document.getElementById('svcCategory');
+    select.innerHTML = '';
+    const none = document.createElement('option');
+    none.value = '';
+    none.textContent = '—';
+    select.appendChild(none);
+    lastCategories.forEach((cat) => {
+      const o = document.createElement('option');
+      o.value = cat.id;
+      o.textContent = lang() === 'fr' && cat.name_fr ? cat.name_fr : cat.name;
+      select.appendChild(o);
+    });
+  }
+
+  async function loadCategories() {
+    const { data, error } = await supabase.from('service_categories').select('*').order('sort_order');
+    if (error || !data) return;
+    lastCategories = data;
+    fillCategoryPicker();
+  }
+
+  async function loadServices() {
+    const { data, error } = await supabase.from('services').select('*').order('sort_order');
+    if (error || !data) return;
+    lastServices = data;
+    renderServices();
+  }
+
+  function slugify(name) {
+    return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `service-${Date.now()}`;
+  }
+
+  document.getElementById('addServiceForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const note = document.getElementById('addServiceNote');
+    const name = document.getElementById('svcName').value.trim();
+    const id = slugify(name);
+    const { error } = await supabase.from('services').insert({
+      id,
+      name,
+      name_fr: document.getElementById('svcNameFr').value.trim(),
+      description: document.getElementById('svcDescription').value.trim(),
+      description_fr: document.getElementById('svcDescriptionFr').value.trim(),
+      category_id: document.getElementById('svcCategory').value || null,
+      base_price_cents: Math.round(parseFloat(document.getElementById('svcPrice').value || '0') * 100),
+      deposit_cents: Math.round(parseFloat(document.getElementById('svcDeposit').value || '0') * 100),
+      duration_minutes: parseInt(document.getElementById('svcDuration').value || '0', 10),
+      sort_order: (lastServices?.length || 0) + 1,
+    });
+    if (error) {
+      note.textContent = error.message;
+      return;
+    }
+    await logActivity('create_service', id);
+    note.textContent = t('admin.services.added');
+    e.target.reset();
+    loadServices();
+  });
+
   async function loadQuotes() {
     const { data, error } = await supabase
       .from('quote_requests')
@@ -187,12 +335,16 @@
   document.addEventListener('magicstick:langchange', () => {
     renderQuotes();
     renderBookings();
+    fillCategoryPicker();
+    renderServices();
   });
 
   async function showDashboard() {
     dashboard.hidden = false;
     loadQuotes();
     loadBookings();
+    await loadCategories();
+    loadServices();
   }
 
   async function checkAccess() {
@@ -207,6 +359,7 @@
       notAdminNotice.hidden = false;
       return;
     }
+    currentAdminId = adminRow.id;
     showDashboard();
   }
   checkAccess();

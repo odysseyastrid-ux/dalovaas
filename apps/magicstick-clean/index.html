@@ -13,11 +13,12 @@
 </head>
 <body>
 
-<!-- Splash gate: the family photo greets visitors before the front page
-     itself. Dismissed by clicking anywhere on it; remembered for the rest
-     of the browser session so it only shows once per visit. -->
+<!-- Splash gate: a before/after proof photo greets visitors before the front
+     page itself. Dismissed by clicking anywhere on it; remembered for the
+     rest of the browser session so it only shows once per visit. -->
 <div id="splashGate" class="splash-gate" role="button" tabindex="0" aria-label="Enter Magicstick Clean">
-  <img class="splash-photo" src="assets/images/family-with-dog.jpg" alt="A family relaxing at home with their dog, feeling comfortable in a freshly cleaned space">
+  <div class="splash-photo-backdrop" aria-hidden="true"></div>
+  <img class="splash-photo" src="assets/images/fridge-before-after.jpg" alt="Before and after: a refrigerator interior transformed from grimy to spotless by Magicstick Clean">
   <div class="splash-scrim" aria-hidden="true"></div>
   <div class="splash-content">
     <div class="splash-brand">
@@ -25,7 +26,10 @@
       <span>Magicstick Clean</span>
     </div>
     <p class="splash-tagline" data-i18n="splash.tagline">A clean, comfortable home for your whole family</p>
-    <button type="button" class="btn splash-enter" id="splashEnterBtn" data-i18n="splash.enter">Enter site</button>
+    <button type="button" class="cta-arrow splash-enter" id="splashEnterBtn">
+      <span class="cta-arrow-text" data-i18n="splash.enter">Enter site</span>
+      <span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span>
+    </button>
   </div>
 </div>
 <script>

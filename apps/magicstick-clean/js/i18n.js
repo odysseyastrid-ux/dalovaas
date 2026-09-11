@@ -56,7 +56,7 @@
     'home.hero.coverBadge': { en: 'Real job, no filters', fr: 'Vrai travail, sans filtre' },
 
     // ---------- index.html: splash gate ----------
-    'splash.tagline': { en: 'A clean, comfortable home for your whole family', fr: 'Une maison propre et confortable pour toute la famille' },
+    'splash.tagline': { en: 'Real transformations, every time', fr: 'De vraies transformations, à chaque fois' },
     'splash.enter': { en: 'Enter site', fr: 'Entrer sur le site' },
 
     // ---------- index.html: gallery ----------

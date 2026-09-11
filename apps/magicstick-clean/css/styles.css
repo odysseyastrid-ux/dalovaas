@@ -99,28 +99,42 @@
     transition:opacity .5s ease;
   }
   .splash-gate.splash-hide{opacity:0;pointer-events:none;}
+  /* A blurred, darkened copy of the same photo fills the letterboxed edges
+     left by .splash-photo's object-fit:contain below, so the mismatch
+     between the photo's aspect ratio and the screen's never shows empty
+     bars — while the photo itself is never cropped or upscaled. */
+  .splash-photo-backdrop{
+    position:absolute;inset:0;
+    background-image:url('../assets/images/fridge-before-after.jpg');
+    background-size:cover;background-position:center;
+    filter:blur(30px) brightness(.55);transform:scale(1.15);
+  }
   .splash-photo{
-    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    transform:scale(1.02);
+    position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
   }
   .splash-scrim{
     position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.35) 55%,rgba(0,0,0,.7) 100%);
+    background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.25) 55%,rgba(0,0,0,.65) 100%);
   }
   .splash-content{
     position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
     text-align:center;padding:0 24px 72px;color:#fff;
   }
   .splash-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .splash-brand svg{animation:splashLogoPop .8s cubic-bezier(.34,1.56,.64,1) both;}
   .splash-brand span{font-family:'Libre Baskerville',serif;font-weight:700;font-size:24px;color:#fff;}
+  @keyframes splashLogoPop{from{transform:scale(.3) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
   .splash-tagline{font-size:17px;color:#F0EEE7;margin:0 0 26px;max-width:36ch;}
-  .splash-enter{cursor:pointer;}
+  .splash-enter{font-family:inherit;}
   @media (max-width:640px){
     .splash-content{padding:0 20px 56px;}
     .splash-brand span{font-size:20px;}
     .splash-tagline{font-size:15px;}
   }
-  @media (prefers-reduced-motion:reduce){ .splash-gate{transition:none;} }
+  @media (prefers-reduced-motion:reduce){
+    .splash-gate{transition:none;}
+    .splash-brand svg{animation:none;}
+  }
 
   /* ---------- HERO ---------- */
   /* #0A211D is the fallback if the photo can't load — a dark teal, not a

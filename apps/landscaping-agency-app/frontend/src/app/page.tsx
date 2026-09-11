@@ -20,7 +20,7 @@ export default function Home() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const res = await fetch(`${apiUrl}/api/v1/quotes`, {
+      const res = await fetch(`${apiUrl}/v1/quotes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -772,15 +772,17 @@ main > section{
   padding:60px clamp(16px,4vw,48px) 30px;border-top:1px solid var(--line);
   isolation:isolate;
 }
-/* Animated mesh-gradient background (WebGL, driven from script.js) —
-   an always-on decorative canvas behind the footer. A dark scrim sits
-   between the canvas and the text so labels stay readable over
-   whichever vivid colors the gradient is drifting through at a given
-   moment, regardless of light/dark theme — the footer's own text
-   colors are pinned to light below rather than following --fg. */
-.footer-mesh-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block;}
-.footer-mesh-scrim{position:absolute;inset:0;z-index:1;background:rgba(8,8,10,.5);pointer-events:none;}
-.footer-top,.footer-bottom{position:relative;z-index:2;}
+/* Animated mesh-gradient background — mounted by
+   assets/vendor/paper-shaders/mount-footer-mesh-gradient.js, which
+   injects its own <canvas> (z-index:-1 within this stacking context,
+   per the vendored library's own styles) and keeps it in sync with the
+   footer's size. A dark scrim sits between that canvas and the text so
+   labels stay readable over whichever vivid colors the gradient is
+   drifting through at a given moment, regardless of light/dark theme —
+   the footer's own text colors are pinned to light below rather than
+   following --fg. */
+.footer-mesh-scrim{position:absolute;inset:0;z-index:0;background:rgba(8,8,10,.5);pointer-events:none;}
+.footer-top,.footer-bottom{position:relative;z-index:1;}
 .footer-top{
   display:grid;
   grid-template-columns:1.4fr 1fr 1fr 1fr;

@@ -767,7 +767,20 @@ main > section{
 .newsletter-note{margin-top:16px;font-size:12px;color:var(--accent-ink);min-height:16px;}
 
 /* Footer */
-.site-footer{padding:60px clamp(16px,4vw,48px) 30px;border-top:1px solid var(--line);}
+.site-footer{
+  position:relative;overflow:hidden;
+  padding:60px clamp(16px,4vw,48px) 30px;border-top:1px solid var(--line);
+  isolation:isolate;
+}
+/* Animated mesh-gradient background (WebGL, driven from script.js) —
+   an always-on decorative canvas behind the footer. A dark scrim sits
+   between the canvas and the text so labels stay readable over
+   whichever vivid colors the gradient is drifting through at a given
+   moment, regardless of light/dark theme — the footer's own text
+   colors are pinned to light below rather than following --fg. */
+.footer-mesh-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block;}
+.footer-mesh-scrim{position:absolute;inset:0;z-index:1;background:rgba(8,8,10,.5);pointer-events:none;}
+.footer-top,.footer-bottom{position:relative;z-index:2;}
 .footer-top{
   display:grid;
   grid-template-columns:1.4fr 1fr 1fr 1fr;
@@ -775,15 +788,15 @@ main > section{
   max-width:var(--maxw);
   margin:0 auto 50px;
 }
-.footer-col p{color:var(--fg-dim);font-size:13px;}
-.footer-col h4{font-size:11px;letter-spacing:.1em;color:var(--fg-dim);margin-bottom:16px;}
+.footer-col p{color:rgba(255,255,255,.72);font-size:13px;}
+.footer-col h4{font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:16px;}
 .footer-col a{
   display:block;
   font-size:13px;
-  color:var(--fg-dim);
+  color:rgba(255,255,255,.72);
   margin-bottom:10px;
 }
-.footer-col a:hover{color:var(--fg);}
+.footer-col a:hover{color:#fff;}
 .footer-bottom{
   max-width:var(--maxw);
   margin:0 auto;
@@ -792,9 +805,9 @@ main > section{
   flex-wrap:wrap;
   gap:10px;
   font-size:12px;
-  color:var(--fg-dim);
+  color:rgba(255,255,255,.6);
   padding-top:24px;
-  border-top:1px solid var(--line);
+  border-top:1px solid rgba(255,255,255,.18);
 }
 
 /* Cart drawer */

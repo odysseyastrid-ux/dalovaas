@@ -123,17 +123,27 @@
   @media (prefers-reduced-motion:reduce){ .splash-gate{transition:none;} }
 
   /* ---------- HERO ---------- */
-  /* #0A211D matches the shader's darkest color (teal-black), so there's no
-     flash/mismatch while js/hero-shader.js loads (or if it can't — no WebGL). */
+  /* #0A211D is the fallback if the photo can't load — a dark teal, not a
+     jarring flash of plain white/cream behind the (still-loading) image. */
   .hero{padding:88px 0 96px;position:relative;overflow:hidden;background:#0A211D;}
   .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
   @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;} .hero{padding:56px 0 64px;} }
 
-  .hero-shader-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
-  .hero-shader-bg canvas{display:block;width:100%;height:100%;}
+  /* The family photo, blurred and darkened, behind the hero's text — scaled
+     up so the blur's soft edges never show the section's border. */
+  .hero-photo-bg{
+    position:absolute;inset:0;z-index:0;
+    background-image:url('../assets/images/family-with-dog.jpg');
+    background-size:cover;background-position:center;
+    filter:blur(20px);transform:scale(1.15);
+  }
+  .hero-photo-scrim{
+    position:absolute;inset:0;z-index:0;
+    background:linear-gradient(120deg,rgba(10,33,29,.88) 0%,rgba(10,33,29,.72) 45%,rgba(10,33,29,.55) 100%);
+  }
 
-  /* The animated background is dark, so the hero's text/pill/outline button
-     get a light variant here instead of the site's usual charcoal-on-cream. */
+  /* The photo is dark and busy, so the hero's text/pill/outline button get a
+     light variant here instead of the site's usual charcoal-on-cream. */
   .hero .tag{background:rgba(255,255,255,.14);color:#fff;}
   .hero h1{color:#fff;}
   .hero p.lede{color:#D7D5CE;}

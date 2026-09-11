@@ -10,6 +10,27 @@ if (heroProofVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matc
   heroProofVideo.pause();
 }
 
+// Splash gate: dismiss on click/tap or Enter/Space, remember for the rest
+// of this tab's session (see the inline script next to #splashGate in
+// index.html, which hides it instantly on repeat visits before this file
+// even loads).
+const splashGate = document.getElementById('splashGate');
+if (splashGate) {
+  const dismissSplash = () => {
+    splashGate.classList.add('splash-hide');
+    document.documentElement.classList.remove('splash-locked');
+    try { sessionStorage.setItem('magicstick_splash_seen', '1'); } catch (err) {}
+    setTimeout(() => { splashGate.style.display = 'none'; }, 550);
+  };
+  splashGate.addEventListener('click', dismissSplash);
+  splashGate.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      dismissSplash();
+    }
+  });
+}
+
 // Smooth-scroll every in-page link ourselves, instead of relying on default
 // anchor navigation (which can misbehave inside an embedded preview).
 document.querySelectorAll('a[href^="#"]').forEach(link => {

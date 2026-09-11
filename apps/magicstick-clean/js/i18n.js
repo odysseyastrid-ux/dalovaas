@@ -55,6 +55,10 @@
     'home.hero.coverTag': { en: 'Watch us turn this around — real results, every time', fr: 'Regarde-nous transformer ça — de vrais résultats, à chaque fois' },
     'home.hero.coverBadge': { en: 'Real job, no filters', fr: 'Vrai travail, sans filtre' },
 
+    // ---------- index.html: splash gate ----------
+    'splash.tagline': { en: 'A clean, comfortable home for your whole family', fr: 'Une maison propre et confortable pour toute la famille' },
+    'splash.enter': { en: 'Enter site', fr: 'Entrer sur le site' },
+
     // ---------- index.html: gallery ----------
     'home.gallery.title': { en: 'See the difference', fr: 'Vois la différence' },
     'home.gallery.subtitle': { en: 'Real jobs, real homes. No stock photos.', fr: 'De vrais travaux, de vraies maisons. Aucune photo générique.' },

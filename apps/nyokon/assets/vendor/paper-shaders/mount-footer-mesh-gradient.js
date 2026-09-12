@@ -61,8 +61,18 @@ if (footer) {
     if (!reduceMotion) {
       let rafId = null;
       let visible = true;
+      // positions drifts continuously (this is what actually reshuffles
+      // where each color anchor sits); waveXShift/waveYShift oscillate
+      // gently on top so the wave crests visibly roll rather than just
+      // the blobs relocating — together this reads as clearly "flowing"
+      // rather than a slow, easy-to-miss creep.
       function drift(now){
-        mount.setUniforms({ u_positions: basePositions + now * 0.00006 });
+        const t = now * 0.001;
+        mount.setUniforms({
+          u_positions: basePositions + t * 0.35,
+          u_waveXShift: 0.6 + Math.sin(t * 0.25) * 0.25,
+          u_waveYShift: 0.21 + Math.cos(t * 0.2) * 0.25,
+        });
         if (visible) rafId = requestAnimationFrame(drift);
         else rafId = null;
       }

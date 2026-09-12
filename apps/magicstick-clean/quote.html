@@ -14,6 +14,7 @@
 <script src="js/supabaseClient.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/auth-widget.js"></script>
+<script src="js/date-picker.js"></script>
 </head>
 <body>
 
@@ -225,8 +226,12 @@
           </select>
         </div>
         <div class="field">
-          <label for="qDate"><span data-i18n="form.preferredDay">Preferred day</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-          <input type="date" id="qDate" name="preferredDate">
+          <label for="qDateDisplay"><span data-i18n="form.preferredDay">Preferred day</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+          <div class="date-picker-field">
+            <input type="text" id="qDateDisplay" class="date-picker-display" readonly autocomplete="off" data-i18n-placeholder="form.selectDate" placeholder="Select a date">
+            <span class="date-picker-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          </div>
+          <input type="hidden" id="qDate" name="preferredDate">
         </div>
       </div>
 

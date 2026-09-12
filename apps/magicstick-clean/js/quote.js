@@ -100,9 +100,13 @@ zoneBackdrop.addEventListener('click', (e) => {
   if (e.target === zoneBackdrop) closeZoneModal();
 });
 
-// Preferred day: just a plain date input, can't be in the past.
-const qDateInput = document.getElementById('qDate');
-if (qDateInput) qDateInput.min = new Date().toISOString().slice(0, 10);
+// Preferred day: custom calendar dropdown (see js/date-picker.js) instead of
+// the native <input type="date">, with every past day greyed out.
+const qDateDisplay = document.getElementById('qDateDisplay');
+const qDateHidden = document.getElementById('qDate');
+if (qDateDisplay && qDateHidden && window.MagicstickDatePicker) {
+  window.MagicstickDatePicker.attach(qDateDisplay, qDateHidden);
+}
 
 // Pill-button groups (bedrooms, bathrooms, home type, pets): single-select,
 // click the active one again to clear it — every field here is optional.

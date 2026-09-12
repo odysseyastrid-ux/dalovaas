@@ -558,6 +558,40 @@
   }
   .field.invalid input,.field.invalid select{border-color:#C0392B;}
   .field .err{display:none;color:#C0392B;font-size:13px;margin-top:5px;}
+
+  /* ---------- CUSTOM DATE PICKER (preferred day / booking date) ---------- */
+  .date-picker-field{position:relative;}
+  .date-picker-display{width:100%;cursor:pointer;padding-right:38px!important;}
+  .date-picker-icon{
+    position:absolute;right:12px;top:50%;transform:translateY(-50%);
+    color:var(--gray);pointer-events:none;display:flex;
+  }
+  .dp-panel{
+    position:absolute;z-index:500;background:#fff;border-radius:10px;
+    box-shadow:0 16px 40px rgba(0,0,0,.2);padding:14px;width:280px;
+    font-family:'Work Sans',Arial,sans-serif;
+  }
+  .dp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .dp-month{font-weight:700;font-size:14px;color:var(--charcoal);text-transform:capitalize;}
+  .dp-nav{
+    width:28px;height:28px;border-radius:100%;border:1px solid var(--line);background:#fff;
+    cursor:pointer;font-size:16px;line-height:1;color:var(--charcoal);font-family:inherit;
+    display:flex;align-items:center;justify-content:center;padding:0;
+  }
+  .dp-nav:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
+  .dp-nav:disabled{opacity:.3;cursor:default;}
+  .dp-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11.5px;font-weight:700;color:var(--gray);margin-bottom:4px;}
+  .dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .dp-cell{
+    aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    border:none;background:none;border-radius:8px;font-size:13.5px;font-family:inherit;
+    color:var(--charcoal);cursor:pointer;
+  }
+  .dp-cell:hover:not(:disabled):not(.dp-cell-muted){background:var(--teal-tint);}
+  .dp-cell:disabled{color:#C9C5B8;cursor:default;}
+  .dp-cell-muted{color:#DDD8CC;}
+  .dp-today{font-weight:700;box-shadow:inset 0 0 0 1.5px var(--teal);}
+  .dp-selected{background:var(--teal)!important;color:#fff!important;}
   .field.invalid .err{display:block;}
   .quote-form .btn{width:100%;text-align:center;}
   .optional-tag{font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;}

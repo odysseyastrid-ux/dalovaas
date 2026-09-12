@@ -210,6 +210,7 @@
     'form.frequency.biweekly': { en: 'Biweekly (10% off)', fr: 'Aux deux semaines (10% de rabais)' },
     'form.frequency.monthly': { en: 'Monthly (10% off)', fr: 'Mensuel (10% de rabais)' },
     'form.preferredDay': { en: 'Preferred day', fr: 'Journée préférée' },
+    'form.selectDate': { en: 'Select a date', fr: 'Choisis une date' },
     'form.pets': { en: 'Pets at home?', fr: 'Animaux à la maison?' },
     'common.yes': { en: 'Yes', fr: 'Oui' },
     'common.no': { en: 'No', fr: 'Non' },

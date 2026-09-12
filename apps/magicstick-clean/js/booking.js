@@ -25,8 +25,11 @@
   }
 
   const supabase = backend.getSupabaseClient();
-  const dateInput = document.getElementById('bDate');
-  dateInput.min = new Date().toISOString().slice(0, 10);
+  const bDateDisplay = document.getElementById('bDateDisplay');
+  const bDateHidden = document.getElementById('bDate');
+  if (bDateDisplay && bDateHidden && window.MagicstickDatePicker) {
+    window.MagicstickDatePicker.attach(bDateDisplay, bDateHidden);
+  }
 
   let services = [];
   let selectedServiceId = null;

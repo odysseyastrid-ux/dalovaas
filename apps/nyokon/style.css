@@ -1367,6 +1367,14 @@ main > section{
 .pdp-qty-btn:hover{background:var(--bg-alt);}
 .pdp-qty-value{min-width:28px;text-align:center;font-size:13px;font-variant-numeric:tabular-nums;}
 .pdp-note{font-size:12px;color:#e05a4e;margin-top:12px;min-height:14px;}
+.pdp-waitlist{margin-top:18px;padding:18px;border:1px solid var(--accent-ink);border-radius:10px;background:var(--bg-alt);}
+.pdp-waitlist-title{font-family:var(--font-display);font-size:16px;margin-bottom:6px;}
+.pdp-waitlist-text{font-size:13px;color:var(--fg-dim);line-height:1.5;margin-bottom:14px;}
+.pdp-waitlist-form{display:flex;gap:8px;flex-wrap:wrap;}
+.pdp-waitlist-form input{flex:1;min-width:160px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:11px 14px;color:var(--fg);font-family:inherit;font-size:13.5px;}
+.pdp-waitlist-form input:focus{outline:none;border-color:var(--accent-ink);}
+.pdp-waitlist-form .btn{padding:11px 20px;font-size:11px;}
+.pdp-waitlist-note{font-size:12px;color:var(--accent-ink);margin-top:10px;}
 .pdp-shipping{display:flex;flex-direction:column;gap:8px;margin-top:20px;padding:14px 16px;background:var(--bg-alt);border-radius:10px;}
 .pdp-shipping-row{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--fg-dim);}
 .pdp-shipping-row svg{flex-shrink:0;color:var(--fg);}

@@ -92,6 +92,12 @@ const T = {
     shipping_fast_zone:'Douala & Yaoundé — 24–48h, free over 25,000 FCFA',
     shipping_other_zone:'Other cities — 3–5 days',
     shipping_cod:'Cash, Orange Money & MTN MoMo accepted',
+    waitlist_title:'Sold out — join the waitlist',
+    waitlist_text:"This is one of our most-requested pieces. Leave your number and we'll message you the moment it's back.",
+    waitlist_phone_placeholder:'Phone number',
+    waitlist_btn:'NOTIFY ME',
+    waitlist_success:"You're on the list — we'll text you when it's back.",
+    waitlist_error:'Something went wrong — please try again.',
   },
   fr: {
     back:'RETOUR', colour:'Couleur', colours:'Couleurs', sizes:'TAILLES',
@@ -105,6 +111,12 @@ const T = {
     shipping_fast_zone:'Douala & Yaoundé — 24–48h, gratuit dès 25 000 FCFA',
     shipping_other_zone:'Autres villes — 3 à 5 jours',
     shipping_cod:'Espèces, Orange Money & MTN MoMo acceptés',
+    waitlist_title:'Épuisé — rejoins la liste d’attente',
+    waitlist_text:'C’est une de nos pièces les plus demandées. Laisse ton numéro, on te préviendra dès son retour.',
+    waitlist_phone_placeholder:'Numéro de téléphone',
+    waitlist_btn:'ME PRÉVENIR',
+    waitlist_success:'Inscription faite — on t’écrit dès son retour.',
+    waitlist_error:'Une erreur est survenue — réessaie.',
   },
 };
 function t(key){ return T[currentLang][key] || T.en[key] || key; }
@@ -231,6 +243,16 @@ function render({ row, variants, images }){
           </div>
         </div>
         <div class="pdp-note" id="pdpNote"></div>
+        ${soldOut && row.is_hero ? `
+        <div class="pdp-waitlist" id="pdpWaitlist">
+          <div class="pdp-waitlist-title">${t('waitlist_title')}</div>
+          <p class="pdp-waitlist-text">${t('waitlist_text')}</p>
+          <form id="pdpWaitlistForm" class="pdp-waitlist-form">
+            <input type="tel" id="pdpWaitlistPhone" placeholder="${t('waitlist_phone_placeholder')}" required />
+            <button type="submit" class="btn btn-light">${t('waitlist_btn')}</button>
+          </form>
+          <p class="pdp-waitlist-note" id="pdpWaitlistNote"></p>
+        </div>` : ''}
         <div class="pdp-shipping">
           <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span>${t('shipping_fast_zone')}</span></div>
           <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span>${t('shipping_other_zone')}</span></div>
@@ -375,6 +397,27 @@ function render({ row, variants, images }){
       link.textContent = t('view_cart');
       link.style.textDecoration = 'underline';
       stickyNote.appendChild(link);
+    });
+  }
+
+  const waitlistForm = document.getElementById('pdpWaitlistForm');
+  if (waitlistForm) {
+    waitlistForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('pdpWaitlistPhone').value.trim();
+      const note = document.getElementById('pdpWaitlistNote');
+      if (!phone || !sb) return;
+      const btn = waitlistForm.querySelector('button');
+      btn.disabled = true;
+      try {
+        const { error } = await sb.from('leads').insert({ product_id: row.id, phone, source: 'hero_waitlist' });
+        if (error) throw error;
+        waitlistForm.hidden = true;
+        note.textContent = t('waitlist_success');
+      } catch (err) {
+        note.textContent = t('waitlist_error');
+        btn.disabled = false;
+      }
     });
   }
 

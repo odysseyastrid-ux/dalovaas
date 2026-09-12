@@ -112,6 +112,7 @@
   .staff-nav-item[data-panel="loyalty"]{color:#f090b5;}
   .staff-nav-item[data-panel="promotions"]{color:#a89bf5;}
   .staff-nav-item[data-panel="photos"]{color:#4fc3b8;}
+  .staff-nav-item[data-panel="sourcing"]{color:#5cc9a7;}
   .staff-nav-item[data-panel="activity"]{color:#9a9a9f;}
   .staff-nav-item.is-active{color:#0b0b0c!important;}
   .staff-nav-badge{
@@ -264,8 +265,20 @@
   .prod-active-label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--fg-dim);cursor:pointer;}
   .prod-delete{font-size:12.5px;font-weight:700;color:#c8392e;background:none;border:none;cursor:pointer;}
   .prod-error{margin:0;}
-  .prod-colors-field,.prod-tags-field{margin-bottom:16px;}
-  .prod-colors-field label,.prod-tags-field label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:8px;}
+  .prod-colors-field,.prod-tags-field,.prod-techpack-field{margin-bottom:16px;}
+  .prod-colors-field label,.prod-tags-field label,.prod-techpack-field label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--fg-dim);margin-bottom:8px;}
+  .prod-section-label{display:flex!important;align-items:center;gap:8px;font-size:12.5px!important;color:var(--fg)!important;margin-bottom:12px!important;}
+  .prod-section-dot{width:8px;height:8px;border-radius:2px;background:var(--c-teal, #0d9488);flex-shrink:0;}
+  .prod-techpack-field textarea{
+    width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);
+    padding:10px 11px;color:var(--fg);font-family:inherit;font-size:13.5px;resize:vertical;
+  }
+  .prod-techpack-field textarea:focus{outline:none;border-color:var(--c-teal, #0d9488);}
+  .supplier-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  .supplier-row{display:grid;grid-template-columns:1.4fr .8fr .8fr .9fr 1.2fr auto;gap:8px;align-items:center;}
+  .supplier-row input{width:100%;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px;color:var(--fg);font-family:inherit;font-size:13px;}
+  .supplier-row-remove{font-size:12.5px;font-weight:700;color:#c8392e;background:none;border:none;cursor:pointer;flex-shrink:0;}
+  @media (max-width:700px){ .supplier-row{grid-template-columns:1fr 1fr;} }
   .color-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
   .color-row{display:flex;align-items:center;gap:8px;}
   .color-row input[type=color]{width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer;}
@@ -300,6 +313,7 @@
   .staff-panel[data-panel="loyalty"] .staff-section-title{--section-color:var(--c-pink);}
   .staff-panel[data-panel="promotions"] .staff-section-title{--section-color:var(--c-violet);}
   .staff-panel[data-panel="photos"] .staff-section-title{--section-color:var(--c-teal);}
+  .staff-panel[data-panel="sourcing"] .staff-section-title{--section-color:#5cc9a7;}
   .staff-panel[data-panel="clients"] .staff-section-title{--section-color:#e0ab4c;}
   .staff-panel[data-panel="activity"] .staff-section-title{--section-color:#9a9a9f;}
 
@@ -309,6 +323,30 @@
   .log-action{font-weight:700;font-size:13.5px;}
   .log-date{font-size:12px;color:var(--fg-dim);white-space:nowrap;}
   .log-meta{font-size:13px;color:var(--fg-dim);margin-top:3px;}
+
+  .sourcing-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .sourcing-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);border-bottom:2px solid var(--line);padding:8px 10px;}
+  .sourcing-table td{padding:10px;border-bottom:1px solid var(--line);}
+  .sourcing-table td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .sourcing-badge{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:20px;}
+  .sourcing-badge.is-reorder{background:#fde3d8;color:#a6431c;}
+  .sourcing-badge.is-ok{background:var(--bg-alt);color:var(--fg-dim);}
+  .curve-row{display:grid;grid-template-columns:80px 1fr 60px;gap:12px;align-items:center;padding:8px 0;}
+  .curve-row input{width:90px;background:transparent;border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;color:var(--fg);font-family:inherit;font-size:13px;}
+  .curve-bar-track{flex:1;background:var(--bg-alt);border-radius:4px;height:14px;overflow:hidden;}
+  .curve-bar-fill{height:100%;background:#5cc9a7;border-radius:4px;}
+  .curve-calc-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:18px 0;}
+  .curve-calc-row .staff-field{margin-bottom:0;width:200px;}
+  .curve-result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:10px;margin-top:8px;}
+  .curve-result-tile{border:1px solid var(--line);border-radius:var(--radius);padding:10px;text-align:center;}
+  .curve-result-size{font-size:11px;font-weight:700;color:var(--fg-dim);letter-spacing:.05em;}
+  .curve-result-qty{font-family:var(--font-display);font-size:19px;margin-top:2px;}
+  .hero-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);}
+  .hero-row:first-child{border-top:none;}
+  .hero-name{font-weight:700;font-size:13.5px;}
+  .hero-meta{font-size:12.5px;color:var(--fg-dim);margin-top:2px;}
+  .lead-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);}
+  .lead-row:first-child{border-top:none;}
 
   .panel-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
   .panel-actions .staff-title,.panel-actions .staff-sub{margin-bottom:0;}
@@ -424,6 +462,10 @@
       <button type="button" class="staff-nav-item" data-panel="photos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg>
         Photos
+      </button>
+      <button type="button" class="staff-nav-item" data-panel="sourcing">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>
+        Sourcing
       </button>
       <button type="button" class="staff-nav-item" data-panel="activity">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
@@ -609,6 +651,17 @@
             <label><input type="checkbox" class="np-tag" value="coffrets" /> Coffrets Cadeaux</label>
           </div>
         </div>
+        <div class="prod-techpack-field">
+          <label class="prod-section-label"><span class="prod-section-dot"></span>Fiche technique &amp; sourcing</label>
+          <div class="prod-grid">
+            <div><label for="npGsm">Grammage tissu (GSM)</label><input id="npGsm" type="number" step="1" min="0" placeholder="ex: 240" /></div>
+            <div><label for="npMoq">MOQ (quantité minimum fournisseur)</label><input id="npMoq" type="number" step="1" min="0" placeholder="ex: 50" /></div>
+          </div>
+          <label for="npTechPackNotes">Notes de construction (coutures, mesures clés, finitions)</label>
+          <textarea id="npTechPackNotes" rows="2" placeholder="ex: Col côtelé 2x1, ourlet double-piqûre, mesures : poitrine 56cm en M…"></textarea>
+        </div>
+        <label class="prod-active-label"><input type="checkbox" id="npIsHero" /> Produit vedette (active la liste d'attente si en rupture)</label>
+        <br />
         <label class="prod-active-label"><input type="checkbox" id="npSoldOut" /> Marquer en rupture de stock</label>
         <br /><br />
         <button type="submit" class="staff-btn" id="newProductBtn">Ajouter le produit</button>
@@ -738,6 +791,43 @@
         <p class="staff-sub">Tous les clients qui ont déjà passé commande — coordonnées, historique et points de fidélité au même endroit.</p>
         <input type="text" class="client-search" id="clientSearch" placeholder="Rechercher un nom ou un numéro…" />
         <div class="staff-card" id="clientsList"></div>
+      </section>
+
+      <section class="staff-panel" data-panel="sourcing">
+        <h1 class="staff-title">Sourcing &amp; production</h1>
+        <p class="staff-sub">Fiches techniques, fournisseurs, courbe de tailles, prévision de la demande et liste d'attente des produits vedettes.</p>
+
+        <h2 class="staff-section-title">Prévision de la demande</h2>
+        <p class="staff-sub">Vitesse de vente des 30 derniers jours, projetée sur les 30 prochains — pour savoir quoi recommander avant la rupture.</p>
+        <div class="staff-card">
+          <table class="sourcing-table" id="forecastTable">
+            <tr><th>Produit</th><th class="num">Vendus (30j)</th><th class="num">Stock actuel</th><th class="num">Prévision (30j)</th><th>Statut</th></tr>
+          </table>
+        </div>
+
+        <h2 class="staff-section-title">Courbe de tailles</h2>
+        <p class="staff-sub">Répartition type d'une production par taille — sert à calculer combien produire de chaque taille pour un volume donné.</p>
+        <div class="staff-card">
+          <form id="curveForm">
+            <div id="curveRows"></div>
+            <div class="staff-error" id="curveTotalError"></div>
+            <button type="submit" class="staff-btn" id="curveSaveBtn" style="margin-top:10px;">Enregistrer la courbe</button>
+          </form>
+          <div class="curve-calc-row">
+            <div class="staff-field">
+              <label for="curveCalcTotal">Volume total à produire</label>
+              <input type="number" id="curveCalcTotal" min="0" step="1" placeholder="ex: 200" />
+            </div>
+            <button type="button" class="slot-save" id="curveCalcBtn">Calculer la répartition</button>
+          </div>
+          <div class="curve-result-grid" id="curveResultGrid"></div>
+        </div>
+
+        <h2 class="staff-section-title">Produits vedettes &amp; liste d'attente</h2>
+        <p class="staff-sub">Un produit "vedette" affiche un formulaire d'inscription au client quand il est en rupture, au lieu d'un simple "Rupture de stock".</p>
+        <div class="staff-card" id="heroList"></div>
+        <h3 class="variant-table-title" style="margin-top:22px;">Inscriptions collectées</h3>
+        <div class="staff-card" id="leadsList"></div>
       </section>
 
       <section class="staff-panel" data-panel="activity">
@@ -872,6 +962,41 @@ function printInvoice(order){
     </table>
   `;
   document.getElementById('printFooter').textContent = `Facture générée le ${new Date().toLocaleDateString('fr-FR')} — merci de votre confiance.`;
+  doPrint();
+}
+
+function printTechPack(p, row){
+  const nameFr = row.querySelector('.f-name-fr').value.trim() || p.name_fr;
+  const gsm = row.querySelector('.f-gsm').value;
+  const moq = row.querySelector('.f-moq').value;
+  const material = selectOtherValue(row.querySelector('.f-material'), row.querySelector('.f-material-other'));
+  const care = selectOtherValue(row.querySelector('.f-care'), row.querySelector('.f-care-other'));
+  const notes = row.querySelector('.f-techpack-notes').value.trim();
+  const sizes = readSizeChips(row.querySelector('.f-sizes'));
+  const colors = readColorRows(row.querySelector('.color-rows'));
+  const suppliers = readSupplierRows(row.querySelector('.supplier-rows'));
+
+  document.getElementById('printBody').innerHTML = `
+    <div class="print-doc-title">Fiche technique — ${nameFr}</div>
+    <div class="print-doc-sub">Référence produit : ${p.id} — générée le ${new Date().toLocaleDateString('fr-FR')}</div>
+    <div class="print-kpi-row">
+      <div class="print-kpi"><div class="print-kpi-label">Grammage (GSM)</div><div class="print-kpi-value">${gsm || '—'}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">MOQ</div><div class="print-kpi-value">${moq || '—'}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Matière</div><div class="print-kpi-value" style="font-size:14px;">${material || '—'}</div></div>
+      <div class="print-kpi"><div class="print-kpi-label">Entretien</div><div class="print-kpi-value" style="font-size:14px;">${care || '—'}</div></div>
+    </div>
+    <div class="print-section-title">Tailles &amp; couleurs</div>
+    <div class="print-doc-sub">Tailles : ${sizes.length ? sizes.join(', ') : '—'}</div>
+    <div class="print-doc-sub">Couleurs : ${colors.length ? colors.map(c => c.name || c.hex).join(', ') : '—'}</div>
+    <div class="print-section-title">Notes de construction</div>
+    <div class="print-doc-sub">${notes || 'Aucune note renseignée.'}</div>
+    <div class="print-section-title">Fournisseurs (sourcing)</div>
+    <table class="print-table">
+      <tr><th>Fournisseur</th><th class="num">MOQ</th><th class="num">Délai</th><th class="num">Coût</th><th>Notes</th></tr>
+      ${suppliers.length ? suppliers.map(s => `<tr><td>${s.supplier_name}</td><td class="num">${s.moq ?? '—'}</td><td class="num">${s.lead_time_days != null ? s.lead_time_days + ' j' : '—'}</td><td class="num">${s.cost_price != null ? formatXOF(usdToXof(s.cost_price)) : '—'}</td><td>${s.notes || ''}</td></tr>`).join('') : '<tr><td colspan="5">Aucun fournisseur enregistré.</td></tr>'}
+    </table>
+  `;
+  document.getElementById('printFooter').textContent = 'Fiche technique à usage interne — ne pas diffuser au client.';
   doPrint();
 }
 
@@ -1015,6 +1140,9 @@ function showDashboard(){
   renderStats();
   renderCustomers();
   renderActivityLog();
+  renderSizingCurve();
+  renderForecast();
+  renderHeroAndLeads();
   startOrderAlerts();
 }
 function showLogin(){
@@ -1299,6 +1427,33 @@ function addVariantRow(container, v){
   container.appendChild(row);
 }
 
+// Multi-sourcing: several suppliers per product, each with its own
+// MOQ/lead time/cost/GSM, so one delayed factory never stalls a hero
+// product entirely.
+function addSupplierRow(container, s){
+  const row = document.createElement('div');
+  row.className = 'supplier-row';
+  row.innerHTML = `
+    <input class="s-name" placeholder="Nom du fournisseur" value="${escAttr(s && s.supplier_name)}" />
+    <input class="s-moq" type="number" step="1" min="0" placeholder="MOQ" value="${s && s.moq != null ? s.moq : ''}" />
+    <input class="s-lead" type="number" step="1" min="0" placeholder="Délai (j)" value="${s && s.lead_time_days != null ? s.lead_time_days : ''}" />
+    <input class="s-cost" type="number" step="1" min="0" placeholder="Coût (FCFA)" value="${s && s.cost_price != null ? usdToXof(s.cost_price) : ''}" />
+    <input class="s-notes" placeholder="Notes (optionnel)" value="${escAttr(s && s.notes)}" />
+    <button type="button" class="supplier-row-remove">✕</button>
+  `;
+  row.querySelector('.supplier-row-remove').addEventListener('click', () => row.remove());
+  container.appendChild(row);
+}
+function readSupplierRows(container){
+  return [...container.querySelectorAll('.supplier-row')].map(r => ({
+    supplier_name: r.querySelector('.s-name').value.trim(),
+    moq: r.querySelector('.s-moq').value ? parseInt(r.querySelector('.s-moq').value, 10) : null,
+    lead_time_days: r.querySelector('.s-lead').value ? parseInt(r.querySelector('.s-lead').value, 10) : null,
+    cost_price: r.querySelector('.s-cost').value ? xofToUsd(parseFloat(r.querySelector('.s-cost').value)) : null,
+    notes: r.querySelector('.s-notes').value.trim() || null,
+  })).filter(s => s.supplier_name);
+}
+
 function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || ''); }
 
 function addGalleryRow(container, img){
@@ -1379,6 +1534,10 @@ newProductForm.addEventListener('submit', async (e) => {
       sub_fr: document.getElementById('npSubFr').value.trim(),
       image_url,
       active: true,
+      gsm: document.getElementById('npGsm').value ? parseFloat(document.getElementById('npGsm').value) : null,
+      moq: document.getElementById('npMoq').value ? parseInt(document.getElementById('npMoq').value, 10) : null,
+      tech_pack_notes: document.getElementById('npTechPackNotes').value.trim() || null,
+      is_hero: document.getElementById('npIsHero').checked,
     });
     if (error) throw error;
     const costVal = document.getElementById('npCost').value;
@@ -1420,11 +1579,12 @@ const PROD_FAMILIES = [['', '—'], ['boise', 'Boisé'], ['floral', 'Floral'], [
 const PROD_CONCENTRATIONS = [['', '—'], ['edp', 'Eau de Parfum'], ['edt', 'Eau de Toilette'], ['edc', 'Eau de Cologne']];
 
 async function renderProductsStaff(){
-  const [{ data: rows }, { data: costRows }, { data: variantRows }, { data: imageRows }] = await Promise.all([
+  const [{ data: rows }, { data: costRows }, { data: variantRows }, { data: imageRows }, { data: supplierRows }] = await Promise.all([
     sb.from('products').select('*').order('created_at', { ascending: true }),
     sb.from('product_costs').select('product_id,cost_price'),
     sb.from('product_variants').select('*').order('created_at', { ascending: true }),
     sb.from('product_images').select('*').order('position', { ascending: true }),
+    sb.from('product_suppliers').select('*').order('created_at', { ascending: true }),
   ]);
   productList.innerHTML = '';
   if (!rows || !rows.length) {
@@ -1437,6 +1597,8 @@ async function renderProductsStaff(){
   (variantRows || []).forEach(v => { (variantsByProduct[v.product_id] = variantsByProduct[v.product_id] || []).push(v); });
   const imagesByProduct = {};
   (imageRows || []).forEach(img => { (imagesByProduct[img.product_id] = imagesByProduct[img.product_id] || []).push(img); });
+  const suppliersByProduct = {};
+  (supplierRows || []).forEach(s => { (suppliersByProduct[s.product_id] = suppliersByProduct[s.product_id] || []).push(s); });
 
   rows.forEach(p => {
     const row = document.createElement('div');
@@ -1500,9 +1662,30 @@ async function renderProductsStaff(){
             <label>Tags (plusieurs possibles)</label>
             <div class="tag-checks">${PROD_MERCH_TAGS.map(([v, l]) => `<label><input type="checkbox" class="f-tag-check" value="${v}" ${(p.tags || []).includes(v) ? 'checked' : ''} /> ${l}</label>`).join('')}</div>
           </div>
+          <div class="prod-techpack-field">
+            <label class="prod-section-label"><span class="prod-section-dot"></span>Fiche technique &amp; sourcing</label>
+            <div class="prod-grid">
+              <div><label>Grammage tissu (GSM)</label><input class="f-gsm" type="number" step="1" min="0" value="${p.gsm ?? ''}" /></div>
+              <div><label>MOQ (quantité minimum fournisseur)</label><input class="f-moq" type="number" step="1" min="0" value="${p.moq ?? ''}" /></div>
+            </div>
+            <label>Notes de construction (coutures, mesures clés, finitions)</label>
+            <textarea class="f-techpack-notes" rows="2">${p.tech_pack_notes || ''}</textarea>
+            <button type="button" class="print-btn f-print-techpack" style="margin-top:10px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+              Imprimer la fiche technique
+            </button>
+            <div class="variant-table">
+              <div class="variant-table-title">Fournisseurs (sourcing multiple) — plusieurs lignes possibles pour dérisquer l'approvisionnement</div>
+              <div class="supplier-rows"></div>
+              <button type="button" class="prod-add-color supplier-add">+ Ajouter un fournisseur</button>
+              <button type="button" class="slot-save supplier-save">Enregistrer les fournisseurs</button>
+              <span class="staff-error supplier-error"></span>
+            </div>
+          </div>
           <div class="prod-foot">
             <label class="prod-active-label"><input type="checkbox" class="f-active" ${p.active ? 'checked' : ''} /> Actif (visible sur le site)</label>
             <label class="prod-active-label"><input type="checkbox" class="f-sold-out" ${p.sold_out ? 'checked' : ''} /> Rupture de stock (forcer)</label>
+            <label class="prod-active-label"><input type="checkbox" class="f-is-hero" ${p.is_hero ? 'checked' : ''} /> Produit vedette (liste d'attente si rupture)</label>
             <button type="button" class="slot-save prod-save">Enregistrer</button>
             <button type="button" class="prod-delete">Supprimer</button>
             <span class="staff-error prod-error"></span>
@@ -1548,6 +1731,12 @@ async function renderProductsStaff(){
     const galleryContainer = row.querySelector('.gallery-rows');
     (imagesByProduct[p.id] || []).forEach(img => addGalleryRow(galleryContainer, img));
     row.querySelector('.gallery-add').addEventListener('click', () => addGalleryRow(galleryContainer));
+
+    const supplierContainer = row.querySelector('.supplier-rows');
+    (suppliersByProduct[p.id] || []).forEach(s => addSupplierRow(supplierContainer, s));
+    row.querySelector('.supplier-add').addEventListener('click', () => addSupplierRow(supplierContainer));
+
+    row.querySelector('.f-print-techpack').addEventListener('click', () => printTechPack(p, row));
 
     productList.appendChild(row);
   });
@@ -1610,6 +1799,10 @@ async function renderProductsStaff(){
           sub_en: row.querySelector('.f-sub-en').value.trim(),
           sub_fr: row.querySelector('.f-sub-fr').value.trim(),
           active: row.querySelector('.f-active').checked,
+          gsm: row.querySelector('.f-gsm').value ? parseFloat(row.querySelector('.f-gsm').value) : null,
+          moq: row.querySelector('.f-moq').value ? parseInt(row.querySelector('.f-moq').value, 10) : null,
+          tech_pack_notes: row.querySelector('.f-techpack-notes').value.trim() || null,
+          is_hero: row.querySelector('.f-is-hero').checked,
         };
         const fileInput = row.querySelector('.f-image');
         if (fileInput.files.length) {
@@ -1660,6 +1853,30 @@ async function renderProductsStaff(){
         }
         btn.textContent = 'Enregistré ✓';
         setTimeout(() => { btn.textContent = 'Enregistrer le stock'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        errEl.textContent = 'Erreur : ' + (err.message || err);
+        btn.disabled = false;
+      }
+    });
+  });
+
+  productList.querySelectorAll('.supplier-save').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.prod-card');
+      const id = row.dataset.id;
+      const errEl = row.querySelector('.supplier-error');
+      errEl.textContent = '';
+      btn.disabled = true;
+      try {
+        const suppliers = readSupplierRows(row.querySelector('.supplier-rows')).map(s => ({ ...s, product_id: id }));
+        await sb.from('product_suppliers').delete().eq('product_id', id);
+        if (suppliers.length) {
+          const { error } = await sb.from('product_suppliers').insert(suppliers);
+          if (error) throw error;
+        }
+        logActivity('Fournisseurs mis à jour', `${row.querySelector('.f-name-fr').value.trim()} (${id}) — ${suppliers.length} fournisseur(s)`);
+        btn.textContent = 'Enregistré ✓';
+        setTimeout(() => { btn.textContent = 'Enregistrer les fournisseurs'; btn.disabled = false; }, 1500);
       } catch (err) {
         errEl.textContent = 'Erreur : ' + (err.message || err);
         btn.disabled = false;
@@ -2207,6 +2424,143 @@ document.getElementById('clientSearch').addEventListener('input', (e) => {
   if (!q) { renderClientRows(customersCache); return; }
   renderClientRows(customersCache.filter(c => (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)));
 });
+
+// Sizing curve: a shared % breakdown per size, used to turn "produce
+// 200 units" into a per-size purchase order instead of guessing.
+let sizingCurveCache = [];
+async function renderSizingCurve(){
+  const { data } = await sb.from('sizing_curve').select('*').order('size', { ascending: true });
+  sizingCurveCache = data || [];
+  const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  sizingCurveCache.sort((a, b) => order.indexOf(a.size) - order.indexOf(b.size));
+  const curveRows = document.getElementById('curveRows');
+  curveRows.innerHTML = sizingCurveCache.map(c => `
+    <div class="curve-row" data-size="${c.size}">
+      <span>${c.size}</span>
+      <div class="curve-bar-track"><div class="curve-bar-fill" style="width:${c.percent}%"></div></div>
+      <input type="number" class="curve-percent" min="0" max="100" step="1" value="${c.percent}" />
+    </div>
+  `).join('');
+  curveRows.querySelectorAll('.curve-percent').forEach(input => {
+    input.addEventListener('input', () => {
+      input.closest('.curve-row').querySelector('.curve-bar-fill').style.width = `${input.value || 0}%`;
+    });
+  });
+}
+document.getElementById('curveForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById('curveTotalError');
+  errEl.textContent = '';
+  const rows = [...document.querySelectorAll('.curve-row')].map(r => ({
+    size: r.dataset.size,
+    percent: parseFloat(r.querySelector('.curve-percent').value) || 0,
+  }));
+  const total = rows.reduce((sum, r) => sum + r.percent, 0);
+  if (Math.round(total) !== 100) {
+    errEl.textContent = `Le total doit faire 100% (actuellement ${total}%).`;
+    return;
+  }
+  const btn = document.getElementById('curveSaveBtn');
+  btn.disabled = true;
+  const { error } = await sb.from('sizing_curve').upsert(rows);
+  btn.disabled = false;
+  if (error) { errEl.textContent = 'Erreur : ' + error.message; return; }
+  logActivity('Courbe de tailles modifiée', rows.map(r => `${r.size}:${r.percent}%`).join(' '));
+  btn.textContent = 'Enregistré ✓';
+  setTimeout(() => { btn.textContent = 'Enregistrer la courbe'; }, 1500);
+  renderSizingCurve();
+});
+document.getElementById('curveCalcBtn').addEventListener('click', () => {
+  const total = parseInt(document.getElementById('curveCalcTotal').value, 10);
+  const grid = document.getElementById('curveResultGrid');
+  if (!total || total <= 0) { grid.innerHTML = '<p class="staff-empty">Entre un volume total.</p>'; return; }
+  grid.innerHTML = sizingCurveCache.map(c => `
+    <div class="curve-result-tile">
+      <div class="curve-result-size">${c.size}</div>
+      <div class="curve-result-qty">${Math.round(total * c.percent / 100)}</div>
+    </div>
+  `).join('');
+});
+
+// Demand forecasting: naive projection — next 30 days = same as the
+// last 30 days' sales velocity — flagged clearly as a simple estimate,
+// not a real statistical model, but enough to flag what to reorder.
+async function renderForecast(){
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const [{ data: products }, { data: orders }, { data: variants }] = await Promise.all([
+    sb.from('products').select('id,name_fr,active').eq('active', true),
+    sb.from('orders').select('items,status,created_at').gte('created_at', since),
+    sb.from('product_variants').select('product_id,stock'),
+  ]);
+  const soldStatuses = new Set(['confirmed', 'shipped', 'delivered']);
+  const soldByProduct = {};
+  (orders || []).forEach(o => {
+    if (!soldStatuses.has(o.status)) return;
+    (o.items || []).forEach(item => {
+      soldByProduct[item.id] = (soldByProduct[item.id] || 0) + (item.qty || 0);
+    });
+  });
+  const stockByProduct = {};
+  let hasVariants = {};
+  (variants || []).forEach(v => {
+    stockByProduct[v.product_id] = (stockByProduct[v.product_id] || 0) + (Number(v.stock) || 0);
+    hasVariants[v.product_id] = true;
+  });
+  const rows = (products || [])
+    .map(p => ({ p, sold: soldByProduct[p.id] || 0, stock: hasVariants[p.id] ? stockByProduct[p.id] : null }))
+    .filter(r => r.sold > 0)
+    .sort((a, b) => b.sold - a.sold)
+    .slice(0, 15);
+  const table = document.getElementById('forecastTable');
+  if (!rows.length) {
+    table.innerHTML = '<tr><th>Produit</th><th class="num">Vendus (30j)</th><th class="num">Stock actuel</th><th class="num">Prévision (30j)</th><th>Statut</th></tr><tr><td colspan="5" class="staff-empty">Pas encore assez de ventes pour une prévision.</td></tr>';
+    return;
+  }
+  table.innerHTML = `
+    <tr><th>Produit</th><th class="num">Vendus (30j)</th><th class="num">Stock actuel</th><th class="num">Prévision (30j)</th><th>Statut</th></tr>
+    ${rows.map(r => {
+      const needsReorder = r.stock != null && r.stock < r.sold;
+      return `<tr>
+        <td>${r.p.name_fr}</td>
+        <td class="num">${r.sold}</td>
+        <td class="num">${r.stock != null ? r.stock : '—'}</td>
+        <td class="num">${r.sold}</td>
+        <td>${needsReorder ? '<span class="sourcing-badge is-reorder">À recommander</span>' : '<span class="sourcing-badge is-ok">OK</span>'}</td>
+      </tr>`;
+    }).join('')}
+  `;
+}
+
+// Hero products & waitlist leads (lead capture): product.html shows a
+// waitlist form instead of a plain "sold out" message for any product
+// marked is_hero — captured signups land in the `leads` table.
+async function renderHeroAndLeads(){
+  const [{ data: heroes }, { data: leads }] = await Promise.all([
+    sb.from('products').select('id,name_fr,sold_out,active').eq('is_hero', true),
+    sb.from('leads').select('*').order('created_at', { ascending: false }).limit(50),
+  ]);
+  const heroList = document.getElementById('heroList');
+  heroList.innerHTML = (heroes && heroes.length) ? heroes.map(h => `
+    <div class="hero-row">
+      <div>
+        <div class="hero-name">${h.name_fr}</div>
+        <div class="hero-meta">${h.active ? 'Actif' : 'Inactif'} — ${h.sold_out ? "Rupture (liste d'attente active)" : 'En stock'}</div>
+      </div>
+    </div>
+  `).join('') : '<p class="staff-empty">Aucun produit marqué "vedette" pour l\'instant — coche "Produit vedette" sur une fiche produit.</p>';
+
+  const nameById = {};
+  (heroes || []).forEach(h => { nameById[h.id] = h.name_fr; });
+  const leadsList = document.getElementById('leadsList');
+  leadsList.innerHTML = (leads && leads.length) ? leads.map(l => `
+    <div class="lead-row">
+      <div>
+        <div class="hero-name">${l.name ? `${l.name} — ${l.phone}` : l.phone}</div>
+        <div class="hero-meta">${l.product_id ? (nameById[l.product_id] || l.product_id) + ' — ' : ''}${new Date(l.created_at).toLocaleDateString('fr-FR')}</div>
+      </div>
+    </div>
+  `).join('') : '<p class="staff-empty">Aucune inscription pour l’instant.</p>';
+}
 
 (async function init(){
   if (!sb) { showLogin(); return; }

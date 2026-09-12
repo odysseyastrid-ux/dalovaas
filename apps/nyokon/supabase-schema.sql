@@ -780,3 +780,95 @@ create policy activity_logs_all_staff
   to authenticated
   using (public.is_staff())
   with check (public.is_staff());
+
+-- Sourcing & production ("Sourcing" panel in staff.html): tech pack
+-- fields per product, multi-supplier sourcing for MOQ/lead-time/cost
+-- resilience, a default sizing curve for production planning, and a
+-- hero-product waitlist (lead capture) for pieces sold out or not yet
+-- launched. Demand forecasting itself needs no new table — it's
+-- computed client-side in staff.html from existing orders history.
+
+alter table public.products add column if not exists gsm numeric;
+alter table public.products add column if not exists moq integer;
+alter table public.products add column if not exists tech_pack_notes text;
+alter table public.products add column if not exists is_hero boolean not null default false;
+
+create table if not exists public.product_suppliers (
+  id uuid primary key default gen_random_uuid(),
+  product_id text not null references public.products(id) on delete cascade,
+  supplier_name text not null,
+  moq integer,
+  lead_time_days integer,
+  cost_price numeric,
+  gsm numeric,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.product_suppliers enable row level security;
+
+drop policy if exists product_suppliers_all_staff on public.product_suppliers;
+create policy product_suppliers_all_staff
+  on public.product_suppliers for all
+  to authenticated
+  using (public.is_staff())
+  with check (public.is_staff());
+
+-- Default sizing curve (% of a production run per size) — a starting
+-- point staff can edit; sizes not listed here just get an even split
+-- of whatever's left in the staff.html calculator.
+create table if not exists public.sizing_curve (
+  size text primary key,
+  percent numeric not null
+);
+
+insert into public.sizing_curve (size, percent) values
+  ('XS', 5), ('S', 20), ('M', 30), ('L', 25), ('XL', 15), ('XXL', 5)
+on conflict (size) do nothing;
+
+alter table public.sizing_curve enable row level security;
+
+drop policy if exists sizing_curve_select_public on public.sizing_curve;
+create policy sizing_curve_select_public
+  on public.sizing_curve for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists sizing_curve_write_staff on public.sizing_curve;
+create policy sizing_curve_write_staff
+  on public.sizing_curve for all
+  to authenticated
+  using (public.is_staff())
+  with check (public.is_staff());
+
+-- Lead capture: a customer joins a hero product's waitlist (sold out
+-- or not yet launched) from product.html with just a phone number —
+-- no account needed, same anon-insert pattern as orders.
+create table if not exists public.leads (
+  id uuid primary key default gen_random_uuid(),
+  product_id text references public.products(id) on delete set null,
+  name text,
+  phone text not null,
+  source text not null default 'hero_waitlist',
+  created_at timestamptz not null default now()
+);
+
+alter table public.leads enable row level security;
+
+drop policy if exists leads_insert_public on public.leads;
+create policy leads_insert_public
+  on public.leads for insert
+  to anon, authenticated
+  with check (true);
+
+drop policy if exists leads_select_staff on public.leads;
+create policy leads_select_staff
+  on public.leads for select
+  to authenticated
+  using (public.is_staff());
+
+drop policy if exists leads_delete_staff on public.leads;
+create policy leads_delete_staff
+  on public.leads for delete
+  to authenticated
+  using (public.is_staff());

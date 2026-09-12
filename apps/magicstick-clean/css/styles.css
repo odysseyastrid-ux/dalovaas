@@ -170,27 +170,31 @@
   .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
   @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;} .hero{padding:56px 0 64px;} }
 
-  /* The family photo, blurred behind the hero's text — scaled up so the
-     blur's soft edges never show the section's border. The scrim is just
-     dark enough at the left (where the text sits) for white text to read;
-     it fades out toward the right so the photo itself stays visible. */
+  /* The family photo, softly blurred behind the hero's text — scaled up so
+     the blur's soft edges never show the section's border. A flat, fairly
+     light overlay (not a directional gradient, which only looked right at
+     wide desktop widths and went nearly opaque on a narrow phone screen)
+     keeps the photo clearly recognizable at every viewport width; the text
+     gets a shadow instead of relying on heavy darkening for contrast. */
   .hero-photo-bg{
     position:absolute;inset:0;z-index:0;
     background-image:url('../assets/images/family-with-dog.jpg');
     background-size:cover;background-position:center;
-    filter:blur(14px) brightness(.85);transform:scale(1.15);
+    filter:blur(8px) brightness(.95);transform:scale(1.15);
   }
   .hero-photo-scrim{
     position:absolute;inset:0;z-index:0;
-    background:linear-gradient(100deg,rgba(10,33,29,.72) 0%,rgba(10,33,29,.5) 40%,rgba(10,33,29,.22) 100%);
+    background:rgba(10,33,29,.4);
   }
 
-  /* The photo is dark and busy, so the hero's text/pill/outline button get a
-     light variant here instead of the site's usual charcoal-on-cream. */
-  .hero .tag{background:rgba(255,255,255,.14);color:#fff;}
-  .hero h1{color:#fff;}
-  .hero p.lede{color:#D7D5CE;}
-  .hero .contactline{color:#C9CDD3;}
+  /* The photo is busy and now only lightly darkened (so it stays visible),
+     so the hero's text/pill/outline button get a light variant here instead
+     of the site's usual charcoal-on-cream, plus a shadow to stay readable
+     over the photo's own light/dark areas without needing a heavier scrim. */
+  .hero .tag{background:rgba(255,255,255,.16);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .hero h1{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);}
+  .hero p.lede{color:#F0EEE7;text-shadow:0 1px 8px rgba(0,0,0,.55);}
+  .hero .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);}
   .hero .hero-cover-img{border-color:rgba(255,255,255,.25);}
 
   .tag{

@@ -614,6 +614,9 @@
   .file-drop:hover{border-color:var(--teal);background:var(--teal-tint);}
   .file-drop span:first-child{font-weight:600;font-size:14.5px;color:var(--charcoal);}
   .file-drop-hint{font-size:12.5px;color:var(--gray);}
+  .file-drop-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .file-drop-row .file-drop{flex:1;min-width:150px;}
+  .file-drop-camera-label{display:flex;align-items:center;gap:6px;}
   .file-list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
   .file-list li{
     display:flex;align-items:center;justify-content:space-between;gap:10px;

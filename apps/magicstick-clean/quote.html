@@ -275,20 +275,34 @@
       </div>
       <div class="field">
         <label><span data-i18n="form.photos">Photos of your home</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <label class="file-drop" for="qPhotos">
-          <span data-i18n="form.photos.cta">Choose photos</span>
-          <span class="file-drop-hint" data-i18n="form.photos.hint">Up to 6 photos, 10MB each</span>
-        </label>
+        <div class="file-drop-row">
+          <label class="file-drop" for="qPhotos">
+            <span data-i18n="form.photos.cta">Choose photos</span>
+            <span class="file-drop-hint" data-i18n="form.photos.hint">Up to 6 photos, 10MB each</span>
+          </label>
+          <label class="file-drop file-drop-camera" for="qPhotosCamera">
+            <span class="file-drop-camera-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span data-i18n="form.photos.takeCta">Take a photo</span></span>
+            <span class="file-drop-hint" data-i18n="form.photos.takeHint">Use your camera</span>
+          </label>
+        </div>
         <input type="file" id="qPhotos" accept="image/*" multiple hidden>
+        <input type="file" id="qPhotosCamera" accept="image/*" capture="environment" multiple hidden>
         <ul class="file-list" id="qPhotosList"></ul>
         <p class="file-note" id="qPhotosNote" hidden></p>
       </div>
       <div class="field">
         <label><span data-i18n="form.video">Video walkthrough</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <label class="file-drop" for="qVideo">
-          <span data-i18n="form.video.cta">Choose a video</span>
-          <span class="file-drop-hint" data-i18n="form.video.hint">Up to 50MB</span>
-        </label>
+        <div class="file-drop-row">
+          <label class="file-drop" for="qVideo">
+            <span data-i18n="form.video.cta">Choose a video</span>
+            <span class="file-drop-hint" data-i18n="form.video.hint">Up to 50MB</span>
+          </label>
+          <label class="file-drop file-drop-camera" for="qVideoCamera">
+            <span class="file-drop-camera-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span data-i18n="form.video.recordCta">Record a video</span></span>
+            <span class="file-drop-hint" data-i18n="form.video.recordHint">Use your camera</span>
+          </label>
+        </div>
+        <input type="file" id="qVideoCamera" accept="video/*" capture="environment" hidden>
         <input type="file" id="qVideo" accept="video/*" hidden>
         <ul class="file-list" id="qVideoList"></ul>
         <p class="file-note" id="qVideoNote" hidden></p>

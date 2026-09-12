@@ -166,7 +166,12 @@ function renderFileList(listEl, files, onRemove) {
   });
 }
 
+// Photos: two inputs feed the same list — "Choose photos" (gallery/file
+// browser, accept="image/*") and "Take a photo" (accept="image/*"
+// capture="environment", which opens the device camera directly on
+// mobile browsers) — either way the picked files land in selectedPhotos.
 const qPhotosInput = document.getElementById('qPhotos');
+const qPhotosCameraInput = document.getElementById('qPhotosCamera');
 const qPhotosList = document.getElementById('qPhotosList');
 const qPhotosNote = document.getElementById('qPhotosNote');
 
@@ -177,9 +182,9 @@ function renderPhotos() {
   });
 }
 
-qPhotosInput.addEventListener('change', () => {
+function handlePhotosPicked(input) {
   qPhotosNote.hidden = true;
-  const incoming = Array.from(qPhotosInput.files || []);
+  const incoming = Array.from(input.files || []);
   for (const file of incoming) {
     if (selectedPhotos.length >= MAX_PHOTOS) {
       qPhotosNote.textContent = t('form.photos.tooMany');
@@ -195,11 +200,16 @@ qPhotosInput.addEventListener('change', () => {
     }
     selectedPhotos.push(file);
   }
-  qPhotosInput.value = '';
+  input.value = '';
   renderPhotos();
-});
+}
 
+qPhotosInput.addEventListener('change', () => handlePhotosPicked(qPhotosInput));
+qPhotosCameraInput.addEventListener('change', () => handlePhotosPicked(qPhotosCameraInput));
+
+// Video: same idea — "Choose a video" vs. "Record a video" (camera capture).
 const qVideoInput = document.getElementById('qVideo');
+const qVideoCameraInput = document.getElementById('qVideoCamera');
 const qVideoList = document.getElementById('qVideoList');
 const qVideoNote = document.getElementById('qVideoNote');
 
@@ -210,10 +220,10 @@ function renderVideo() {
   });
 }
 
-qVideoInput.addEventListener('change', () => {
+function handleVideoPicked(input) {
   qVideoNote.hidden = true;
-  const file = qVideoInput.files && qVideoInput.files[0];
-  qVideoInput.value = '';
+  const file = input.files && input.files[0];
+  input.value = '';
   if (!file) return;
   if (file.size > MAX_VIDEO_BYTES) {
     qVideoNote.textContent = t('form.video.tooBig', { name: file.name });
@@ -223,7 +233,10 @@ qVideoInput.addEventListener('change', () => {
   }
   selectedVideo = file;
   renderVideo();
-});
+}
+
+qVideoInput.addEventListener('change', () => handleVideoPicked(qVideoInput));
+qVideoCameraInput.addEventListener('change', () => handleVideoPicked(qVideoCameraInput));
 
 function makeId() {
   if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();

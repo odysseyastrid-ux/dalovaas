@@ -115,6 +115,14 @@ Any static host works — GitHub Pages, Netlify, Vercel. Just make sure
 `SITE_URL` (step 4) and Supabase's `additional_redirect_urls`
 (`supabase/config.toml`) match wherever you actually deploy it.
 
+## 7. Sync customers to a CRM (optional)
+
+Want every quote request and booking to also show up in a CRM automatically?
+See [`twenty-crm/README.md`](twenty-crm/README.md) — it self-hosts
+[Twenty](https://twenty.com) (open-source, no per-seat fee) via Docker on
+your own server and wires up a Supabase function that creates/updates a
+customer record on each new request.
+
 ## What each piece does
 
 | Page | What it needs |

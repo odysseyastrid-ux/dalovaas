@@ -123,17 +123,13 @@
     transition:opacity .5s ease;
   }
   .splash-gate.splash-hide{opacity:0;pointer-events:none;}
-  /* A blurred, darkened copy of the same photo fills the letterboxed space
-     left by .splash-photo's object-fit:contain below (so the mismatch
-     between the photo's aspect ratio and the screen's never shows an empty
-     bar), and the photo's own edges fade into it via a mask, instead of
-     sitting on top as a hard-edged rectangle. */
-  .splash-photo-backdrop{
-    position:absolute;inset:0;
-    background-image:url('../assets/images/fridge-before-after.jpg');
-    background-size:cover;background-position:center;
-    filter:blur(30px) brightness(.55);transform:scale(1.15);
-  }
+  /* The animated teal/gold shader fills the letterboxed space left by
+     .splash-photo's object-fit:contain below (so the mismatch between the
+     photo's aspect ratio and the screen's never shows an empty bar), and
+     the photo's own edges fade into it via a mask, instead of sitting on
+     top as a hard-edged rectangle. */
+  .splash-shader-bg{position:absolute;inset:0;overflow:hidden;}
+  .splash-shader-bg canvas{display:block;width:100%;height:100%;}
   .splash-photo{
     position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
     -webkit-mask-image:radial-gradient(ellipse 85% 85% at center,#000 65%,transparent 100%);

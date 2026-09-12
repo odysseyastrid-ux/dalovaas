@@ -17,7 +17,7 @@
      page itself. Dismissed by clicking anywhere on it; remembered for the
      rest of the browser session so it only shows once per visit. -->
 <div id="splashGate" class="splash-gate" role="button" tabindex="0" aria-label="Enter Magicstick Clean">
-  <div class="splash-photo-backdrop" aria-hidden="true"></div>
+  <div class="splash-shader-bg" id="splashShaderBg" aria-hidden="true"></div>
   <img class="splash-photo" src="assets/images/fridge-before-after.jpg" alt="Before and after: a refrigerator interior transformed from grimy to spotless by Magicstick Clean">
   <div class="splash-scrim" aria-hidden="true"></div>
   <div class="splash-content">
@@ -314,6 +314,8 @@
 </footer>
 
 <script src="js/script.js"></script>
+<script src="js/vendor/paper-shaders-warp.min.js"></script>
+<script src="js/splash-shader.js"></script>
 
 </body>
 </html>

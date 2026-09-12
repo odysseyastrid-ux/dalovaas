@@ -180,7 +180,12 @@
     position:absolute;inset:0;z-index:0;
     background-image:url('../assets/images/family-with-dog.jpg');
     background-size:cover;background-position:center;
-    filter:blur(8px) brightness(.95);transform:scale(1.15);
+    filter:blur(4px) brightness(.95);transform:scale(1.05);
+  }
+  @media (max-width:640px){
+    /* Less extra zoom on a narrow screen, so more of the actual photo
+       (not just the blur's safety margin) is visible rather than cropped. */
+    .hero-photo-bg{transform:scale(1.02);}
   }
   .hero-photo-scrim{
     position:absolute;inset:0;z-index:0;

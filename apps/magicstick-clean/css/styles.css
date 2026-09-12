@@ -390,6 +390,9 @@
     .service-detail-inner{flex-direction:column;}
     .service-detail-img{width:100%;height:160px;}
   }
+  .service-detail-learnmore{margin:10px 0 0;font-size:13.5px;}
+  .service-detail-learnmore a{color:var(--teal);font-weight:600;}
+  .service-detail-learnmore a:hover{text-decoration:underline;}
   .cat-label{
     font-family:'Work Sans',Arial,sans-serif;font-size:14px;font-weight:600;
     color:var(--gold);margin:0 0 4px;padding-top:18px;
@@ -398,6 +401,40 @@
   @media (max-width:700px){
     .service-row{grid-template-columns:1fr;gap:6px;}
   }
+
+  /* ---------- BREADCRUMBS (services/locations hub + child pages) ---------- */
+  .breadcrumbs{
+    font-size:13px;color:var(--gray);padding:16px 0 0;
+    display:flex;flex-wrap:wrap;align-items:center;gap:0;
+  }
+  .breadcrumbs a{color:var(--teal);}
+  .breadcrumbs a:hover{text-decoration:underline;}
+  .breadcrumbs .sep{margin:0 7px;color:var(--line);}
+  .breadcrumbs [aria-current="page"]{color:var(--charcoal);font-weight:600;}
+
+  /* ---------- HUB CARDS (services.html / locations.html) ---------- */
+  .hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:860px){ .hub-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:600px){ .hub-grid{grid-template-columns:1fr;} }
+  .hub-card{
+    display:block;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+    background:#fff;transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .hub-card:hover{border-color:var(--teal);box-shadow:0 8px 24px rgba(0,0,0,.08);}
+  .hub-card img{width:100%;height:150px;object-fit:cover;display:block;}
+  .hub-card-body{padding:18px 20px 22px;}
+  .hub-card-body h3{font-size:19px;margin:0 0 8px;}
+  .hub-card-body p{color:var(--gray);font-size:14.5px;margin:0 0 12px;}
+  .hub-card-link{color:var(--teal);font-weight:600;font-size:14px;}
+
+  /* ---------- SERVICE / LOCATION LANDING PAGES ---------- */
+  .page-hero-img{
+    width:100%;max-height:340px;object-fit:cover;border-radius:8px;margin:28px 0 0;
+    border:1px solid var(--line);
+  }
+  .page-body p{color:var(--gray);font-size:16px;max-width:75ch;}
+  .page-body ul{color:var(--gray);font-size:16px;max-width:70ch;padding-left:22px;}
+  .page-body li{margin-bottom:8px;}
 
   /* ---------- OFFER BAND ---------- */
   .offer{
@@ -503,7 +540,7 @@
     position:relative;
     background:var(--teal);color:#fff;text-align:center;padding:80px 0;
   }
-  .contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;}
+  .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;}
   .contact-band p{color:#CFE7E3;font-size:16px;margin-bottom:30px;}
   .contact-band .btn{background:var(--gold);color:var(--charcoal);}
   .contact-band .contactline{margin-top:22px;font-size:15px;color:#CFE7E3;}

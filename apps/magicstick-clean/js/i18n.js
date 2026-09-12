@@ -109,6 +109,13 @@
     'home.services.office.detail': { en: 'Desks, common areas, kitchenette, and washrooms cleaned on a recurring schedule — daily, weekly, or whatever fits your business. Scheduled before or after hours so it never disrupts your team. Custom quote based on square footage and frequency.', fr: 'Bureaux, espaces communs, cuisinette et toilettes nettoyés selon un horaire récurrent — quotidien, hebdomadaire, ou selon ce qui convient à ton entreprise. Planifié avant ou après les heures d’ouverture pour ne jamais déranger ton équipe. Devis sur mesure selon la superficie et la fréquence.' },
     'home.services.retail.detail': { en: 'Floors, entryways, fitting rooms, and display fixtures kept spotless so your shop always looks its best for customers. Scheduled around your opening hours. Custom quote based on store size and how often you’d like visits.', fr: 'Planchers, entrées, cabines d’essayage et présentoirs gardés impeccables pour que ton commerce soit toujours à son meilleur pour la clientèle. Planifié autour de tes heures d’ouverture. Devis sur mesure selon la taille du commerce et la fréquence souhaitée.' },
     'home.services.postConstruction.detail': { en: 'Fine dust and debris removed from every surface (including light fixtures and vents), floors deep-cleaned, and windows wiped down after a renovation — or a fast turnaround clean after a hall rental, party, or event. Custom quote based on the scope of the mess.', fr: 'Poussière fine et débris retirés de toutes les surfaces (incluant les luminaires et bouches d’aération), planchers nettoyés en profondeur, et fenêtres essuyées après une rénovation — ou un nettoyage rapide après la location d’une salle, une fête ou un événement. Devis sur mesure selon l’ampleur du travail.' },
+    'home.services.standard.learnMore': { en: 'Learn more about Standard Cleaning →', fr: 'En savoir plus sur le nettoyage standard →' },
+    'home.services.deep.learnMore': { en: 'Learn more about Deep Cleaning →', fr: 'En savoir plus sur le nettoyage en profondeur →' },
+    'home.services.moveInOut.learnMore': { en: 'Learn more about Move-In / Move-Out Cleaning →', fr: 'En savoir plus sur le nettoyage emménagement/déménagement →' },
+    'home.services.airbnb.learnMore': { en: 'Learn more about Airbnb Turnovers →', fr: 'En savoir plus sur les roulements Airbnb →' },
+    'home.services.office.learnMore': { en: 'Learn more about Office Cleaning →', fr: 'En savoir plus sur le nettoyage de bureaux →' },
+    'home.services.retail.learnMore': { en: 'Learn more about Retail & Store Cleaning →', fr: 'En savoir plus sur le nettoyage de commerces →' },
+    'home.services.postConstruction.learnMore': { en: 'Learn more about Post-Construction & Event Cleanup →', fr: 'En savoir plus sur le nettoyage post-construction →' },
 
     // ---------- index.html: highlights (gallery/testimonials tabs) ----------
     'home.highlights.title': { en: 'See it for yourself', fr: 'À toi de voir' },
@@ -446,6 +453,8 @@
     'footer.company': { en: 'Company', fr: 'Entreprise' },
     'footer.about': { en: 'About us', fr: 'À propos' },
     'footer.giftCards': { en: 'Gift cards', fr: 'Cartes-cadeaux' },
+    'footer.allServices': { en: 'All services', fr: 'Tous les services' },
+    'footer.serviceAreas': { en: 'Service areas', fr: 'Zones desservies' },
     'footer.legal': { en: 'Legal', fr: 'Mentions légales' },
     'footer.privacy': { en: 'Privacy policy', fr: 'Politique de confidentialité' },
     'footer.terms': { en: 'Terms of service', fr: 'Conditions d’utilisation' },

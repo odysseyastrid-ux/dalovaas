@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn</title>
+<meta name="description" content="nyøkøn — custom streetwear, drops and made-to-order pieces." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="pdp-back" id="pdpBack">BACK</a>
+  <a href="index.html" class="wordmark"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <a href="account.html" class="icon-link" aria-label="Account">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+  </a>
+  <a href="index.html#cart" class="icon-link cart-link" aria-label="Cart">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+    <span class="cart-count" id="pdpCartCount">0</span>
+  </a>
+</header>
+
+<main class="pdp" id="pdpRoot">
+  <p class="pdp-empty">…</p>
+</main>
+
+<div class="pdp-sticky-bar" id="pdpStickyBar" hidden>
+  <span class="pdp-sticky-price" id="pdpStickyPrice"></span>
+  <span class="gbtn-wrap" style="flex:1;">
+    <span class="g-light"></span>
+    <span class="g-layer" style="animation-delay:0s;animation-duration:25s;"></span>
+    <span class="g-layer" style="animation-delay:.53s;animation-duration:26.4s;"></span>
+    <span class="g-layer" style="animation-delay:1.6s;animation-duration:29.2s;"></span>
+    <button type="button" class="btn btn-light full" id="pdpStickyBtn"></button>
+  </span>
+  <span class="pdp-sticky-note" id="pdpStickyNote"></span>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const CURRENCIES = [
+  { code:'XOF', rate:600,  locale:'fr-SN' },
+  { code:'USD', rate:1,    locale:'en-US' },
+  { code:'EUR', rate:0.92, locale:'de-DE' },
+  { code:'GBP', rate:0.79, locale:'en-GB' },
+  { code:'CAD', rate:1.37, locale:'en-CA' },
+  { code:'NGN', rate:1550, locale:'en-NG' },
+  { code:'GHS', rate:15.5, locale:'en-GH' },
+  { code:'ZAR', rate:18.5, locale:'en-ZA' },
+];
+const DEFAULT_CURRENCY = 'XOF';
+function loadCurrency(){
+  try { const s = localStorage.getItem('nyokon-currency'); if (s && CURRENCIES.some(c => c.code === s)) return s; } catch (e) {}
+  return DEFAULT_CURRENCY;
+}
+const currentCurrency = loadCurrency();
+function money(usd){
+  const c = CURRENCIES.find(c => c.code === currentCurrency) || CURRENCIES[0];
+  return new Intl.NumberFormat(c.locale, { style:'currency', currency:c.code, maximumFractionDigits:0 }).format(usd * c.rate);
+}
+
+const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+function loadLang(){
+  try { const s = localStorage.getItem('nyokon-lang'); if (s === 'en' || s === 'fr') return s; } catch (e) {}
+  return DEFAULT_LANG;
+}
+const currentLang = loadLang();
+document.documentElement.lang = currentLang;
+
+const T = {
+  en: {
+    back:'BACK', colour:'Colour', colours:'Colours', sizes:'SIZES',
+    size_not_in_stock:'Size not in stock?', add_to_cart:'ADD TO CART', sold_out:'SOLD OUT',
+    added:'Added to cart', view_cart:'VIEW CART', choose_size:'Please select a size.',
+    also_like:'YOU MAY ALSO LIKE', not_found:'Product not found.',
+    back_to_shop:'← Back to shop', go_back:'Go back',
+    details_title:'DETAILS', fit_label:'Fit', material_label:'Material', care_label:'Care',
+    origin_label:'Made in', delivery_label:'Delivery', delivery_default:'3–5 business days',
+    quantity_label:'QUANTITY',
+    shipping_fast_zone:'Douala & Yaoundé — 24–48h, free over 25,000 FCFA',
+    shipping_other_zone:'Other cities — 3–5 days',
+    shipping_cod:'Cash, Orange Money & MTN MoMo accepted',
+    waitlist_title:'Sold out — join the waitlist',
+    waitlist_text:"This is one of our most-requested pieces. Leave your number and we'll message you the moment it's back.",
+    waitlist_phone_placeholder:'Phone number',
+    waitlist_btn:'NOTIFY ME',
+    waitlist_success:"You're on the list — we'll text you when it's back.",
+    waitlist_error:'Something went wrong — please try again.',
+  },
+  fr: {
+    back:'RETOUR', colour:'Couleur', colours:'Couleurs', sizes:'TAILLES',
+    size_not_in_stock:'Taille indisponible ?', add_to_cart:'AJOUTER AU PANIER', sold_out:'ÉPUISÉ',
+    added:'Ajouté au panier', view_cart:'VOIR LE PANIER', choose_size:'Choisis une taille.',
+    also_like:'VOUS AIMEREZ AUSSI', not_found:'Produit introuvable.',
+    back_to_shop:'← Retour à la boutique', go_back:'Retour en arrière',
+    details_title:'DÉTAILS', fit_label:'Coupe', material_label:'Matière', care_label:'Entretien',
+    origin_label:'Fabriqué en', delivery_label:'Livraison', delivery_default:'3 à 5 jours ouvrés',
+    quantity_label:'QUANTITÉ',
+    shipping_fast_zone:'Douala & Yaoundé — 24–48h, gratuit dès 25 000 FCFA',
+    shipping_other_zone:'Autres villes — 3 à 5 jours',
+    shipping_cod:'Espèces, Orange Money & MTN MoMo acceptés',
+    waitlist_title:'Épuisé — rejoins la liste d’attente',
+    waitlist_text:'C’est une de nos pièces les plus demandées. Laisse ton numéro, on te préviendra dès son retour.',
+    waitlist_phone_placeholder:'Numéro de téléphone',
+    waitlist_btn:'ME PRÉVENIR',
+    waitlist_success:'Inscription faite — on t’écrit dès son retour.',
+    waitlist_error:'Une erreur est survenue — réessaie.',
+  },
+};
+function t(key){ return T[currentLang][key] || T.en[key] || key; }
+document.getElementById('pdpBack').textContent = t('back');
+
+// Respect the theme already chosen on the main site (same localStorage
+// key as script.js) — no theme toggle here, just don't clash with it.
+// The site defaults to dark, so only an explicit "light" choice changes it.
+(function applyStoredTheme(){
+  try {
+    if (localStorage.getItem('nyokon-theme') === 'light') document.documentElement.dataset.theme = 'light';
+  } catch (e) {}
+})();
+
+// Cart is shared with script.js via localStorage (array of [key, item]
+// pairs) so items added here show up in the cart drawer on index.html.
+function loadCart(){
+  try { const raw = localStorage.getItem('nyokon-cart'); return raw ? new Map(JSON.parse(raw)) : new Map(); } catch (e) { return new Map(); }
+}
+function saveCart(cart){
+  try { localStorage.setItem('nyokon-cart', JSON.stringify([...cart.entries()])); } catch (e) {}
+}
+function refreshCartCount(){
+  const cart = loadCart();
+  document.getElementById('pdpCartCount').textContent = [...cart.values()].reduce((sum, i) => sum + i.qty, 0);
+}
+function addToCart(product, size, color, qty){
+  const cart = loadCart();
+  const key = `${product.id}::${size || ''}::${color || ''}`;
+  const existing = cart.get(key);
+  if (existing) existing.qty += qty;
+  else cart.set(key, { ...product, size: size || null, color: color || null, qty });
+  saveCart(cart);
+  refreshCartCount();
+}
+refreshCartCount();
+
+function galleryFor(images, colorName){
+  let list = colorName ? images.filter(img => !img.color_name || img.color_name === colorName) : images;
+  if (!list.length) list = images;
+  return list.map(img => img.url);
+}
+function stockBySizeFrom(variants){
+  const map = {};
+  variants.forEach(v => { if (!v.size) return; map[v.size] = (map[v.size] || 0) + (Number(v.stock) || 0); });
+  return map;
+}
+
+async function fetchProduct(id){
+  if (!sb || !id) return null;
+  try {
+    const { data: row, error } = await sb.from('products').select('*').eq('id', id).single();
+    if (error || !row) return null;
+    const [{ data: variants }, { data: images }] = await Promise.all([
+      sb.from('product_variants').select('size,stock').eq('product_id', id),
+      sb.from('product_images').select('color_name,url,position').eq('product_id', id).order('position', { ascending: true }),
+    ]);
+    return { row, variants: variants || [], images: images || [] };
+  } catch (e) { return null; }
+}
+async function fetchRelated(row){
+  if (!sb) return [];
+  try {
+    const { data } = await sb.from('products').select('id,name_en,name_fr,price,image_url')
+      .eq('active', true).eq('gender', row.gender).eq('type', row.type).neq('id', row.id).limit(4);
+    return data || [];
+  } catch (e) { return []; }
+}
+
+function render({ row, variants, images }){
+  const root = document.getElementById('pdpRoot');
+  const name = currentLang === 'fr' ? row.name_fr : row.name_en;
+  document.title = `${name} — nyøkøn`;
+  const colors = row.colors && row.colors.length ? row.colors : null;
+  const sizes = row.sizes && row.sizes.length ? row.sizes : null;
+  const stockBySize = stockBySizeFrom(variants);
+  const hasStockData = Object.keys(stockBySize).length > 0;
+  const soldOut = row.sold_out === true || (variants.length > 0 && variants.every(v => (Number(v.stock) || 0) <= 0));
+
+  let selectedColor = colors ? colors[0].name : null;
+  let selectedSize = null;
+  let galleryIdx = 0;
+  let quantity = 1;
+  const discount = (row.was && row.was > row.price) ? Math.round(100 - (row.price / row.was) * 100) : 0;
+
+  root.innerHTML = `
+    <div class="pdp-layout">
+      <div class="pdp-gallery">
+        <div class="pdp-gallery-main">
+          <button type="button" class="pdp-gallery-nav pdp-gallery-prev" aria-label="Previous">‹</button>
+          <div id="pdpGalleryMedia"></div>
+          <button type="button" class="pdp-gallery-nav pdp-gallery-next" aria-label="Next">›</button>
+          <span class="pdp-gallery-counter" id="pdpGalleryCounter"></span>
+          ${row.model_stats ? `<span class="pdp-gallery-model">${row.model_stats}</span>` : ''}
+        </div>
+        <div class="pdp-gallery-dots" id="pdpGalleryDots"></div>
+      </div>
+      <div class="pdp-info">
+        <div class="pdp-name">${name}</div>
+        <div class="pdp-sub" id="pdpSub">${selectedColor || (currentLang === 'fr' ? row.sub_fr : row.sub_en) || ''}</div>
+        <div class="pdp-price">${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}${discount > 0 ? `<span class="pdp-discount-badge">-${discount}%</span>` : ''}</div>
+        ${colors ? `
+        <div class="pdp-colors">
+          <div class="pdp-colors-label" id="pdpColorsLabel"></div>
+          <div class="color-swatch-row" id="pdpColorRow">${colors.map((c, i) => `<button type="button" class="color-swatch${i === 0 ? ' active' : ''}" data-name="${c.name}" style="background:${c.hex}" title="${c.name || ''}"></button>`).join('')}</div>
+        </div>` : ''}
+        ${sizes ? `
+        <div class="pdp-sizes">
+          <div class="pdp-sizes-head">
+            <span class="pdp-sizes-label">${t('sizes')}</span>
+            ${hasStockData ? `<button type="button" class="pdp-size-help" id="pdpSizeHelp">${t('size_not_in_stock')}</button>` : ''}
+          </div>
+          <div class="pdp-size-grid" id="pdpSizeGrid">${sizes.map(s => {
+            const outOfStock = hasStockData && (stockBySize[s] || 0) <= 0;
+            return `<button type="button" class="size-chip${outOfStock ? ' is-out' : ''}" data-size="${s}" ${outOfStock ? 'disabled' : ''}>${s}</button>`;
+          }).join('')}</div>
+        </div>` : ''}
+        <div class="pdp-qty">
+          <span class="pdp-qty-label">${t('quantity_label')}</span>
+          <div class="pdp-qty-control">
+            <button type="button" class="pdp-qty-btn" id="pdpQtyMinus" aria-label="Decrease quantity">−</button>
+            <span class="pdp-qty-value" id="pdpQtyValue">1</span>
+            <button type="button" class="pdp-qty-btn" id="pdpQtyPlus" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+        <div class="pdp-note" id="pdpNote"></div>
+        ${soldOut && row.is_hero ? `
+        <div class="pdp-waitlist" id="pdpWaitlist">
+          <div class="pdp-waitlist-title">${t('waitlist_title')}</div>
+          <p class="pdp-waitlist-text">${t('waitlist_text')}</p>
+          <form id="pdpWaitlistForm" class="pdp-waitlist-form">
+            <input type="tel" id="pdpWaitlistPhone" placeholder="${t('waitlist_phone_placeholder')}" required />
+            <button type="submit" class="btn btn-light">${t('waitlist_btn')}</button>
+          </form>
+          <p class="pdp-waitlist-note" id="pdpWaitlistNote"></p>
+        </div>` : ''}
+        <div class="pdp-shipping">
+          <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span>${t('shipping_fast_zone')}</span></div>
+          <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span>${t('shipping_other_zone')}</span></div>
+          <div class="pdp-shipping-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg><span>${t('shipping_cod')}</span></div>
+        </div>
+        <div class="pdp-facts">
+          ${row.fit ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('fit_label')}</span><span>${row.fit}</span></div>` : ''}
+          ${row.material ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('material_label')}</span><span>${row.material}</span></div>` : ''}
+          ${row.care_instructions ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('care_label')}</span><span>${row.care_instructions}</span></div>` : ''}
+          ${row.origin_country ? `<div class="pdp-fact"><span class="pdp-fact-label">${t('origin_label')}</span><span>${row.origin_country}</span></div>` : ''}
+          <div class="pdp-fact"><span class="pdp-fact-label">${t('delivery_label')}</span><span>${row.delivery_estimate || t('delivery_default')}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="pdp-related" id="pdpRelated"></div>
+  `;
+
+  const galleryMedia = document.getElementById('pdpGalleryMedia');
+  const galleryCounter = document.getElementById('pdpGalleryCounter');
+  const galleryDots = document.getElementById('pdpGalleryDots');
+  let gallery = galleryFor(images, selectedColor);
+  if (!gallery.length && row.image_url) gallery = [row.image_url];
+
+  function isVideoUrl(url){ return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || ''); }
+
+  let galleryObserver = null;
+  function updateGalleryChrome(){
+    galleryCounter.textContent = gallery.length ? `${galleryIdx + 1}/${gallery.length}` : '';
+    galleryDots.querySelectorAll('.pdp-gallery-dot').forEach((d, i) => d.classList.toggle('active', i === galleryIdx));
+  }
+  // Every photo renders at once, full width, stacked — the customer
+  // scrolls through them (nothing cropped). The arrows/dots still work:
+  // they scroll the stack to the target photo instead of swapping one
+  // cropped frame for another.
+  function renderGallery(){
+    if (galleryObserver) { galleryObserver.disconnect(); galleryObserver = null; }
+    if (!gallery.length){
+      galleryMedia.innerHTML = '';
+      galleryCounter.textContent = '';
+      galleryDots.innerHTML = '';
+      return;
+    }
+    galleryIdx = Math.max(0, Math.min(galleryIdx, gallery.length - 1));
+    galleryMedia.innerHTML = gallery.map(url => isVideoUrl(url)
+      ? `<video src="${url}" muted loop playsinline controls></video>`
+      : `<img src="${url}" alt="${name}" loading="lazy" />`
+    ).join('');
+    galleryDots.innerHTML = gallery.map((_, i) => `<span class="pdp-gallery-dot" data-i="${i}"></span>`).join('');
+    updateGalleryChrome();
+    const slides = [...galleryMedia.children];
+    galleryObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          const i = slides.indexOf(entry.target);
+          if (i !== -1) { galleryIdx = i; updateGalleryChrome(); }
+        }
+      });
+    }, { root: galleryMedia, threshold: 0.5 });
+    slides.forEach(el => galleryObserver.observe(el));
+  }
+  function scrollGalleryTo(i){
+    const slides = [...galleryMedia.children];
+    if (!slides.length) return;
+    galleryIdx = (i + slides.length) % slides.length;
+    slides[galleryIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  renderGallery();
+  root.querySelector('.pdp-gallery-prev').addEventListener('click', () => scrollGalleryTo(galleryIdx - 1));
+  root.querySelector('.pdp-gallery-next').addEventListener('click', () => scrollGalleryTo(galleryIdx + 1));
+  galleryDots.addEventListener('click', (e) => {
+    const dot = e.target.closest('.pdp-gallery-dot');
+    if (dot) scrollGalleryTo(Number(dot.dataset.i));
+  });
+
+  if (colors){
+    const label = document.getElementById('pdpColorsLabel');
+    label.textContent = `${colors.length} ${colors.length > 1 ? t('colours') : t('colour')}`;
+    document.getElementById('pdpColorRow').addEventListener('click', (e) => {
+      const swatch = e.target.closest('.color-swatch');
+      if (!swatch) return;
+      selectedColor = swatch.dataset.name;
+      document.querySelectorAll('#pdpColorRow .color-swatch').forEach(s => s.classList.toggle('active', s === swatch));
+      document.getElementById('pdpSub').textContent = selectedColor;
+      gallery = galleryFor(images, selectedColor);
+      if (!gallery.length && row.image_url) gallery = [row.image_url];
+      galleryIdx = 0;
+      renderGallery();
+    });
+  }
+
+  if (sizes){
+    document.getElementById('pdpSizeGrid').addEventListener('click', (e) => {
+      const chip = e.target.closest('.size-chip');
+      if (!chip) return;
+      selectedSize = chip.dataset.size;
+      document.querySelectorAll('#pdpSizeGrid .size-chip').forEach(c => c.classList.toggle('active', c === chip));
+      document.getElementById('pdpNote').textContent = '';
+    });
+    const helpBtn = document.getElementById('pdpSizeHelp');
+    if (helpBtn) helpBtn.addEventListener('click', () => {
+      document.getElementById('pdpNote').textContent = currentLang === 'fr'
+        ? 'Contacte-nous — on te préviendra dès le réassort.'
+        : "Contact us — we'll notify you when it's back in stock.";
+    });
+  }
+
+  const qtyValueEl = document.getElementById('pdpQtyValue');
+  document.getElementById('pdpQtyMinus').addEventListener('click', () => {
+    quantity = Math.max(1, quantity - 1);
+    qtyValueEl.textContent = quantity;
+  });
+  document.getElementById('pdpQtyPlus').addEventListener('click', () => {
+    quantity = Math.min(10, quantity + 1);
+    qtyValueEl.textContent = quantity;
+  });
+
+  document.getElementById('pdpStickyBar').hidden = false;
+  document.getElementById('pdpStickyPrice').innerHTML = `${row.was ? `<span class="was">${money(row.was)}</span>` : ''}${money(row.price)}`;
+  const stickyBtn = document.getElementById('pdpStickyBtn');
+  const stickyNote = document.getElementById('pdpStickyNote');
+  stickyBtn.textContent = soldOut ? t('sold_out') : t('add_to_cart');
+  if (soldOut){
+    stickyBtn.disabled = true;
+  } else {
+    stickyBtn.addEventListener('click', () => {
+      if (sizes && !selectedSize){
+        document.getElementById('pdpNote').textContent = t('choose_size');
+        return;
+      }
+      const product = {
+        id: row.id,
+        price: Number(row.price),
+        was: row.was != null ? Number(row.was) : null,
+        image: row.image_url || (gallery[0] || null),
+        name: { en: row.name_en, fr: row.name_fr },
+        sub: { en: row.sub_en || '', fr: row.sub_fr || '' },
+      };
+      addToCart(product, selectedSize, selectedColor, quantity);
+      stickyNote.textContent = `${t('added')} — `;
+      const link = document.createElement('a');
+      link.href = 'index.html';
+      link.textContent = t('view_cart');
+      link.style.textDecoration = 'underline';
+      stickyNote.appendChild(link);
+    });
+  }
+
+  const waitlistForm = document.getElementById('pdpWaitlistForm');
+  if (waitlistForm) {
+    waitlistForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('pdpWaitlistPhone').value.trim();
+      const note = document.getElementById('pdpWaitlistNote');
+      if (!phone || !sb) return;
+      const btn = waitlistForm.querySelector('button');
+      btn.disabled = true;
+      try {
+        const { error } = await sb.from('leads').insert({ product_id: row.id, phone, source: 'hero_waitlist' });
+        if (error) throw error;
+        waitlistForm.hidden = true;
+        note.textContent = t('waitlist_success');
+      } catch (err) {
+        note.textContent = t('waitlist_error');
+        btn.disabled = false;
+      }
+    });
+  }
+
+  fetchRelated(row).then(related => {
+    if (!related.length) return;
+    document.getElementById('pdpRelated').innerHTML = `
+      <div class="pdp-related-title">${t('also_like')}</div>
+      <div class="pdp-related-grid">
+        ${related.map(p => `
+          <a class="pdp-related-card" href="product.html?id=${encodeURIComponent(p.id)}">
+            <div class="pdp-related-media">${p.image_url ? `<img src="${p.image_url}" alt="" />` : ''}</div>
+            <div class="pdp-related-name">${currentLang === 'fr' ? p.name_fr : p.name_en}</div>
+            <div class="pdp-related-price">${money(Number(p.price))}</div>
+          </a>
+        `).join('')}
+      </div>
+    `;
+  });
+}
+
+(async function init(){
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('id');
+  const result = await fetchProduct(productId);
+  if (!result){
+    document.getElementById('pdpRoot').innerHTML = `
+      <div class="pdp-empty">
+        <p>${t('not_found')}</p>
+        <div class="pdp-empty-actions">
+          <a href="index.html" class="btn btn-light">${t('back_to_shop')}</a>
+          <button type="button" class="pdp-empty-history" id="pdpGoBack">${t('go_back')}</button>
+        </div>
+      </div>
+    `;
+    const goBackBtn = document.getElementById('pdpGoBack');
+    if (goBackBtn) goBackBtn.addEventListener('click', () => { if (history.length > 1) history.back(); });
+    return;
+  }
+  render(result);
+})();
+</script>
+</body>
+</html>

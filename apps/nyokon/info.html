@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn</title>
+<meta name="description" content="nyøkøn — shipping, returns, size guide and contact." />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="pdp-back" id="infoBack">BACK</a>
+  <a href="index.html" class="wordmark"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <span></span>
+</header>
+
+<main class="info-page" id="infoRoot"></main>
+
+<script>
+const SUPABASE_URL = 'https://ejbuwatgnvxsfmwewyfu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_A49q39M9BU_QkJGPR8fc-g_d4FAIMKW';
+const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const DEFAULT_LANG = navigator.language && navigator.language.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+function loadLang(){
+  try { const s = localStorage.getItem('nyokon-lang'); if (s === 'en' || s === 'fr') return s; } catch (e) {}
+  return DEFAULT_LANG;
+}
+const currentLang = loadLang();
+document.documentElement.lang = currentLang;
+
+(function applyStoredTheme(){
+  try {
+    if (localStorage.getItem('nyokon-theme') === 'light') document.documentElement.dataset.theme = 'light';
+  } catch (e) {}
+})();
+
+const TOPICS = ['shipping', 'returns', 'sizing', 'contact'];
+
+const T = {
+  en: {
+    back:'BACK',
+    tab_shipping:'Shipping', tab_returns:'Returns', tab_sizing:'Size Guide', tab_contact:'Contact',
+
+    shipping_title:'Shipping', shipping_intro:'How your order gets to you.',
+    shipping_h1:'Pickup', shipping_p1:'Free — collect your order in person once it’s ready. You’ll get a message when it is.',
+    shipping_h2:'Delivery', shipping_p2:'Available in Douala and Yaoundé, and other cities on request. A delivery fee may apply depending on your area — it’s confirmed with you before the order ships.',
+    shipping_h3:'Timelines', shipping_li1:'In-stock pieces: 3 to 5 business days.', shipping_li2:'Made-to-order or limited pieces: see the estimate on the product page — it can take longer.', shipping_li3:'You’ll get your order reference right after checkout — use it on the Track page any time.',
+    shipping_h4:'Payment', shipping_p4:'Orange Money, MTN MoMo, cash on pickup/delivery, or your loyalty points if you have enough saved up.',
+
+    returns_title:'Returns & Exchanges', returns_intro:'We want you to love what you ordered.',
+    returns_h1:'Window', returns_p1:'You have 7 days from the day you receive your order to request an exchange.',
+    returns_h2:'Conditions', returns_li1:'Unworn, unwashed, with tags still attached.', returns_li2:'In its original packaging where possible.', returns_li3:'Made-to-order or personalized pieces can’t be exchanged unless there’s a defect.',
+    returns_h3:'How it works', returns_p3:'We currently offer exchanges or store credit — not cash refunds. Contact us below with your order reference and we’ll sort out the next step with you.',
+
+    sizing_title:'Size Guide', sizing_intro:'When in doubt between two sizes, we recommend sizing up for an oversized fit.',
+    sizing_h1:'Clothing', sizing_h2:'Shoes (EU)', sizing_h3:'Kids',
+    sizing_col_size:'Size', sizing_col_chest:'Chest (cm)', sizing_col_waist:'Waist (cm)',
+    sizing_col_eu:'EU size', sizing_col_cm:'Foot length (cm)',
+    sizing_col_age:'Age', sizing_col_height:'Height (cm)',
+
+    contact_title:'Contact', contact_intro:'Questions about an order, a size, or anything else — reach us directly.',
+    contact_phone:'Phone / WhatsApp', contact_email:'Email', contact_address:'Address',
+    contact_whatsapp_btn:'Chat on WhatsApp', contact_note:'We usually reply within 24–48h.',
+    contact_empty:'Contact details are being set up — check back soon, or reach us through our social links.',
+  },
+  fr: {
+    back:'RETOUR',
+    tab_shipping:'Livraison', tab_returns:'Retours', tab_sizing:'Guide des tailles', tab_contact:'Contact',
+
+    shipping_title:'Livraison', shipping_intro:'Comment ta commande t’arrive.',
+    shipping_h1:'Retrait', shipping_p1:'Gratuit — récupère ta commande en personne dès qu’elle est prête. On t’envoie un message quand c’est le cas.',
+    shipping_h2:'Livraison à domicile', shipping_p2:'Disponible à Douala et Yaoundé, et dans d’autres villes sur demande. Des frais de livraison peuvent s’appliquer selon ta zone — c’est confirmé avec toi avant l’expédition.',
+    shipping_h3:'Délais', shipping_li1:'Pièces en stock : 3 à 5 jours ouvrés.', shipping_li2:'Pièces sur commande ou en édition limitée : voir l’estimation sur la fiche produit — ça peut prendre plus de temps.', shipping_li3:'Tu reçois ton numéro de commande juste après ta commande — utilise-le à tout moment sur la page Suivi.',
+    shipping_h4:'Paiement', shipping_p4:'Orange Money, MTN MoMo, cash au retrait/à la livraison, ou tes points de fidélité si tu en as assez.',
+
+    returns_title:'Retours & Échanges', returns_intro:'On veut que tu sois content(e) de ta commande.',
+    returns_h1:'Délai', returns_p1:'Tu as 7 jours à partir de la réception pour demander un échange.',
+    returns_h2:'Conditions', returns_li1:'Non porté, non lavé, avec les étiquettes encore attachées.', returns_li2:'Dans son emballage d’origine si possible.', returns_li3:'Les pièces sur commande ou personnalisées ne peuvent pas être échangées, sauf défaut.',
+    returns_h3:'Comment ça marche', returns_p3:'On propose actuellement des échanges ou un avoir — pas de remboursement en espèces. Contacte-nous ci-dessous avec ton numéro de commande et on voit la suite ensemble.',
+
+    sizing_title:'Guide des tailles', sizing_intro:'En cas de doute entre deux tailles, on recommande de prendre la taille au-dessus pour une coupe oversize.',
+    sizing_h1:'Vêtements', sizing_h2:'Chaussures (EU)', sizing_h3:'Enfant',
+    sizing_col_size:'Taille', sizing_col_chest:'Tour de poitrine (cm)', sizing_col_waist:'Tour de taille (cm)',
+    sizing_col_eu:'Taille EU', sizing_col_cm:'Longueur du pied (cm)',
+    sizing_col_age:'Âge', sizing_col_height:'Taille (cm)',
+
+    contact_title:'Contact', contact_intro:'Une question sur une commande, une taille, ou autre chose — écris-nous directement.',
+    contact_phone:'Téléphone / WhatsApp', contact_email:'Email', contact_address:'Adresse',
+    contact_whatsapp_btn:'Discuter sur WhatsApp', contact_note:'On répond en général sous 24 à 48h.',
+    contact_empty:'Les coordonnées sont en cours de mise en place — reviens bientôt, ou contacte-nous via nos réseaux sociaux.',
+  },
+};
+function t(key){ return T[currentLang][key] || T.en[key] || key; }
+document.getElementById('infoBack').textContent = t('back');
+
+function sizeChartHTML(){
+  return `
+    <h2>${t('sizing_h1')}</h2>
+    <table class="info-table">
+      <tr><th>${t('sizing_col_size')}</th><th>${t('sizing_col_chest')}</th><th>${t('sizing_col_waist')}</th></tr>
+      <tr><td>S</td><td>88–94</td><td>72–78</td></tr>
+      <tr><td>M</td><td>96–102</td><td>80–86</td></tr>
+      <tr><td>L</td><td>104–110</td><td>88–94</td></tr>
+      <tr><td>XL</td><td>112–118</td><td>96–102</td></tr>
+      <tr><td>XXL</td><td>120–126</td><td>104–110</td></tr>
+    </table>
+    <h2>${t('sizing_h2')}</h2>
+    <table class="info-table">
+      <tr><th>${t('sizing_col_eu')}</th><th>${t('sizing_col_cm')}</th></tr>
+      <tr><td>40</td><td>25.4</td></tr>
+      <tr><td>41</td><td>26.0</td></tr>
+      <tr><td>42</td><td>26.7</td></tr>
+      <tr><td>43</td><td>27.3</td></tr>
+      <tr><td>44</td><td>28.0</td></tr>
+      <tr><td>45</td><td>28.6</td></tr>
+    </table>
+    <h2>${t('sizing_h3')}</h2>
+    <table class="info-table">
+      <tr><th>${t('sizing_col_age')}</th><th>${t('sizing_col_height')}</th></tr>
+      <tr><td>4–5Y</td><td>104–110</td></tr>
+      <tr><td>6–7Y</td><td>116–122</td></tr>
+      <tr><td>8–9Y</td><td>128–134</td></tr>
+      <tr><td>10–11Y</td><td>140–146</td></tr>
+    </table>
+  `;
+}
+
+function sectionsHTML(){
+  return `
+    <section class="info-section" data-topic="shipping">
+      <p class="info-intro">${t('shipping_intro')}</p>
+      <h2>${t('shipping_h1')}</h2><p>${t('shipping_p1')}</p>
+      <h2>${t('shipping_h2')}</h2><p>${t('shipping_p2')}</p>
+      <h2>${t('shipping_h3')}</h2>
+      <ul><li>${t('shipping_li1')}</li><li>${t('shipping_li2')}</li><li>${t('shipping_li3')}</li></ul>
+      <h2>${t('shipping_h4')}</h2><p>${t('shipping_p4')}</p>
+    </section>
+
+    <section class="info-section" data-topic="returns">
+      <p class="info-intro">${t('returns_intro')}</p>
+      <h2>${t('returns_h1')}</h2><p>${t('returns_p1')}</p>
+      <h2>${t('returns_h2')}</h2>
+      <ul><li>${t('returns_li1')}</li><li>${t('returns_li2')}</li><li>${t('returns_li3')}</li></ul>
+      <h2>${t('returns_h3')}</h2><p>${t('returns_p3')}</p>
+    </section>
+
+    <section class="info-section" data-topic="sizing">
+      <p class="info-intro">${t('sizing_intro')}</p>
+      ${sizeChartHTML()}
+    </section>
+
+    <section class="info-section" data-topic="contact">
+      <p class="info-intro">${t('contact_intro')}</p>
+      <div class="info-contact-card" id="contactCard">
+        <p class="info-empty">…</p>
+      </div>
+      <p class="info-intro" style="margin-bottom:0;">${t('contact_note')}</p>
+    </section>
+  `;
+}
+
+function showTopic(topic){
+  if (!TOPICS.includes(topic)) topic = 'shipping';
+  document.querySelectorAll('.info-tab').forEach(b => b.classList.toggle('is-active', b.dataset.topic === topic));
+  document.querySelectorAll('.info-section').forEach(s => s.classList.toggle('is-active', s.dataset.topic === topic));
+  document.getElementById('infoTitle').textContent = t(topic + '_title');
+  history.replaceState(null, '', `info.html?topic=${topic}`);
+}
+
+function render(){
+  const root = document.getElementById('infoRoot');
+  root.innerHTML = `
+    <h1 class="info-title" id="infoTitle"></h1>
+    <div class="info-tabs">
+      ${TOPICS.map(topic => `<button type="button" class="info-tab" data-topic="${topic}">${t('tab_' + topic)}</button>`).join('')}
+    </div>
+    ${sectionsHTML()}
+  `;
+  document.querySelectorAll('.info-tab').forEach(btn => {
+    btn.addEventListener('click', () => showTopic(btn.dataset.topic));
+  });
+  const params = new URLSearchParams(location.search);
+  showTopic(params.get('topic'));
+  loadContact();
+}
+
+// Contact info comes from the same public `settings` table staff.html
+// edits under Paiement → Informations de l'entreprise (also used on
+// printed invoices), so it only needs to be set in one place.
+async function loadContact(){
+  const card = document.getElementById('contactCard');
+  if (!sb) { card.innerHTML = `<p class="info-empty">${t('contact_empty')}</p>`; return; }
+  try {
+    const { data } = await sb.from('settings').select('key,value').in('key', ['biz_address', 'biz_phone', 'biz_email']);
+    const byKey = {};
+    (data || []).forEach(r => { byKey[r.key] = r.value; });
+    const phone = byKey.biz_phone, email = byKey.biz_email, address = byKey.biz_address;
+    if (!phone && !email && !address) { card.innerHTML = `<p class="info-empty">${t('contact_empty')}</p>`; return; }
+    const waDigits = (phone || '').replace(/[^0-9]/g, '');
+    card.innerHTML = `
+      ${phone ? `
+        <div class="info-contact-row">
+          <span class="info-contact-label">${t('contact_phone')}</span>
+          <span class="info-contact-value">
+            <a href="tel:${phone.replace(/\s/g, '')}">${phone}</a>
+            ${waDigits ? ` · <a href="https://wa.me/${waDigits}" target="_blank" rel="noopener">${t('contact_whatsapp_btn')}</a>` : ''}
+          </span>
+        </div>
+      ` : ''}
+      ${email ? `<div class="info-contact-row"><span class="info-contact-label">${t('contact_email')}</span><span class="info-contact-value"><a href="mailto:${email}">${email}</a></span></div>` : ''}
+      ${address ? `<div class="info-contact-row"><span class="info-contact-label">${t('contact_address')}</span><span class="info-contact-value">${address}</span></div>` : ''}
+    `;
+  } catch (e) {
+    card.innerHTML = `<p class="info-empty">${t('contact_empty')}</p>`;
+  }
+}
+
+render();
+</script>
+</body>
+</html>

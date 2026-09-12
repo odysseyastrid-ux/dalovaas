@@ -30,51 +30,9 @@
   const supabase = backend.getSupabaseClient();
   const authPanel = document.getElementById('authPanel');
   const dashboardPanel = document.getElementById('dashboardPanel');
-  const loginForm = document.getElementById('loginForm');
-  const signupForm = document.getElementById('signupForm');
-
-  document.querySelectorAll('.portal-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.portal-tab').forEach((tb) => tb.classList.remove('active'));
-      tab.classList.add('active');
-      const isLogin = tab.dataset.tab === 'login';
-      loginForm.hidden = !isLogin;
-      signupForm.hidden = isLogin;
-    });
-  });
-
-  document.getElementById('forgotPasswordBtn').addEventListener('click', async () => {
-    const note = document.getElementById('loginNote');
-    const email = document.getElementById('loginEmail').value.trim();
-    if (!email) {
-      note.textContent = t('account.forgotPassword.note.needEmail');
-      return;
-    }
-    await supabase.auth.resetPasswordForEmail(email);
-    note.textContent = t('account.forgotPassword.note.sent');
-  });
-
-  function oauthSignIn(provider) {
-    return async () => {
-      const note = document.getElementById('loginNote');
-      const { error } = await supabase.auth.signInWithOAuth({ provider });
-      if (error) note.textContent = t('account.oauth.notConfigured');
-    };
-  }
-  document.getElementById('googleOAuthBtn').addEventListener('click', oauthSignIn('google'));
-  document.getElementById('appleOAuthBtn').addEventListener('click', oauthSignIn('apple'));
-
-  // Best-effort translation for Supabase Auth's own English error messages.
-  const AUTH_ERROR_KEYS = {
-    'Invalid login credentials': 'authError.invalidCredentials',
-    'User already registered': 'authError.alreadyRegistered',
-  };
-  function translateAuthError(message) {
-    const key = AUTH_ERROR_KEYS[message];
-    return key ? t(key) : message;
-  }
 
   let lastBookings = null;
+  let lastQuoteRequests = null;
 
   function renderBookings() {
     const list = document.getElementById('bookingsList');
@@ -97,6 +55,24 @@
     }).join('');
   }
 
+  function renderQuoteRequests() {
+    const list = document.getElementById('quoteRequestsList');
+    if (!list || !lastQuoteRequests) return;
+    if (!lastQuoteRequests.length) {
+      list.innerHTML = `<p class="fine">${t('account.quoteRequests.empty')}</p>`;
+      return;
+    }
+    list.innerHTML = lastQuoteRequests.map((q) => `
+      <div class="booking-card">
+        <div>
+          <div class="booking-card-service">${q.service}</div>
+          <div class="fine">${new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA')}</div>
+        </div>
+        <span class="status-pill status-${q.status}">${t('status.' + q.status)}</span>
+      </div>
+    `).join('');
+  }
+
   async function loadBookings() {
     const { data, error } = await supabase
       .from('bookings')
@@ -111,13 +87,32 @@
     renderBookings();
   }
 
-  document.addEventListener('magicstick:langchange', () => renderBookings());
+  async function loadQuoteRequests() {
+    const list = document.getElementById('quoteRequestsList');
+    if (!list) return;
+    const { data, error } = await supabase
+      .from('quote_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      list.textContent = t('account.quoteRequests.loadError');
+      return;
+    }
+    lastQuoteRequests = data;
+    renderQuoteRequests();
+  }
+
+  document.addEventListener('magicstick:langchange', () => {
+    renderBookings();
+    renderQuoteRequests();
+  });
 
   async function showDashboard(user) {
     authPanel.hidden = true;
     dashboardPanel.hidden = false;
     document.getElementById('accountEmail').textContent = user.email;
     loadBookings();
+    loadQuoteRequests();
   }
 
   async function checkSession() {
@@ -130,40 +125,21 @@
   }
   checkSession();
 
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const note = document.getElementById('loginNote');
-    note.textContent = t('account.login.note.signingIn');
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: document.getElementById('loginEmail').value.trim(),
-      password: document.getElementById('loginPassword').value,
-    });
-    if (error) {
-      note.textContent = translateAuthError(error.message);
-      return;
-    }
-    showDashboard(data.user);
-  });
-
-  signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const note = document.getElementById('signupNote');
-    note.textContent = t('account.signup.note.creating');
-    const { data, error } = await supabase.auth.signUp({
-      email: document.getElementById('signupEmail').value.trim(),
-      password: document.getElementById('signupPassword').value,
-      options: { data: { full_name: document.getElementById('signupName').value.trim() } },
-    });
-    if (error) {
-      note.textContent = translateAuthError(error.message);
-      return;
-    }
-    if (data.user && !data.session) {
-      note.textContent = t('account.signup.note.checkEmail');
-      return;
-    }
-    showDashboard(data.user);
-  });
+  window.MagicstickAuthWidget.initAuthWidget(document, {
+    tabs: '.portal-tab',
+    loginForm: '#loginForm',
+    loginEmail: '#loginEmail',
+    loginPassword: '#loginPassword',
+    loginNote: '#loginNote',
+    forgotBtn: '#forgotPasswordBtn',
+    signupForm: '#signupForm',
+    signupName: '#signupName',
+    signupEmail: '#signupEmail',
+    signupPassword: '#signupPassword',
+    signupNote: '#signupNote',
+    googleBtn: '#googleOAuthBtn',
+    appleBtn: '#appleOAuthBtn',
+  }, supabase, showDashboard);
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await supabase.auth.signOut();

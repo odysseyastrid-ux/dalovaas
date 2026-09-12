@@ -247,6 +247,72 @@ async function uploadQuoteFiles(supabase, quoteId) {
   return { photoPaths, videoPath };
 }
 
+// Optional account connection, shown above the quote form: a customer can
+// sign in (or create an account) to see this request later under
+// "My account" — or just continue as a guest. Never blocks submitting.
+let quoteCustomerId = null;
+const quoteAuthCard = document.getElementById('quoteAuthCard');
+const quoteSignedIn = document.getElementById('quoteSignedIn');
+const backendForAuth = window.MagicstickBackend;
+
+function fillContactFromUser(user) {
+  const nameInput = document.getElementById('qName');
+  const contactInput = document.getElementById('qContact');
+  if (!nameInput.value.trim()) nameInput.value = user.user_metadata?.full_name || '';
+  if (!contactInput.value.trim()) contactInput.value = user.email || '';
+}
+
+function showSignedIn(user) {
+  quoteCustomerId = user.id;
+  quoteAuthCard.hidden = true;
+  quoteSignedIn.hidden = false;
+  document.getElementById('quoteSignedInEmail').textContent = user.email;
+  fillContactFromUser(user);
+}
+
+function showGuestAuthCard() {
+  quoteCustomerId = null;
+  quoteSignedIn.hidden = true;
+  quoteAuthCard.hidden = false;
+}
+
+if (backendForAuth && backendForAuth.isBackendConfigured() && quoteAuthCard) {
+  const supabaseForAuth = backendForAuth.getSupabaseClient();
+
+  window.MagicstickAuthWidget.initAuthWidget(document, {
+    tabs: '#quoteAuthCard .portal-tab',
+    loginForm: '#qaLoginForm',
+    loginEmail: '#qaLoginEmail',
+    loginPassword: '#qaLoginPassword',
+    loginNote: '#qaLoginNote',
+    forgotBtn: '#qaForgotPasswordBtn',
+    signupForm: '#qaSignupForm',
+    signupName: '#qaSignupName',
+    signupEmail: '#qaSignupEmail',
+    signupPassword: '#qaSignupPassword',
+    signupNote: '#qaSignupNote',
+    googleBtn: '#qaGoogleOAuthBtn',
+    appleBtn: '#qaAppleOAuthBtn',
+  }, supabaseForAuth, showSignedIn);
+
+  document.getElementById('qaContinueGuest').addEventListener('click', () => {
+    quoteAuthCard.hidden = true;
+  });
+
+  document.getElementById('quoteSwitchAccount').addEventListener('click', async () => {
+    await supabaseForAuth.auth.signOut();
+    showGuestAuthCard();
+  });
+
+  supabaseForAuth.auth.getSession().then(({ data }) => {
+    if (data?.session?.user) {
+      showSignedIn(data.session.user);
+    } else {
+      quoteAuthCard.hidden = false;
+    }
+  });
+}
+
 // Quote request form: validate, then save it to the backend (if
 // configured) or fall back to opening the visitor's email app.
 const form = document.getElementById('quoteForm');
@@ -299,6 +365,7 @@ form.addEventListener('submit', async (e) => {
     note.classList.remove('sent');
     const { error } = await supabase.from('quote_requests').insert({
       id: quoteId,
+      customer_id: quoteCustomerId,
       name,
       contact,
       service,

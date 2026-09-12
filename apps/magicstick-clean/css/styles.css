@@ -519,6 +519,27 @@
   @media (max-width:600px){ .quote-close{top:14px;right:14px;width:36px;height:36px;font-size:22px;} }
 
   /* ---------- QUOTE FORM ---------- */
+  .quote-auth-wrap{max-width:560px;margin:0 auto 20px;text-align:left;}
+  .quote-auth-card{max-width:none;box-shadow:0 16px 40px rgba(0,0,0,.25);}
+  /* .contact-band p{color:#CFE7E3} (above) would otherwise wash out every
+     plain paragraph reused from the portal-card styles (lead text, "Or
+     with", the login/signup notes) inside this white card. */
+  .quote-auth-card p{color:#151717;}
+  .quote-auth-card .quote-auth-lead{font-size:13.5px;color:#4a4d51;margin:0 0 16px;}
+  .quote-auth-card .portal-or{color:#8b8f94;}
+  .quote-guest-link{
+    display:block;width:100%;text-align:center;background:none;border:none;
+    margin-top:16px;padding:8px;font-family:inherit;font-size:13.5px;font-weight:600;
+    color:var(--teal);cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+  }
+  .quote-guest-link:hover{color:var(--teal-light);}
+  .quote-signedin{
+    background:#fff;color:var(--charcoal);border-radius:6px;padding:14px 18px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;
+  }
+  .quote-signedin[hidden]{display:none;}
+  .quote-signedin strong{margin-right:auto;}
+  .quote-signedin button.portal-link{background:none;border:none;padding:0;font-family:inherit;font-size:inherit;}
   .quote-form{
     background:#fff;color:var(--charcoal);text-align:left;
     max-width:560px;margin:0 auto;padding:32px;border-radius:6px;
@@ -778,6 +799,10 @@
   .status-confirmed{background:var(--teal-tint);color:var(--teal);}
   .status-completed{background:#E4E7EC;color:var(--charcoal);}
   .status-cancelled{background:#FBE9E7;color:#B3352A;}
+  .status-new{background:var(--teal-tint);color:var(--teal);}
+  .status-contacted{background:#FBF0DA;color:#9A6B10;}
+  .status-booked{background:#E9F0D9;color:#4C7A21;}
+  .status-declined{background:#FBE9E7;color:#B3352A;}
 
   /* ---------- BOOKING FORM ---------- */
   .booking-form{background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:32px;max-width:640px;}
@@ -886,6 +911,7 @@
   }
   .portal-tab.active{color:#151717;border-color:#151717;}
   .portal-form{display:flex;flex-direction:column;gap:12px;}
+  .portal-form[hidden]{display:none;}
   .portal-field label{display:block;font-size:13px;font-weight:600;color:#151717;margin-bottom:6px;}
   .portal-inputWrap{
     border:1.5px solid #ecedec;border-radius:10px;height:48px;

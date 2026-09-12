@@ -58,6 +58,7 @@
     // ---------- index.html: splash gate ----------
     'splash.tagline': { en: 'Real transformations, every time', fr: 'De vraies transformations, à chaque fois' },
     'splash.enter': { en: 'Enter site', fr: 'Entrer sur le site' },
+    'splash.promo': { en: 'Have your home cleaned by a pro for <strong>$37</strong>', fr: 'Faites nettoyer votre maison par un pro pour <strong>37 $</strong>' },
 
     // ---------- index.html: gallery ----------
     'home.gallery.title': { en: 'See the difference', fr: 'Vois la différence' },

@@ -149,14 +149,39 @@
   @keyframes splashLogoPop{from{transform:scale(.3) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
   .splash-tagline{font-size:17px;color:#F0EEE7;margin:0 0 26px;max-width:36ch;}
   .splash-enter{font-family:inherit;}
+
+  /* Promo banner pinned to the top of the splash — a shimmering gold bar
+     with a small sparkle SVG animating on each side, calling out the
+     introductory price before anything else on the site. */
+  .splash-promo{
+    position:absolute;top:0;left:0;right:0;z-index:2;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:13px 20px;text-align:center;
+    background:linear-gradient(90deg,#B7911F,#E8C468,#C9A227,#E8C468,#B7911F);
+    background-size:250% 100%;
+    color:var(--charcoal);font-weight:800;font-size:14.5px;
+    box-shadow:0 4px 18px rgba(0,0,0,.25);
+    animation:splashPromoShine 5s linear infinite;
+  }
+  .splash-promo strong{font-size:16.5px;}
+  .splash-promo-spark{width:19px;height:19px;flex:none;animation:splashPromoSpark 1.7s ease-in-out infinite;}
+  .splash-promo-spark:last-child{animation-delay:.4s;}
+  @keyframes splashPromoShine{0%{background-position:0% 50%;}100%{background-position:250% 50%;}}
+  @keyframes splashPromoSpark{0%,100%{transform:scale(.85) rotate(0deg);opacity:.75;}50%{transform:scale(1.25) rotate(20deg);opacity:1;}}
+
   @media (max-width:640px){
     .splash-content{padding:0 20px 56px;}
     .splash-brand span{font-size:20px;}
     .splash-tagline{font-size:15px;}
+    .splash-promo{padding:11px 14px;font-size:12.5px;gap:7px;}
+    .splash-promo strong{font-size:14.5px;}
+    .splash-promo-spark{width:16px;height:16px;}
   }
   @media (prefers-reduced-motion:reduce){
     .splash-gate{transition:none;}
     .splash-brand svg{animation:none;}
+    .splash-promo{animation:none;}
+    .splash-promo-spark{animation:none;}
   }
 
   /* ---------- HERO ---------- */

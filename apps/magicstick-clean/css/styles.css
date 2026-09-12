@@ -169,6 +169,16 @@
   @keyframes splashPromoShine{0%{background-position:0% 50%;}100%{background-position:250% 50%;}}
   @keyframes splashPromoSpark{0%,100%{transform:scale(.85) rotate(0deg);opacity:.75;}50%{transform:scale(1.25) rotate(20deg);opacity:1;}}
 
+  /* EN/FR toggle, sitting just below the promo banner. Clicks are stopped
+     from bubbling to #splashGate (see js/i18n.js) so switching language
+     never dismisses the splash. */
+  .splash-lang{
+    position:absolute;top:62px;right:16px;z-index:3;
+    background:rgba(0,0,0,.4);border-color:rgba(255,255,255,.35);
+  }
+  .splash-lang .lang-btn{color:#fff;}
+  .splash-lang .lang-btn.active{background:#fff;color:var(--charcoal);}
+
   @media (max-width:640px){
     .splash-content{padding:0 20px 56px;}
     .splash-brand span{font-size:20px;}
@@ -176,6 +186,7 @@
     .splash-promo{padding:11px 14px;font-size:12.5px;gap:7px;}
     .splash-promo strong{font-size:14.5px;}
     .splash-promo-spark{width:16px;height:16px;}
+    .splash-lang{top:52px;right:12px;}
   }
   @media (prefers-reduced-motion:reduce){
     .splash-gate{transition:none;}

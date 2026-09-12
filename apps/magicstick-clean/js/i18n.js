@@ -624,7 +624,13 @@
   function initLangToggle() {
     document.querySelectorAll('.lang-toggle').forEach((toggle) => {
       toggle.querySelectorAll('.lang-btn').forEach((btn) => {
-        btn.addEventListener('click', () => setLang(btn.dataset.lang));
+        // stopPropagation so a lang toggle nested inside a "click anywhere
+        // to dismiss/act" container (e.g. #splashGate) doesn't also trigger
+        // that container's own click handler.
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setLang(btn.dataset.lang);
+        });
       });
     });
   }

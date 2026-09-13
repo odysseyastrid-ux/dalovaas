@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+<title>Owner Dashboard | Magicstick Clean</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/i18n.js"></script>
+</head>
+<body>
+
+<header>
+  <nav class="nav wrap">
+    <a href="index.html#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><defs><linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0B5D52"/><stop offset="100%" stop-color="#164E45"/></linearGradient></defs><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span data-i18n="nav.ownerBrand">Magicstick Clean — Owner</span>
+    </a>
+    <div class="navlinks">
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<section style="padding:40px 0 24px;">
+  <div class="wrap">
+    <h1 style="font-size:30px;" data-i18n="admin.title">Owner dashboard</h1>
+  </div>
+</section>
+
+<section id="adminApp">
+  <div class="wrap">
+
+    <div id="backendNotice" class="notice-box" hidden>
+      <p data-i18n="admin.notice.backend">The backend isn't configured yet — see SETUP.md to connect Supabase.</p>
+    </div>
+
+    <form id="adminLoginForm" class="auth-form" hidden style="max-width:420px;">
+      <div class="field">
+        <label for="adminEmail" data-i18n="account.email">Email</label>
+        <input type="email" id="adminEmail" required>
+      </div>
+      <div class="field">
+        <label for="adminPassword" data-i18n="account.password">Password</label>
+        <input type="password" id="adminPassword" required>
+      </div>
+      <button type="submit" class="btn" data-i18n="account.login.submit">Log in</button>
+      <p class="form-note" id="adminLoginNote"></p>
+    </form>
+
+    <div id="notAdminNotice" class="notice-box" hidden>
+      <p data-i18n-html="admin.notAdmin">This account isn't set up as an admin. Add it to <code>admin_users</code> in Supabase — see SETUP.md.</p>
+    </div>
+
+    <div id="adminDashboard" hidden>
+      <div class="dash-header">
+        <div class="admin-tabs">
+          <button type="button" class="auth-tab active" data-tab="quotes" data-i18n="admin.tab.quotes">Quote requests</button>
+          <button type="button" class="auth-tab" data-tab="bookings" data-i18n="admin.tab.bookings">Bookings</button>
+          <button type="button" class="auth-tab" data-tab="services" data-i18n="admin.tab.services">Services</button>
+        </div>
+        <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
+      </div>
+
+      <div id="quotesPanel" class="admin-panel">
+        <div class="table-scroll">
+          <table class="admin-table" id="quotesTable">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.date">Date</th>
+                <th data-i18n="admin.col.name">Name</th>
+                <th data-i18n="admin.col.contact">Contact</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.frequency">Frequency</th>
+                <th data-i18n="admin.col.area">Area</th>
+                <th data-i18n="admin.col.home">Home</th>
+                <th data-i18n="admin.col.preferredDay">Preferred day</th>
+                <th data-i18n="admin.col.pets">Pets</th>
+                <th data-i18n="admin.col.files">Files</th>
+                <th data-i18n="admin.col.notes">Notes</th>
+                <th data-i18n="admin.col.status">Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="bookingsPanel" class="admin-panel" hidden>
+        <div class="table-scroll">
+          <table class="admin-table" id="bookingsTable">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.date">Date</th>
+                <th data-i18n="admin.col.time">Time</th>
+                <th data-i18n="admin.col.name">Name</th>
+                <th data-i18n="admin.col.contact">Contact</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.area">Area</th>
+                <th data-i18n="admin.col.deposit">Deposit</th>
+                <th data-i18n="admin.col.status">Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="servicesPanel" class="admin-panel" hidden>
+        <div class="table-scroll">
+          <table class="admin-table" id="servicesTable">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.serviceName">Name</th>
+                <th data-i18n="admin.col.category">Category</th>
+                <th data-i18n="admin.col.price">Price</th>
+                <th data-i18n="admin.col.depositCol">Deposit</th>
+                <th data-i18n="admin.col.duration">Duration</th>
+                <th data-i18n="admin.col.active">Active</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <form id="addServiceForm" class="auth-form" style="max-width:480px;margin-top:28px;">
+          <h2 style="font-size:18px;margin:0 0 16px;" data-i18n="admin.services.addTitle">Add a service</h2>
+          <div class="field">
+            <label for="svcName" data-i18n="admin.services.name">Name (EN)</label>
+            <input type="text" id="svcName" required>
+          </div>
+          <div class="field">
+            <label for="svcNameFr" data-i18n="admin.services.nameFr">Name (FR)</label>
+            <input type="text" id="svcNameFr">
+          </div>
+          <div class="field">
+            <label for="svcDescription" data-i18n="admin.services.description">Description (EN)</label>
+            <input type="text" id="svcDescription">
+          </div>
+          <div class="field">
+            <label for="svcDescriptionFr" data-i18n="admin.services.descriptionFr">Description (FR)</label>
+            <input type="text" id="svcDescriptionFr">
+          </div>
+          <div class="field">
+            <label for="svcCategory" data-i18n="admin.col.category">Category</label>
+            <select id="svcCategory"></select>
+          </div>
+          <div class="field">
+            <label for="svcPrice" data-i18n="admin.services.price">Price ($)</label>
+            <input type="number" id="svcPrice" min="0" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="svcDeposit" data-i18n="admin.services.deposit">Deposit ($)</label>
+            <input type="number" id="svcDeposit" min="0" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="svcDuration" data-i18n="admin.services.duration">Duration (minutes)</label>
+            <input type="number" id="svcDuration" min="0" step="5" value="120" required>
+          </div>
+          <button type="submit" class="btn" data-i18n="admin.services.add">Add service</button>
+          <p class="form-note" id="addServiceNote"></p>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

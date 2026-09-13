@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+<title>Get a Free Cleaning Quote | Magicstick Clean</title>
+<meta name="description" content="Request a free, same-day house cleaning quote in Clarence-Rockland, Ottawa or Gatineau. Tell us about your home and we'll reply fast — no obligation.">
+<link rel="canonical" href="https://magicstickclean.ca/quote.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Magicstick Clean">
+<meta property="og:title" content="Get a Free Cleaning Quote | Magicstick Clean">
+<meta property="og:description" content="Request a free, same-day house cleaning quote in Clarence-Rockland, Ottawa or Gatineau. Tell us about your home and we'll reply fast — no obligation.">
+<meta property="og:url" content="https://magicstickclean.ca/quote.html">
+<meta property="og:image" content="https://magicstickclean.ca/assets/images/family-with-dog.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/auth-widget.js"></script>
+<script src="js/date-picker.js"></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0B5D52"/>
+      <stop offset="100%" stop-color="#164E45"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header>
+  <nav class="nav wrap">
+    <a href="index.html#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span>Magicstick Clean</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html#services" data-i18n="nav.services">Services</a>
+      <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
+      <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+      <a href="account.html" data-i18n="nav.myAccount">My account</a>
+      <a href="tel:3438437761" class="nav-icon-link" data-i18n-aria-label="contact.callAria" aria-label="Call Magicstick Clean at 343-843-7761"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span></a>
+      <a href="mailto:magicstickclean@gmail.com?subject=Quote%20request%20-%20Magicstick%20Clean&amp;body=Hello%2C%0A%0AI%27d%20like%20to%20request%20a%20quote%20for%3A%0A-%20Service%20type%3A%20%0A-%20Property%20size%3A%20%0A-%20Preferred%20date%3A%20%0A%0AThank%20you!" class="nav-icon-link" data-i18n-href="contact.emailHref" data-i18n-aria-label="contact.emailAria" aria-label="Email Magicstick Clean"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></span></a>
+      <a href="quote.html" class="cta-arrow"><span class="cta-arrow-text" data-i18n="nav.getQuote">Get a quote</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></a>
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
+    </div>
+    <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#services" data-i18n="nav.services">Services</a>
+    <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
+    <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+    <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+    <a href="account.html" data-i18n="nav.myAccount">My account</a>
+    <div class="mm-contact-row">
+      <a href="tel:3438437761" class="mm-contact-btn" data-i18n-aria-label="contact.callAria" aria-label="Call Magicstick Clean at 343-843-7761">
+        <svg class="mm-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </a>
+      <a href="mailto:magicstickclean@gmail.com?subject=Quote%20request%20-%20Magicstick%20Clean&amp;body=Hello%2C%0A%0AI%27d%20like%20to%20request%20a%20quote%20for%3A%0A-%20Service%20type%3A%20%0A-%20Property%20size%3A%20%0A-%20Preferred%20date%3A%20%0A%0AThank%20you!" class="mm-contact-btn" data-i18n-href="contact.emailHref" data-i18n-aria-label="contact.emailAria" aria-label="Email Magicstick Clean">
+        <svg class="mm-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+      </a>
+    </div>
+    <a href="quote.html" data-i18n="nav.getQuote">Get a quote</a>
+    <div class="lang-toggle">
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="fr">FR</button>
+    </div>
+  </div>
+</header>
+
+<!-- Zone card: a dismissible corner prompt, not a page-blocking modal -->
+<div class="zone-backdrop" id="zoneBackdrop">
+  <div class="zone-modal">
+    <button class="zone-modal-close" id="zoneDismiss" data-i18n-aria-label="zone.dismiss" aria-label="Dismiss">&times;</button>
+    <div id="zoneStep1">
+      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <h3 data-i18n="zone.title1">Which area are you in?</h3>
+      <p data-i18n="zone.desc1">So I can give you accurate scheduling and pricing.</p>
+      <div class="zone-buttons">
+        <button class="zone-btn" data-zone="Rockland-Orléans" data-i18n="zone.rockland">Rockland-Orléans</button>
+        <button class="zone-btn" data-zone="Ottawa-Gatineau" data-i18n="zone.ottawaGatineau">Ottawa-Gatineau</button>
+      </div>
+      <button class="zone-skip" id="zoneSkip" data-i18n="zone.skip">I'm not sure / somewhere else</button>
+    </div>
+    <div id="zoneStep2" style="display:none;">
+      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <h3 data-i18n="zone.title2">You're in luck.</h3>
+      <p id="zoneStep2Text" data-i18n="zone.desc2">Get 15% off your first cleaning.</p>
+      <div class="zone-buttons">
+        <button class="zone-btn zone-btn-claim" id="zoneClaim" data-i18n="zone.claim">Claim my 15% off</button>
+      </div>
+      <button class="zone-skip" id="zoneClose" data-i18n="zone.later">Maybe later</button>
+    </div>
+    <div id="zoneStep3" style="display:none;">
+      <h3 data-i18n="zone.step3.title">Almost done.</h3>
+      <p data-i18n="zone.step3.desc">Just your name and a way to reach you — you'll fill in the rest of the details next.</p>
+      <form id="zoneLeadForm" class="zone-lead-form" novalidate>
+        <div class="field">
+          <label for="zName" data-i18n="form.name">Name</label>
+          <input type="text" id="zName" name="name" required>
+          <span class="err" data-i18n="form.nameErr">Please enter your name.</span>
+        </div>
+        <div class="field">
+          <label for="zContact" data-i18n="form.contact">Phone or email</label>
+          <input type="text" id="zContact" name="contact" required>
+          <span class="err" data-i18n="form.contactErr">Please enter a phone number or email.</span>
+        </div>
+        <button type="submit" class="zone-btn zone-btn-claim" data-i18n="zone.step3.submit">Save</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<section class="contact-band" id="contact">
+  <a href="index.html" class="quote-close" id="quoteClose" data-i18n-aria-label="quote.close" aria-label="Close and go back">&times;</a>
+  <div class="wrap">
+    <h1 data-i18n="home.contact.title">Ready for a spotless home?</h1>
+    <span class="tag zone-tag" id="zoneTag" style="background:rgba(255,255,255,.14);color:#fff;margin-bottom:12px;"></span>
+    <p data-i18n="home.contact.subtitle">Fill this in and I'll get back to you the same day.</p>
+
+    <div class="quote-auth-wrap">
+      <div id="quoteAuthCard" class="portal-card quote-auth-card" hidden>
+        <p class="quote-auth-lead" data-i18n="quote.auth.lead">Sign in to track this request in "My account" — or just continue as a guest.</p>
+        <div class="portal-tabs">
+          <button type="button" class="portal-tab active" data-tab="login" data-i18n="account.tab.login">Log in</button>
+          <button type="button" class="portal-tab" data-tab="signup" data-i18n="account.tab.signup">Create account</button>
+        </div>
+
+        <form id="qaLoginForm" class="portal-form">
+          <div class="portal-field">
+            <label for="qaLoginEmail" data-i18n="account.email">Email</label>
+            <div class="portal-inputWrap">
+              <input type="email" id="qaLoginEmail" class="portal-input" data-i18n-placeholder="account.email.placeholder" placeholder="Enter your email" required>
+            </div>
+          </div>
+          <div class="portal-field">
+            <label for="qaLoginPassword" data-i18n="account.password">Password</label>
+            <div class="portal-inputWrap">
+              <input type="password" id="qaLoginPassword" class="portal-input" data-i18n-placeholder="account.password.placeholder" placeholder="Enter your password" required>
+            </div>
+          </div>
+          <div class="portal-row">
+            <span></span>
+            <span class="portal-link" id="qaForgotPasswordBtn" data-i18n="account.forgotPassword">Forgot password?</span>
+          </div>
+          <button type="submit" class="portal-submit" data-i18n="account.login.submit">Log in</button>
+          <p class="form-note" id="qaLoginNote"></p>
+        </form>
+
+        <form id="qaSignupForm" class="portal-form" hidden>
+          <div class="portal-field">
+            <label for="qaSignupName" data-i18n="account.name">Name</label>
+            <div class="portal-inputWrap">
+              <input type="text" id="qaSignupName" class="portal-input" data-i18n-placeholder="account.name.placeholder" placeholder="Enter your name" required>
+            </div>
+          </div>
+          <div class="portal-field">
+            <label for="qaSignupEmail" data-i18n="account.email">Email</label>
+            <div class="portal-inputWrap">
+              <input type="email" id="qaSignupEmail" class="portal-input" data-i18n-placeholder="account.email.placeholder" placeholder="Enter your email" required>
+            </div>
+          </div>
+          <div class="portal-field">
+            <label for="qaSignupPassword" data-i18n="account.password">Password</label>
+            <div class="portal-inputWrap">
+              <input type="password" id="qaSignupPassword" class="portal-input" minlength="6" data-i18n-placeholder="account.password.placeholder" placeholder="Enter your password" required>
+            </div>
+          </div>
+          <button type="submit" class="portal-submit" data-i18n="account.signup.submit">Create account</button>
+          <p class="form-note" id="qaSignupNote"></p>
+        </form>
+
+        <p class="portal-or" data-i18n="account.orWith">Or with</p>
+        <div class="portal-oauth-row">
+          <button type="button" class="portal-oauth" id="qaGoogleOAuthBtn">
+            <svg width="16" height="16" viewBox="0 0 512 512" aria-hidden="true"><path fill="#FBBB00" d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456C103.821,274.792,107.225,292.797,113.47,309.408z"/><path fill="#518EF8" d="M507.527,208.176C510.467,223.662,512,239.655,512,256c0,18.328-1.927,36.206-5.598,53.451c-12.462,58.683-45.025,109.925-90.134,146.187l-0.014-0.014l-73.044-3.727l-10.338-64.535c29.932-17.554,53.324-45.025,65.646-77.911h-136.89V208.176h138.887L507.527,208.176L507.527,208.176z"/><path fill="#28B446" d="M416.253,455.624l0.014,0.014C372.396,490.901,316.666,512,256,512c-97.491,0-182.252-54.491-225.491-134.681l82.961-67.91c21.619,57.698,77.278,98.771,142.53,98.771c28.047,0,54.323-7.582,76.87-20.818L416.253,455.624z"/><path fill="#F14336" d="M419.404,58.936l-82.933,67.896c-23.335-14.586-50.919-23.012-80.471-23.012c-66.729,0-123.429,42.957-143.965,102.724l-83.397-68.276h-0.014C71.23,56.123,157.06,0,256,0C318.115,0,375.068,22.126,419.404,58.936z"/></svg>
+            Google
+          </button>
+          <button type="button" class="portal-oauth" id="qaAppleOAuthBtn">
+            <svg width="14" height="14" viewBox="0 0 22.773 22.773" fill="currentColor" aria-hidden="true"><path d="M15.769,0c0.053,0,0.106,0,0.162,0c0.13,1.606-0.483,2.806-1.228,3.675c-0.731,0.863-1.732,1.7-3.351,1.573c-0.108-1.583,0.506-2.694,1.25-3.561C13.292,0.879,14.557,0.16,15.769,0z M20.67,16.716c0,0.016,0,0.03,0,0.045c-0.455,1.378-1.104,2.559-1.896,3.655c-0.723,0.995-1.609,2.334-3.191,2.334c-1.367,0-2.275-0.879-3.676-0.903c-1.482-0.024-2.297,0.735-3.652,0.926c-0.155,0-0.31,0-0.462,0c-0.995-0.144-1.798-0.932-2.383-1.642c-1.725-2.098-3.058-4.808-3.306-8.276c0-0.34,0-0.679,0-1.019c0.105-2.482,1.311-4.5,2.914-5.478c0.846-0.52,2.009-0.963,3.304-0.765c0.555,0.086,1.122,0.276,1.619,0.464c0.471,0.181,1.06,0.502,1.618,0.485c0.378-0.011,0.754-0.208,1.135-0.347c1.116-0.403,2.21-0.865,3.652-0.648c1.733,0.262,2.963,1.032,3.723,2.22c-1.466,0.933-2.625,2.339-2.427,4.74C17.818,14.688,19.086,15.964,20.67,16.716z"/></svg>
+            Apple
+          </button>
+        </div>
+
+        <button type="button" class="quote-guest-link" id="qaContinueGuest" data-i18n="quote.auth.continueAsGuest">Continue as guest &rarr;</button>
+      </div>
+
+      <div id="quoteSignedIn" class="quote-signedin" hidden>
+        <span data-i18n="account.signedInAs">Signed in as</span>
+        <strong id="quoteSignedInEmail"></strong>
+        <button type="button" class="portal-link" id="quoteSwitchAccount" data-i18n="quote.auth.notYou">Not you?</button>
+      </div>
+    </div>
+
+    <form id="quoteForm" class="quote-form" novalidate>
+      <div class="form-row">
+        <div class="field">
+          <label for="qName" data-i18n="form.name">Name</label>
+          <input type="text" id="qName" name="name" required>
+          <span class="err" data-i18n="form.nameErr">Please enter your name.</span>
+        </div>
+        <div class="field">
+          <label for="qContact" data-i18n="form.contact">Phone or email</label>
+          <input type="text" id="qContact" name="contact" required>
+          <span class="err" data-i18n="form.contactErr">Please enter a phone number or email.</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="qService" data-i18n="form.service">What do you need?</label>
+        <select id="qService" name="service">
+          <option data-i18n="form.service.standard">Standard Cleaning</option>
+          <option data-i18n="form.service.deep">Deep Cleaning (first-time special)</option>
+          <option data-i18n="form.service.moveInOut">Move-In / Move-Out Cleaning</option>
+          <option data-i18n="form.service.airbnb">Airbnb / Rental Turnover</option>
+          <option data-i18n="form.service.office">Office Cleaning</option>
+          <option data-i18n="form.service.retail">Retail &amp; Store Cleaning</option>
+          <option data-i18n="form.service.postConstruction">Post-Construction &amp; Event Cleanup</option>
+          <option data-i18n="form.service.notSure">Not sure yet</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="qFrequency" data-i18n="form.frequency">How often?</label>
+          <select id="qFrequency" name="frequency">
+            <option value="One-time" data-i18n="form.frequency.oneTime">One-time</option>
+            <option value="Weekly" data-i18n="form.frequency.weekly">Weekly (15% off)</option>
+            <option value="Biweekly" data-i18n="form.frequency.biweekly">Biweekly (10% off)</option>
+            <option value="Monthly" data-i18n="form.frequency.monthly">Monthly (10% off)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qDateDisplay"><span data-i18n="form.preferredDay">Preferred day</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+          <div class="date-picker-field">
+            <input type="text" id="qDateDisplay" class="date-picker-display" readonly autocomplete="off" data-i18n-placeholder="form.selectDate" placeholder="Select a date">
+            <span class="date-picker-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          </div>
+          <input type="hidden" id="qDate" name="preferredDate">
+        </div>
+      </div>
+
+      <div class="field">
+        <label><span data-i18n="form.bedrooms">Bedrooms</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="pill-group" id="bedroomsGroup" role="group" aria-label="Number of bedrooms">
+          <button type="button" class="pill-btn" data-value="Studio" data-i18n="form.studio">Studio</button>
+          <button type="button" class="pill-btn" data-value="1">1</button>
+          <button type="button" class="pill-btn" data-value="2">2</button>
+          <button type="button" class="pill-btn" data-value="3">3</button>
+          <button type="button" class="pill-btn" data-value="4">4</button>
+          <button type="button" class="pill-btn" data-value="5+">5+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.bathrooms">Bathrooms</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="pill-group" id="bathroomsGroup" role="group" aria-label="Number of bathrooms">
+          <button type="button" class="pill-btn" data-value="1">1</button>
+          <button type="button" class="pill-btn" data-value="1.5">1.5</button>
+          <button type="button" class="pill-btn" data-value="2">2</button>
+          <button type="button" class="pill-btn" data-value="2.5">2.5</button>
+          <button type="button" class="pill-btn" data-value="3+">3+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.homeType">Home type</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="pill-group" id="homeTypeGroup" role="group" aria-label="Home type">
+          <button type="button" class="pill-btn" data-value="House" data-i18n="form.homeType.house">House</button>
+          <button type="button" class="pill-btn" data-value="Apartment/Condo" data-i18n="form.homeType.apartment">Apartment / Condo</button>
+          <button type="button" class="pill-btn" data-value="Townhouse" data-i18n="form.homeType.townhouse">Townhouse</button>
+          <button type="button" class="pill-btn" data-value="Airbnb/Rental" data-i18n="form.homeType.airbnb">Airbnb / Rental</button>
+          <button type="button" class="pill-btn" data-value="Move-In/Move-Out" data-i18n="form.homeType.moveInOut">Move-In / Move-Out</button>
+        </div>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.pets">Pets at home?</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="pill-group" id="petsGroup" role="group" aria-label="Pets at home">
+          <button type="button" class="pill-btn" data-value="Yes" data-i18n="common.yes">Yes</button>
+          <button type="button" class="pill-btn" data-value="No" data-i18n="common.no">No</button>
+        </div>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.photos">Photos of your home</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="file-drop-row">
+          <label class="file-drop" for="qPhotos">
+            <span data-i18n="form.photos.cta">Choose photos</span>
+            <span class="file-drop-hint" data-i18n="form.photos.hint">Up to 6 photos, 10MB each</span>
+          </label>
+          <label class="file-drop file-drop-camera" for="qPhotosCamera">
+            <span class="file-drop-camera-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span data-i18n="form.photos.takeCta">Take a photo</span></span>
+            <span class="file-drop-hint" data-i18n="form.photos.takeHint">Use your camera</span>
+          </label>
+        </div>
+        <input type="file" id="qPhotos" accept="image/*" multiple hidden>
+        <input type="file" id="qPhotosCamera" accept="image/*" capture="environment" multiple hidden>
+        <ul class="file-list" id="qPhotosList"></ul>
+        <p class="file-note" id="qPhotosNote" hidden></p>
+      </div>
+      <div class="field">
+        <label><span data-i18n="form.video">Video walkthrough</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="file-drop-row">
+          <label class="file-drop" for="qVideo">
+            <span data-i18n="form.video.cta">Choose a video</span>
+            <span class="file-drop-hint" data-i18n="form.video.hint">Up to 50MB</span>
+          </label>
+          <label class="file-drop file-drop-camera" for="qVideoCamera">
+            <span class="file-drop-camera-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg><span data-i18n="form.video.recordCta">Record a video</span></span>
+            <span class="file-drop-hint" data-i18n="form.video.recordHint">Use your camera</span>
+          </label>
+        </div>
+        <input type="file" id="qVideoCamera" accept="video/*" capture="environment" hidden>
+        <input type="file" id="qVideo" accept="video/*" hidden>
+        <ul class="file-list" id="qVideoList"></ul>
+        <p class="file-note" id="qVideoNote" hidden></p>
+      </div>
+      <div class="field">
+        <label for="qMsg" data-i18n="form.message">Anything else I should know? (optional)</label>
+        <textarea id="qMsg" name="message" rows="3" placeholder="Preferred days, access instructions, pets..." data-i18n-placeholder="form.messagePlaceholder"></textarea>
+      </div>
+      <p class="form-reassurance" data-i18n="form.sameDayReminder">⏱ I typically reply within the same day.</p>
+      <button type="submit" class="cta-arrow quote-submit-cta" id="quoteSubmitBtn">
+        <span class="cta-arrow-text" id="quoteSubmitText" data-i18n="form.submit">Send quote request</span>
+        <span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span>
+      </button>
+      <p class="form-note" id="formNote" hidden></p>
+    </form>
+
+    <div class="quote-success" id="quoteSuccess" hidden>
+      <div class="quote-success-badge" aria-hidden="true">&check;</div>
+      <h3 data-i18n="form.success.title">Request received!</h3>
+      <p class="quote-success-ref"><span data-i18n="form.success.ref">Reference</span> #<span id="quoteRefCode"></span></p>
+      <p id="quoteSuccessBody" data-i18n="form.success.body">We typically reply within the same day, at the phone number or email you gave us.</p>
+      <p class="quote-success-warning" id="quoteSuccessWarning" hidden></p>
+      <button type="button" class="btn btn-outline" id="quoteAnotherBtn" data-i18n="form.success.another">Submit another request</button>
+    </div>
+
+    <p class="contactline" data-i18n-html="common.callOrText">or <a href="tel:3438437761" class="contact-link"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>call/text 343-843-7761</a> <span class="contact-sep">&middot;</span> <a href="mailto:magicstickclean@gmail.com" class="contact-link"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></span>magicstickclean@gmail.com</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div>
+      <div class="foot-brand">
+        <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+        <span>Magicstick Clean</span>
+      </div>
+      <p class="fine" data-i18n="footer.tagline">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
+    </div>
+    <div class="foot-links">
+      <div>
+        <div class="foot-links-title" data-i18n="footer.company">Company</div>
+        <a href="about.html" data-i18n="footer.about">About us</a>
+        <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+        <a href="gift-cards.html" data-i18n="footer.giftCards">Gift cards</a>
+        <a href="services.html" data-i18n="footer.allServices">All services</a>
+        <a href="locations.html" data-i18n="footer.serviceAreas">Service areas</a>
+        <a href="learn-more.html#faq" data-i18n="nav.faq">FAQ</a>
+      </div>
+      <div>
+        <div class="foot-links-title" data-i18n="footer.legal">Legal</div>
+        <a href="privacy.html" data-i18n="footer.privacy">Privacy policy</a>
+        <a href="terms.html" data-i18n="footer.terms">Terms of service</a>
+      </div>
+    </div>
+    <div class="foot-contact">
+      <div><a href="tel:3438437761" class="foot-contact-link"><span class="contact-badge"><svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81 a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>343-843-7761</a></div>
+      <div><a href="mailto:magicstickclean@gmail.com" class="foot-contact-link"><span class="contact-badge"><svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></span>magicstickclean@gmail.com</a></div>
+      <div class="fine" data-i18n="footer.copyright">© 2026 Magicstick Clean</div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/quote.js"></script>
+
+</body>
+</html>

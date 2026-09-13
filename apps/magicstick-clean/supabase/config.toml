@@ -1,0 +1,31 @@
+# Supabase CLI project config for the Magicstick Clean backend.
+# This is a separate Supabase project from the one used by the Chez Sanji
+# app in this repo's root supabase/ folder — do not link both to the same
+# project. Run `supabase init` once locally if you want to regenerate this
+# fully; this is a hand-trimmed version wired to match supabase/functions/.
+
+project_id = "magicstick-clean"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:8000"
+additional_redirect_urls = ["https://YOUR-DEPLOYED-SITE-URL"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false

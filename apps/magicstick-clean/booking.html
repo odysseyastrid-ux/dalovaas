@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+<title>Book a Cleaning Online | Magicstick Clean</title>
+<meta name="description" content="Book your house cleaning online in minutes. Pick a service, date and time, and secure your spot in Ottawa, Gatineau or Clarence-Rockland with a refundable deposit.">
+<link rel="canonical" href="https://magicstickclean.ca/booking.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Magicstick Clean">
+<meta property="og:title" content="Book a Cleaning Online | Magicstick Clean">
+<meta property="og:description" content="Book your house cleaning online in minutes. Pick a service, date and time, and secure your spot with a refundable deposit.">
+<meta property="og:url" content="https://magicstickclean.ca/booking.html">
+<meta property="og:image" content="https://magicstickclean.ca/assets/images/family-with-dog.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/date-picker.js"></script>
+</head>
+<body>
+
+<header>
+  <nav class="nav wrap">
+    <a href="index.html#top" class="brand">
+      <svg width="34" height="34" viewBox="0 0 260 260"><defs><linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0B5D52"/><stop offset="100%" stop-color="#164E45"/></linearGradient></defs><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><circle cx="130" cy="130" r="118" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.6"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+      <span>Magicstick Clean</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html#services" data-i18n="nav.services">Services</a>
+      <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
+      <a href="booking.html" class="btn" data-i18n="nav.bookOnline">Book online</a>
+      <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+      <a href="account.html" data-i18n="nav.myAccount">My account</a>
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      </div>
+    </div>
+    <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#services" data-i18n="nav.services">Services</a>
+    <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
+    <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+    <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+    <a href="account.html" data-i18n="nav.myAccount">My account</a>
+    <div class="mm-contact-row">
+      <a href="tel:3438437761" class="mm-contact-btn" data-i18n-aria-label="contact.callAria" aria-label="Call Magicstick Clean at 343-843-7761">
+        <svg class="mm-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </a>
+      <a href="mailto:magicstickclean@gmail.com?subject=Quote%20request%20-%20Magicstick%20Clean&amp;body=Hello%2C%0A%0AI%27d%20like%20to%20request%20a%20quote%20for%3A%0A-%20Service%20type%3A%20%0A-%20Property%20size%3A%20%0A-%20Preferred%20date%3A%20%0A%0AThank%20you!" class="mm-contact-btn" data-i18n-href="contact.emailHref" data-i18n-aria-label="contact.emailAria" aria-label="Email Magicstick Clean">
+        <svg class="mm-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+      </a>
+    </div>
+    <div class="lang-toggle">
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="fr">FR</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" style="padding:56px 0 40px;">
+  <div class="wrap" style="display:block;">
+    <span class="tag" data-i18n="booking.hero.tag">Online booking</span>
+    <h1 style="font-size:40px;" data-i18n="booking.hero.title">Book your cleaning</h1>
+    <p class="lede" data-i18n="booking.hero.lede">Pick a service, a date, and a time window. A refundable deposit secures your spot — the rest is due at the appointment.</p>
+  </div>
+</section>
+
+<section id="bookingApp">
+  <div class="wrap">
+
+    <div id="backendNotice" class="notice-box" hidden>
+      <p data-i18n-html="booking.notice.backend">Online booking isn't turned on yet for this site. Please use the <a href="quote.html">quote request form</a> or call/text <a href="tel:3438437761">343-843-7761</a> instead.</p>
+    </div>
+
+    <div id="statusBanner" class="notice-box notice-success" hidden></div>
+
+    <form id="bookingForm" class="booking-form" novalidate hidden>
+      <div class="field">
+        <label data-i18n="booking.form.whichService">Which service?</label>
+        <div id="serviceOptions" class="service-options"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="bDateDisplay" data-i18n="booking.form.date">Date</label>
+          <div class="date-picker-field">
+            <input type="text" id="bDateDisplay" class="date-picker-display" readonly autocomplete="off" data-i18n-placeholder="form.selectDate" placeholder="Select a date">
+            <span class="date-picker-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          </div>
+          <input type="hidden" id="bDate" name="date">
+        </div>
+        <div class="field">
+          <label for="bTime" data-i18n="booking.form.timeWindow">Time window</label>
+          <select id="bTime" name="time">
+            <option value="Morning (8am–11am)" data-i18n="booking.form.time.morning">Morning (8am–11am)</option>
+            <option value="Midday (11am–2pm)" data-i18n="booking.form.time.midday">Midday (11am–2pm)</option>
+            <option value="Afternoon (2pm–5pm)" data-i18n="booking.form.time.afternoon">Afternoon (2pm–5pm)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="bName" data-i18n="booking.form.name">Name</label>
+          <input type="text" id="bName" name="name" required>
+        </div>
+        <div class="field">
+          <label for="bContact" data-i18n="booking.form.contact">Phone or email</label>
+          <input type="text" id="bContact" name="contact" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="bZone" data-i18n="booking.form.area">Area</label>
+        <select id="bZone" name="zone">
+          <option value="Rockland-Orléans">Rockland-Orléans</option>
+          <option value="Ottawa-Gatineau">Ottawa-Gatineau</option>
+          <option value="Other" data-i18n="booking.form.area.other">Other / not sure</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="bNotes" data-i18n="booking.form.notes">Anything I should know? (optional)</label>
+        <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..." data-i18n-placeholder="booking.form.notesPlaceholder"></textarea>
+      </div>
+
+      <div id="depositSummary" class="deposit-summary"></div>
+
+      <button type="submit" class="btn" id="bookingSubmit" data-i18n="booking.form.submit">Pay deposit &amp; book</button>
+      <p class="form-note" id="bookingNote" data-i18n="booking.form.note.default">You'll be redirected to Stripe to pay a refundable deposit securely. The rest is due at your appointment.</p>
+    </form>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div>
+      <div class="foot-brand">
+        <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+        <span>Magicstick Clean</span>
+      </div>
+      <p class="fine" data-i18n="footer.tagline">Trusted home cleaning in Clarence-Rockland, Ottawa &amp; Gatineau</p>
+    </div>
+    <div class="foot-links">
+      <div>
+        <div class="foot-links-title" data-i18n="footer.company">Company</div>
+        <a href="about.html" data-i18n="footer.about">About us</a>
+        <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
+        <a href="gift-cards.html" data-i18n="footer.giftCards">Gift cards</a>
+        <a href="services.html" data-i18n="footer.allServices">All services</a>
+        <a href="locations.html" data-i18n="footer.serviceAreas">Service areas</a>
+        <a href="learn-more.html#faq" data-i18n="nav.faq">FAQ</a>
+      </div>
+      <div>
+        <div class="foot-links-title" data-i18n="footer.legal">Legal</div>
+        <a href="privacy.html" data-i18n="footer.privacy">Privacy policy</a>
+        <a href="terms.html" data-i18n="footer.terms">Terms of service</a>
+      </div>
+    </div>
+    <div class="foot-contact">
+      <div><a href="tel:3438437761" class="foot-contact-link"><span class="contact-badge"><svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81 a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>343-843-7761</a></div>
+      <div><a href="mailto:magicstickclean@gmail.com" class="foot-contact-link"><span class="contact-badge"><svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></span>magicstickclean@gmail.com</a></div>
+      <div class="fine" data-i18n="footer.copyright">© 2026 Magicstick Clean</div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/booking.js"></script>
+</body>
+</html>

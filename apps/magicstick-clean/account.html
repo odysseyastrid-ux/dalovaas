@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+<title>My Account | Magicstick Clean</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/auth-widget.js"></script>
+</head>
+<body class="portal-body">
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0B5D52"/>
+      <stop offset="100%" stop-color="#164E45"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="matrix-bg" id="matrixBg" aria-hidden="true"></div>
+
+<div class="portal-lang lang-toggle">
+  <button type="button" class="lang-btn" data-lang="en">EN</button>
+  <button type="button" class="lang-btn" data-lang="fr">FR</button>
+</div>
+
+<main class="portal-wrap">
+  <a href="index.html#top" class="portal-brand">
+    <svg width="30" height="30" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#C9A227" transform="translate(-8,0)"/></svg>
+    <span>Magicstick Clean</span>
+  </a>
+
+  <div id="backendNotice" class="portal-notice" hidden>
+    <p data-i18n-html="account.notice.backend">Accounts aren't turned on yet for this site. You can still <a href="booking.html">book as a guest</a>.</p>
+  </div>
+
+  <div id="authPanel" class="portal-card" hidden>
+    <div class="portal-tabs">
+      <button type="button" class="portal-tab active" data-tab="login" data-i18n="account.tab.login">Log in</button>
+      <button type="button" class="portal-tab" data-tab="signup" data-i18n="account.tab.signup">Create account</button>
+    </div>
+
+    <form id="loginForm" class="portal-form">
+      <div class="portal-field">
+        <label for="loginEmail" data-i18n="account.email">Email</label>
+        <div class="portal-inputWrap">
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"/></svg>
+          <input type="email" id="loginEmail" class="portal-input" data-i18n-placeholder="account.email.placeholder" placeholder="Enter your email" required>
+        </div>
+      </div>
+      <div class="portal-field">
+        <label for="loginPassword" data-i18n="account.password">Password</label>
+        <div class="portal-inputWrap">
+          <svg width="16" height="16" viewBox="-64 0 512 512" fill="currentColor" aria-hidden="true"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"/><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"/></svg>
+          <input type="password" id="loginPassword" class="portal-input" data-i18n-placeholder="account.password.placeholder" placeholder="Enter your password" required>
+        </div>
+      </div>
+      <div class="portal-row">
+        <label class="portal-remember"><input type="checkbox"> <span data-i18n="account.rememberMe">Remember me</span></label>
+        <span class="portal-link" id="forgotPasswordBtn" data-i18n="account.forgotPassword">Forgot password?</span>
+      </div>
+      <button type="submit" class="portal-submit" data-i18n="account.login.submit">Log in</button>
+      <p class="form-note" id="loginNote"></p>
+    </form>
+
+    <form id="signupForm" class="portal-form" hidden>
+      <div class="portal-field">
+        <label for="signupName" data-i18n="account.name">Name</label>
+        <div class="portal-inputWrap">
+          <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M224 256a128 128 0 1 0 0-256 128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3 0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/></svg>
+          <input type="text" id="signupName" class="portal-input" data-i18n-placeholder="account.name.placeholder" placeholder="Enter your name" required>
+        </div>
+      </div>
+      <div class="portal-field">
+        <label for="signupEmail" data-i18n="account.email">Email</label>
+        <div class="portal-inputWrap">
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"/></svg>
+          <input type="email" id="signupEmail" class="portal-input" data-i18n-placeholder="account.email.placeholder" placeholder="Enter your email" required>
+        </div>
+      </div>
+      <div class="portal-field">
+        <label for="signupPassword" data-i18n="account.password">Password</label>
+        <div class="portal-inputWrap">
+          <svg width="16" height="16" viewBox="-64 0 512 512" fill="currentColor" aria-hidden="true"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"/><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"/></svg>
+          <input type="password" id="signupPassword" class="portal-input" minlength="6" data-i18n-placeholder="account.password.placeholder" placeholder="Enter your password" required>
+        </div>
+      </div>
+      <button type="submit" class="portal-submit" data-i18n="account.signup.submit">Create account</button>
+      <p class="form-note" id="signupNote"></p>
+    </form>
+
+    <p class="portal-or" data-i18n="account.orWith">Or with</p>
+    <div class="portal-oauth-row">
+      <button type="button" class="portal-oauth" id="googleOAuthBtn">
+        <svg width="16" height="16" viewBox="0 0 512 512" aria-hidden="true"><path fill="#FBBB00" d="M113.47,309.408L95.648,375.94l-65.139,1.378C11.042,341.211,0,299.9,0,256c0-42.451,10.324-82.483,28.624-117.732h0.014l57.992,10.632l25.404,57.644c-5.317,15.501-8.215,32.141-8.215,49.456C103.821,274.792,107.225,292.797,113.47,309.408z"/><path fill="#518EF8" d="M507.527,208.176C510.467,223.662,512,239.655,512,256c0,18.328-1.927,36.206-5.598,53.451c-12.462,58.683-45.025,109.925-90.134,146.187l-0.014-0.014l-73.044-3.727l-10.338-64.535c29.932-17.554,53.324-45.025,65.646-77.911h-136.89V208.176h138.887L507.527,208.176L507.527,208.176z"/><path fill="#28B446" d="M416.253,455.624l0.014,0.014C372.396,490.901,316.666,512,256,512c-97.491,0-182.252-54.491-225.491-134.681l82.961-67.91c21.619,57.698,77.278,98.771,142.53,98.771c28.047,0,54.323-7.582,76.87-20.818L416.253,455.624z"/><path fill="#F14336" d="M419.404,58.936l-82.933,67.896c-23.335-14.586-50.919-23.012-80.471-23.012c-66.729,0-123.429,42.957-143.965,102.724l-83.397-68.276h-0.014C71.23,56.123,157.06,0,256,0C318.115,0,375.068,22.126,419.404,58.936z"/></svg>
+        Google
+      </button>
+      <button type="button" class="portal-oauth" id="appleOAuthBtn">
+        <svg width="15" height="15" viewBox="0 0 22.773 22.773" fill="currentColor" aria-hidden="true"><path d="M15.769,0c0.053,0,0.106,0,0.162,0c0.13,1.606-0.483,2.806-1.228,3.675c-0.731,0.863-1.732,1.7-3.351,1.573c-0.108-1.583,0.506-2.694,1.25-3.561C13.292,0.879,14.557,0.16,15.769,0z M20.67,16.716c0,0.016,0,0.03,0,0.045c-0.455,1.378-1.104,2.559-1.896,3.655c-0.723,0.995-1.609,2.334-3.191,2.334c-1.367,0-2.275-0.879-3.676-0.903c-1.482-0.024-2.297,0.735-3.652,0.926c-0.155,0-0.31,0-0.462,0c-0.995-0.144-1.798-0.932-2.383-1.642c-1.725-2.098-3.058-4.808-3.306-8.276c0-0.34,0-0.679,0-1.019c0.105-2.482,1.311-4.5,2.914-5.478c0.846-0.52,2.009-0.963,3.304-0.765c0.555,0.086,1.122,0.276,1.619,0.464c0.471,0.181,1.06,0.502,1.618,0.485c0.378-0.011,0.754-0.208,1.135-0.347c1.116-0.403,2.21-0.865,3.652-0.648c1.733,0.262,2.963,1.032,3.723,2.22c-1.466,0.933-2.625,2.339-2.427,4.74C17.818,14.688,19.086,15.964,20.67,16.716z"/></svg>
+        Apple
+      </button>
+    </div>
+  </div>
+
+  <div id="dashboardPanel" class="portal-card" hidden>
+    <div class="portal-dash-header">
+      <div>
+        <p class="fine" data-i18n="account.signedInAs">Signed in as</p>
+        <p id="accountEmail" class="portal-dash-email"></p>
+      </div>
+      <button type="button" class="portal-oauth" id="logoutBtn" data-i18n="account.logout">Log out</button>
+    </div>
+    <h2 class="portal-dash-title" data-i18n="account.myBookings">My bookings</h2>
+    <div id="bookingsList" class="bookings-list"></div>
+    <h2 class="portal-dash-title" data-i18n="account.myQuoteRequests">My quote requests</h2>
+    <div id="quoteRequestsList" class="bookings-list"></div>
+  </div>
+</main>
+
+<nav class="portal-dock" aria-label="Quick navigation">
+  <a href="index.html#top" class="portal-dock-btn">
+    <svg width="17" height="17" viewBox="0 0 30 30" fill="currentColor" aria-hidden="true"><path d="M27.9167 30H20.4167C19.2658 30 18.3333 29.1392 18.3333 28.0769V21.1538C18.3333 20.3038 17.5875 19.6154 16.6667 19.6154H13.3333C12.4125 19.6154 11.6667 20.3038 11.6667 21.1538V28.0769C11.6667 29.1392 10.7342 30 9.58333 30H2.08333C0.9325 30 0 29.1392 0 28.0769V13.3946C0 11.6262 0.878334 9.95539 2.3825 8.86154L14.2258 0.246923C14.68 -0.0823077 15.32 -0.0823077 15.7733 0.246923L27.6183 8.86154C29.1225 9.95539 30 11.6254 30 13.3931V28.0769C30 29.1392 29.0675 30 27.9167 30Z"/></svg>
+    <span class="portal-dock-tooltip" data-i18n="nav.home">Home</span>
+  </a>
+  <a href="about.html" class="portal-dock-btn">
+    <svg width="17" height="17" viewBox="0 0 30 30" fill="currentColor" aria-hidden="true"><path d="M15.0013 0C10.482 0 6.81914 3.50348 6.81914 7.82609V9.13044C6.81914 13.453 10.482 16.9565 15.0013 16.9565C19.5206 16.9565 23.1835 13.453 23.1835 9.13044V7.82609C23.1835 3.50348 19.5206 0 15.0013 0ZM14.9987 20.8696C9.53569 20.8696 2.52628 23.6959 0.509366 26.2041C-0.737054 27.755 0.44947 30 2.49366 30H27.5063C29.5505 30 30.7371 27.755 29.4906 26.2041C27.4737 23.6972 20.4616 20.8696 14.9987 20.8696Z"/></svg>
+    <span class="portal-dock-tooltip" data-i18n="footer.about">About us</span>
+  </a>
+  <a href="index.html#services" class="portal-dock-btn">
+    <svg width="17" height="17" viewBox="0 0 30 30" fill="currentColor" aria-hidden="true"><path d="M12.6923 0C10.1547 0 8.07692 2.16563 8.07692 4.8V6H10.3846V4.8C10.3846 3.45938 11.4032 2.4 12.6923 2.4H17.3077C18.5968 2.4 19.6154 3.45938 19.6154 4.8V6H21.9231V4.8C21.9231 2.16563 19.8453 0 17.3077 0H12.6923ZM5.625 7.2C2.51953 7.2 0 9.82031 0 13.05V24.15C0 27.3797 2.51953 30 5.625 30H24.375C27.4805 30 30 27.3797 30 24.15V13.05C30 9.82031 27.4805 7.2 24.375 7.2H5.625ZM15 15.4875C16.3386 15.4875 17.4159 16.6078 17.4159 18C17.4159 19.3922 16.3386 20.5125 15 20.5125C13.6614 20.5125 12.5841 19.3922 12.5841 18C12.5841 16.6078 13.6614 15.4875 15 15.4875Z"/></svg>
+    <span class="portal-dock-tooltip" data-i18n="nav.services">Services</span>
+  </a>
+  <a href="learn-more.html#gallery" class="portal-dock-btn">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+    <span class="portal-dock-tooltip" data-i18n="home.gallery.title">Gallery</span>
+  </a>
+  <a href="quote.html" class="portal-dock-btn">
+    <svg width="17" height="17" viewBox="0 0 30 30" fill="currentColor" aria-hidden="true"><path d="M22.4672 19.4199C21.9377 19.1095 21.2868 19.116 20.7598 19.4291L18.0912 21.0191C17.4938 21.3751 16.7477 21.3334 16.1999 20.9056C15.2529 20.166 13.7282 18.9217 12.4016 17.5952C11.0751 16.2687 9.8308 14.7439 9.09124 13.7969C8.66342 13.2491 8.62168 12.503 8.97776 11.9057L10.5677 9.23697C10.8821 8.71002 10.8847 8.05394 10.5743 7.52438L6.65865 0.835732C6.27909 0.188781 5.52518 -0.129478 4.79606 0.0492166C4.0878 0.221389 3.16825 0.641386 2.20434 1.6066C-0.813896 4.62483 -2.41693 9.71567 8.93342 21.066C20.2838 32.4164 25.3733 30.8146 28.3928 27.7951C29.3593 26.8286 29.778 25.9077 29.9515 25.1982C30.1276 24.4703 29.8145 23.7216 29.1689 23.3434C27.5567 22.4004 24.0794 20.3643 22.4672 19.4199Z"/></svg>
+    <span class="portal-dock-tooltip" data-i18n="nav.getQuote">Contact</span>
+  </a>
+</nav>
+
+<script src="js/account.js"></script>
+</body>
+</html>

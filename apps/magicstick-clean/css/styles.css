@@ -66,7 +66,13 @@
     transition:width .25s ease;
   }
   .navlinks a:hover::after{width:100%;}
-  .navcall{font-weight:600;color:var(--teal);}
+  .navcall{display:inline-flex;align-items:center;gap:7px;font-weight:600;color:var(--teal);}
+  /* Desktop nav's call/email — icon-only (no visible number/address) so the
+     nav bar doesn't compete with the text links either side of it; the
+     animated badge alone signals "call" / "email" and the aria-label
+     carries the actual number for screen readers. */
+  .nav-icon-link{padding-bottom:0;}
+  .nav-icon-link::after{content:none;}
   .navlinks .btn{padding:8px 14px;white-space:nowrap;}
   @media (max-width:1300px){ .navlinks{display:none;} }
 
@@ -289,10 +295,33 @@
   .hero-photo .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);}
   .hero-photo .hero-cover-img{border-color:rgba(255,255,255,.25);}
 
-  .contact-link{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none;font-weight:600;}
+  .contact-link{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-weight:600;}
   .contact-link:hover{text-decoration:underline;}
-  .contact-icon{width:15px;height:15px;flex:none;}
+  .contact-icon{width:13px;height:13px;flex:none;}
   .contact-sep{margin:0 6px;opacity:.6;}
+
+  /* Shared animated call/email badge — the same spinning gold/teal ring as
+     the mobile menu's icon buttons and the hero's cta-arrow, shrunk to sit
+     inline in front of any phone number or email address sitewide, so
+     "this is tappable, this reaches a real phone/inbox" reads the same
+     everywhere instead of varying icon-by-icon. */
+  .contact-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:24px;height:24px;border-radius:100%;position:relative;overflow:hidden;flex:none;
+    transition:transform .3s cubic-bezier(.77,0,.175,1);
+  }
+  .contact-badge::before{
+    content:"";position:absolute;inset:-40%;border-radius:inherit;
+    background:conic-gradient(from 0deg,var(--gold),var(--teal),var(--gold),var(--teal),var(--gold));
+    animation:ctaSpin 3.5s linear infinite;
+  }
+  .contact-badge svg{position:relative;z-index:1;color:#fff;width:13px;height:13px;flex:none;}
+  a:hover > .contact-badge{transform:scale(1.12);}
+  /* Not every place this badge appears is a flex container with a gap
+     (e.g. plain .btn labels) — give it its own right margin there instead
+     of relying on the parent's spacing. */
+  .btn .contact-badge{vertical-align:middle;margin-right:8px;}
+  @media (prefers-reduced-motion:reduce){ .contact-badge::before{animation:none;} }
 
   .hero-cover-wrap{position:relative;}
   .hero-cover-img{width:100%;height:420px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block;background:var(--charcoal);}
@@ -854,9 +883,9 @@
   .foot-brand span{font-family:'Libre Baskerville',serif;color:#fff;font-weight:700;font-size:17px;}
   footer .fine{font-size:13px;margin-top:6px;color:#7B828C;}
   .foot-contact{font-size:14px;line-height:1.9;text-align:right;}
-  .foot-contact-link{display:inline-flex;align-items:center;gap:7px;color:#9AA1AC;text-decoration:none;}
+  .foot-contact-link{display:inline-flex;align-items:center;gap:8px;color:#9AA1AC;text-decoration:none;}
   .foot-contact-link:hover{color:#fff;}
-  .foot-icon{width:15px;height:15px;flex:none;}
+  .foot-icon{width:13px;height:13px;flex:none;}
   .foot-links{display:flex;gap:40px;}
   .foot-links-title{color:#fff;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
   .foot-links a{display:block;color:#9AA1AC;font-size:14px;text-decoration:none;line-height:2;}

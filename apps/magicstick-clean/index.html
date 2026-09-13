@@ -134,7 +134,14 @@
     <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
     <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
     <a href="account.html" data-i18n="nav.myAccount">My account</a>
-    <a href="tel:3438437761">Call 343-843-7761</a>
+    <div class="mm-contact-row">
+      <a href="tel:3438437761" class="mm-contact-btn" data-i18n-aria-label="contact.callAria" aria-label="Call Magicstick Clean at 343-843-7761">
+        <svg class="mm-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </a>
+      <a href="mailto:magicstickclean@gmail.com?subject=Quote%20request%20-%20Magicstick%20Clean&amp;body=Hello%2C%0A%0AI%27d%20like%20to%20request%20a%20quote%20for%3A%0A-%20Service%20type%3A%20%0A-%20Property%20size%3A%20%0A-%20Preferred%20date%3A%20%0A%0AThank%20you!" class="mm-contact-btn" data-i18n-href="contact.emailHref" data-i18n-aria-label="contact.emailAria" aria-label="Email Magicstick Clean">
+        <svg class="mm-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+      </a>
+    </div>
     <a href="quote.html" data-i18n="nav.getQuote">Get a quote</a>
     <div class="lang-toggle">
       <button type="button" class="lang-btn" data-lang="en">EN</button>
@@ -143,7 +150,7 @@
   </div>
 </header>
 
-<section class="hero" id="top">
+<section class="hero hero-photo" id="top">
   <div class="hero-photo-bg" aria-hidden="true"></div>
   <div class="hero-photo-scrim" aria-hidden="true"></div>
   <div class="wrap">
@@ -182,7 +189,7 @@
 <section id="services">
   <div class="wrap">
     <div class="sec-head">
-      <h2 data-i18n="home.services.title">What I offer</h2>
+      <h2 class="reveal-heading" data-i18n-html="home.services.title">What I <span class="accent-word">offer</span></h2>
       <p data-i18n="home.services.subtitle">Homes, rentals, and commercial spaces, all cleaned the same careful way.</p>
     </div>
 

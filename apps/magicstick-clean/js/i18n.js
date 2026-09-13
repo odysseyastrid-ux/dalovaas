@@ -18,6 +18,12 @@
     'nav.getQuote': { en: 'Get a quote', fr: 'Demander un devis' },
     'nav.learnMore': { en: 'Learn more', fr: 'En savoir plus' },
     'nav.ownerBrand': { en: 'Magicstick Clean — Owner', fr: 'Magicstick Clean — Propriétaire' },
+    'contact.callAria': { en: 'Call Magicstick Clean at 343-843-7761', fr: 'Appeler Magicstick Clean au 343-843-7761' },
+    'contact.emailAria': { en: 'Email Magicstick Clean', fr: 'Envoyer un courriel à Magicstick Clean' },
+    'contact.emailHref': {
+      en: 'mailto:magicstickclean@gmail.com?subject=Quote%20request%20-%20Magicstick%20Clean&body=Hello%2C%0A%0AI\'d%20like%20to%20request%20a%20quote%20for%3A%0A-%20Service%20type%3A%20%0A-%20Property%20size%3A%20%0A-%20Preferred%20date%3A%20%0A%0AThank%20you!',
+      fr: 'mailto:magicstickclean@gmail.com?subject=Demande%20de%20devis%20-%20Magicstick%20Clean&body=Bonjour%2C%0A%0AJ\'aimerais%20obtenir%20un%20devis%20pour%20%3A%0A-%20Type%20de%20service%20%3A%20%0A-%20Superficie%20%3A%20%0A-%20Date%20souhait%C3%A9e%20%3A%20%0A%0AMerci!'
+    },
     'footer.tagline': { en: 'Trusted home cleaning in Clarence-Rockland, Ottawa & Gatineau', fr: 'Entretien ménager de confiance à Clarence-Rockland, Ottawa et Gatineau' },
     'footer.copyright': { en: '© 2026 Magicstick Clean', fr: '© 2026 Magicstick Clean' },
     'common.optional': { en: '(optional)', fr: '(optionnel)' },
@@ -77,7 +83,7 @@
     'home.gallery.fridgeAfter': { en: 'Fridge & freezer detail — after', fr: 'Réfrigérateur et congélateur — après' },
 
     // ---------- index.html: services ----------
-    'home.services.title': { en: 'What I offer', fr: 'Ce que j’offre' },
+    'home.services.title': { en: 'What I <span class="accent-word">offer</span>', fr: 'Ce que j’<span class="accent-word">offre</span>' },
     'home.services.subtitle': { en: 'Homes, rentals, and commercial spaces, all cleaned the same careful way.', fr: 'Maisons, locations et espaces commerciaux, nettoyés avec le même soin.' },
     'home.services.residential': { en: 'Residential', fr: 'Résidentiel' },
     'home.services.commercial': { en: 'Commercial & specialty', fr: 'Commercial et spécialisé' },
@@ -243,17 +249,17 @@
     'form.video.recordCta': { en: 'Record a video', fr: 'Filmer une vidéo' },
     'form.video.recordHint': { en: 'Use your camera', fr: 'Utilise ta caméra' },
     'form.video.tooBig': { en: '{name} is over 50MB — please choose a shorter video.', fr: '{name} dépasse 50 Mo — choisis une vidéo plus courte.' },
-    'form.note.uploading': { en: 'Uploading your photos and video...', fr: 'Téléversement de tes photos et de ta vidéo...' },
-    'form.note.uploadFailed': { en: 'Some files could not be uploaded, but your request was still sent.', fr: 'Certains fichiers n’ont pas pu être téléversés, mais ta demande a quand même été envoyée.' },
-    'form.note.filesNeedBackend': { en: 'Photo/video upload isn’t turned on yet, so these won’t be sent automatically — please attach them yourself in the email that opens.', fr: 'Le téléversement de photos/vidéos n’est pas encore activé — attache-les toi-même dans le courriel qui s’ouvrira.' },
+    'form.note.uploading': { en: 'Uploading...', fr: 'Téléversement...' },
+    'form.note.uploadFailed': { en: 'Some photos/video couldn’t be sent — no worries, we’ll follow up to get them.', fr: 'Certaines photos/vidéos n’ont pas pu être envoyées — pas de souci, on te recontactera pour les avoir.' },
     'form.message': { en: 'Anything else I should know? (optional)', fr: 'Autre chose à savoir? (optionnel)' },
     'form.messagePlaceholder': { en: 'Preferred days, access instructions, pets...', fr: 'Journées préférées, accès, animaux...' },
     'form.submit': { en: 'Send quote request', fr: 'Envoyer la demande de devis' },
-    'form.note.default': { en: 'This opens your email app with everything filled in, ready to send to magicstickclean@gmail.com.', fr: 'Ceci ouvre ton application courriel, prête à envoyer à magicstickclean@gmail.com.' },
-    'form.note.sending': { en: 'Sending your request...', fr: 'Envoi de ta demande...' },
-    'form.note.success': { en: 'Thanks! Your request is in — we’ll get back to you the same day.', fr: 'Merci! Ta demande est reçue — on te répond le jour même.' },
-    'form.note.opening': { en: 'Opening your email app with your request filled in...', fr: 'Ouverture de ton application courriel avec ta demande...' },
+    'form.note.sending': { en: 'Sending...', fr: 'Envoi...' },
     'form.note.invalid': { en: 'Please fill in your name and a way to reach you.', fr: 'Veuillez remplir votre nom et un moyen de vous joindre.' },
+    'form.success.title': { en: 'Request received!', fr: 'Demande reçue!' },
+    'form.success.ref': { en: 'Reference', fr: 'Référence' },
+    'form.success.body': { en: 'We typically reply within the same day, at the phone number or email you gave us.', fr: 'On répond habituellement le jour même, au numéro ou courriel que tu nous as donné.' },
+    'form.success.another': { en: 'Submit another request', fr: 'Envoyer une autre demande' },
     'mail.subject.quote': { en: 'Free quote request: {service}', fr: 'Demande de devis gratuit : {service}' },
     'mail.label.name': { en: 'Name', fr: 'Nom' },
     'mail.label.contact': { en: 'Phone or email', fr: 'Téléphone ou courriel' },
@@ -625,6 +631,9 @@
     });
     document.querySelectorAll('[data-i18n-title]').forEach((el) => {
       el.title = t(el.getAttribute('data-i18n-title'));
+    });
+    document.querySelectorAll('[data-i18n-href]').forEach((el) => {
+      el.href = t(el.getAttribute('data-i18n-href'));
     });
 
     document.querySelectorAll('.lang-btn').forEach((btn) => {

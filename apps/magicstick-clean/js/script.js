@@ -27,6 +27,22 @@ if (heroProofVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matc
   heroProofVideo.pause();
 }
 
+// "What I offer" sits below the fold, so its attention-grabbing accent-word
+// mark plays on scroll-into-view rather than on page load (where it would
+// already be finished by the time anyone sees it).
+document.querySelectorAll('.reveal-heading').forEach((heading) => {
+  if (!('IntersectionObserver' in window)) { heading.classList.add('in-view'); return; }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        heading.classList.add('in-view');
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.4 });
+  observer.observe(heading);
+});
+
 // Splash gate: dismiss on click/tap or Enter/Space, remember for the rest
 // of this tab's session (see the inline script next to #splashGate in
 // index.html, which hides it instantly on repeat visits before this file

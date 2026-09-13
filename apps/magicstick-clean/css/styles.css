@@ -92,8 +92,34 @@
   header.header-on-photo .mobile-menu.open{box-shadow:0 16px 32px rgba(0,0,0,.25);}
   .mobile-menu.open{max-height:400px;overflow-y:auto;}
   @media (max-width:1300px){ .mobile-menu{display:flex;} }
-  .mobile-menu a{padding:14px 32px;border-bottom:1px solid var(--line);font-size:15px;}
+  .mobile-menu a{
+    padding:14px 32px;border-bottom:1px solid var(--line);
+    font-size:15.5px;font-weight:600;letter-spacing:.1px;color:var(--charcoal);
+    transition:background-color .25s ease, color .2s ease, transform .25s cubic-bezier(.77,0,.175,1);
+  }
   .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu a:hover, .mobile-menu a:focus-visible{background-color:var(--teal-tint);color:var(--teal);transform:translateX(8px);}
+  .mobile-menu a:active{background-color:var(--teal);color:#fff;}
+
+  /* Icon-only call/email buttons in the mobile menu — same spinning
+     gold/teal ring + glow-on-hover language as the hero's .cta-arrow-box,
+     so "contact us" reads as a CTA rather than another plain menu row. */
+  .mm-contact-row{display:flex;gap:14px;padding:20px 32px 24px;border-bottom:1px solid var(--line);}
+  .mm-contact-row .mm-contact-btn{
+    width:50px;height:50px;padding:0;border-bottom:none;border-radius:100%;position:relative;overflow:hidden;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.16);
+    transition:transform .35s cubic-bezier(.77,0,.175,1), box-shadow .3s ease;
+  }
+  .mm-contact-btn::before{
+    content:"";position:absolute;inset:-40%;border-radius:inherit;
+    background:conic-gradient(from 0deg,var(--gold),var(--teal),var(--gold),var(--teal),var(--gold));
+    animation:ctaSpin 3.5s linear infinite;
+  }
+  .mm-contact-icon{position:relative;z-index:1;width:21px;height:21px;color:#fff;}
+  .mm-contact-btn:hover, .mm-contact-btn:focus-visible{transform:scale(1.12);box-shadow:0 0 20px 4px rgba(201,162,39,.5),0 0 20px 4px rgba(11,93,82,.35);}
+  .mm-contact-btn:active{transform:scale(.92);}
+  @media (prefers-reduced-motion:reduce){ .mm-contact-btn::before{animation:none;} }
 
   .btn{
     display:inline-block;
@@ -196,11 +222,15 @@
   }
 
   /* ---------- HERO ---------- */
-  /* #0A211D is the fallback if the photo can't load — a dark teal, not a
-     jarring flash of plain white/cream behind the (still-loading) image. */
-  .hero{padding:88px 0 96px;position:relative;overflow:hidden;background:#0A211D;}
+  .hero{padding:88px 0 96px;position:relative;overflow:hidden;background:var(--cream);}
   .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
   @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;} .hero{padding:56px 0 64px;} }
+
+  /* #0A211D is the fallback if the photo can't load — a dark teal, not a
+     jarring flash of plain white/cream behind the (still-loading) image.
+     Scoped to .hero-photo (the homepage hero only) so every other page's
+     plain hero keeps the site's normal light background instead. */
+  .hero-photo{background:#0A211D;}
 
   /* The family photo, softly blurred behind the hero's text — scaled up so
      the blur's soft edges never show the section's border. A flat, fairly
@@ -224,16 +254,6 @@
     background:rgba(10,33,29,.4);
   }
 
-  /* The photo is busy and now only lightly darkened (so it stays visible),
-     so the hero's text/pill/outline button get a light variant here instead
-     of the site's usual charcoal-on-cream, plus a shadow to stay readable
-     over the photo's own light/dark areas without needing a heavier scrim. */
-  .hero .tag{background:rgba(255,255,255,.16);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4);}
-  .hero h1{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);}
-  .hero p.lede{color:#F0EEE7;text-shadow:0 1px 8px rgba(0,0,0,.55);}
-  .hero .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);}
-  .hero .hero-cover-img{border-color:rgba(255,255,255,.25);}
-
   .tag{
     display:inline-block;
     background:var(--teal-tint);
@@ -254,6 +274,20 @@
   .hero p.lede{font-size:18px;color:var(--gray);margin:22px 0 30px;max-width:46ch;}
   .ctas{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
   .hero .contactline{margin-top:22px;font-size:14.5px;color:var(--gray);}
+
+  /* Only the homepage hero (.hero-photo, the one with a photo background —
+     see .hero-photo-bg below) needs this: its text/pill/outline button get
+     a light variant instead of the site's usual charcoal-on-cream, plus a
+     shadow to stay readable over the photo's own light/dark areas. Scoped
+     to .hero-photo (not just .hero, which every other page's plain-cream
+     hero also uses) and placed after the generic .hero rules above so it
+     wins on the properties they share (color, on p.lede and .contactline)
+     instead of being silently overridden by them. */
+  .hero-photo .tag{background:rgba(255,255,255,.16);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .hero-photo h1{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);}
+  .hero-photo p.lede{color:#F0EEE7;text-shadow:0 1px 8px rgba(0,0,0,.55);}
+  .hero-photo .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+  .hero-photo .hero-cover-img{border-color:rgba(255,255,255,.25);}
 
   .contact-link{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:none;font-weight:600;}
   .contact-link:hover{text-decoration:underline;}
@@ -367,6 +401,27 @@
   .sec-head{max-width:60ch;margin-bottom:48px;}
   .sec-head h2{font-size:34px;}
   .sec-head p{color:var(--gray);margin-top:12px;font-size:16px;}
+
+  /* "What I offer" is the one heading on the page meant to pull the eye in
+     before anything else — everywhere else stays quiet so this stays the
+     single authored moment, not a repeated section-heading habit. Reuses
+     the site's own accent-word language (already used in the hero h1)
+     instead of a novel effect, plus a highlighter-style mark and a
+     scroll-triggered reveal since the section sits below the fold. */
+  .sec-head h2 .accent-word{position:relative;color:var(--gold);}
+  .sec-head h2 .accent-word::after{
+    content:"";position:absolute;left:-3px;right:-3px;bottom:3px;height:.34em;
+    background:rgba(201,162,39,.2);border-radius:2px;z-index:-1;
+    transform:scaleX(0);transform-origin:left;
+    transition:transform .6s cubic-bezier(.16,1,.3,1) .3s;
+  }
+  .reveal-heading{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s cubic-bezier(.16,1,.3,1);}
+  .reveal-heading.in-view{opacity:1;transform:translateY(0);}
+  .reveal-heading.in-view .accent-word::after{transform:scaleX(1);}
+  @media (prefers-reduced-motion:reduce){
+    .reveal-heading{opacity:1;transform:none;transition:none;}
+    .sec-head h2 .accent-word::after{transition:none;transform:scaleX(1);}
+  }
 
   /* ---------- SERVICES ---------- */
   .service-item{border-top:1px solid var(--line);padding:28px 0;}
@@ -670,7 +725,44 @@
   .file-note.error{color:#C0392B;}
   .form-note{font-size:13px;color:var(--gray);margin-top:14px;text-align:center;}
   .form-note.sent{color:var(--teal);font-weight:600;}
+  .form-note.error{color:#C0392B;font-weight:600;}
   .quote-form .form-reassurance{font-size:13.5px;color:var(--teal);font-weight:600;margin:-6px 0 14px;text-align:center;}
+
+  /* Quote form submit — same spinning gold/teal cta-arrow language as the
+     hero's "Get a free quote", stretched full-width so it reads as the
+     form's one big commitment instead of a plain narrow button. */
+  .quote-submit-cta{width:100%;justify-content:space-between;padding:10px 10px 10px 30px;font-size:17.5px;}
+  .quote-submit-cta[disabled]{opacity:.75;cursor:default;}
+  .quote-submit-cta[disabled]:hover{box-shadow:0 10px 28px rgba(0,0,0,.16);transform:none;}
+  .quote-submit-cta.is-loading .cta-arrow-icon{animation:quoteSpinIcon .9s linear infinite;}
+  @keyframes quoteSpinIcon{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion:reduce){ .quote-submit-cta.is-loading .cta-arrow-icon{animation:none;} }
+
+  /* Post-submit confirmation / tracking panel — replaces the form so the
+     customer gets a concrete "your request is in hand" moment (reference
+     code + what happens next) instead of a one-line status message. */
+  .quote-success{
+    max-width:560px;margin:0 auto;color:var(--charcoal);
+    text-align:center;padding:40px 28px;background:#fff;border:1px solid var(--line);
+    border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.08);
+    animation:quoteSuccessIn .5s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes quoteSuccessIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion:reduce){ .quote-success{animation:none;} }
+  .quote-success-badge{
+    width:56px;height:56px;margin:0 auto 18px;border-radius:100%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--teal);color:#fff;font-size:26px;font-weight:800;
+    box-shadow:0 0 0 8px var(--teal-tint);
+  }
+  .quote-success h3{font-size:23px;margin:0 0 10px;}
+  .quote-success-ref{
+    display:inline-block;font-weight:700;color:var(--teal);background:var(--teal-tint);
+    padding:6px 16px;border-radius:100px;font-size:14px;letter-spacing:.02em;margin-bottom:14px;
+  }
+  .quote-success p{color:var(--gray);font-size:15px;max-width:42ch;margin:0 auto 22px;}
+  .quote-success .btn-outline{margin:0 auto;}
+  .quote-success p.quote-success-warning{color:#C0392B;font-weight:600;font-size:14px;margin-top:-12px;}
 
   /* ---------- LEGAL PAGE (terms.html): search, TOC, accordion, back-to-top, sticky CTA ---------- */
   .legal-toolbar{padding:0 0 32px;}

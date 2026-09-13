@@ -207,6 +207,21 @@ function handlePhotosPicked(input) {
 qPhotosInput.addEventListener('change', () => handlePhotosPicked(qPhotosInput));
 qPhotosCameraInput.addEventListener('change', () => handlePhotosPicked(qPhotosCameraInput));
 
+// Some mobile browsers don't reliably open the gallery/camera from a plain
+// <label for="..."> click on a hidden file input (the implicit label
+// activation gets lost, especially inside a webview). Forwarding the click
+// to input.click() ourselves, synchronously inside the tap handler, keeps
+// it inside the same user-gesture so every mobile browser honors it.
+function wireFileTrigger(label, input) {
+  if (!label || !input) return;
+  label.addEventListener('click', (e) => {
+    e.preventDefault();
+    input.click();
+  });
+}
+wireFileTrigger(document.querySelector('label[for="qPhotos"]'), qPhotosInput);
+wireFileTrigger(document.querySelector('label[for="qPhotosCamera"]'), qPhotosCameraInput);
+
 // Video: same idea — "Choose a video" vs. "Record a video" (camera capture).
 const qVideoInput = document.getElementById('qVideo');
 const qVideoCameraInput = document.getElementById('qVideoCamera');
@@ -237,6 +252,8 @@ function handleVideoPicked(input) {
 
 qVideoInput.addEventListener('change', () => handleVideoPicked(qVideoInput));
 qVideoCameraInput.addEventListener('change', () => handleVideoPicked(qVideoCameraInput));
+wireFileTrigger(document.querySelector('label[for="qVideo"]'), qVideoInput);
+wireFileTrigger(document.querySelector('label[for="qVideoCamera"]'), qVideoCameraInput);
 
 function makeId() {
   if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
@@ -330,10 +347,56 @@ if (backendForAuth && backendForAuth.isBackendConfigured() && quoteAuthCard) {
   });
 }
 
-// Quote request form: validate, then save it to the backend (if
-// configured) or fall back to opening the visitor's email app.
+// Quote request form: validate, show a loading state on the submit button,
+// then save it to the backend (if configured) or fall back to opening the
+// visitor's email app as an invisible safety net — either way the customer
+// only ever sees the same "request received" tracking panel, never any
+// mention of the email mechanism.
 const form = document.getElementById('quoteForm');
 const note = document.getElementById('formNote');
+const quoteSubmitBtn = document.getElementById('quoteSubmitBtn');
+const quoteSubmitText = document.getElementById('quoteSubmitText');
+const quoteSuccess = document.getElementById('quoteSuccess');
+const quoteRefCode = document.getElementById('quoteRefCode');
+const quoteSuccessWarning = document.getElementById('quoteSuccessWarning');
+const quoteSubmitDefaultLabel = quoteSubmitText.textContent;
+
+function setSubmitLoading(loading, label) {
+  quoteSubmitBtn.disabled = loading;
+  quoteSubmitBtn.classList.toggle('is-loading', loading);
+  quoteSubmitText.textContent = loading ? (label || t('form.note.sending')) : quoteSubmitDefaultLabel;
+}
+
+function resetQuoteFormFields() {
+  form.reset();
+  document.querySelectorAll('.pill-btn.active').forEach((b) => b.classList.remove('active'));
+  selectedBedrooms = '';
+  selectedBathrooms = '';
+  selectedHomeType = '';
+  selectedPets = '';
+  selectedPhotos = [];
+  selectedVideo = null;
+  renderPhotos();
+  renderVideo();
+}
+
+function showQuoteSuccess(quoteId, uploadsFailed) {
+  quoteRefCode.textContent = quoteId.replace(/-/g, '').slice(0, 7).toUpperCase();
+  quoteSuccessWarning.hidden = !uploadsFailed;
+  if (uploadsFailed) quoteSuccessWarning.textContent = t('form.note.uploadFailed');
+  form.hidden = true;
+  quoteSuccess.hidden = false;
+  quoteSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+document.getElementById('quoteAnotherBtn').addEventListener('click', () => {
+  quoteSuccess.hidden = true;
+  form.hidden = false;
+  note.hidden = true;
+  setSubmitLoading(false);
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   let valid = true;
@@ -345,9 +408,12 @@ form.addEventListener('submit', async (e) => {
 
   if (!valid){
     note.textContent = t('form.note.invalid');
-    note.classList.remove('sent');
+    note.classList.add('error');
+    note.hidden = false;
     return;
   }
+  note.hidden = true;
+  note.classList.remove('error');
 
   const name = document.getElementById('qName').value.trim();
   const contact = document.getElementById('qContact').value.trim();
@@ -359,6 +425,8 @@ form.addEventListener('submit', async (e) => {
   const freqLowerKeys = { 'Weekly': 'freq.weekly.lower', 'Biweekly': 'freq.biweekly.lower', 'Monthly': 'freq.monthly.lower', 'One-time': 'freq.oneTime.lower' };
   const discountPct = freqDiscounts[frequency] || 0;
 
+  setSubmitLoading(true);
+
   const backend = window.MagicstickBackend;
   if (backend && backend.isBackendConfigured()) {
     const supabase = backend.getSupabaseClient();
@@ -368,8 +436,7 @@ form.addEventListener('submit', async (e) => {
     let videoPath = null;
 
     if (selectedPhotos.length || selectedVideo) {
-      note.textContent = t('form.note.uploading');
-      note.classList.remove('sent');
+      setSubmitLoading(true, t('form.note.uploading'));
       const attemptedPhotos = selectedPhotos.length;
       const attemptedVideo = Boolean(selectedVideo);
       const result = await uploadQuoteFiles(supabase, quoteId);
@@ -378,8 +445,7 @@ form.addEventListener('submit', async (e) => {
       if (photoPaths.length < attemptedPhotos || (attemptedVideo && !videoPath)) uploadsFailed = true;
     }
 
-    note.textContent = t('form.note.sending');
-    note.classList.remove('sent');
+    setSubmitLoading(true, t('form.note.sending'));
     const { error } = await supabase.from('quote_requests').insert({
       id: quoteId,
       customer_id: quoteCustomerId,
@@ -399,18 +465,9 @@ form.addEventListener('submit', async (e) => {
       video_path: videoPath,
     });
     if (!error) {
-      form.reset();
-      document.querySelectorAll('.pill-btn.active').forEach((b) => b.classList.remove('active'));
-      selectedBedrooms = '';
-      selectedBathrooms = '';
-      selectedHomeType = '';
-      selectedPets = '';
-      selectedPhotos = [];
-      selectedVideo = null;
-      renderPhotos();
-      renderVideo();
-      note.textContent = uploadsFailed ? t('form.note.uploadFailed') : t('form.note.success');
-      note.classList.add('sent');
+      resetQuoteFormFields();
+      setSubmitLoading(false);
+      showQuoteSuccess(quoteId, uploadsFailed);
       return;
     }
     console.error('Quote request insert failed, falling back to email:', error);
@@ -437,12 +494,10 @@ form.addEventListener('submit', async (e) => {
     `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
 
   const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const quoteId = makeId();
+  const hadFiles = selectedPhotos.length || Boolean(selectedVideo);
   window.location.href = mailto;
-
-  if (selectedPhotos.length || selectedVideo) {
-    note.textContent = t('form.note.filesNeedBackend');
-  } else {
-    note.textContent = t('form.note.opening');
-  }
-  note.classList.add('sent');
+  resetQuoteFormFields();
+  setSubmitLoading(false);
+  showQuoteSuccess(quoteId, hadFiles);
 });

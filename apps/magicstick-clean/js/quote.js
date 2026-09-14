@@ -125,6 +125,12 @@ function setupPillGroup(groupId, onSelect) {
       if (!wasActive) {
         btn.classList.add('active');
         onSelect(btn.dataset.value);
+        // One short pop confirms the tap registered — removed once the
+        // animation finishes so clicking the same pill again can replay it.
+        btn.classList.remove('just-selected');
+        void btn.offsetWidth;
+        btn.classList.add('just-selected');
+        btn.addEventListener('animationend', () => btn.classList.remove('just-selected'), { once: true });
       } else {
         onSelect('');
       }
@@ -136,6 +142,21 @@ setupPillGroup('bedroomsGroup', (value) => { selectedBedrooms = value; });
 setupPillGroup('bathroomsGroup', (value) => { selectedBathrooms = value; });
 setupPillGroup('homeTypeGroup', (value) => { selectedHomeType = value; });
 setupPillGroup('petsGroup', (value) => { selectedPets = value; });
+
+// Pill groups reveal with a light stagger the first time each scrolls into
+// view (see .pill-reveal in styles.css), instead of appearing fully formed.
+document.querySelectorAll('.pill-group.pill-reveal').forEach((group) => {
+  if (!('IntersectionObserver' in window)) { group.classList.add('in-view'); return; }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        group.classList.add('in-view');
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(group);
+});
 
 // Photo/video attachments on the quote form. Kept as plain File objects
 // until submit — only uploaded to storage if the backend is configured.
@@ -496,7 +517,21 @@ form.addEventListener('submit', async (e) => {
   const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const quoteId = makeId();
   const hadFiles = selectedPhotos.length || Boolean(selectedVideo);
-  window.location.href = mailto;
+  // A direct `window.location.href = mailto` navigates the current document,
+  // which some sandboxed/embedded contexts block outright (showing a
+  // browser interstitial instead of running the code after it) — a hidden
+  // link's click() hands off to the mail app as a background side effect
+  // without ever leaving this page, so the tracker panel below always shows.
+  try {
+    const mailtoLink = document.createElement('a');
+    mailtoLink.href = mailto;
+    mailtoLink.style.display = 'none';
+    document.body.appendChild(mailtoLink);
+    mailtoLink.click();
+    document.body.removeChild(mailtoLink);
+  } catch (err) {
+    console.error('Could not open the email app silently:', err);
+  }
   resetQuoteFormFields();
   setSubmitLoading(false);
   showQuoteSuccess(quoteId, hadFiles);

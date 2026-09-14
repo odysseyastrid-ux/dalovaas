@@ -627,16 +627,22 @@
 
   /* ---------- CONTACT ---------- */
   .contact-band{
-    position:relative;
-    background:var(--teal);color:#fff;text-align:center;padding:80px 0;
+    position:relative;overflow:hidden;
+    background:var(--charcoal);color:#fff;text-align:center;padding:80px 0;
   }
-  .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;}
-  .contact-band p{color:#CFE7E3;font-size:16px;margin-bottom:30px;}
+  /* Animated ink/terracotta/amber warp shader behind the CTA content — same
+     technique as the splash gate's, see js/contact-band-shader.js. A flat
+     ink fallback (above) shows if WebGL is unavailable. */
+  .contact-band-shader-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+  .contact-band-shader-bg canvas{display:block;width:100%;height:100%;}
+  .contact-band > .wrap{position:relative;z-index:1;}
+  .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;text-shadow:0 2px 14px rgba(0,0,0,.4);}
+  .contact-band p{color:#F5F1EA;font-size:16px;margin-bottom:30px;text-shadow:0 1px 8px rgba(0,0,0,.35);}
   .contact-band .btn{background:var(--gold);color:var(--charcoal);}
-  .contact-band .contactline{margin-top:22px;font-size:15px;color:#CFE7E3;}
+  .contact-band .contactline{margin-top:22px;font-size:15px;color:#F5F1EA;text-shadow:0 1px 6px rgba(0,0,0,.35);}
 
   .quote-close{
-    position:absolute;top:20px;right:24px;width:40px;height:40px;
+    position:absolute;top:20px;right:24px;width:40px;height:40px;z-index:1;
     display:flex;align-items:center;justify-content:center;
     background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:100px;
     color:#fff;font-size:26px;line-height:1;text-decoration:none;
@@ -724,13 +730,45 @@
   .optional-tag{font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;}
   .pill-group{display:flex;flex-wrap:wrap;gap:8px;}
   .pill-btn{
+    display:inline-flex;align-items:center;gap:7px;
     font-family:'Inter',Arial,sans-serif;font-size:14.5px;font-weight:600;
     padding:9px 18px;border-radius:100px;border:1.5px solid var(--line);
     background:var(--cream);color:var(--charcoal);cursor:pointer;
-    transition:border-color .15s ease, background .15s ease, color .15s ease;
+    transition:border-color .15s ease, background .15s ease, color .15s ease,
+      transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
   }
-  .pill-btn:hover{border-color:var(--teal);}
-  .pill-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .pill-btn:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 10px rgba(20,20,20,.08);}
+  .pill-btn:active{transform:translateY(0) scale(.96);}
+  .pill-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;box-shadow:0 4px 14px rgba(217,83,31,.3);}
+  .pill-btn.active:hover{transform:translateY(-2px);}
+  .pill-icon{width:15px;height:15px;flex:none;}
+  /* A short pop when a pill is *chosen* (not just hovered) — the one small
+     moment of feedback that makes picking an option feel registered. */
+  .pill-btn.just-selected{animation:pillPop .38s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes pillPop{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+  @media (prefers-reduced-motion:reduce){
+    .pill-btn{transition:border-color .15s ease, background .15s ease, color .15s ease;}
+    .pill-btn:hover{transform:none;}
+    .pill-btn.just-selected{animation:none;}
+  }
+
+  /* Pill groups reveal with a light stagger as the field scrolls into view,
+     instead of appearing fully formed — see js/quote.js's IntersectionObserver. */
+  .pill-group.pill-reveal .pill-btn{
+    opacity:0;transform:translateY(10px);
+    transition:opacity .45s ease, transform .45s cubic-bezier(.16,1,.3,1),
+      border-color .15s ease, background .15s ease, color .15s ease, box-shadow .2s ease;
+  }
+  .pill-group.pill-reveal.in-view .pill-btn{opacity:1;transform:translateY(0);}
+  .pill-group.pill-reveal .pill-btn:nth-child(1){transition-delay:.02s;}
+  .pill-group.pill-reveal .pill-btn:nth-child(2){transition-delay:.07s;}
+  .pill-group.pill-reveal .pill-btn:nth-child(3){transition-delay:.12s;}
+  .pill-group.pill-reveal .pill-btn:nth-child(4){transition-delay:.17s;}
+  .pill-group.pill-reveal .pill-btn:nth-child(5){transition-delay:.22s;}
+  .pill-group.pill-reveal .pill-btn:nth-child(6){transition-delay:.27s;}
+  @media (prefers-reduced-motion:reduce){
+    .pill-group.pill-reveal .pill-btn{opacity:1;transform:none;transition:none;}
+  }
 
   /* ---------- FILE UPLOAD (quote form photos/video) ---------- */
   .file-drop{

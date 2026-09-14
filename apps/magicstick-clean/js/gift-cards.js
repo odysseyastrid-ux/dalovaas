@@ -63,7 +63,19 @@ form.addEventListener('submit', (e) => {
     `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
 
   const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailto;
+  // A hidden link's click() hands off to the mail app without navigating
+  // this page away — a direct window.location.href assignment can get
+  // blocked outright in a sandboxed/embedded context, taking the page with it.
+  try {
+    const mailtoLink = document.createElement('a');
+    mailtoLink.href = mailto;
+    mailtoLink.style.display = 'none';
+    document.body.appendChild(mailtoLink);
+    mailtoLink.click();
+    document.body.removeChild(mailtoLink);
+  } catch (err) {
+    console.error('Could not open the email app silently:', err);
+  }
 
   note.textContent = t('giftcards.form.note.opening');
   note.classList.add('sent');

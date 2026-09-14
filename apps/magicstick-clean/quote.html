@@ -126,6 +126,7 @@
 </div>
 
 <section class="contact-band" id="contact">
+  <div class="contact-band-shader-bg" aria-hidden="true"></div>
   <a href="index.html" class="quote-close" id="quoteClose" data-i18n-aria-label="quote.close" aria-label="Close and go back">&times;</a>
   <div class="wrap">
     <h1 data-i18n="home.contact.title">Ready for a spotless home?</h1>
@@ -254,40 +255,58 @@
 
       <div class="field">
         <label><span data-i18n="form.bedrooms">Bedrooms</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <div class="pill-group" id="bedroomsGroup" role="group" aria-label="Number of bedrooms">
-          <button type="button" class="pill-btn" data-value="Studio" data-i18n="form.studio">Studio</button>
-          <button type="button" class="pill-btn" data-value="1">1</button>
-          <button type="button" class="pill-btn" data-value="2">2</button>
-          <button type="button" class="pill-btn" data-value="3">3</button>
-          <button type="button" class="pill-btn" data-value="4">4</button>
-          <button type="button" class="pill-btn" data-value="5+">5+</button>
+        <div class="pill-group pill-reveal" id="bedroomsGroup" role="group" aria-label="Number of bedrooms">
+          <button type="button" class="pill-btn" data-value="Studio"><span data-i18n="form.studio">Studio</span></button>
+          <button type="button" class="pill-btn" data-value="1"><span>1</span></button>
+          <button type="button" class="pill-btn" data-value="2"><span>2</span></button>
+          <button type="button" class="pill-btn" data-value="3"><span>3</span></button>
+          <button type="button" class="pill-btn" data-value="4"><span>4</span></button>
+          <button type="button" class="pill-btn" data-value="5+"><span>5+</span></button>
         </div>
       </div>
       <div class="field">
         <label><span data-i18n="form.bathrooms">Bathrooms</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <div class="pill-group" id="bathroomsGroup" role="group" aria-label="Number of bathrooms">
-          <button type="button" class="pill-btn" data-value="1">1</button>
-          <button type="button" class="pill-btn" data-value="1.5">1.5</button>
-          <button type="button" class="pill-btn" data-value="2">2</button>
-          <button type="button" class="pill-btn" data-value="2.5">2.5</button>
-          <button type="button" class="pill-btn" data-value="3+">3+</button>
+        <div class="pill-group pill-reveal" id="bathroomsGroup" role="group" aria-label="Number of bathrooms">
+          <button type="button" class="pill-btn" data-value="1"><span>1</span></button>
+          <button type="button" class="pill-btn" data-value="1.5"><span>1.5</span></button>
+          <button type="button" class="pill-btn" data-value="2"><span>2</span></button>
+          <button type="button" class="pill-btn" data-value="2.5"><span>2.5</span></button>
+          <button type="button" class="pill-btn" data-value="3+"><span>3+</span></button>
         </div>
       </div>
       <div class="field">
         <label><span data-i18n="form.homeType">Home type</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <div class="pill-group" id="homeTypeGroup" role="group" aria-label="Home type">
-          <button type="button" class="pill-btn" data-value="House" data-i18n="form.homeType.house">House</button>
-          <button type="button" class="pill-btn" data-value="Apartment/Condo" data-i18n="form.homeType.apartment">Apartment / Condo</button>
-          <button type="button" class="pill-btn" data-value="Townhouse" data-i18n="form.homeType.townhouse">Townhouse</button>
-          <button type="button" class="pill-btn" data-value="Airbnb/Rental" data-i18n="form.homeType.airbnb">Airbnb / Rental</button>
-          <button type="button" class="pill-btn" data-value="Move-In/Move-Out" data-i18n="form.homeType.moveInOut">Move-In / Move-Out</button>
+        <div class="pill-group pill-reveal" id="homeTypeGroup" role="group" aria-label="Home type">
+          <button type="button" class="pill-btn" data-value="House">
+            <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+            <span data-i18n="form.homeType.house">House</span>
+          </button>
+          <button type="button" class="pill-btn" data-value="Apartment/Condo">
+            <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01"/></svg>
+            <span data-i18n="form.homeType.apartment">Apartment / Condo</span>
+          </button>
+          <button type="button" class="pill-btn" data-value="Townhouse">
+            <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l4-4 4 4v12"/><path d="M11 21V9l4-4 4 4v12"/><path d="M3 21h18"/></svg>
+            <span data-i18n="form.homeType.townhouse">Townhouse</span>
+          </button>
+          <button type="button" class="pill-btn" data-value="Airbnb/Rental">
+            <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M21 3l-9.6 9.6"/><path d="M15 9l3 3"/><path d="M17.5 6.5L20 9"/></svg>
+            <span data-i18n="form.homeType.airbnb">Airbnb / Rental</span>
+          </button>
+          <button type="button" class="pill-btn" data-value="Move-In/Move-Out">
+            <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+            <span data-i18n="form.homeType.moveInOut">Move-In / Move-Out</span>
+          </button>
         </div>
       </div>
       <div class="field">
         <label><span data-i18n="form.pets">Pets at home?</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <div class="pill-group" id="petsGroup" role="group" aria-label="Pets at home">
-          <button type="button" class="pill-btn" data-value="Yes" data-i18n="common.yes">Yes</button>
-          <button type="button" class="pill-btn" data-value="No" data-i18n="common.no">No</button>
+        <div class="pill-group pill-reveal" id="petsGroup" role="group" aria-label="Pets at home">
+          <button type="button" class="pill-btn" data-value="Yes">
+            <svg class="pill-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/><path d="M12 12c-3 0-6 2.2-6 5.2 0 1.6 1.3 2.8 2.8 2.4 1-.3 1.9-.9 3.2-.9s2.2.6 3.2.9c1.5.4 2.8-.8 2.8-2.4 0-3-3-5.2-6-5.2z"/></svg>
+            <span data-i18n="common.yes">Yes</span>
+          </button>
+          <button type="button" class="pill-btn" data-value="No"><span data-i18n="common.no">No</span></button>
         </div>
       </div>
       <div class="field">
@@ -382,6 +401,8 @@
   </div>
 </footer>
 
+<script src="js/vendor/paper-shaders-warp.min.js"></script>
+<script src="js/contact-band-shader.js"></script>
 <script src="js/quote.js"></script>
 
 </body>

@@ -19,6 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <script src="js/i18n.js"></script>
+<script src="js/form-guard.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -227,6 +228,7 @@
         <label for="aMsg" data-i18n="careers.form.message">Anything else we should know? (optional)</label>
         <textarea id="aMsg" name="message" rows="3" placeholder="Previous employer, areas you can cover, vehicle, etc." data-i18n-placeholder="careers.form.messagePlaceholder"></textarea>
       </div>
+      <div id="applyFormGuard"></div>
       <button type="submit" class="btn" data-i18n="careers.form.submit">Send application</button>
       <p class="form-note" id="applyNote" data-i18n-html="careers.form.note.default">This opens your email app with everything filled in, ready to send to magicstickclean@gmail.com.</p>
     </form>

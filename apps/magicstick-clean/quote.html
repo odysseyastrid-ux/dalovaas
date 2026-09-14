@@ -24,6 +24,7 @@
 <script src="js/i18n.js"></script>
 <script src="js/auth-widget.js"></script>
 <script src="js/date-picker.js"></script>
+<script src="js/form-guard.js"></script>
 </head>
 <body>
 
@@ -347,6 +348,7 @@
         <label for="qMsg" data-i18n="form.message">Anything else I should know? (optional)</label>
         <textarea id="qMsg" name="message" rows="3" placeholder="Preferred days, access instructions, pets..." data-i18n-placeholder="form.messagePlaceholder"></textarea>
       </div>
+      <div id="quoteFormGuard"></div>
       <p class="form-reassurance" data-i18n="form.sameDayReminder">⏱ I typically reply within the same day.</p>
       <button type="submit" class="cta-arrow quote-submit-cta" id="quoteSubmitBtn">
         <span class="cta-arrow-text" id="quoteSubmitText" data-i18n="form.submit">Send quote request</span>

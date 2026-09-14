@@ -1,6 +1,10 @@
 (function () {
   const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
   const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+  // Every value rendered below comes from quote_requests/bookings/services,
+  // tables the public can insert into directly (see supabase RLS policies)
+  // — never trust it as HTML. Escape before it goes into any innerHTML.
+  const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
 
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
@@ -115,17 +119,17 @@
     lastQuotes.forEach((q) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${new Date(q.created_at).toLocaleDateString()}</td>
-        <td>${q.name}</td>
-        <td>${q.contact}</td>
-        <td>${q.service}</td>
-        <td>${q.frequency}</td>
-        <td>${q.zone || '—'}</td>
-        <td>${formatHome(q)}</td>
-        <td>${q.preferred_date || '—'}</td>
-        <td>${q.pets || '—'}</td>
+        <td>${esc(new Date(q.created_at).toLocaleDateString())}</td>
+        <td>${esc(q.name)}</td>
+        <td>${esc(q.contact)}</td>
+        <td>${esc(q.service)}</td>
+        <td>${esc(q.frequency)}</td>
+        <td>${esc(q.zone) || '—'}</td>
+        <td>${esc(formatHome(q))}</td>
+        <td>${esc(q.preferred_date) || '—'}</td>
+        <td>${esc(q.pets) || '—'}</td>
         <td class="files-cell"></td>
-        <td>${q.message || '—'}</td>
+        <td>${esc(q.message) || '—'}</td>
         <td class="status-cell"></td>
       `;
       tr.querySelector('.files-cell').appendChild(filesCell(q));
@@ -146,12 +150,12 @@
       const serviceName = (lang() === 'fr' && b.services?.name_fr) ? b.services.name_fr : (b.services?.name ?? b.service_id);
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${b.requested_date}</td>
-        <td>${b.time_window}</td>
-        <td>${b.guest_name}</td>
-        <td>${b.guest_contact}</td>
-        <td>${serviceName}</td>
-        <td>${b.zone || '—'}</td>
+        <td>${esc(b.requested_date)}</td>
+        <td>${esc(b.time_window)}</td>
+        <td>${esc(b.guest_name)}</td>
+        <td>${esc(b.guest_contact)}</td>
+        <td>${esc(serviceName)}</td>
+        <td>${esc(b.zone) || '—'}</td>
         <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}</td>
         <td class="status-cell"></td>
       `;
@@ -217,11 +221,11 @@
       const name = lang() === 'fr' && s.name_fr ? s.name_fr : s.name;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${name}</td>
+        <td>${esc(name)}</td>
         <td class="category-cell"></td>
         <td class="price-cell"></td>
         <td class="deposit-cell"></td>
-        <td>${s.duration_minutes} ${t('admin.services.minutes')}</td>
+        <td>${esc(s.duration_minutes)} ${esc(t('admin.services.minutes'))}</td>
         <td class="active-cell"></td>
       `;
       tr.querySelector('.category-cell').appendChild(

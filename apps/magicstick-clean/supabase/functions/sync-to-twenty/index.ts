@@ -3,12 +3,22 @@
 // twenty-crm/README.md). Upserts the customer as a Person in a self-hosted
 // Twenty CRM instance and attaches a Note with the request/booking details.
 //
+// This function is deployed with --no-verify-jwt (Database Webhooks don't
+// carry a Supabase JWT), so without the check below anyone on the internet
+// could POST an arbitrary payload straight at it and create/pollute People
+// and Notes in the CRM. The shared secret restricts real invocations to the
+// configured Database Webhook (which sends it as a custom header).
+//
 // Required secrets (supabase secrets set ...):
 //   TWENTY_API_URL   e.g. https://crm.yourdomain.com  (no trailing slash)
 //   TWENTY_API_KEY   API key from Twenty: Settings → API & Webhooks → API
+//   WEBHOOK_SHARED_SECRET  same value as notify-quote-request's — set as a
+//                          custom "X-Webhook-Secret" header on each Database
+//                          Webhook pointing at this function (see SETUP.md)
 
 const TWENTY_API_URL = (Deno.env.get("TWENTY_API_URL") ?? "").replace(/\/$/, "");
 const TWENTY_API_KEY = Deno.env.get("TWENTY_API_KEY");
+const WEBHOOK_SHARED_SECRET = Deno.env.get("WEBHOOK_SHARED_SECRET");
 
 function looksLikeEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -99,6 +109,13 @@ function buildBookingNote(record: Record<string, any>) {
 }
 
 Deno.serve(async (req) => {
+  if (!WEBHOOK_SHARED_SECRET || req.headers.get("x-webhook-secret") !== WEBHOOK_SHARED_SECRET) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   if (!TWENTY_API_URL || !TWENTY_API_KEY) {
     console.error("TWENTY_API_URL / TWENTY_API_KEY are not set — skipping sync.");
     return new Response(JSON.stringify({ ok: false, error: "Twenty CRM not configured" }), {

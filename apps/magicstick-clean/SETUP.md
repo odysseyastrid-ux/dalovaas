@@ -48,20 +48,34 @@ elsewhere in this repo — don't link the two.
 1. Create a free account at [resend.com](https://resend.com) and grab an API key.
 2. (Optional but recommended) verify your own domain in Resend so emails send
    from your address instead of `onboarding@resend.dev`.
-3. Set the function secrets:
+3. Generate a long random secret to lock this function down (it's deployed
+   with `--no-verify-jwt` below, since Database Webhooks don't carry a
+   Supabase JWT — without a secret of its own it would be a fully open,
+   unauthenticated endpoint anyone could POST to and send email through your
+   Resend account):
+   ```bash
+   openssl rand -hex 32
+   ```
+4. Set the function secrets (reuse the same `WEBHOOK_SHARED_SECRET` value
+   for `sync-to-twenty` in step 5 of the Twenty CRM setup, if you use it):
    ```bash
    supabase secrets set RESEND_API_KEY=re_xxx
    supabase secrets set OWNER_EMAIL=magicstickclean@gmail.com
    supabase secrets set OWNER_NOTIFY_FROM=quotes@yourdomain.com
+   supabase secrets set WEBHOOK_SHARED_SECRET=<the random string from step 3>
    ```
-4. Deploy the notification function:
+5. Deploy the notification function:
    ```bash
    supabase functions deploy notify-quote-request --no-verify-jwt
    ```
-5. Wire it to fire on new quote requests — **Dashboard → Database → Webhooks
+6. Wire it to fire on new quote requests — **Dashboard → Database → Webhooks
    → Create a new webhook**:
    - Table: `quote_requests`, Events: `INSERT`
    - Type: Supabase Edge Function → `notify-quote-request`
+   - **HTTP Headers**: add `X-Webhook-Secret` = the same value you set as
+     `WEBHOOK_SHARED_SECRET` above. Without this header the function
+     rejects the request with 401 — that's the point, it means the check
+     is working.
 
 ## 4. Set up deposit payments (Stripe)
 

@@ -1,6 +1,9 @@
 (function () {
   const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
   const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+  // bookings/quote_requests accept public inserts — never trust their
+  // contents as HTML before it goes into innerHTML.
+  const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
 
   // Matrix rain background: a fixed number of columns of falling glyphs,
   // built once at load — purely decorative, no interaction.
@@ -46,10 +49,10 @@
       return `
         <div class="booking-card">
           <div>
-            <div class="booking-card-service">${serviceName}</div>
-            <div class="fine">${b.requested_date} · ${b.time_window}</div>
+            <div class="booking-card-service">${esc(serviceName)}</div>
+            <div class="fine">${esc(b.requested_date)} · ${esc(b.time_window)}</div>
           </div>
-          <span class="status-pill status-${b.status}">${t('status.' + b.status)}</span>
+          <span class="status-pill status-${esc(b.status)}">${esc(t('status.' + b.status))}</span>
         </div>
       `;
     }).join('');
@@ -65,10 +68,10 @@
     list.innerHTML = lastQuoteRequests.map((q) => `
       <div class="booking-card">
         <div>
-          <div class="booking-card-service">${q.service}</div>
-          <div class="fine">${new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA')}</div>
+          <div class="booking-card-service">${esc(q.service)}</div>
+          <div class="fine">${esc(new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</div>
         </div>
-        <span class="status-pill status-${q.status}">${t('status.' + q.status)}</span>
+        <span class="status-pill status-${esc(q.status)}">${esc(t('status.' + q.status))}</span>
       </div>
     `).join('');
   }

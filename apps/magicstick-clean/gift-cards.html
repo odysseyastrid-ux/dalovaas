@@ -19,6 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <script src="js/i18n.js"></script>
+<script src="js/form-guard.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -224,6 +225,7 @@
         <label for="gMsg" data-i18n="giftcards.form.message">Message (optional)</label>
         <textarea id="gMsg" name="message" rows="3" data-i18n-placeholder="giftcards.form.messagePlaceholder" placeholder="Anything you'd like on the card, or other details"></textarea>
       </div>
+      <div id="giftCardFormGuard"></div>
       <button type="submit" class="btn" data-i18n="giftcards.form.submit">Send request</button>
       <p class="form-note" id="giftCardNote" data-i18n-html="giftcards.form.note.default">This opens your email app with everything filled in, ready to send to magicstickclean@gmail.com.</p>
     </form>

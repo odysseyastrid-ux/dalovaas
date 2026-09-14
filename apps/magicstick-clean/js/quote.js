@@ -382,6 +382,10 @@ const quoteRefCode = document.getElementById('quoteRefCode');
 const quoteSuccessWarning = document.getElementById('quoteSuccessWarning');
 const quoteSubmitDefaultLabel = quoteSubmitText.textContent;
 
+const checkFormGuard = window.MagicstickFormGuard
+  ? window.MagicstickFormGuard.attach(document.getElementById('quoteFormGuard'))
+  : () => 'ok';
+
 function setSubmitLoading(loading, label) {
   quoteSubmitBtn.disabled = loading;
   quoteSubmitBtn.classList.toggle('is-loading', loading);
@@ -420,6 +424,23 @@ document.getElementById('quoteAnotherBtn').addEventListener('click', () => {
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  const guardResult = checkFormGuard();
+  if (guardResult === 'honeypot') {
+    // Looks like an automated bot filled the form, not a person — show the
+    // normal success state without actually sending anything, so nothing
+    // tips the bot off that it was caught.
+    resetQuoteFormFields();
+    showQuoteSuccess(makeId(), false);
+    return;
+  }
+  if (guardResult === 'wrong-answer') {
+    note.textContent = t('form.security.error');
+    note.classList.add('error');
+    note.hidden = false;
+    return;
+  }
+
   let valid = true;
   const nameField = document.getElementById('qName').closest('.field');
   const contactField = document.getElementById('qContact').closest('.field');

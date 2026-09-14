@@ -46,16 +46,25 @@ a static site.
 
 ## 4. Wire up the sync
 
-1. Deploy the sync function and set its secrets from `apps/magicstick-clean/`:
+1. Deploy the sync function and set its secrets from `apps/magicstick-clean/`.
+   This function is deployed with `--no-verify-jwt` (Database Webhooks don't
+   carry a Supabase JWT), so `WEBHOOK_SHARED_SECRET` is what stops anyone
+   else on the internet from POSTing straight at it and polluting your CRM —
+   reuse the same value you generated for `notify-quote-request` in the main
+   `SETUP.md` if you're using both:
    ```bash
    supabase secrets set TWENTY_API_URL=https://crm.yourdomain.com
    supabase secrets set TWENTY_API_KEY=paste_the_token_from_step_3
+   supabase secrets set WEBHOOK_SHARED_SECRET=<the same random string as notify-quote-request>
    supabase functions deploy sync-to-twenty --no-verify-jwt
    ```
 2. Wire it to fire on both quote requests and bookings — **Supabase Dashboard
    → Database → Webhooks → Create a new webhook**, twice:
    - Table: `quote_requests`, Events: `INSERT` → Edge Function `sync-to-twenty`
    - Table: `bookings`, Events: `INSERT` → Edge Function `sync-to-twenty`
+   - On **both** webhooks, add an **HTTP Header** `X-Webhook-Secret` = the
+     same value as `WEBHOOK_SHARED_SECRET` above. Without it the function
+     returns 401 — that's the check working, not a bug.
 
 That's it — every new quote request or booking now creates (or reuses, if the
 email/phone already exists) a Person in Twenty, with a Note describing what

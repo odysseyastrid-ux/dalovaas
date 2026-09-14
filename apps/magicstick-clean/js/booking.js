@@ -1,6 +1,7 @@
 (function () {
   const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
   const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+  const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
 
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
@@ -52,11 +53,11 @@
       const label = document.createElement('label');
       label.className = 'service-option';
       label.innerHTML = `
-        <input type="radio" name="serviceId" value="${service.id}" ${index === 0 ? 'checked' : ''}>
+        <input type="radio" name="serviceId" value="${esc(service.id)}" ${index === 0 ? 'checked' : ''}>
         <span class="service-option-body">
-          <span class="service-option-name">${serviceName(service)}</span>
-          <span class="service-option-desc">${serviceDescription(service)}</span>
-          <span class="service-option-price">${t('booking.priceFrom', { price: centsToDollars(service.base_price_cents) })} · ${t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) })}</span>
+          <span class="service-option-name">${esc(serviceName(service))}</span>
+          <span class="service-option-desc">${esc(serviceDescription(service))}</span>
+          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.base_price_cents) }))} · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
         </span>
       `;
       container.appendChild(label);

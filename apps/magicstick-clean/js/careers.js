@@ -19,8 +19,24 @@ mobileMenu.querySelectorAll('a').forEach(a => {
 // Job application form: validate, then hand off to the visitor's email app
 const form = document.getElementById('applyForm');
 const note = document.getElementById('applyNote');
+const checkApplyFormGuard = window.MagicstickFormGuard
+  ? window.MagicstickFormGuard.attach(document.getElementById('applyFormGuard'))
+  : () => 'ok';
 form.addEventListener('submit', (e) => {
   e.preventDefault();
+
+  const guardResult = checkApplyFormGuard();
+  if (guardResult === 'honeypot') {
+    note.textContent = t('careers.form.note.opening');
+    note.classList.add('sent');
+    return;
+  }
+  if (guardResult === 'wrong-answer') {
+    note.textContent = t('form.security.error');
+    note.classList.remove('sent');
+    return;
+  }
+
   let valid = true;
   const nameField = document.getElementById('aName').closest('.field');
   const contactField = document.getElementById('aContact').closest('.field');

@@ -33,8 +33,24 @@ if (passAmount && gAmountSelect) {
 // Gift card request form: validate, then hand off to the visitor's email app
 const form = document.getElementById('giftCardForm');
 const note = document.getElementById('giftCardNote');
+const checkGiftCardFormGuard = window.MagicstickFormGuard
+  ? window.MagicstickFormGuard.attach(document.getElementById('giftCardFormGuard'))
+  : () => 'ok';
 form.addEventListener('submit', (e) => {
   e.preventDefault();
+
+  const guardResult = checkGiftCardFormGuard();
+  if (guardResult === 'honeypot') {
+    note.textContent = t('giftcards.form.note.opening');
+    note.classList.add('sent');
+    return;
+  }
+  if (guardResult === 'wrong-answer') {
+    note.textContent = t('form.security.error');
+    note.classList.remove('sent');
+    return;
+  }
+
   let valid = true;
   const nameField = document.getElementById('gName').closest('.field');
   const contactField = document.getElementById('gContact').closest('.field');

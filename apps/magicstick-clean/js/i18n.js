@@ -208,6 +208,9 @@
     'form.nameErr': { en: 'Please enter your name.', fr: 'Veuillez entrer votre nom.' },
     'form.contact': { en: 'Phone or email', fr: 'Téléphone ou courriel' },
     'form.contactErr': { en: 'Please enter a phone number or email.', fr: 'Veuillez entrer un numéro de téléphone ou un courriel.' },
+    'form.security.question': { en: 'Quick check — what is {a} + {b}?', fr: 'Petite vérification — combien font {a} + {b}?' },
+    'form.security.placeholder': { en: 'Your answer', fr: 'Votre réponse' },
+    'form.security.error': { en: 'That answer isn’t quite right — please try again.', fr: 'Cette réponse n’est pas tout à fait bonne — veuillez réessayer.' },
     'form.service': { en: 'What do you need?', fr: 'De quoi as-tu besoin?' },
     'form.service.standard': { en: 'Standard Cleaning', fr: 'Nettoyage standard' },
     'form.service.deep': { en: 'Deep Cleaning (first-time special)', fr: 'Nettoyage en profondeur (offre nouveaux clients)' },
@@ -672,5 +675,15 @@
     applyLang();
   });
 
-  window.MagicstickI18N = { t, getLang, setLang, applyLang };
+  // Shared HTML-escaping helper — used anywhere a template literal inserts
+  // database-sourced text (quote requests, bookings, service names) into
+  // innerHTML, since all of those tables accept public, unauthenticated
+  // inserts and must be treated as untrusted before they ever reach the DOM.
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[ch]));
+  }
+
+  window.MagicstickI18N = { t, getLang, setLang, applyLang, escapeHtml };
 })();

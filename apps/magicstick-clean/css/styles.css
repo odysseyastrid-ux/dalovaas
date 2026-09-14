@@ -692,6 +692,11 @@
   .field.invalid input,.field.invalid select{border-color:#C0392B;}
   .field .err{display:none;color:#C0392B;font-size:13px;margin-top:5px;}
 
+  /* Honeypot field for js/form-guard.js — off-screen rather than
+     display:none, since some spam bots specifically skip display:none/
+     visibility:hidden fields; a real visitor never sees or reaches it. */
+  .hp-field{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;}
+
   /* ---------- CUSTOM DATE PICKER (preferred day / booking date) ---------- */
   .date-picker-field{position:relative;}
   .date-picker-display{width:100%;cursor:pointer;padding-right:38px!important;}

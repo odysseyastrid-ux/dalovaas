@@ -2,14 +2,27 @@
 // Webhook — see SETUP.md). Emails the owner with the request details, and
 // a short confirmation to the customer if they gave an email address.
 //
+// This function is deployed with --no-verify-jwt (Database Webhooks don't
+// carry a Supabase JWT), which means without the check below it would be a
+// fully open, unauthenticated endpoint on the public internet: anyone could
+// POST a crafted { record: { contact: "victim@example.com", ... } } body
+// directly and make this function send email to an arbitrary address using
+// this project's Resend account (an open mail-relay/spam vector). The
+// shared secret closes that off — only the configured Database Webhook
+// (which sends it as a custom header) can trigger a real send.
+//
 // Required secrets (supabase secrets set ...):
 //   RESEND_API_KEY        (resend.com API key)
 //   OWNER_EMAIL            e.g. magicstickclean@gmail.com
 //   OWNER_NOTIFY_FROM      a verified Resend sender, e.g. quotes@yourdomain.com
+//   WEBHOOK_SHARED_SECRET  a long random string — set the same value as a
+//                          custom "X-Webhook-Secret" header on the Database
+//                          Webhook pointing at this function (see SETUP.md)
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "magicstickclean@gmail.com";
 const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "onboarding@resend.dev";
+const WEBHOOK_SHARED_SECRET = Deno.env.get("WEBHOOK_SHARED_SECRET");
 
 async function sendEmail(to: string, subject: string, text: string) {
   if (!RESEND_API_KEY) {
@@ -34,6 +47,13 @@ function looksLikeEmail(value: string) {
 }
 
 Deno.serve(async (req) => {
+  if (!WEBHOOK_SHARED_SECRET || req.headers.get("x-webhook-secret") !== WEBHOOK_SHARED_SECRET) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const payload = await req.json();
     const record = payload.record ?? payload;

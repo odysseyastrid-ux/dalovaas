@@ -202,6 +202,7 @@
     'home.flyers.social.cta': { en: 'Download image', fr: 'Télécharger l’image' },
 
     // ---------- index.html: quote form ----------
+    'home.contact.lede': { en: 'Come home to a house that breathes.', fr: 'Reviens dans une maison qui respire.' },
     'home.contact.title': { en: 'Ready for a spotless home?', fr: 'Prêt pour une maison impeccable?' },
     'home.contact.subtitle': { en: 'Fill this in and I’ll get back to you the same day.', fr: 'Remplis ce formulaire et je te réponds le jour même.' },
     'form.name': { en: 'Name', fr: 'Nom' },

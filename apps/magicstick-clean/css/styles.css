@@ -636,6 +636,11 @@
   .contact-band-shader-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
   .contact-band-shader-bg canvas{display:block;width:100%;height:100%;}
   .contact-band > .wrap{position:relative;z-index:1;}
+  .contact-band-lede{
+    font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
+    font-size:16px;color:#F5F1EA;opacity:.9;margin:0 0 10px;
+    text-shadow:0 1px 8px rgba(0,0,0,.35);
+  }
   .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;text-shadow:0 2px 14px rgba(0,0,0,.4);}
   .contact-band p{color:#F5F1EA;font-size:16px;margin-bottom:30px;text-shadow:0 1px 8px rgba(0,0,0,.35);}
   .contact-band .btn{background:var(--gold);color:var(--charcoal);}

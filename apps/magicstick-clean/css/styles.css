@@ -1,15 +1,15 @@
 :root{
-    /* Warm terracotta/ink world (2026 reskin) — names kept from the old
-       teal/gold system so every rule below repaints without being rewritten;
-       --teal is now the one accent hue, --gold its lighter twin. */
-    --teal:#D9531F;
-    --teal-light:#F2703F;
-    --charcoal:#141414;
-    --gold:#E8A34D;
-    --cream:#F5F1EA;
-    --teal-tint:#FBEAE1;
-    --gray:#6B6862;
-    --line:#E5E0D6;
+    /* Back to the teal/gold identity, brightened: a whiter cream, a lighter
+       teal tint, and a lighter slate charcoal than pure black so the whole
+       site reads airier and more sunlit than either previous version. */
+    --teal:#0B5D52;
+    --teal-light:#127A6C;
+    --charcoal:#1F2937;
+    --gold:#C9A227;
+    --cream:#FDFCF9;
+    --teal-tint:#EEF8F6;
+    --gray:#6B7280;
+    --line:#E4E0D4;
     --paper:#FFFFFF;
     --max:1120px;
   }
@@ -129,24 +129,24 @@
     animation:ctaSpin 3.5s linear infinite;
   }
   .mm-contact-icon{position:relative;z-index:1;width:21px;height:21px;color:#fff;}
-  .mm-contact-btn:hover, .mm-contact-btn:focus-visible{transform:scale(1.12);box-shadow:0 0 20px 4px rgba(232,163,77,.5),0 0 20px 4px rgba(217,83,31,.35);}
+  .mm-contact-btn:hover, .mm-contact-btn:focus-visible{transform:scale(1.12);box-shadow:0 0 20px 4px rgba(201,162,39,.5),0 0 20px 4px rgba(11,93,82,.35);}
   .mm-contact-btn:active{transform:scale(.92);}
   @media (prefers-reduced-motion:reduce){ .mm-contact-btn::before{animation:none;} }
 
   .btn{
     display:inline-block;
-    background:var(--charcoal);
-    color:var(--paper);
+    background:var(--gold);
+    color:var(--charcoal);
     font-weight:700;
     font-size:15px;
     padding:13px 26px;
     border-radius:100px;
     border:none;
     cursor:pointer;
-    box-shadow:0 4px 14px rgba(20,20,20,.25);
+    box-shadow:0 4px 14px rgba(201,162,39,.35);
     transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
   }
-  .btn:hover{background:#2b2b2b;transform:translateY(-1px);box-shadow:0 6px 18px rgba(20,20,20,.35);}
+  .btn:hover{background:#B7911F;transform:translateY(-1px);box-shadow:0 6px 18px rgba(201,162,39,.45);}
   .btn-outline{
     background:transparent;border:1.5px solid var(--charcoal);color:var(--charcoal);
   }
@@ -157,11 +157,11 @@
   /* ---------- SPLASH GATE (the family photo, shown once before the front page) ---------- */
   .splash-gate{
     position:fixed;inset:0;z-index:1000;cursor:pointer;
-    overflow:hidden;background:#141414;
+    overflow:hidden;background:#0A211D;
     transition:opacity .5s ease;
   }
   .splash-gate.splash-hide{opacity:0;pointer-events:none;}
-  /* The animated ink/terracotta shader fills the letterboxed space left by
+  /* The animated teal/gold shader fills the letterboxed space left by
      .splash-photo's object-fit:contain below (so the mismatch between the
      photo's aspect ratio and the screen's never shows an empty bar), and
      the photo's own edges fade into it via a mask, instead of sitting on
@@ -175,7 +175,7 @@
   }
   .splash-scrim{
     position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.25) 55%,rgba(0,0,0,.65) 100%);
+    background:linear-gradient(180deg,rgba(0,0,0,.06) 0%,rgba(0,0,0,.18) 55%,rgba(0,0,0,.5) 100%);
   }
   .splash-content{
     position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
@@ -195,7 +195,7 @@
     position:absolute;top:0;left:0;right:0;z-index:2;
     display:flex;align-items:center;justify-content:center;gap:10px;
     padding:13px 20px;text-align:center;
-    background:linear-gradient(90deg,#B8410F,#F2A65A,#D9531F,#F2A65A,#B8410F);
+    background:linear-gradient(90deg,#B7911F,#E8C468,#C9A227,#E8C468,#B7911F);
     background-size:250% 100%;
     color:var(--charcoal);font-weight:800;font-size:14.5px;
     box-shadow:0 4px 18px rgba(0,0,0,.25);
@@ -238,11 +238,11 @@
   .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr 0.85fr;gap:56px;align-items:center;}
   @media (max-width:860px){ .hero .wrap{grid-template-columns:1fr;} .hero{padding:56px 0 64px;} }
 
-  /* #141414 is the fallback if the photo can't load — near-black ink, not a
+  /* #0A211D is the fallback if the photo can't load — a dark teal, not a
      jarring flash of plain white/cream behind the (still-loading) image.
      Scoped to .hero-photo (the homepage hero only) so every other page's
      plain hero keeps the site's normal light background instead. */
-  .hero-photo{background:#141414;}
+  .hero-photo{background:#0A211D;}
 
   /* The family photo, softly blurred behind the hero's text — scaled up so
      the blur's soft edges never show the section's border. A flat, fairly
@@ -254,7 +254,7 @@
     position:absolute;inset:0;z-index:0;
     background-image:url('../assets/images/family-with-dog.jpg');
     background-size:cover;background-position:center;
-    filter:blur(4px) brightness(.95);transform:scale(1.05);
+    filter:blur(4px) brightness(1.08);transform:scale(1.05);
   }
   @media (max-width:640px){
     /* Less extra zoom on a narrow screen, so more of the actual photo
@@ -263,7 +263,7 @@
   }
   .hero-photo-scrim{
     position:absolute;inset:0;z-index:0;
-    background:rgba(20,20,20,.4);
+    background:rgba(10,33,29,.3);
   }
 
   .tag{
@@ -295,10 +295,10 @@
      hero also uses) and placed after the generic .hero rules above so it
      wins on the properties they share (color, on p.lede and .contactline)
      instead of being silently overridden by them. */
-  .hero-photo .tag{background:rgba(255,255,255,.16);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.4);}
-  .hero-photo h1{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.6);}
-  .hero-photo p.lede{color:#F0EEE7;text-shadow:0 1px 8px rgba(0,0,0,.55);}
-  .hero-photo .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+  .hero-photo .tag{background:rgba(255,255,255,.2);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.32);}
+  .hero-photo h1{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.48);}
+  .hero-photo p.lede{color:#F0EEE7;text-shadow:0 1px 8px rgba(0,0,0,.42);}
+  .hero-photo .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.38);}
   .hero-photo .hero-cover-img{border-color:rgba(255,255,255,.25);}
 
   .contact-link{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none;font-weight:600;}
@@ -334,14 +334,14 @@
   .hero-cover-tag{
     position:absolute;left:20px;bottom:20px;right:20px;
     background:#fff;color:var(--charcoal);font-weight:700;font-size:14px;
-    padding:11px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(20,20,20,.18);
+    padding:11px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(31,41,55,.16);
     max-width:calc(100% - 40px);
   }
   .hero-cover-badge{
     position:absolute;left:20px;top:20px;z-index:1;
     display:flex;align-items:center;gap:8px;
-    background:rgba(217,83,31,.92);color:#fff;font-weight:700;font-size:13px;
-    padding:8px 14px 8px 12px;border-radius:100px;box-shadow:0 8px 24px rgba(20,20,20,.25);
+    background:rgba(11,93,82,.92);color:#fff;font-weight:700;font-size:13px;
+    padding:8px 14px 8px 12px;border-radius:100px;box-shadow:0 8px 24px rgba(31,41,55,.2);
   }
   .hero-cover-dot{
     width:8px;height:8px;border-radius:100%;background:#ff5c5c;flex:none;
@@ -446,7 +446,7 @@
   .sec-head h2 .accent-word{position:relative;color:var(--gold);}
   .sec-head h2 .accent-word::after{
     content:"";position:absolute;left:-3px;right:-3px;bottom:3px;height:.34em;
-    background:rgba(232,163,77,.25);border-radius:2px;z-index:-1;
+    background:rgba(201,162,39,.2);border-radius:2px;z-index:-1;
     transform:scaleX(0);transform-origin:left;
     transition:transform .6s cubic-bezier(.16,1,.3,1) .3s;
   }
@@ -628,23 +628,23 @@
   /* ---------- CONTACT ---------- */
   .contact-band{
     position:relative;overflow:hidden;
-    background:var(--charcoal);color:#fff;text-align:center;padding:80px 0;
+    background:var(--teal);color:#fff;text-align:center;padding:80px 0;
   }
-  /* Animated ink/terracotta/amber warp shader behind the CTA content — same
-     technique as the splash gate's, see js/contact-band-shader.js. A flat
-     ink fallback (above) shows if WebGL is unavailable. */
+  /* Animated teal/gold warp shader behind the CTA content — same technique
+     as the splash gate's, see js/contact-band-shader.js. A flat teal
+     fallback (above) shows if WebGL is unavailable. */
   .contact-band-shader-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
   .contact-band-shader-bg canvas{display:block;width:100%;height:100%;}
   .contact-band > .wrap{position:relative;z-index:1;}
   .contact-band-lede{
     font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;
-    font-size:16px;color:#F5F1EA;opacity:.9;margin:0 0 10px;
-    text-shadow:0 1px 8px rgba(0,0,0,.35);
+    font-size:16px;color:#CFE7E3;opacity:.9;margin:0 0 10px;
+    text-shadow:0 1px 8px rgba(0,0,0,.25);
   }
-  .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;text-shadow:0 2px 14px rgba(0,0,0,.4);}
-  .contact-band p{color:#F5F1EA;font-size:16px;margin-bottom:30px;text-shadow:0 1px 8px rgba(0,0,0,.35);}
+  .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;text-shadow:0 2px 14px rgba(0,0,0,.3);}
+  .contact-band p{color:#CFE7E3;font-size:16px;margin-bottom:30px;text-shadow:0 1px 8px rgba(0,0,0,.25);}
   .contact-band .btn{background:var(--gold);color:var(--charcoal);}
-  .contact-band .contactline{margin-top:22px;font-size:15px;color:#F5F1EA;text-shadow:0 1px 6px rgba(0,0,0,.35);}
+  .contact-band .contactline{margin-top:22px;font-size:15px;color:#CFE7E3;text-shadow:0 1px 6px rgba(0,0,0,.25);}
 
   .quote-close{
     position:absolute;top:20px;right:24px;width:40px;height:40px;z-index:1;
@@ -732,7 +732,7 @@
   }
   .dp-cell:hover:not(:disabled):not(.dp-cell-muted){background:var(--teal-tint);}
   .dp-cell:disabled{color:#C9C5B8;cursor:default;}
-  .dp-cell-muted{color:#E5E0D6;}
+  .dp-cell-muted{color:#DDD8CC;}
   .dp-today{font-weight:700;box-shadow:inset 0 0 0 1.5px var(--teal);}
   .dp-selected{background:var(--teal)!important;color:#fff!important;}
   .field.invalid .err{display:block;}
@@ -747,9 +747,9 @@
     transition:border-color .15s ease, background .15s ease, color .15s ease,
       transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
   }
-  .pill-btn:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 10px rgba(20,20,20,.08);}
+  .pill-btn:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 10px rgba(31,41,55,.08);}
   .pill-btn:active{transform:translateY(0) scale(.96);}
-  .pill-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;box-shadow:0 4px 14px rgba(217,83,31,.3);}
+  .pill-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;box-shadow:0 4px 14px rgba(11,93,82,.3);}
   .pill-btn.active:hover{transform:translateY(-2px);}
   .pill-icon{width:15px;height:15px;flex:none;}
   /* A short pop when a pill is *chosen* (not just hovered) — the one small
@@ -854,7 +854,7 @@
   .legal-search{
     width:100%;font-family:'Inter',Arial,sans-serif;font-size:15px;
     padding:12px 16px 12px 40px;border:1.5px solid var(--line);border-radius:100px;
-    background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6862' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 14px center/16px no-repeat;
+    background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") 14px center/16px no-repeat;
     color:var(--charcoal);
   }
   .legal-search:focus{outline:none;border-color:var(--teal);}
@@ -995,7 +995,7 @@
     background:var(--gold);border-color:var(--gold);color:var(--charcoal);
     text-align:center;font-weight:700;
   }
-  .zone-btn-claim:hover{background:#C2812E;border-color:#C2812E;}
+  .zone-btn-claim:hover{background:#B7911F;border-color:#B7911F;}
   .zone-lead-form{text-align:left;margin-top:8px;}
   .zone-lead-form .field{margin-bottom:14px;}
   .zone-skip{
@@ -1013,7 +1013,7 @@
   }
   .notice-box p{margin:0;color:var(--charcoal);font-size:15px;}
   .notice-box a{color:var(--teal);font-weight:600;text-decoration:underline;}
-  .notice-success{background:#FBEAE1;border-color:var(--teal);color:var(--teal);font-weight:600;padding:16px 20px;margin-bottom:28px;max-width:640px;}
+  .notice-success{background:#E7F1EF;border-color:var(--teal);color:var(--teal);font-weight:600;padding:16px 20px;margin-bottom:28px;max-width:640px;}
 
   /* ---------- AUTH (login / signup / admin login) ---------- */
   .auth-panel{max-width:440px;}
@@ -1277,7 +1277,7 @@
     text-decoration:none;cursor:pointer;
     transition:box-shadow .3s ease, transform .3s ease;
   }
-  .cta-arrow:hover{box-shadow:0 18px 42px rgba(217,83,31,.4);transform:translateY(-2px);}
+  .cta-arrow:hover{box-shadow:0 18px 42px rgba(201,162,39,.4);transform:translateY(-2px);}
   .cta-arrow-text{display:inline-block;}
   .cta-arrow:hover .cta-arrow-text{animation:ctaTextBounce .5s ease;}
   @keyframes ctaTextBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
@@ -1293,7 +1293,7 @@
   }
   @keyframes ctaSpin{to{transform:rotate(360deg);}}
   .cta-arrow-icon{position:relative;color:#fff;font-size:19px;font-weight:700;z-index:1;transition:transform .35s cubic-bezier(.77,0,.175,1);}
-  .cta-arrow:hover .cta-arrow-box{transform:translateX(4px) scale(1.12);box-shadow:0 0 22px 5px rgba(232,163,77,.55),0 0 22px 5px rgba(217,83,31,.4);}
+  .cta-arrow:hover .cta-arrow-box{transform:translateX(4px) scale(1.12);box-shadow:0 0 22px 5px rgba(201,162,39,.55),0 0 22px 5px rgba(11,93,82,.4);}
   .cta-arrow:hover .cta-arrow-icon{transform:translateX(3px);}
   .offer .cta-arrow, .contact-band .cta-arrow{box-shadow:0 8px 24px rgba(0,0,0,.3);}
 

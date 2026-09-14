@@ -1,16 +1,16 @@
 // Animated Warp shader behind every ".contact-band" CTA section (the quote
 // form's header, the careers "Ready to join" band, the gift-cards request
-// band) — same technique and vendored library as the splash gate's shader,
-// recolored to this site's ink/terracotta/amber palette instead of a flat
-// orange fill. Mounts on every ".contact-band-shader-bg" container found;
-// safe to include on any page, it simply does nothing if none exist.
+// band) — same technique, vendored library, and brightened teal/gold
+// palette as the splash gate's shader, instead of a flat teal fill. Mounts
+// on every ".contact-band-shader-bg" container found; safe to include on
+// any page, it simply does nothing if none exist.
 (function () {
   const lib = window.PaperShadersWarp;
   if (!lib) return;
 
   const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = lib;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const colors = ['#141414', '#D9531F', '#F2703F', '#E8A34D'].map(getShaderColorFromString);
+  const colors = ['#0A211D', '#127A6C', '#1FAF98', '#E8C468'].map(getShaderColorFromString);
 
   function mount(container) {
     if (container.dataset.shaderMounted) return;
@@ -27,7 +27,7 @@
         {
           u_colors: colors,
           u_colorsCount: colors.length,
-          u_proportion: 0.55,
+          u_proportion: 0.6,
           u_softness: 1,
           u_shape: WarpPatterns.checks,
           u_shapeScale: 0.08,

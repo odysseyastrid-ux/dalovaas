@@ -1,9 +1,11 @@
 // Animated Warp shader filling the space around the splash's before/after
 // photo (which is shown uncropped via object-fit:contain, so it doesn't
-// fill the whole screen on every aspect ratio). Same ink/terracotta palette
-// as the rest of the site. Built with Paper Shaders' vanilla package, vendored
-// as a single pre-bundled file (js/vendor/paper-shaders-warp.min.js) so
-// there's no runtime CDN fetch to depend on.
+// fill the whole screen on every aspect ratio). Same teal/gold palette as
+// the rest of the site, brightened (a lighter aqua-teal + gold weighted
+// higher than the dark anchor) per the client's "beaucoup de lumière" ask.
+// Built with Paper Shaders' vanilla package, vendored as a single
+// pre-bundled file (js/vendor/paper-shaders-warp.min.js) so there's no
+// runtime CDN fetch to depend on.
 (function () {
   const container = document.getElementById('splashShaderBg');
   const lib = window.PaperShadersWarp;
@@ -12,7 +14,7 @@
   try {
     const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = lib;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const colors = ['#141414', '#D9531F', '#F2703F', '#E8A34D'].map(getShaderColorFromString);
+    const colors = ['#0A211D', '#127A6C', '#1FAF98', '#E8C468'].map(getShaderColorFromString);
 
     new ShaderMount(
       container,
@@ -20,7 +22,7 @@
       {
         u_colors: colors,
         u_colorsCount: colors.length,
-        u_proportion: 0.45,
+        u_proportion: 0.58,
         u_softness: 1,
         u_shape: WarpPatterns.checks,
         u_shapeScale: 0.1,

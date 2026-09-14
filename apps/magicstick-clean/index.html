@@ -1,3 +1,45 @@
+<!--
+  impeccable:direction-contract 1
+
+  THESIS: A cleaning business run by one person who actually shows up — the
+  site should feel as direct, confident, and unfussy as that promise, not
+  like a franchise's marketing department. Near-black and white with a
+  single warm terracotta accent reads as a considered, editorial hand behind
+  the brand; a big serif display face gives the copy the weight of a
+  decision already made, not a pitch still being sold.
+
+  OWN-WORLD: Restrained neutrals (near-black ink #141414, warm paper
+  #F5F1EA/#FFFFFF) + one warm terracotta accent (#D9531F, lighter twin
+  #E8A34D) carried by every CTA, badge, and highlight. Fraunces (display
+  serif, editorial weight, big descenders) for headings; Inter for body/UI.
+  Full-pill buttons in solid ink with white text; large-radius soft-shadow
+  cards; the existing spinning contact badge now spins between the two
+  accent tones instead of teal/gold. The teal-to-dark-teal circular logo
+  mark is a confirmed brand asset and is carried through untouched — the
+  new palette wraps around it, it does not replace it.
+
+  STORY: Reference brief was Durable.com's marketing site (screenshots
+  supplied by the client) — near-black/white base, warm orange-red eyebrow
+  accents, a high-contrast editorial serif paired with a clean sans, full-
+  pill CTAs, soft large-radius cards. Reinterpreted here with Magicstick
+  Clean's own real photography, copy, and logo — nothing borrowed but the
+  visual language.
+
+  FIRST VIEWPORT: The splash gate + hero — real family/pet photo, the
+  animated ink/terracotta shader, the promo bar's shimmering terracotta
+  gradient — is the thesis stated once, loudly, before anything else loads.
+
+  FORM: Static HTML/CSS/vanilla JS, one shared css/styles.css. All
+  color/type identity lives in :root custom properties in styles.css so
+  the whole site repaints from one place; every page's own <head> carries
+  the Fraunces+Inter Google Fonts link.
+
+  FINISH: Full reskin of tokens, typography, and shared components across
+  css/styles.css, splash shader colors (js/splash-shader.js), and the
+  server/public admin mini-site's inline styles. Logo SVG, business copy,
+  contact info, and all built features (quote form, booking, contact
+  badges, service pages) carried through unchanged.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +60,7 @@
 <meta name="twitter:description" content="Trusted house cleaning in Clarence-Rockland, Ottawa &amp; Gatineau. The same eco-friendly cleaner every visit, free quotes, and easy online booking.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <script src="js/i18n.js"></script>
 <script type="application/ld+json">
@@ -59,11 +101,11 @@
   <div class="splash-scrim" aria-hidden="true"></div>
   <div class="splash-promo">
     <svg class="splash-promo-spark" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 2 C12.6 6.8 13.8 9.8 16.6 11.4 C13.8 13 12.6 16 12 20.8 C11.4 16 10.2 13 7.4 11.4 C10.2 9.8 11.4 6.8 12 2 Z" fill="#1F2937"/>
+      <path d="M12 2 C12.6 6.8 13.8 9.8 16.6 11.4 C13.8 13 12.6 16 12 20.8 C11.4 16 10.2 13 7.4 11.4 C10.2 9.8 11.4 6.8 12 2 Z" fill="#141414"/>
     </svg>
     <span data-i18n-html="splash.promo">Have your home cleaned by a pro for <strong>$37</strong></span>
     <svg class="splash-promo-spark" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 2 C12.6 6.8 13.8 9.8 16.6 11.4 C13.8 13 12.6 16 12 20.8 C11.4 16 10.2 13 7.4 11.4 C10.2 9.8 11.4 6.8 12 2 Z" fill="#1F2937"/>
+      <path d="M12 2 C12.6 6.8 13.8 9.8 16.6 11.4 C13.8 13 12.6 16 12 20.8 C11.4 16 10.2 13 7.4 11.4 C10.2 9.8 11.4 6.8 12 2 Z" fill="#141414"/>
     </svg>
   </div>
   <div class="lang-toggle splash-lang">

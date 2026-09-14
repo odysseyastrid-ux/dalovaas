@@ -1,7 +1,7 @@
 // Animated Warp shader filling the space around the splash's before/after
 // photo (which is shown uncropped via object-fit:contain, so it doesn't
-// fill the whole screen on every aspect ratio). Same teal/gold palette as
-// the rest of the site. Built with Paper Shaders' vanilla package, vendored
+// fill the whole screen on every aspect ratio). Same ink/terracotta palette
+// as the rest of the site. Built with Paper Shaders' vanilla package, vendored
 // as a single pre-bundled file (js/vendor/paper-shaders-warp.min.js) so
 // there's no runtime CDN fetch to depend on.
 (function () {
@@ -12,7 +12,7 @@
   try {
     const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = lib;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const colors = ['#0A211D', '#0B5D52', '#127A6C', '#C9A227'].map(getShaderColorFromString);
+    const colors = ['#141414', '#D9531F', '#F2703F', '#E8A34D'].map(getShaderColorFromString);
 
     new ShaderMount(
       container,

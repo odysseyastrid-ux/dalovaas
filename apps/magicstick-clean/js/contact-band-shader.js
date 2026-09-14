@@ -5,15 +5,21 @@
 // orange fill. Mounts on every ".contact-band-shader-bg" container found;
 // safe to include on any page, it simply does nothing if none exist.
 (function () {
-  const containers = document.querySelectorAll('.contact-band-shader-bg');
   const lib = window.PaperShadersWarp;
-  if (!containers.length || !lib) return;
+  if (!lib) return;
 
   const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = lib;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const colors = ['#141414', '#D9531F', '#F2703F', '#E8A34D'].map(getShaderColorFromString);
 
-  containers.forEach((container) => {
+  function mount(container) {
+    if (container.dataset.shaderMounted) return;
+    // A container hidden behind a not-yet-shown tab/route has zero size —
+    // mounting then would initialize the shader at 0x0 and leave it blank
+    // even once shown. Skip it for now; mountAll() gets called again once
+    // it's actually visible (see the spa:pageshown listener below).
+    if (!container.offsetWidth || !container.offsetHeight) return;
+    container.dataset.shaderMounted = 'true';
     try {
       new ShaderMount(
         container,
@@ -44,5 +50,17 @@
     } catch (err) {
       // No WebGL — leave the solid fallback color (see .contact-band in styles.css).
     }
-  });
+  }
+
+  function mountAll() {
+    document.querySelectorAll('.contact-band-shader-bg').forEach(mount);
+  }
+
+  mountAll();
+  // On the real multi-page site every container above is already visible
+  // by the time this runs, so mountAll() above is all that's needed. Inside
+  // a bundled single-file preview that toggles pages with a `hidden`
+  // attribute instead of separate documents, a page's container can still
+  // be 0x0 at that point — retry once its page actually becomes visible.
+  document.addEventListener('spa:pageshown', mountAll);
 })();

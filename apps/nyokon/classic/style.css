@@ -229,13 +229,18 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 /* Hero — a photo-backed band with a dark scrim purely for legibility
    (a functional readability aid, not decoration); text stays snow/ink,
    never a color accent. */
+/* Flagship-style hero: full-height, content centered rather than
+   bottom-left, a plain underlined text link instead of a filled pill —
+   the quiet, restrained composition of a maison homepage rather than a
+   streetwear drop announcement. */
 .hero{
   --hero-ink:#ffffff;
   position:relative;
-  height:92vh;
-  min-height:560px;
+  height:100vh;
+  min-height:640px;
   display:flex;
-  align-items:flex-end;
+  align-items:center;
+  justify-content:center;
 }
 /* Always a dark backdrop regardless of theme — the hero text sitting on
    top of it is always light/white (see .hero-content), so this can't
@@ -244,35 +249,51 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
 .hero-media img{width:100%;height:100%;object-fit:cover;object-position:top center;}
 .hero-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(180deg, rgba(19,18,15,0) 40%, rgba(19,18,15,.85) 100%);
+  background:linear-gradient(180deg, rgba(19,18,15,.1) 0%, rgba(19,18,15,.05) 45%, rgba(19,18,15,.5) 100%);
   z-index:1;
 }
 .hero-content{
   position:relative;
   z-index:2;
-  padding:0 clamp(16px,4vw,48px) 72px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:0 24px;
   color:var(--hero-ink);
 }
 .hero-eyebrow{
   font-family:var(--font-body);
-  font-size:12px;
+  font-size:11px;
   font-weight:500;
-  letter-spacing:.2em;
+  letter-spacing:.35em;
   text-transform:uppercase;
-  color:rgba(255,255,255,.7);
-  margin-bottom:26px;
+  color:rgba(255,255,255,.75);
+  margin-bottom:22px;
 }
 .hero-title{
   font-family:var(--font-display);
+  font-style:italic;
   font-weight:400;
-  font-size:clamp(56px,13vw,150px);
-  line-height:.95;
-  letter-spacing:-0.02em;
-  margin-bottom:28px;
+  font-size:clamp(48px,9vw,120px);
+  line-height:1;
+  letter-spacing:-0.01em;
+  margin-bottom:34px;
   text-wrap:balance;
 }
-.hero .btn-light{background:var(--hero-ink);color:var(--fg);}
-.hero .btn-light:hover{background:var(--hero-ink);color:var(--fg);}
+.hero-discover{
+  font-family:var(--font-body);
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--hero-ink);
+  padding-bottom:5px;
+  border-bottom:1px solid rgba(255,255,255,.55);
+  transition:border-color .2s ease, opacity .2s ease;
+}
+.hero-discover:hover{border-bottom-color:#fff;opacity:.8;}
 .scroll-cue{
   position:absolute;
   right:clamp(16px,4vw,48px);

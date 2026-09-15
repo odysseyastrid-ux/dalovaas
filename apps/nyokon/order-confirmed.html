@@ -11,47 +11,95 @@
 <meta http-equiv="Expires" content="0" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  html,body{min-height:100%;}
-  body{display:flex;align-items:center;justify-content:center;padding:24px;}
-  .confirm-overlay{width:100%;max-width:420px;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;}
+  .matrix-container{position:fixed;inset:0;background:#000;overflow:hidden;}
+  .matrix-column{
+    position:absolute;top:-100%;
+    width:20px;height:100%;
+    font-size:16px;line-height:18px;font-weight:bold;
+    white-space:nowrap;
+    writing-mode:vertical-lr;
+    letter-spacing:1px;
+    background:linear-gradient(to bottom,
+      #ffffff 0%, #ffffff 5%,
+      #00ff41 10%, #00ff41 20%,
+      #00dd33 30%, #00bb22 40%,
+      #009911 50%, #007700 60%,
+      #005500 70%, #003300 80%,
+      rgba(0,255,65,.5) 90%, transparent 100%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
+    animation:matrixFall linear infinite;
+  }
+  @keyframes matrixFall{
+    0%{transform:translateY(-10%);opacity:1;}
+    100%{transform:translateY(200%);opacity:0;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .matrix-column{animation:none;opacity:.25;}
+  }
+
+  .confirm-overlay{
+    position:fixed;inset:0;z-index:2;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.55) 0%, rgba(0,0,0,.85) 70%, #000 100%);
+  }
   .confirm-card{
-    background:var(--bg-alt);border:1px solid var(--line);border-radius:var(--radius-card);
-    box-shadow:var(--shadow-paper);
-    padding:clamp(28px,5vw,44px);text-align:center;
+    width:100%;max-width:380px;
+    text-align:center;
+    color:#eafff0;
   }
   .confirm-check{
-    width:52px;height:52px;margin:0 auto 22px;
-    border-radius:50%;background:var(--invert-bg);
+    width:56px;height:56px;margin:0 auto 20px;
+    border-radius:50%;
+    border:2px solid #00ff41;
     display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 18px rgba(0,255,65,.55);
   }
-  .confirm-check svg{width:24px;height:24px;stroke:var(--invert-fg);}
+  .confirm-check svg{width:26px;height:26px;stroke:#00ff41;}
   .confirm-title{
-    font-family:var(--font-display);font-weight:400;
-    font-size:26px;letter-spacing:-0.02em;
+    font-family:'Archivo Black',Georgia,serif;
+    font-size:22px;letter-spacing:.02em;
     margin-bottom:10px;
+    text-transform:uppercase;
   }
-  .confirm-sub{font-size:13.5px;color:var(--fg-dim);line-height:1.5;margin-bottom:24px;}
+  .confirm-sub{font-size:13px;color:#a7f3c1;line-height:1.5;margin-bottom:22px;}
   .confirm-ref{
-    font-family:var(--font-display);font-size:19px;letter-spacing:.02em;
-    background:var(--bg-whisper);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px 16px;margin-bottom:26px;color:var(--fg);
+    font-family:'Archivo Black',Georgia,serif;
+    font-size:19px;letter-spacing:.04em;
+    background:rgba(0,255,65,.08);
+    border:1px solid rgba(0,255,65,.35);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:26px;
+    color:#00ff41;
   }
   .confirm-btn{
     display:block;width:100%;
     padding:15px 20px;
-    background:var(--invert-bg);color:var(--invert-fg);
-    font-family:var(--font-body);font-size:12.5px;font-weight:500;letter-spacing:.04em;
-    border-radius:var(--radius-pill);text-decoration:none;
-    transition:transform .2s ease;
+    background:#00ff41;color:#03130a;
+    font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:999px;text-decoration:none;
+    box-shadow:0 0 22px rgba(0,255,65,.45);
+    animation:confirmPulse 1.8s ease-in-out infinite;
   }
-  .confirm-btn:hover{transform:translateY(-1px);}
-  .confirm-note{margin-top:16px;font-size:11px;color:var(--fg-dim);}
+  @keyframes confirmPulse{
+    0%,100%{box-shadow:0 0 14px rgba(0,255,65,.35);}
+    50%{box-shadow:0 0 30px rgba(0,255,65,.7);}
+  }
+  .confirm-note{margin-top:16px;font-size:11px;color:#5fae7c;}
 </style>
 </head>
 <body>
+
+<div class="matrix-container" id="matrixContainer"></div>
 
 <div class="confirm-overlay">
   <div class="confirm-card">
@@ -89,6 +137,37 @@ if (ref) {
 } else {
   document.getElementById('confirmNote').style.display = 'none';
 }
+
+const CHAR_SETS = [
+  'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+  'ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポヴァィゥェォャュョッABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'アカサタナハマヤラワイキシチニヒミリウクスツヌフムユルエケセテネヘメレオコソトノホモヨロヲン0987654321',
+  'ンヲロヨモホノトソコオレメヘネテセケエルユムフヌツスクウリミヒニチシキイワラヤマハナタサカア',
+  'ガザダバパギジヂビピグズヅブプゲゼデベペゴゾドボポヴァィゥェォャュョッ!@#$%^&*()_+-=[]{}|;:,.<>?',
+];
+function buildColumns(){
+  const container = document.getElementById('matrixContainer');
+  container.innerHTML = '';
+  const colWidth = 20;
+  const count = Math.ceil(window.innerWidth / colWidth) + 1;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const col = document.createElement('div');
+    col.className = 'matrix-column';
+    col.textContent = CHAR_SETS[i % CHAR_SETS.length];
+    col.style.left = (i * colWidth) + 'px';
+    col.style.animationDelay = (-(Math.random() * 4)).toFixed(2) + 's';
+    col.style.animationDuration = (2.3 + Math.random() * 2.2).toFixed(2) + 's';
+    frag.appendChild(col);
+  }
+  container.appendChild(frag);
+}
+buildColumns();
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(buildColumns, 200);
+});
 </script>
 </body>
 </html>

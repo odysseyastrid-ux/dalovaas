@@ -50,7 +50,7 @@ function buildReceiptHtml(order: Order) {
     h1{font-size:20px;margin-bottom:4px}.muted{color:#666;font-size:13px;margin-bottom:20px}
     table{width:100%;border-collapse:collapse;margin-bottom:20px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left;font-size:13px}
     .total{font-size:18px;font-weight:bold;text-align:right;margin-top:12px}</style></head><body>
-    <h1>Chez Sanji · Reçu</h1>
+    <h1>Marlyse · Reçu</h1>
     <div class="muted">Commande ${order.ref} &middot; Code de retrait: ${order.pickup_code}</div>
     <div class="muted">Client: ${order.customer_name} &middot; ${order.customer_phone}</div>
     <div class="muted">${FULFILLMENT_LABEL[order.fulfillment]}</div>
@@ -273,7 +273,7 @@ export function OrdersBoard() {
                 </div>
                 <div className="flex gap-2">
                   <a
-                    href={`https://wa.me/${row.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Votre code Chez Sanji : ${row.code}`)}`}
+                    href={`https://wa.me/${row.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Votre code Marlyse : ${row.code}`)}`}
                     target="_blank"
                     rel="noopener"
                     onClick={() => markOtpSent(row.id)}

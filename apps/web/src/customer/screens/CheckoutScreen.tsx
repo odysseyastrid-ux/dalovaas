@@ -334,7 +334,7 @@ export function CheckoutScreen() {
                     </div>
                   </div>
                   <div className="mt-2 text-lg font-bold tracking-wide">{payAccount.number || '—'}</div>
-                  <div className="mt-1 text-xs text-[var(--color-ink)]/60">{payAccount.name || 'Chez Sanji'}</div>
+                  <div className="mt-1 text-xs text-[var(--color-ink)]/60">{payAccount.name || 'Marlyse'}</div>
                 </div>
                 <div className="mb-3 flex gap-2">
                   <button

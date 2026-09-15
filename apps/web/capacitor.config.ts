@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'com.chezsanji.app',
-  appName: 'Chez Sanji',
+  appName: 'Marlyse',
   webDir: 'dist',
   backgroundColor: '#f4f1ea',
   server: {

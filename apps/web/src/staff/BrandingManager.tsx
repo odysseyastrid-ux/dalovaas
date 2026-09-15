@@ -196,7 +196,7 @@ export function BrandingManager() {
                     <div className="mb-1 text-[10px] font-bold uppercase text-[var(--color-ink)]/50">Nom du compte</div>
                     <input
                       defaultValue={acc.name}
-                      placeholder="Chez Sanji"
+                      placeholder="Marlyse"
                       onBlur={(e) => e.target.value !== acc.name && setPaymentField(key, 'name', e.target.value)}
                       className="w-full rounded-lg border border-[var(--color-divider)] px-2.5 py-2 text-sm"
                     />

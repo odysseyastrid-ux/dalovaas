@@ -13,13 +13,13 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
         {settings.logo_url && !imgFailed ? (
           <img
             src={settings.logo_url}
-            alt="Chez Sanji"
+            alt="Marlyse"
             onError={() => setImgFailed(true)}
             className="mx-auto h-auto w-[88%] max-w-[340px] [clip-path:circle(40.5%)] drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
           />
         ) : (
           <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[var(--color-ink)] text-4xl font-black text-[var(--color-accent)]">
-            CS
+            M
           </div>
         )}
         <div className="mt-2 [font-family:var(--font-heading)] text-2xl font-extrabold text-white">

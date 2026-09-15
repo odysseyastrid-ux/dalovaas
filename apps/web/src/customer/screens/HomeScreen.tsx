@@ -106,13 +106,13 @@ export function HomeScreen() {
           {settings.logo_url && !logoFailed ? (
             <img
               src={settings.logo_url}
-              alt="Chez Sanji"
+              alt="Marlyse"
               onError={() => setLogoFailed(true)}
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-ink)] text-xs font-black text-[var(--color-accent)]">
-              CS
+              M
             </div>
           )}
         </div>

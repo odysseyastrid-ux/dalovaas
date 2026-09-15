@@ -17,7 +17,7 @@ export function AboutScreen() {
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div className="mb-6">
           <div className="mb-2 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide text-[var(--color-accent-700)]">
-            Chez Sanji
+            Marlyse
           </div>
           <div className="[font-family:var(--font-heading)] text-3xl font-extrabold leading-[1.15] text-balance">
             {lang === 'fr'
@@ -28,13 +28,13 @@ export function AboutScreen() {
 
         <div className="mb-4 flex flex-col items-center rounded-2xl bg-pattern-gold p-6 text-center">
           {settings.logo_url ? (
-            <img src={settings.logo_url} alt="Chez Sanji" className="mb-3 h-16 w-16 rounded-full object-cover ring-4 ring-white/40" />
+            <img src={settings.logo_url} alt="Marlyse" className="mb-3 h-16 w-16 rounded-full object-cover ring-4 ring-white/40" />
           ) : (
             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-ink)] text-lg font-black text-[var(--color-accent)]">
-              CS
+              M
             </div>
           )}
-          <div className="[font-family:var(--font-heading)] text-xl font-extrabold">Chez Sanji</div>
+          <div className="[font-family:var(--font-heading)] text-xl font-extrabold">Marlyse</div>
           <div className="mt-1 text-xs opacity-70">{lang === 'fr' ? 'Restauration rapide' : 'Fast food restaurant'}</div>
         </div>
 
@@ -50,12 +50,12 @@ export function AboutScreen() {
             {lang === 'fr' ? 'Informations légales' : 'Legal information'}
           </div>
           <div className="text-xs leading-relaxed opacity-80">
-            © {COPYRIGHT_YEAR} Chez Sanji. {lang === 'fr' ? 'Tous droits réservés.' : 'All rights reserved.'}
+            © {COPYRIGHT_YEAR} Marlyse. {lang === 'fr' ? 'Tous droits réservés.' : 'All rights reserved.'}
           </div>
           <div className="mt-2 text-xs leading-relaxed opacity-60">
             {lang === 'fr'
-              ? 'Toute reproduction, distribution ou utilisation non autorisée du contenu, du nom ou de la marque Chez Sanji est interdite sans autorisation écrite préalable.'
-              : 'Any unauthorized reproduction, distribution, or use of the content, name, or Chez Sanji brand is prohibited without prior written permission.'}
+              ? 'Toute reproduction, distribution ou utilisation non autorisée du contenu, du nom ou de la marque Marlyse est interdite sans autorisation écrite préalable.'
+              : 'Any unauthorized reproduction, distribution, or use of the content, name, or Marlyse brand is prohibited without prior written permission.'}
           </div>
         </div>
       </div>

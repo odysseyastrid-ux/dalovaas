@@ -36,7 +36,7 @@ const PAYMENT_LABEL: Record<string, { fr: string; en: string }> = {
 
 function buildRows(order: Order, lang: 'fr' | 'en'): Row[] {
   const rows: Row[] = []
-  rows.push({ kind: 'title', text: 'CHEZ SANJI', h: 38 })
+  rows.push({ kind: 'title', text: 'MARLYSE', h: 38 })
   rows.push({ kind: 'subtitle', text: lang === 'fr' ? 'Reçu de commande' : 'Order receipt', h: 26 })
   rows.push({ kind: 'divider', h: 20 })
   rows.push({ kind: 'ref', ref: order.ref, date: formatDate(order.created_at, lang), h: 26 })

@@ -68,15 +68,15 @@ function printDoc(title: string, bodyHtml: string) {
 
 function letterheadHtml(logoUrl: string | null) {
   return `<div class="letterhead">
-    ${logoUrl ? `<img src="${logoUrl}" alt="Chez Sanji" />` : ''}
-    <div><div class="name">Chez Sanji</div><div class="tagline">Restauration rapide</div></div>
+    ${logoUrl ? `<img src="${logoUrl}" alt="Marlyse" />` : ''}
+    <div><div class="name">Marlyse</div><div class="tagline">Restauration rapide</div></div>
   </div>`
 }
 
 function legalFooterHtml() {
   return `<div class="legal-footer">
-    Chez Sanji : entreprise de restauration rapide canadienne implantée au Cameroun. Fondateur : Dama Louis Vanell Astrid.<br />
-    © ${new Date().getFullYear()} Chez Sanji. Tous droits réservés. Document généré le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}.
+    Marlyse : entreprise de restauration rapide canadienne implantée au Cameroun. Fondateur : Dama Louis Vanell Astrid.<br />
+    © ${new Date().getFullYear()} Marlyse. Tous droits réservés. Document généré le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}.
   </div>`
 }
 
@@ -149,7 +149,7 @@ export function PayrollPanel({ canEditRates }: { canEditRates: boolean }) {
       )
       .join('')
     printDoc(
-      'Paie · Chez Sanji',
+      'Paie · Marlyse',
       `${letterheadHtml(settings.logo_url)}
        <h1>Bulletin de paie collectif</h1>
        <div class="muted">Période : ${periodLabel(settings.payroll_period_start)}</div>

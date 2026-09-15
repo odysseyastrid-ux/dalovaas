@@ -97,12 +97,12 @@ export function TimeClockSettings({ employees }: { employees: Employee[] }) {
     }
     const onShift = employees.filter((e) => entries.some((en) => en.employee_id === e.id && en.clock_out === null))
     const body = [
-      'Résumé du planning · Chez Sanji',
+      'Résumé du planning · Marlyse',
       '',
       `En service maintenant : ${onShift.length}`,
       ...onShift.map((e) => `- ${e.name}`),
     ].join('\n')
-    window.location.href = `mailto:${settings.company_email}?subject=${encodeURIComponent('Planning Chez Sanji')}&body=${encodeURIComponent(body)}`
+    window.location.href = `mailto:${settings.company_email}?subject=${encodeURIComponent('Planning Marlyse')}&body=${encodeURIComponent(body)}`
   }
 
   const changeManagerPin = async () => {

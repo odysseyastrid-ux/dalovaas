@@ -1,6 +1,8 @@
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
 import { BackHeader } from '@/components/AppShell'
+import { ScrollToTop } from '@/components/ScrollToTop'
 import { useAuthStore } from '@/state/authStore'
 import { useMyOrders } from '@/hooks/useOrders'
 import { downloadReceipt } from '@/lib/receipt'
@@ -18,11 +20,12 @@ export function OrderHistoryScreen() {
   const navigate = useNavigate()
   const account = useAuthStore((s) => s.account)
   const orders = useMyOrders(account?.id ?? null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <BackHeader title={t.orderHistoryTitle} onBack={() => navigate('/account')} />
-      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
+      <div ref={scrollRef} className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         {orders.length === 0 && <div className="text-sm text-[var(--color-ink)]/60">{t.noOrdersYet}</div>}
         {orders.map((o) => (
           <div key={o.id} className="mb-3 flex items-center justify-between rounded-xl border border-[var(--color-divider)] p-3.5">
@@ -54,6 +57,7 @@ export function OrderHistoryScreen() {
           </div>
         ))}
       </div>
+      <ScrollToTop containerRef={scrollRef} />
     </div>
   )
 }

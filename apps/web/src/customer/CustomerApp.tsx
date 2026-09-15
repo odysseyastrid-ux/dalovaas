@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { AppShell } from '@/components/AppShell'
 import { BottomTabs } from '@/components/BottomTabs'
+import { Spinner } from '@/components/Spinner'
 import { useAuthStore } from '@/state/authStore'
 import { SplashScreen } from './screens/SplashScreen'
 import { PhoneLoginScreen } from './screens/PhoneLoginScreen'
@@ -21,6 +22,7 @@ import { AddressesScreen } from './screens/account/AddressesScreen'
 import { NotificationsScreen } from './screens/account/NotificationsScreen'
 import { HelpScreen } from './screens/account/HelpScreen'
 import { AboutScreen } from './screens/account/AboutScreen'
+import { NotFoundScreen } from './screens/NotFoundScreen'
 
 const TAB_PATHS = new Set(['/', '/rewards', '/cart', '/account'])
 const ONBOARDED_KEY = 'chez-sanji-onboarded'
@@ -46,7 +48,9 @@ export function CustomerApp() {
   if (authLoading) {
     return (
       <AppShell>
-        <div className="flex flex-1 items-center justify-center text-sm text-[var(--color-ink)]/50">…</div>
+        <div className="flex flex-1 items-center justify-center">
+          <Spinner />
+        </div>
       </AppShell>
     )
   }
@@ -88,7 +92,7 @@ export function CustomerApp() {
 
   return (
     <AppShell>
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="relative flex min-h-0 flex-1 flex-col">
         <Routes>
           <Route path="/" element={<HomeScreen />} />
           <Route path="/item/:id" element={<ItemDetailScreen />} />
@@ -104,7 +108,7 @@ export function CustomerApp() {
           <Route path="/account/notifications" element={<NotificationsScreen />} />
           <Route path="/account/help" element={<HelpScreen />} />
           <Route path="/account/about" element={<AboutScreen />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundScreen />} />
         </Routes>
       </div>
       {showTabs && <BottomTabs />}

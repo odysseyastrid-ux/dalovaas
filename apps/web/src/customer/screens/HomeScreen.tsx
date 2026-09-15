@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
 import { CATEGORY_LABELS, type Lang } from '@/i18n/strings'
@@ -9,7 +9,12 @@ import { formatFCFA } from '@/lib/format'
 import { useCartStore } from '@/state/cartStore'
 import { useToastStore } from '@/state/toastStore'
 import { PromoCarousel } from '@/components/PromoCarousel'
+import { ScrollToTop } from '@/components/ScrollToTop'
+import { ScrollProgressBar } from '@/components/ScrollProgressBar'
+import { Spinner } from '@/components/Spinner'
 import { ComboOfferModal } from './ComboOfferModal'
+
+const STAFF_WHATSAPP_NUMBER = import.meta.env.VITE_STAFF_WHATSAPP_NUMBER || '237652776763'
 
 // "Tout" and "Combo" are deliberately not customer-browsable categories --
 // combos are now offered dynamically via the add-to-cart upsell popup
@@ -29,6 +34,7 @@ export function HomeScreen() {
   const [category, setCategory] = useState<MenuCategory>(CUSTOMER_CATEGORIES[0])
   const [logoFailed, setLogoFailed] = useState(false)
   const [comboPromptItem, setComboPromptItem] = useState<(typeof items)[number] | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const addLine = useCartStore((s) => s.addLine)
   const showToast = useToastStore((s) => s.show)
 
@@ -121,7 +127,8 @@ export function HomeScreen() {
         </button>
       </div>
 
-      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="no-scrollbar relative min-h-0 flex-1 overflow-y-auto">
+        <ScrollProgressBar containerRef={scrollRef} />
         <PromoCarousel slides={settings.promo_slides} />
 
         <div className="no-scrollbar flex gap-2.5 overflow-x-auto px-4 py-4">
@@ -133,7 +140,11 @@ export function HomeScreen() {
         </div>
 
         <div className="flex flex-col gap-3 px-4 pb-8">
-          {loading && <div className="py-8 text-center text-sm text-[var(--color-ink)]/50">…</div>}
+          {loading && (
+            <div className="flex justify-center py-8">
+              <Spinner />
+            </div>
+          )}
           {filtered.map((item) => (
             <div
               key={item.id}
@@ -168,6 +179,18 @@ export function HomeScreen() {
           ))}
         </div>
       </div>
+      <ScrollToTop containerRef={scrollRef} />
+      <a
+        href={`https://wa.me/${STAFF_WHATSAPP_NUMBER}`}
+        target="_blank"
+        rel="noopener"
+        aria-label="Contacter le support sur WhatsApp"
+        className="absolute bottom-20 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:brightness-105"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm5.83 14.02c-.24.68-1.41 1.32-1.95 1.36-.5.04-1 .24-3.37-.7-2.86-1.14-4.7-4.06-4.84-4.25-.14-.19-1.16-1.54-1.16-2.93 0-1.4.73-2.08 1-2.36.24-.26.5-.34.68-.34h.5c.16 0 .38-.06.58.45.24.6.79 2.06.86 2.21.07.14.11.31.02.5-.1.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.28-.12.55.16.28.72 1.18 1.55 1.9 1.06.94 1.96 1.24 2.24 1.38.28.14.44.12.6-.07.16-.19.7-.82.88-1.1.19-.28.38-.23.63-.14.26.1 1.63.77 1.91.91.28.14.47.21.54.32.07.12.07.68-.17 1.36z" />
+        </svg>
+      </a>
 
       {comboPromptItem && (
         <ComboOfferModal

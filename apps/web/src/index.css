@@ -33,6 +33,26 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Dark mode -- overrides the same tokens every component already reads via
+   var(--color-*), so no component needs its own dark-mode logic. */
+:root[data-theme="dark"] {
+  --color-ink: #f4f1ea;
+  --color-surface: #241d16;
+  --color-divider: #392c20;
+  --color-bg: #17120d;
+  --color-card: #1f1811;
+  --color-accent-700: #ffcf3d;
+}
+:root[data-theme="dark"] body {
+  background: var(--color-bg);
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  #root, [id="main-content"] { height: auto !important; }
+}
+
 @keyframes float-slogan {
   0%, 100% { transform: translateY(0) rotate(-1deg); }
   50% { transform: translateY(-8px) rotate(1deg); }

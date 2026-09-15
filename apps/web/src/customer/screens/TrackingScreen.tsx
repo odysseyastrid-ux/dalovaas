@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useI18n } from '@/i18n/I18nContext'
 import { BackHeader } from '@/components/AppShell'
 import { Button } from '@/components/Button'
+import { CopyButton } from '@/components/CopyButton'
+import { Spinner } from '@/components/Spinner'
 import { useOrderByRef } from '@/hooks/useOrders'
 import { useAppSettings } from '@/hooks/useAppSettings'
 import { formatFCFA, formatCountdown } from '@/lib/format'
@@ -31,7 +33,12 @@ export function TrackingScreen() {
     return () => clearInterval(id)
   }, [])
 
-  if (loading) return <div className="flex flex-1 items-center justify-center text-sm text-[var(--color-ink)]/50">…</div>
+  if (loading)
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Spinner />
+      </div>
+    )
   if (!order) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
@@ -113,11 +120,16 @@ export function TrackingScreen() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <BackHeader title={t.orderStatus} onBack={() => navigate('/')} />
+      <div className="no-print">
+        <BackHeader title={t.orderStatus} onBack={() => navigate('/')} />
+      </div>
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         <div className="mb-4 flex items-center justify-between border-b border-[var(--color-divider)] pb-4">
           <div>
-            <div className="[font-family:var(--font-heading)] text-[15px] font-bold">{order.ref}</div>
+            <div className="flex items-center gap-1.5 [font-family:var(--font-heading)] text-[15px] font-bold">
+              {order.ref}
+              <CopyButton value={order.ref} />
+            </div>
             <div className="mt-0.5 text-xs text-[var(--color-ink)]/60">
               {order.lines.length} {lang === 'fr' ? 'article(s)' : 'item(s)'} · {formatFCFA(order.total)}
             </div>
@@ -224,7 +236,10 @@ export function TrackingScreen() {
 
             <div className="mt-3 rounded-xl border-2 border-[var(--color-accent)] p-4 text-center">
               <div className="text-xs text-[var(--color-ink)]/60">{t.pickupCodeLabel}</div>
-              <div className="mt-1 [font-family:var(--font-heading)] text-3xl font-extrabold tracking-widest">{order.pickup_code}</div>
+              <div className="mt-1 flex items-center justify-center gap-1.5 [font-family:var(--font-heading)] text-3xl font-extrabold tracking-widest">
+                {order.pickup_code}
+                <CopyButton value={order.pickup_code} />
+              </div>
               <div className="mt-1 text-xs text-[var(--color-ink)]/60">{t.pickupCodeDesc}</div>
             </div>
 
@@ -316,12 +331,15 @@ export function TrackingScreen() {
           </>
         )}
 
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="no-print mt-3 flex flex-col gap-2">
           {!order.pending_validation && (
             <Button block variant="secondary" onClick={() => downloadReceipt(order, lang)}>
               {lang === 'fr' ? 'Télécharger le reçu' : 'Download receipt'}
             </Button>
           )}
+          <Button block variant="secondary" onClick={() => window.print()}>
+            {lang === 'fr' ? 'Imprimer' : 'Print'}
+          </Button>
           <Button block variant="secondary" onClick={() => navigate('/')}>
             {t.backHome}
           </Button>

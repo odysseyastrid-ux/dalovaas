@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Field, Input } from '@/components/Field'
+import { Field } from '@/components/Field'
+import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/state/authStore'
@@ -53,12 +54,12 @@ export function StaffResetPassword() {
           <>
             <div className="mb-3">
               <Field label="Nouveau mot de passe">
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
               </Field>
             </div>
             <div className="mb-4">
               <Field label="Confirmer le mot de passe">
-                <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+                <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} />
               </Field>
             </div>
             {error && <div className="mb-4 text-xs text-red-600">{error}</div>}

@@ -1,12 +1,22 @@
 import type { ReactNode } from 'react'
 import { Toast } from './Toast'
+import { CookieBanner } from './CookieBanner'
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh justify-center bg-[var(--color-surface)] sm:py-6">
       <div className="relative flex h-dvh w-full max-w-[430px] flex-col overflow-hidden bg-[var(--color-bg)] text-[var(--color-ink)] sm:h-[min(900px,calc(100dvh-48px))] sm:rounded-[36px] sm:shadow-2xl">
-        {children}
+        <a
+          href="#main-content"
+          className="absolute left-2 top-2 z-[100] -translate-y-16 rounded-lg bg-[var(--color-ink)] px-4 py-2 text-sm font-bold text-[var(--color-accent)] transition focus:translate-y-0"
+        >
+          Aller au contenu
+        </a>
+        <div id="main-content" tabIndex={-1} className="flex min-h-0 flex-1 flex-col outline-none">
+          {children}
+        </div>
         <Toast />
+        <CookieBanner />
       </div>
     </div>
   )

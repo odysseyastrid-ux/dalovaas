@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
 import { Field, Input } from '@/components/Field'
+import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -85,7 +86,7 @@ export function StaffLogin() {
         </div>
         <div className="mb-4">
           <Field label={t.staffPassword}>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
           </Field>
         </div>
         {error && <div className="mb-4 text-xs text-red-600">{error}</div>}

@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>nyøkøn — Collection</title>
 <meta name="description" content="nyøkøn — custom streetwear, drops and made-to-order pieces." />
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="icon" type="image/png" href="../assets/favicon.png" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 
 <section class="intro-hero" id="introHero">
-  <video class="intro-hero-media" id="introHeroVideo" src="assets/hero-intro.mp4" muted playsinline preload="auto"></video>
+  <video class="intro-hero-media" id="introHeroVideo" src="../assets/hero-intro.mp4" muted playsinline preload="auto"></video>
   <div class="intro-hero-overlay" aria-hidden="true"></div>
   <div class="intro-hero-title" id="introHeroTitle" aria-hidden="true">
     <div class="intro-hero-eyebrow" data-i18n="intro_eyebrow"></div>
@@ -32,13 +32,6 @@
   </div>
   <div class="intro-hero-progress" aria-hidden="true"><div class="intro-hero-progress-bar" id="introHeroProgress"></div></div>
 </section>
-
-<div class="starfield" aria-hidden="true">
-  <div class="starfield-base"></div>
-  <div class="stars-layer" id="stars"></div>
-  <div class="stars-layer" id="stars2"></div>
-  <div class="stars-layer" id="stars3"></div>
-</div>
 
 <div class="announce" data-i18n="announce"></div>
 
@@ -56,7 +49,7 @@
     </div>
   </div>
 
-  <a href="#top" class="wordmark wordmark-3d"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <a href="#top" class="wordmark wordmark-3d"><img src="../assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
 
   <div class="header-actions">
     <div class="nav-dropdown" id="settingsDropdown">
@@ -140,11 +133,7 @@
       <span data-i18n="marquee_1"></span><span>•</span>
       <span data-i18n="marquee_2"></span><span>•</span>
       <span data-i18n="marquee_3"></span><span>•</span>
-      <span>nyøkøn</span><span>•</span>
-      <span data-i18n="marquee_1"></span><span>•</span>
-      <span data-i18n="marquee_2"></span><span>•</span>
-      <span data-i18n="marquee_3"></span><span>•</span>
-      <span>nyøkøn</span><span>•</span>
+      <span>nyøkøn</span>
     </div>
   </div>
 
@@ -208,7 +197,7 @@
   <!-- EDITORIAL SPLIT -->
   <section class="editorial" id="about">
     <div class="editorial-media">
-      <iframe class="mask-3d" src="assets/mask-3d.html" title="nyøkøn — interactive 3D chrome mask, drag to rotate" loading="lazy"></iframe>
+      <iframe class="mask-3d" src="../assets/mask-3d.html" title="nyøkøn — interactive 3D chrome mask, drag to rotate" loading="lazy"></iframe>
     </div>
     <div class="editorial-copy">
       <p class="editorial-eyebrow" data-i18n="editorial_eyebrow"></p>
@@ -230,10 +219,10 @@
       <h2 data-i18n="lookbook_title"></h2>
     </div>
     <div class="lookbook-grid">
-      <div class="lb-photo lb-tall" data-slot="lookbook_1"><img src="assets/lookbook-frame-1.jpg" alt="nyøkøn lookbook" /></div>
+      <div class="lb-photo lb-tall" data-slot="lookbook_1"><img src="../assets/lookbook-frame-1.jpg" alt="nyøkøn lookbook" /></div>
       <div class="placeholder-img" data-placeholder="LOOKBOOK 02" data-slot="lookbook_2"></div>
       <div class="placeholder-img" data-placeholder="LOOKBOOK 03" data-slot="lookbook_3"></div>
-      <div class="lb-photo lb-tall" data-slot="lookbook_4"><img src="assets/lookbook-frame-2.jpg" alt="nyøkøn lookbook" /></div>
+      <div class="lb-photo lb-tall" data-slot="lookbook_4"><img src="../assets/lookbook-frame-2.jpg" alt="nyøkøn lookbook" /></div>
       <div class="placeholder-img" data-placeholder="LOOKBOOK 05" data-slot="lookbook_5"></div>
       <div class="placeholder-img" data-placeholder="LOOKBOOK 06" data-slot="lookbook_6"></div>
     </div>
@@ -258,10 +247,9 @@
 </main>
 
 <footer class="site-footer" id="siteFooter">
-  <div class="footer-mesh-scrim" aria-hidden="true"></div>
   <div class="footer-top">
     <div class="footer-col">
-      <a href="#top" class="wordmark small"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+      <a href="#top" class="wordmark small"><img src="../assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
       <p data-i18n="footer_tagline"></p>
     </div>
     <div class="footer-col">
@@ -286,7 +274,7 @@
   <div class="footer-bottom">
     <span>© <span id="year"></span> nyøkøn. <span data-i18n="footer_rights"></span></span>
     <span data-i18n="footer_note"></span>
-    <a href="classic/index.html">nyøkøn classic →</a>
+    <a href="../index.html">nyøkøn streetwear →</a>
   </div>
 </footer>
 
@@ -334,25 +322,25 @@
           <label class="payment-method-card pm-orange">
             <input type="radio" name="payment" value="orange_money" checked />
             <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="pm-badge pm-badge-logo"><img src="assets/orange-money-logo.jpg?v=2" alt="Orange Money" /></span>
+            <span class="pm-badge pm-badge-logo"><img src="../assets/orange-money-logo.jpg?v=2" alt="Orange Money" /></span>
             <span class="pm-label">Orange Money</span>
           </label>
           <label class="payment-method-card pm-mtn">
             <input type="radio" name="payment" value="mtn_momo" />
             <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="pm-badge pm-badge-logo"><img src="assets/mtn-momo-logo.jpg?v=2" alt="MTN Mobile Money" /></span>
+            <span class="pm-badge pm-badge-logo"><img src="../assets/mtn-momo-logo.jpg?v=2" alt="MTN Mobile Money" /></span>
             <span class="pm-label">MTN MoMo</span>
           </label>
           <label class="payment-method-card pm-cash">
             <input type="radio" name="payment" value="cash" />
             <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="pm-badge pm-badge-logo"><img src="assets/cash-pickup-photo.jpg?v=1" alt="Cash à la récupération" /></span>
+            <span class="pm-badge pm-badge-logo"><img src="../assets/cash-pickup-photo.jpg?v=1" alt="Cash à la récupération" /></span>
             <span class="pm-label" data-i18n="checkout_cash"></span>
           </label>
           <label class="payment-method-card pm-card">
             <input type="radio" name="payment" value="bank_card" />
             <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="pm-badge pm-badge-logo"><img src="assets/card-networks-logo.jpg?v=2" alt="Visa, Mastercard, American Express" /></span>
+            <span class="pm-badge pm-badge-logo"><img src="../assets/card-networks-logo.jpg?v=2" alt="Visa, Mastercard, American Express" /></span>
             <span class="pm-label">Visa / Mastercard</span>
           </label>
           <label class="payment-method-card pm-fidelity">
@@ -446,7 +434,6 @@
 </div>
 <div class="cart-scrim" id="quickAddScrim"></div>
 
-<script src="script.js?v=4"></script>
-<script type="module" src="assets/vendor/paper-shaders/mount-footer-mesh-gradient.js?v=1"></script>
+<script src="../script.js?v=4"></script>
 </body>
 </html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn</title>
+<meta name="description" content="nyøkøn — order confirmed." />
+<link rel="icon" type="image/png" href="../assets/favicon.png" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5" />
+<style>
+  html,body{min-height:100%;}
+  body{display:flex;align-items:center;justify-content:center;padding:24px;}
+  .confirm-overlay{width:100%;max-width:420px;}
+  .confirm-card{
+    background:var(--bg-alt);border:1px solid var(--line);border-radius:var(--radius-card);
+    box-shadow:var(--shadow-paper);
+    padding:clamp(28px,5vw,44px);text-align:center;
+  }
+  .confirm-check{
+    width:52px;height:52px;margin:0 auto 22px;
+    border-radius:50%;background:var(--invert-bg);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .confirm-check svg{width:24px;height:24px;stroke:var(--invert-fg);}
+  .confirm-title{
+    font-family:var(--font-display);font-weight:400;
+    font-size:26px;letter-spacing:-0.02em;
+    margin-bottom:10px;
+  }
+  .confirm-sub{font-size:13.5px;color:var(--fg-dim);line-height:1.5;margin-bottom:24px;}
+  .confirm-ref{
+    font-family:var(--font-display);font-size:19px;letter-spacing:.02em;
+    background:var(--bg-whisper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;margin-bottom:26px;color:var(--fg);
+  }
+  .confirm-btn{
+    display:block;width:100%;
+    padding:15px 20px;
+    background:var(--invert-bg);color:var(--invert-fg);
+    font-family:var(--font-body);font-size:12.5px;font-weight:500;letter-spacing:.04em;
+    border-radius:var(--radius-pill);text-decoration:none;
+    transition:transform .2s ease;
+  }
+  .confirm-btn:hover{transform:translateY(-1px);}
+  .confirm-note{margin-top:16px;font-size:11px;color:var(--fg-dim);}
+</style>
+</head>
+<body>
+
+<div class="confirm-overlay">
+  <div class="confirm-card">
+    <div class="confirm-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="confirm-title" id="confirmTitle">Order confirmed</div>
+    <div class="confirm-sub" id="confirmSub">We're preparing your order. You can check its status any time on the tracking page.</div>
+    <div class="confirm-ref" id="confirmRef">—</div>
+    <a class="confirm-btn" id="confirmBtn" href="track.html">Track my order</a>
+    <div class="confirm-note" id="confirmNote">Redirecting automatically…</div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const ref = params.get('ref') || '';
+
+const lang = (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+const T = {
+  en: { title:'Order confirmed', sub:"We're preparing your order. You can check its status any time on the tracking page.", track:'Track my order', note:'Redirecting automatically…' },
+  fr: { title:'Commande validée', sub:"Ta commande est en cours de préparation. Tu peux suivre son statut à tout moment sur la page de suivi.", track:'Suivre ma commande', note:'Redirection automatique…' },
+};
+const t = T[lang];
+document.getElementById('confirmTitle').textContent = t.title;
+document.getElementById('confirmSub').textContent = t.sub;
+document.getElementById('confirmNote').textContent = t.note;
+const trackBtn = document.getElementById('confirmBtn');
+trackBtn.textContent = t.track;
+trackBtn.href = 'track.html' + (ref ? `?ref=${encodeURIComponent(ref)}` : '');
+document.getElementById('confirmRef').textContent = ref || '—';
+
+if (ref) {
+  setTimeout(() => { location.href = trackBtn.href; }, 4000);
+} else {
+  document.getElementById('confirmNote').style.display = 'none';
+}
+</script>
+</body>
+</html>

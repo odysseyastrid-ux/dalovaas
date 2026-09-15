@@ -1309,4 +1309,224 @@
     .hero .cta-arrow-box{width:50px;height:50px;}
     .hero .cta-arrow-icon{font-size:22px;}
   }
+
+  /* ================================================================
+     SITE ENHANCEMENTS — skip link, scroll progress, floating contact,
+     dark mode, cookie banner, copy-to-clipboard, confirmation modal,
+     password toggle, newsletter, print. Elements are injected at
+     runtime by js/site-enhancements.js unless noted otherwise, so a
+     page needs nothing but that one script tag to pick all of this up.
+     ================================================================ */
+
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+
+  /* ---------- SKIP TO CONTENT ---------- */
+  .skip-link{
+    position:absolute;top:-48px;left:12px;z-index:1000;
+    background:var(--charcoal);color:#fff;font-weight:700;font-size:14px;
+    padding:12px 20px;border-radius:8px;text-decoration:none;
+    transition:top .15s ease;
+  }
+  .skip-link:focus{top:12px;}
+
+  /* ---------- SCROLL PROGRESS BAR ---------- */
+  #scrollProgress{
+    position:fixed;top:0;left:0;height:3px;width:0%;z-index:400;
+    background:linear-gradient(90deg,var(--teal),var(--gold));
+    transition:width .1s linear;
+  }
+  @media (prefers-reduced-motion:reduce){ #scrollProgress{transition:none;} }
+
+  /* ---------- FLOATING CONTACT BUTTON ---------- */
+  .floating-contact{
+    position:fixed;right:20px;bottom:24px;z-index:250;
+    display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px;
+  }
+  .floating-contact-toggle{
+    width:56px;height:56px;border-radius:100%;position:relative;overflow:hidden;
+    border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 28px rgba(31,41,55,.3);
+    transition:transform .3s cubic-bezier(.77,0,.175,1);
+  }
+  .floating-contact-toggle::before{
+    content:"";position:absolute;inset:-40%;border-radius:inherit;
+    background:conic-gradient(from 0deg,var(--gold),var(--teal),var(--gold),var(--teal),var(--gold));
+    animation:ctaSpin 3.5s linear infinite;
+  }
+  .floating-contact-toggle svg{position:relative;z-index:1;width:24px;height:24px;color:#fff;transition:transform .2s ease;}
+  .floating-contact-toggle:hover{transform:scale(1.08);}
+  .floating-contact.open .floating-contact-toggle svg.icon-chat{transform:scale(0) rotate(30deg);position:absolute;}
+  .floating-contact:not(.open) .floating-contact-toggle svg.icon-close{transform:scale(0) rotate(-30deg);position:absolute;}
+  .floating-contact-menu{
+    display:flex;flex-direction:column;gap:8px;
+    opacity:0;transform:translateY(8px) scale(.95);pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    transform-origin:bottom right;
+  }
+  .floating-contact.open .floating-contact-menu{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  .floating-contact-link{
+    display:flex;align-items:center;gap:10px;background:#fff;color:var(--charcoal);
+    padding:10px 18px 10px 12px;border-radius:100px;font-weight:700;font-size:14px;
+    text-decoration:none;box-shadow:0 8px 20px rgba(31,41,55,.18);border:1px solid var(--line);
+    white-space:nowrap;
+  }
+  .floating-contact-link:hover{border-color:var(--teal);}
+  @media (max-width:640px){
+    .floating-contact{right:14px;bottom:14px;}
+    .floating-contact-toggle{width:50px;height:50px;}
+  }
+  @media (prefers-reduced-motion:reduce){ .floating-contact-toggle::before{animation:none;} }
+
+  /* ---------- DARK MODE ---------- */
+  /* Every color in the site is already a custom property, so redefining
+     them here re-themes almost the whole page automatically. Photo-backed
+     and already-dark sections (splash gate, hero photo, contact band,
+     footer) are deliberately left as-is — they read fine in both modes. */
+  :root[data-theme="dark"]{
+    --charcoal:#EDEFF2;
+    --cream:#14181D;
+    --teal-tint:#12262A;
+    --gray:#9AA1AC;
+    --line:#2A2F36;
+    --paper:#1B2027;
+  }
+  :root[data-theme="dark"] body{background:var(--cream);}
+  :root[data-theme="dark"] .ba-card,
+  :root[data-theme="dark"] .hub-card,
+  :root[data-theme="dark"] .dl-card,
+  :root[data-theme="dark"] .quote-form,
+  :root[data-theme="dark"] .booking-form,
+  :root[data-theme="dark"] .quote-success,
+  :root[data-theme="dark"] .portal-notice,
+  :root[data-theme="dark"] .zone-modal,
+  :root[data-theme="dark"] .dp-panel,
+  :root[data-theme="dark"] .admin-table,
+  :root[data-theme="dark"] .booking-card,
+  :root[data-theme="dark"] .floating-contact-link,
+  :root[data-theme="dark"] .file-list li{background:var(--paper);color:var(--charcoal);}
+  :root[data-theme="dark"] .field input,
+  :root[data-theme="dark"] .field select,
+  :root[data-theme="dark"] .field textarea,
+  :root[data-theme="dark"] .booking-form input,
+  :root[data-theme="dark"] .booking-form select,
+  :root[data-theme="dark"] .booking-form textarea,
+  :root[data-theme="dark"] .auth-form input{background:var(--paper);color:var(--charcoal);}
+  :root[data-theme="dark"] header:not(.header-on-photo){background:var(--cream);border-color:var(--line);}
+  :root[data-theme="dark"] .mobile-menu{background:var(--cream);}
+  :root[data-theme="dark"] .cta-arrow{background:var(--paper);color:var(--charcoal);}
+  .theme-toggle{
+    width:34px;height:34px;border-radius:100%;border:1.5px solid var(--line);
+    background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:var(--charcoal);flex:none;transition:border-color .15s ease;
+  }
+  .theme-toggle:hover{border-color:var(--teal);}
+  .theme-toggle svg{width:16px;height:16px;}
+  .theme-toggle .icon-moon{display:none;}
+  :root[data-theme="dark"] .theme-toggle .icon-sun{display:none;}
+  :root[data-theme="dark"] .theme-toggle .icon-moon{display:block;}
+  header.header-on-photo:not(.scrolled) .theme-toggle{border-color:rgba(255,255,255,.4);color:#fff;}
+
+  /* ---------- COOKIE BANNER ---------- */
+  #cookieBanner{
+    position:fixed;left:16px;right:16px;bottom:16px;z-index:500;
+    max-width:560px;margin:0 auto;
+    background:var(--charcoal);color:#fff;border-radius:14px;
+    padding:18px 20px;box-shadow:0 16px 40px rgba(0,0,0,.3);
+    display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+    transform:translateY(120%);transition:transform .35s cubic-bezier(.16,1,.3,1);
+  }
+  #cookieBanner.show{transform:translateY(0);}
+  #cookieBanner p{margin:0;font-size:13.5px;color:#D7DAE0;flex:1;min-width:200px;}
+  #cookieBanner a{color:#fff;text-decoration:underline;}
+  #cookieBanner .btn{padding:9px 20px;font-size:13.5px;flex:none;}
+  @media (prefers-reduced-motion:reduce){ #cookieBanner{transition:none;} }
+
+  /* ---------- COPY TO CLIPBOARD ---------- */
+  .copy-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:100%;border:1px solid var(--line);
+    background:#fff;color:var(--gray);cursor:pointer;flex:none;margin-left:6px;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .copy-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .copy-btn svg{width:13px;height:13px;}
+  .copy-btn.copied{border-color:var(--teal);background:var(--teal);color:#fff;}
+  .quote-success-ref-row{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:14px;}
+
+  /* ---------- CONFIRMATION MODAL ---------- */
+  .confirm-backdrop{
+    position:fixed;inset:0;z-index:800;background:rgba(20,24,20,.5);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;
+  }
+  .confirm-backdrop.show{opacity:1;pointer-events:auto;}
+  .confirm-modal{
+    background:#fff;color:var(--charcoal);border-radius:16px;padding:28px;
+    max-width:400px;width:100%;text-align:center;
+    box-shadow:0 24px 64px rgba(0,0,0,.3);
+    transform:scale(.96);transition:transform .2s ease;
+  }
+  .confirm-backdrop.show .confirm-modal{transform:scale(1);}
+  .confirm-modal h3{font-size:20px;margin-bottom:10px;}
+  .confirm-modal p{color:var(--gray);font-size:14.5px;margin:0 0 22px;}
+  .confirm-modal-actions{display:flex;gap:10px;justify-content:center;}
+  .confirm-modal-actions .btn-outline{padding:11px 20px;font-size:14px;}
+  .confirm-modal-actions .btn{padding:11px 20px;font-size:14px;}
+
+  /* ---------- PASSWORD VISIBILITY TOGGLE ---------- */
+  .pw-inline-wrap{display:block;}
+  .pw-field-wrap{position:relative;}
+  .pw-field-wrap input{padding-right:42px!important;}
+  .pw-toggle{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    background:none;border:none;cursor:pointer;color:var(--gray);
+    display:flex;align-items:center;justify-content:center;padding:4px;
+  }
+  .pw-toggle:hover{color:var(--teal);}
+  .pw-toggle svg{width:18px;height:18px;}
+  .pw-toggle .icon-eye-off{display:none;}
+  .pw-toggle.showing .icon-eye{display:none;}
+  .pw-toggle.showing .icon-eye-off{display:block;}
+  .portal-inputWrap.pw-field-wrap{padding-right:0;}
+  .portal-inputWrap.pw-field-wrap input{padding-right:36px!important;}
+  .portal-inputWrap.pw-field-wrap .pw-toggle{right:8px;}
+
+  /* ---------- NEWSLETTER SIGNUP (footer) ---------- */
+  .foot-newsletter{margin-bottom:8px;}
+  .foot-newsletter p{color:#9AA1AC;font-size:13px;margin:0 0 10px;max-width:32ch;}
+  .foot-newsletter-form{display:flex;gap:8px;max-width:280px;}
+  .foot-newsletter-form input{
+    flex:1;min-width:0;font-family:'Inter',Arial,sans-serif;font-size:13.5px;
+    padding:9px 12px;border-radius:100px;border:1.5px solid #3A404A;
+    background:#252B33;color:#fff;
+  }
+  .foot-newsletter-form input::placeholder{color:#7B828C;}
+  .foot-newsletter-form input:focus{outline:none;border-color:var(--gold);}
+  .foot-newsletter-form button{
+    flex:none;padding:9px 16px;border-radius:100px;border:none;
+    background:var(--gold);color:var(--charcoal);font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .foot-newsletter-form button:hover{background:#B7911F;}
+  .foot-newsletter-note{font-size:12px;margin-top:8px;color:#9AA1AC;}
+  .foot-newsletter-note.sent{color:#7FCDBD;}
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    header, .mobile-menu, footer, .floating-contact, #cookieBanner,
+    #scrollProgress, .back-to-top, .skip-link, .splash-gate, .zone-backdrop,
+    .quote-close, .lightbox, .theme-toggle, .legal-sticky-cta, .legal-toc-toggle,
+    #splashShaderBg, .contact-band-shader-bg{
+      display:none!important;
+    }
+    body{background:#fff!important;color:#000!important;font-size:12pt;}
+    a{color:#000!important;text-decoration:underline;}
+    a[href^="http"]::after{content:" (" attr(href) ")";font-size:10pt;color:#555;}
+    .wrap{max-width:100%!important;padding:0!important;}
+    .hero, .contact-band, .offer, section{padding:16pt 0!important;background:#fff!important;color:#000!important;}
+    .hero-photo-bg, .hero-photo-scrim{display:none!important;}
+    * { box-shadow:none!important; text-shadow:none!important; }
+  }
   @media (prefers-reduced-motion:reduce){ .cta-arrow-box::before{animation:none;} }

@@ -466,6 +466,8 @@ form.addEventListener('submit', async (e) => {
   const freqDiscounts = { 'Weekly': 15, 'Biweekly': 10, 'Monthly': 10, 'One-time': 0 };
   const freqLowerKeys = { 'Weekly': 'freq.weekly.lower', 'Biweekly': 'freq.biweekly.lower', 'Monthly': 'freq.monthly.lower', 'One-time': 'freq.oneTime.lower' };
   const discountPct = freqDiscounts[frequency] || 0;
+  const utm = window.MagicstickUtm ? window.MagicstickUtm.get() : null;
+  const messageWithUtm = utm ? `${message}${message ? '\n\n' : ''}[${window.MagicstickUtm.describe()}]` : message;
 
   setSubmitLoading(true);
 
@@ -496,7 +498,7 @@ form.addEventListener('submit', async (e) => {
       service,
       frequency,
       zone: selectedZone || null,
-      message,
+      message: messageWithUtm,
       first_time_offer_claimed: discountClaimed,
       bedrooms: selectedBedrooms || null,
       bathrooms: selectedBathrooms || null,
@@ -533,7 +535,7 @@ form.addEventListener('submit', async (e) => {
     `${t('mail.label.pets')}: ${selectedPets || t('common.notSpecified')}\n` +
     `${t('mail.label.discount')}: ${discountLine}\n` +
     `${t('mail.label.firstTimeOffer')}: ${discountClaimed ? t('mail.discount.claimed') : t('mail.discount.notClaimed')}\n` +
-    `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
+    `${t('mail.label.notes')}: ${messageWithUtm || t('common.none')}\n`;
 
   const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const quoteId = makeId();

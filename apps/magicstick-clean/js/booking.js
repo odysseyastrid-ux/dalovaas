@@ -124,12 +124,24 @@
       return;
     }
 
+    if (window.MagicstickConfirm) {
+      const confirmed = await window.MagicstickConfirm.ask({
+        title: t('booking.confirm.title'),
+        body: t('booking.confirm.body'),
+        confirmLabel: t('booking.confirm.confirmLabel'),
+        cancelLabel: t('booking.confirm.cancelLabel'),
+      });
+      if (!confirmed) return;
+    }
+
     submitBtn.disabled = true;
     note.textContent = t('booking.form.note.settingUp');
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
+      const utm = window.MagicstickUtm ? window.MagicstickUtm.get() : null;
+      const notesWithUtm = utm ? `${notes}${notes ? '\n\n' : ''}[${window.MagicstickUtm.describe()}]` : notes;
 
       const res = await fetch(`${backend.config.FUNCTIONS_URL}/create-checkout-session`, {
         method: 'POST',
@@ -144,7 +156,7 @@
           guest_name: name,
           guest_contact: contact,
           zone,
-          notes,
+          notes: notesWithUtm,
         }),
       });
       const result = await res.json();

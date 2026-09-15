@@ -127,7 +127,7 @@ const TRANSLATIONS = {
   en: {
     announce:'FREE SHIPPING ON ORDERS 25,000 FCFA+  •  NEW DROP EVERY MONTH  •  MADE TO ORDER',
     nav_categories:'CATEGORIES', nav_shop:'SHOP ALL',
-    settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', aria_settings:'Settings',
+    settings_language:'LANGUAGE', settings_currency:'CURRENCY', settings_theme:'THEME', settings_store:'STORE', aria_settings:'Settings',
     intro_eyebrow:'STEP IN', intro_title:'NYØKØN', intro_tagline:'The collection starts here.', intro_hint:'SCROLL',
     hero_eyebrow:'DRY SEASON COLLECTION', hero_cta:'SHOP THE DROP',
     marquee_1:'CUSTOM STREETWEAR', marquee_2:'MADE TO ORDER', marquee_3:'LIMITED RUNS',
@@ -187,7 +187,7 @@ const TRANSLATIONS = {
   fr: {
     announce:'LIVRAISON GRATUITE DÈS 25 000 FCFA  •  NOUVEAU DROP CHAQUE MOIS  •  FAIT SUR COMMANDE',
     nav_categories:'CATÉGORIES', nav_shop:'TOUT VOIR',
-    settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', aria_settings:'Réglages',
+    settings_language:'LANGUE', settings_currency:'DEVISE', settings_theme:'THÈME', settings_store:'BOUTIQUE', aria_settings:'Réglages',
     intro_eyebrow:'ENTREZ', intro_title:'NYØKØN', intro_tagline:'La collection commence ici.', intro_hint:'DÉFILER',
     hero_eyebrow:'COLLECTION SAISON SÈCHE', hero_cta:'VOIR LE DROP',
     marquee_1:'STREETWEAR SUR MESURE', marquee_2:'FAIT SUR COMMANDE', marquee_3:'SÉRIES LIMITÉES',

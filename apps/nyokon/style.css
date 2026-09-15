@@ -1769,3 +1769,9 @@ body.nyk-nav-locked{overflow:hidden;}
 .sort-select:hover{border-color:var(--fg);}
 .faq-item summary:hover{color:var(--fg-dim);}
 .info-contact-value a:hover{opacity:.7;}
+
+.settings-store-link{
+  font-family:var(--font-body,'Inter',sans-serif);font-size:11px;font-weight:700;letter-spacing:.04em;
+  padding:6px 12px;border-radius:20px;border:1px solid var(--line);color:var(--fg);
+}
+.settings-store-link:hover{border-color:var(--fg);}

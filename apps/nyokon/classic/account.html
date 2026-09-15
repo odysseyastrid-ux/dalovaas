@@ -51,6 +51,7 @@ const T = {
     confirm_email:'Check your email to confirm your account, then sign in.',
     welcome_back:'Signed in as',
     signout:'Sign out',
+    signout_confirm:'Sign out of your account?',
     orders_label:'YOUR ORDERS', orders_empty:'No orders yet — they’ll show up here once you check out.',
     loyalty_title:'LOYALTY CARD', loyalty_phone_label:'PHONE NUMBER (FOR YOUR POINTS)', loyalty_phone_placeholder:'e.g. 699000000',
     loyalty_show_btn:'SHOW MY CARD', loyalty_member:'MEMBER', loyalty_points:'POINTS', loyalty_close:'Close my card',
@@ -68,6 +69,7 @@ const T = {
     confirm_email:'Vérifie ton email pour confirmer ton compte, puis connecte-toi.',
     welcome_back:'Connecté en tant que',
     signout:'Se déconnecter',
+    signout_confirm:'Te déconnecter de ton compte ?',
     orders_label:'TES COMMANDES', orders_empty:'Pas encore de commande — elles apparaîtront ici après ton premier achat.',
     loyalty_title:'CARTE FIDÉLITÉ', loyalty_phone_label:'NUMÉRO DE TÉLÉPHONE (POUR TES POINTS)', loyalty_phone_placeholder:'ex: 699000000',
     loyalty_show_btn:'VOIR MA CARTE', loyalty_member:'MEMBRE', loyalty_points:'POINTS', loyalty_close:'Fermer ma carte',
@@ -282,6 +284,8 @@ async function renderAccount(){
   `;
 
   document.getElementById('signoutBtn').addEventListener('click', async () => {
+    const ok = window.nyokonConfirm ? await window.nyokonConfirm(t('signout_confirm')) : true;
+    if (!ok) return;
     await sb.auth.signOut();
     authMode = 'signin';
     renderAuthForm();
@@ -320,5 +324,6 @@ async function renderAccount(){
   else renderAuthForm();
 })();
 </script>
+<script src="../assets/widgets.js"></script>
 </body>
 </html>

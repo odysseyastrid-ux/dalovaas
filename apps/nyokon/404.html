@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nyøkøn — Page not found</title>
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=6" />
+<style>
+  body{min-height:100vh;display:flex;flex-direction:column;}
+  .notfound{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 20px;}
+  .notfound-code{font-family:var(--font-display);font-size:clamp(64px,16vw,140px);line-height:.9;letter-spacing:0;color:var(--fg-dim);margin-bottom:8px;}
+  .notfound-title{font-family:var(--font-display);font-size:clamp(22px,4vw,32px);margin-bottom:14px;}
+  .notfound-text{color:var(--fg-dim);font-size:14px;line-height:1.6;max-width:44ch;margin-bottom:36px;}
+  .notfound-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="pdp-back">BACK</a>
+  <a href="index.html" class="wordmark"><img src="assets/nyokon-wordmark.png" alt="nyøkøn" /></a>
+  <span></span>
+</header>
+
+<main class="notfound">
+  <div class="notfound-code">404</div>
+  <h1 class="notfound-title" id="nfTitle">This page doesn't exist</h1>
+  <p class="notfound-text" id="nfText">The link might be broken, or the page may have moved. Try the shop, or head back home.</p>
+  <div class="notfound-actions">
+    <a href="index.html" class="btn btn-light" id="nfHome">Streetwear shop</a>
+    <a href="classic/index.html" class="btn btn-outline" id="nfClassic">Classic shop</a>
+  </div>
+</main>
+
+<script>
+const isFr = (navigator.language || '').toLowerCase().startsWith('fr');
+document.documentElement.lang = isFr ? 'fr' : 'en';
+if (isFr) {
+  document.getElementById('nfTitle').textContent = "Cette page n'existe pas";
+  document.getElementById('nfText').textContent = "Le lien est peut-être cassé, ou la page a été déplacée. Essaie la boutique, ou retourne à l'accueil.";
+  document.getElementById('nfHome').textContent = 'Boutique streetwear';
+  document.getElementById('nfClassic').textContent = 'Boutique classique';
+  document.querySelector('.pdp-back').textContent = 'RETOUR';
+}
+</script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

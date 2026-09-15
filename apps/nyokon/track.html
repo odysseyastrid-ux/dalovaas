@@ -84,7 +84,7 @@ const T = {
     intro:'Enter the order reference from your confirmation to see its status.',
     ref_label:'ORDER REFERENCE', ref_placeholder:'e.g. NYK-1A2B3C', track_btn:'TRACK ORDER',
     not_found:"We couldn't find an order with that reference. Check it and try again.",
-    order_ref:'Order', placed_on:'Placed on', items_label:'ITEMS', subtotal_label:'SUBTOTAL',
+    order_ref:'Order', copy_ref:'Copy', placed_on:'Placed on', items_label:'ITEMS', subtotal_label:'SUBTOTAL',
     fulfillment_label:'FULFILLMENT', pickup:'Pickup', delivery:'Delivery',
     city_label:'City', check_another:'Track another order',
     step_pending:'Received', step_confirmed:'Confirmed', step_shipped:'Out for delivery', step_delivered:'Delivered',
@@ -100,7 +100,7 @@ const T = {
     intro:'Entre le numéro de commande reçu à la confirmation pour voir son statut.',
     ref_label:'NUMÉRO DE COMMANDE', ref_placeholder:'ex: NYK-1A2B3C', track_btn:'SUIVRE',
     not_found:"Aucune commande trouvée avec ce numéro. Vérifie-le et réessaie.",
-    order_ref:'Commande', placed_on:'Passée le', items_label:'ARTICLES', subtotal_label:'SOUS-TOTAL',
+    order_ref:'Commande', copy_ref:'Copier', placed_on:'Passée le', items_label:'ARTICLES', subtotal_label:'SOUS-TOTAL',
     fulfillment_label:'RÉCUPÉRATION', pickup:'Retrait', delivery:'Livraison',
     city_label:'Ville', check_another:'Suivre une autre commande',
     step_pending:'Reçue', step_confirmed:'Confirmée', step_shipped:'En livraison', step_delivered:'Livrée',
@@ -221,6 +221,7 @@ function renderOrder(order){
     <div class="track-result">
       <div class="track-ref-row">
         <span class="track-ref">${t('order_ref')} ${order.ref}</span>
+        <button type="button" class="nyk-copy-btn" onclick="window.nyokonCopy('${order.ref}', this)">${t('copy_ref')}</button>
         <span class="track-date">${t('placed_on')} ${placedDate}</span>
       </div>
       ${cancelled ? `
@@ -291,5 +292,6 @@ async function loadOrder(ref){
   else renderForm();
 })();
 </script>
+<script src="assets/widgets.js"></script>
 </body>
 </html>

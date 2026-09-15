@@ -41,12 +41,19 @@ document.documentElement.lang = currentLang;
   } catch (e) {}
 })();
 
-const TOPICS = ['shipping', 'returns', 'sizing', 'contact'];
+const TOPICS = ['shipping', 'returns', 'sizing', 'faq', 'contact'];
 
 const T = {
   en: {
     back:'BACK',
-    tab_shipping:'Shipping', tab_returns:'Returns', tab_sizing:'Size Guide', tab_contact:'Contact',
+    tab_shipping:'Shipping', tab_returns:'Returns', tab_sizing:'Size Guide', tab_faq:'FAQ', tab_contact:'Contact',
+    faq_title:'FAQ', faq_intro:'Quick answers — if yours isn’t here, reach us on the Contact tab.',
+    faq_q1:'How long does a made-to-order piece take?', faq_a1:'It varies by piece — check the estimate on the product page. It’s usually longer than an in-stock item since it’s cut and finished after you order.',
+    faq_q2:'What payment methods do you accept?', faq_a2:'Orange Money, MTN MoMo, cash on pickup or delivery, a bank card, or your loyalty points if you’ve saved up enough.',
+    faq_q3:'Where do you deliver?', faq_a3:'Douala and Yaoundé by default, and other cities on request — a delivery fee may apply depending on your area.',
+    faq_q4:'Can I exchange a made-to-order or personalized piece?', faq_a4:'Only if there’s a defect. Made-to-order and personalized pieces are cut for you, so they’re not eligible for a standard exchange otherwise.',
+    faq_q5:'How do loyalty points work?', faq_a5:'You earn points on your orders and can see your balance any time on your account page — enough points can be used toward payment at checkout.',
+    faq_q6:'How do I track my order?', faq_a6:'Use the order reference from your confirmation on the Track page — it updates automatically as your order moves along.',
 
     shipping_title:'Shipping', shipping_intro:'How your order gets to you.',
     shipping_h1:'Pickup', shipping_p1:'Free — collect your order in person once it’s ready. You’ll get a message when it is.',
@@ -72,7 +79,14 @@ const T = {
   },
   fr: {
     back:'RETOUR',
-    tab_shipping:'Livraison', tab_returns:'Retours', tab_sizing:'Guide des tailles', tab_contact:'Contact',
+    tab_shipping:'Livraison', tab_returns:'Retours', tab_sizing:'Guide des tailles', tab_faq:'FAQ', tab_contact:'Contact',
+    faq_title:'FAQ', faq_intro:'Réponses rapides — si la tienne n’y est pas, contacte-nous via l’onglet Contact.',
+    faq_q1:'Combien de temps prend une pièce sur commande ?', faq_a1:'Ça varie selon la pièce — regarde l’estimation sur la fiche produit. C’est généralement plus long qu’une pièce en stock puisqu’elle est coupée et finie après ta commande.',
+    faq_q2:'Quels modes de paiement acceptez-vous ?', faq_a2:'Orange Money, MTN MoMo, cash au retrait ou à la livraison, une carte bancaire, ou tes points de fidélité si tu en as assez.',
+    faq_q3:'Où livrez-vous ?', faq_a3:'Douala et Yaoundé par défaut, et d’autres villes sur demande — des frais de livraison peuvent s’appliquer selon ta zone.',
+    faq_q4:'Puis-je échanger une pièce sur commande ou personnalisée ?', faq_a4:'Seulement en cas de défaut. Les pièces sur commande ou personnalisées sont coupées pour toi, elles ne sont donc pas éligibles à un échange standard autrement.',
+    faq_q5:'Comment fonctionnent les points de fidélité ?', faq_a5:'Tu gagnes des points sur tes commandes et tu peux voir ton solde à tout moment sur ta page compte — assez de points peuvent être utilisés pour payer au moment de la commande.',
+    faq_q6:'Comment suivre ma commande ?', faq_a6:'Utilise le numéro de commande reçu à la confirmation sur la page Suivi — elle se met à jour automatiquement selon l’avancement.',
 
     shipping_title:'Livraison', shipping_intro:'Comment ta commande t’arrive.',
     shipping_h1:'Retrait', shipping_p1:'Gratuit — récupère ta commande en personne dès qu’elle est prête. On t’envoie un message quand c’est le cas.',
@@ -156,6 +170,18 @@ function sectionsHTML(){
       ${sizeChartHTML()}
     </section>
 
+    <section class="info-section" data-topic="faq">
+      <p class="info-intro">${t('faq_intro')}</p>
+      <div class="faq-list">
+        ${[1,2,3,4,5,6].map(n => `
+          <details class="faq-item">
+            <summary>${t('faq_q' + n)}</summary>
+            <p>${t('faq_a' + n)}</p>
+          </details>
+        `).join('')}
+      </div>
+    </section>
+
     <section class="info-section" data-topic="contact">
       <p class="info-intro">${t('contact_intro')}</p>
       <div class="info-contact-card" id="contactCard">
@@ -224,5 +250,6 @@ async function loadContact(){
 
 render();
 </script>
+<script src="../assets/widgets.js"></script>
 </body>
 </html>

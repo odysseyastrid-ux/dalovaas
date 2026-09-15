@@ -34,10 +34,14 @@
     margin-bottom:10px;
   }
   .confirm-sub{font-size:13.5px;color:var(--fg-dim);line-height:1.5;margin-bottom:24px;}
+  .confirm-ref-row{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    flex-wrap:wrap;margin-bottom:26px;
+  }
   .confirm-ref{
     font-family:var(--font-display);font-size:19px;letter-spacing:.02em;
     background:var(--bg-whisper);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px 16px;margin-bottom:26px;color:var(--fg);
+    padding:14px 16px;color:var(--fg);
   }
   .confirm-btn{
     display:block;width:100%;
@@ -60,7 +64,10 @@
     </div>
     <div class="confirm-title" id="confirmTitle">Order confirmed</div>
     <div class="confirm-sub" id="confirmSub">We're preparing your order. You can check its status any time on the tracking page.</div>
-    <div class="confirm-ref" id="confirmRef">—</div>
+    <div class="confirm-ref-row">
+      <div class="confirm-ref" id="confirmRef">—</div>
+      <button type="button" class="nyk-copy-btn" id="confirmCopyBtn" hidden>Copy</button>
+    </div>
     <a class="confirm-btn" id="confirmBtn" href="track.html">Track my order</a>
     <div class="confirm-note" id="confirmNote">Redirecting automatically…</div>
   </div>
@@ -71,9 +78,10 @@ const params = new URLSearchParams(location.search);
 const ref = params.get('ref') || '';
 
 const lang = (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+document.documentElement.lang = lang;
 const T = {
-  en: { title:'Order confirmed', sub:"We're preparing your order. You can check its status any time on the tracking page.", track:'Track my order', note:'Redirecting automatically…' },
-  fr: { title:'Commande validée', sub:"Ta commande est en cours de préparation. Tu peux suivre son statut à tout moment sur la page de suivi.", track:'Suivre ma commande', note:'Redirection automatique…' },
+  en: { title:'Order confirmed', sub:"We're preparing your order. You can check its status any time on the tracking page.", track:'Track my order', note:'Redirecting automatically…', copy:'Copy' },
+  fr: { title:'Commande validée', sub:"Ta commande est en cours de préparation. Tu peux suivre son statut à tout moment sur la page de suivi.", track:'Suivre ma commande', note:'Redirection automatique…', copy:'Copier' },
 };
 const t = T[lang];
 document.getElementById('confirmTitle').textContent = t.title;
@@ -83,6 +91,12 @@ const trackBtn = document.getElementById('confirmBtn');
 trackBtn.textContent = t.track;
 trackBtn.href = 'track.html' + (ref ? `?ref=${encodeURIComponent(ref)}` : '');
 document.getElementById('confirmRef').textContent = ref || '—';
+const copyBtn = document.getElementById('confirmCopyBtn');
+if (ref) {
+  copyBtn.textContent = t.copy;
+  copyBtn.hidden = false;
+  copyBtn.addEventListener('click', () => window.nyokonCopy(ref, copyBtn));
+}
 
 if (ref) {
   setTimeout(() => { location.href = trackBtn.href; }, 4000);
@@ -90,5 +104,6 @@ if (ref) {
   document.getElementById('confirmNote').style.display = 'none';
 }
 </script>
+<script src="../assets/widgets.js"></script>
 </body>
 </html>

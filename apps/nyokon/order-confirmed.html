@@ -71,6 +71,10 @@
     text-transform:uppercase;
   }
   .confirm-sub{font-size:13px;color:#a7f3c1;line-height:1.5;margin-bottom:22px;}
+  .confirm-ref-row{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    flex-wrap:wrap;margin-bottom:26px;
+  }
   .confirm-ref{
     font-family:'Archivo Black',Georgia,serif;
     font-size:19px;letter-spacing:.04em;
@@ -78,9 +82,16 @@
     border:1px solid rgba(0,255,65,.35);
     border-radius:10px;
     padding:14px 16px;
-    margin-bottom:26px;
     color:#00ff41;
   }
+  .confirm-copy-btn{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-size:11px;font-weight:700;letter-spacing:.06em;
+    padding:9px 16px;border-radius:999px;
+    background:transparent;border:1px solid rgba(0,255,65,.4);color:#00ff41;
+    cursor:pointer;transition:background .15s ease;
+  }
+  .confirm-copy-btn:hover,.confirm-copy-btn.is-copied{background:rgba(0,255,65,.12);}
   .confirm-btn{
     display:block;width:100%;
     padding:15px 20px;
@@ -108,7 +119,10 @@
     </div>
     <div class="confirm-title" id="confirmTitle">Order confirmed</div>
     <div class="confirm-sub" id="confirmSub">We're preparing your order. You can check its status any time on the tracking page.</div>
-    <div class="confirm-ref" id="confirmRef">—</div>
+    <div class="confirm-ref-row">
+      <div class="confirm-ref" id="confirmRef">—</div>
+      <button type="button" class="confirm-copy-btn" id="confirmCopyBtn" hidden>Copy</button>
+    </div>
     <a class="confirm-btn" id="confirmBtn" href="track.html">Track my order</a>
     <div class="confirm-note" id="confirmNote">Redirecting automatically…</div>
   </div>
@@ -119,9 +133,10 @@ const params = new URLSearchParams(location.search);
 const ref = params.get('ref') || '';
 
 const lang = (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+document.documentElement.lang = lang;
 const T = {
-  en: { title:'Order confirmed', sub:"We're preparing your order. You can check its status any time on the tracking page.", track:'Track my order', note:'Redirecting automatically…' },
-  fr: { title:'Commande validée', sub:"Ta commande est en cours de préparation. Tu peux suivre son statut à tout moment sur la page de suivi.", track:'Suivre ma commande', note:'Redirection automatique…' },
+  en: { title:'Order confirmed', sub:"We're preparing your order. You can check its status any time on the tracking page.", track:'Track my order', note:'Redirecting automatically…', copy:'Copy', copied:'Copied!' },
+  fr: { title:'Commande validée', sub:"Ta commande est en cours de préparation. Tu peux suivre son statut à tout moment sur la page de suivi.", track:'Suivre ma commande', note:'Redirection automatique…', copy:'Copier', copied:'Copié !' },
 };
 const t = T[lang];
 document.getElementById('confirmTitle').textContent = t.title;
@@ -131,6 +146,18 @@ const trackBtn = document.getElementById('confirmBtn');
 trackBtn.textContent = t.track;
 trackBtn.href = 'track.html' + (ref ? `?ref=${encodeURIComponent(ref)}` : '');
 document.getElementById('confirmRef').textContent = ref || '—';
+const copyBtn = document.getElementById('confirmCopyBtn');
+if (ref) {
+  copyBtn.textContent = t.copy;
+  copyBtn.hidden = false;
+  copyBtn.addEventListener('click', () => {
+    (navigator.clipboard ? navigator.clipboard.writeText(ref) : Promise.reject()).then(() => {
+      copyBtn.textContent = t.copied;
+      copyBtn.classList.add('is-copied');
+      setTimeout(() => { copyBtn.textContent = t.copy; copyBtn.classList.remove('is-copied'); }, 1600);
+    }).catch(() => {});
+  });
+}
 
 if (ref) {
   setTimeout(() => { location.href = trackBtn.href; }, 4000);

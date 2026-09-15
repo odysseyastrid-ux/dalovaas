@@ -26,8 +26,27 @@
   --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* The site-wide theme toggle (shared script.js) only ever sets or clears
+   data-theme="light" — it was written for the streetwear site, where dark
+   is the default and "light" is its alternate. Folio's default is already
+   light, so here the exact same attribute/value is repurposed to mean
+   Folio's own dark mode instead: same button, same storage key, correct
+   result on both storefronts, no changes needed to the shared script. */
 :root[data-theme="light"]{
-  /* Intentionally identical to :root — the toggle is inert under Folio. */
+  color-scheme: dark;
+  --bg:#181611;
+  --bg-alt:#231f19;
+  --bg-whisper:#2b2620;
+  --fg:#f1ede4;
+  --fg-dim:#a89f8e;
+  --line:#3a352c;
+  --accent:#f1ede4;
+  --accent-ink:#f1ede4;
+  --error:#e2988a;
+  --invert-bg:#f1ede4;
+  --invert-fg:#181611;
+  --header-bg:rgba(24,22,17,.85);
+  --shadow-paper:0 1px 0 rgba(0,0,0,.2), 0 24px 60px -32px rgba(0,0,0,.6);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -218,7 +237,10 @@ button{font-family:inherit;cursor:pointer;background:none;border:none;color:inhe
   display:flex;
   align-items:flex-end;
 }
-.hero-media{position:absolute;inset:0;min-height:100%;overflow:hidden;background:var(--fg);}
+/* Always a dark backdrop regardless of theme — the hero text sitting on
+   top of it is always light/white (see .hero-content), so this can't
+   follow --fg the way most surfaces do or it goes light in dark mode. */
+.hero-media{position:absolute;inset:0;min-height:100%;overflow:hidden;background:#13120f;}
 .hero-media img{width:100%;height:100%;object-fit:cover;object-position:top center;}
 .hero-overlay{
   position:absolute;inset:0;
@@ -1389,3 +1411,212 @@ main > section{
 .info-contact-value a{color:var(--fg);text-decoration:underline;}
 .info-contact-value a:hover{color:var(--accent-ink, var(--fg));}
 .info-empty{font-size:13px;color:var(--fg-dim);}
+
+/* ===== Shared widgets (assets/widgets.js) =====
+   Written against tokens common to both storefront stylesheets
+   (--bg, --fg, --fg-dim, --line, --invert-bg, --invert-fg, --font-body,
+   --font-display) so this one block works unmodified in both skins. */
+
+.nyk-skip-link{
+  position:absolute;top:-48px;left:8px;z-index:1000;
+  background:var(--invert-bg);color:var(--invert-fg);
+  padding:12px 18px;border-radius:8px;
+  font-family:var(--font-body);font-size:13px;font-weight:600;
+  text-decoration:none;transition:top .15s ease;
+}
+.nyk-skip-link:focus{top:8px;outline:2px solid var(--invert-fg);outline-offset:2px;}
+
+.nyk-scroll-progress{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:999;
+  background:transparent;pointer-events:none;
+}
+.nyk-scroll-progress-fill{
+  height:100%;width:0%;background:var(--fg);
+  transition:width .1s linear;
+}
+
+.nyk-scroll-top{
+  position:fixed;right:18px;bottom:18px;z-index:150;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--invert-bg);color:var(--invert-fg);border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+}
+.nyk-scroll-top.is-visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+.nyk-scroll-top:hover{transform:translateY(-2px);}
+
+.nyk-cookie-banner{
+  position:fixed;left:16px;right:16px;bottom:16px;z-index:400;
+  max-width:560px;margin:0 auto;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:var(--invert-bg);color:var(--invert-fg);
+  padding:16px 18px;border-radius:14px;
+  box-shadow:0 12px 32px rgba(0,0,0,.3);
+  transform:translateY(140%);transition:transform .3s ease;
+}
+.nyk-cookie-banner.is-visible{transform:translateY(0);}
+.nyk-cookie-banner p{margin:0;flex:1;min-width:200px;font-size:12.5px;line-height:1.5;color:var(--invert-fg);opacity:.9;}
+.nyk-cookie-banner .nyk-cookie-ok{flex-shrink:0;padding:10px 20px;font-size:11px;}
+
+.nyk-modal-overlay{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.nyk-modal-overlay.is-visible{opacity:1;pointer-events:auto;}
+.nyk-modal{
+  background:var(--bg-alt, var(--bg));color:var(--fg);
+  border:1px solid var(--line);border-radius:14px;
+  padding:26px;max-width:360px;width:100%;
+  transform:scale(.96);transition:transform .2s ease;
+}
+.nyk-modal-overlay.is-visible .nyk-modal{transform:scale(1);}
+.nyk-modal-msg{margin:0 0 20px;font-size:14px;line-height:1.5;color:var(--fg);}
+.nyk-modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+.nyk-modal-actions .btn{padding:10px 20px;font-size:12px;}
+
+.nyk-pw-wrap{position:relative;display:flex;align-items:center;}
+.nyk-pw-wrap input{padding-right:42px !important;}
+.nyk-pw-toggle{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  color:var(--fg-dim);background:none;border:none;cursor:pointer;padding:0;
+}
+.nyk-pw-toggle:hover{color:var(--fg);}
+.nyk-pw-toggle .nyk-pw-eye-off{display:none;}
+.nyk-pw-toggle.is-shown .nyk-pw-eye{display:none;}
+.nyk-pw-toggle.is-shown .nyk-pw-eye-off{display:block;}
+
+.nyk-burger{
+  display:none;
+  width:32px;height:32px;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  background:none;border:none;cursor:pointer;padding:0;flex-shrink:0;
+}
+.nyk-burger span{width:20px;height:1.5px;background:var(--fg);transition:transform .2s ease, opacity .2s ease;}
+.nyk-burger.is-open span:nth-child(1){transform:translateY(6.5px) rotate(45deg);}
+.nyk-burger.is-open span:nth-child(2){opacity:0;}
+.nyk-burger.is-open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
+
+.nyk-mobile-nav{
+  position:fixed;inset:0;z-index:300;
+  background:var(--bg);
+  opacity:0;pointer-events:none;transform:translateY(-8px);
+  transition:opacity .2s ease, transform .2s ease;
+  overflow-y:auto;
+}
+.nyk-mobile-nav.is-open{opacity:1;pointer-events:auto;transform:translateY(0);}
+.nyk-mobile-nav-inner{
+  display:flex;flex-direction:column;
+  padding:100px clamp(24px,8vw,48px) 60px;
+  max-width:420px;margin:0 auto;
+}
+.nyk-mobile-nav-inner a{
+  padding:16px 0;border-bottom:1px solid var(--line);
+  font-family:var(--font-display);font-size:22px;color:var(--fg);
+  text-decoration:none;border-bottom-width:1px;
+}
+body.nyk-nav-locked{overflow:hidden;}
+
+@media (max-width:640px){
+  .nyk-burger{display:flex;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .nyk-scroll-top,.nyk-cookie-banner,.nyk-modal-overlay,.nyk-modal,.nyk-mobile-nav,.nyk-skip-link{transition:none;}
+}
+
+/* ===== Generic print stylesheet ===== */
+@media print{
+  .site-header,.cart-drawer,.cart-scrim,.starfield,.intro-hero,.nyk-scroll-top,
+  .nyk-cookie-banner,.nyk-scroll-progress,.nyk-skip-link,.nyk-burger,.nyk-mobile-nav,
+  .site-footer,.pdp-sticky-bar{display:none !important;}
+  body{background:#fff !important;color:#000 !important;}
+}
+
+/* ===== Loading skeleton for the product grid ===== */
+.product-grid .skeleton-card{pointer-events:none;}
+.product-grid .skeleton-media{
+  aspect-ratio:3/4;border-radius:var(--radius);
+  background:linear-gradient(100deg, var(--line) 30%, var(--bg-alt, var(--line)) 50%, var(--line) 70%);
+  background-size:200% 100%;
+  animation:nykShimmer 1.4s ease-in-out infinite;
+}
+.product-grid .skeleton-line{
+  height:12px;border-radius:3px;margin-top:14px;
+  background:linear-gradient(100deg, var(--line) 30%, var(--bg-alt, var(--line)) 50%, var(--line) 70%);
+  background-size:200% 100%;
+  animation:nykShimmer 1.4s ease-in-out infinite;
+}
+.product-grid .skeleton-line.is-short{width:60%;margin-top:8px;}
+@keyframes nykShimmer{
+  0%{background-position:200% 0;}
+  100%{background-position:-200% 0;}
+}
+@media (prefers-reduced-motion: reduce){
+  .product-grid .skeleton-media,.product-grid .skeleton-line{animation:none;}
+}
+
+/* ===== Copy-to-clipboard buttons ===== */
+.nyk-copy-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.04em;
+  padding:6px 12px;border-radius:999px;border:1px solid var(--line);
+  background:none;color:var(--fg-dim);cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.nyk-copy-btn:hover{border-color:var(--fg);color:var(--fg);}
+.nyk-copy-btn.is-copied{border-color:var(--fg);color:var(--fg);}
+.nyk-copy-btn svg{flex-shrink:0;}
+
+/* ===== FAQ accordion (info.html) ===== */
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-item:first-child{border-top:1px solid var(--line);}
+.faq-item summary{
+  list-style:none;cursor:pointer;padding:16px 28px 16px 0;position:relative;
+  font-size:14px;font-weight:600;color:var(--fg);
+}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary::after{
+  content:'+';position:absolute;right:2px;top:50%;transform:translateY(-50%);
+  font-size:18px;color:var(--fg-dim);line-height:1;
+}
+.faq-item[open] summary::after{content:'\2212';}
+.faq-item p{margin:0 0 18px;font-size:13.5px;line-height:1.6;color:var(--fg-dim);}
+
+.nyk-float-contact{
+  position:fixed;left:18px;bottom:18px;z-index:150;
+  width:46px;height:46px;border-radius:50%;
+  background:var(--invert-bg);color:var(--invert-fg);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  transition:transform .2s ease;
+}
+.nyk-float-contact:hover{transform:translateY(-2px);}
+@media (max-width:640px){
+  .nyk-float-contact{width:42px;height:42px;left:14px;bottom:14px;}
+  .nyk-scroll-top{right:14px;bottom:14px;}
+}
+
+/* ===== Product grid fade-in (plays whenever the grid re-renders, incl. the
+   fallback -> live-data swap) ===== */
+.product-card{animation:nykCardIn .35s ease both;}
+@keyframes nykCardIn{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@media (prefers-reduced-motion: reduce){
+  .product-card{animation:none;}
+}
+
+/* ===== Hover-state fill-ins ===== */
+.icon-link{transition:opacity .15s ease, transform .15s ease;}
+.icon-link:hover{opacity:.65;}
+.nav-trigger:hover{opacity:.7;}
+.color-swatch{transition:transform .15s ease;}
+.color-swatch:hover{transform:scale(1.12);}
+.sort-select:hover{border-color:var(--fg);}
+.faq-item summary:hover{color:var(--fg-dim);}
+.info-contact-value a:hover{opacity:.7;}

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/state/authStore'
 import { useCartStore } from '@/state/cartStore'
 import { supabase } from '@/lib/supabaseClient'
 import { useToastStore } from '@/state/toastStore'
+import { LoyaltyTicketCard } from '@/components/LoyaltyTicketCard'
 
 export function RewardsScreen() {
   const { t, lang } = useI18n()
@@ -17,7 +18,6 @@ export function RewardsScreen() {
   const showToast = useToastStore((s) => s.show)
 
   const points = account?.loyalty_points ?? 0
-  const tierProgress = Math.min(100, (points / 500) * 100)
 
   const redeem = async (rewardId: string) => {
     const reward = rewards.find((r) => r.id === rewardId)
@@ -56,13 +56,7 @@ export function RewardsScreen() {
         {t.rewards}
       </div>
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
-        <div className="rounded-xl bg-pattern-gold p-6">
-          <div className="text-xs uppercase tracking-wide opacity-80">{t.yourPoints}</div>
-          <div className="mt-1 [font-family:var(--font-heading)] text-4xl font-extrabold">{points}</div>
-          <div className="mt-4 h-1.5 w-full rounded-full bg-white/30">
-            <div className="h-full rounded-full bg-white" style={{ width: `${tierProgress}%` }} />
-          </div>
-        </div>
+        <LoyaltyTicketCard account={account} points={points} />
         <div className="mt-6">
           <div className="mb-3 [font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.redeem}</div>
           {rewards.map((r) => (

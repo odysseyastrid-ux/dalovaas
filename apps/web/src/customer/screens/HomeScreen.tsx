@@ -193,11 +193,13 @@ export function HomeScreen() {
               <button
                 disabled={item.out_of_stock}
                 onClick={(e) => quickAdd(item, e)}
-                className="btn-shine btn-glow flex h-8 w-8 flex-none items-center self-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-ink)] disabled:opacity-30"
+                className="btn-gradient flex h-8 w-8 flex-none self-center rounded-full transition active:scale-[0.98] disabled:opacity-30"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
+                <span className="btn-gradient-inner flex h-full w-full items-center justify-center rounded-full">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </span>
               </button>
             </div>
           ))}

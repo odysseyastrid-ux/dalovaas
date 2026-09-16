@@ -42,23 +42,27 @@ void main() {
 
   float grad = 1.0 - uv.y;
   float flicker = 0.94 + 0.06 * sin(t * 6.0 + turbulence * 3.0);
-  float mixVal = clamp((grad * 0.5 + turbulence * 0.5) * flicker + 0.15, 0.0, 1.0);
+  // Biased brighter and toward gold overall (was a darker, more red-heavy
+  // mix) so the wordmark -- itself red -- reads clearly against the
+  // background instead of blending into it.
+  float mixVal = clamp((grad * 0.35 + turbulence * 0.45) * flicker + 0.32, 0.0, 1.0);
 
-  vec3 red = vec3(0.847, 0.204, 0.161);
-  vec3 gold = vec3(0.961, 0.651, 0.137);
-  vec3 yellow = vec3(1.0, 0.839, 0.4);
+  vec3 red = vec3(0.92, 0.32, 0.22);
+  vec3 gold = vec3(0.98, 0.68, 0.18);
+  vec3 yellow = vec3(1.0, 0.87, 0.48);
 
-  vec3 color = mix(red, gold, smoothstep(0.15, 0.65, mixVal));
-  color = mix(color, yellow, smoothstep(0.7, 1.0, mixVal));
+  vec3 color = mix(red, gold, smoothstep(0.1, 0.55, mixVal));
+  color = mix(color, yellow, smoothstep(0.55, 1.0, mixVal));
 
   // Rising ember sparks.
   float emberField = noise(vec2(p.x * 8.0, p.y * 10.0 - t * 3.0));
   float embers = smoothstep(0.86, 0.98, emberField) * smoothstep(0.0, 0.6, grad);
   color += embers * vec3(1.0, 0.9, 0.6) * 0.8;
 
-  // Soft vignette for depth.
+  // Soft vignette for depth -- much lighter than before so the corners
+  // don't go dark enough to dim the logo sitting near center.
   float vign = smoothstep(1.3, 0.3, length(p));
-  color *= mix(0.75, 1.0, vign);
+  color *= mix(0.9, 1.0, vign);
 
   gl_FragColor = vec4(color, 1.0);
 }

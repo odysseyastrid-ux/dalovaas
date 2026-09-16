@@ -2,7 +2,7 @@ export type Lang = 'fr' | 'en'
 
 const RAW_STRINGS = {
   en: {
-    slogan: 'Eat like at East Blue.', enter: 'Enter →', skip: 'Skip',
+    slogan: '500 CFA and you\'re rich.', enter: 'Enter →', skip: 'Skip',
     loginTitle: 'Log in', loginDesc: 'Enter your email address to create or access your account.',
     loginDescPhone: 'Enter your phone number to create or access your account.',
     phoneLabel: 'Phone number', emailLabel: 'Email address', sendCode: 'Send code →', viaSms: 'Your 6-digit code will be sent to you by email',
@@ -49,7 +49,7 @@ const RAW_STRINGS = {
     aboutTitle: 'About Us',
   },
   fr: {
-    slogan: 'Manger comme à East Blue.', enter: 'Entrer →', skip: 'Passer',
+    slogan: '500fr tu es riche.', enter: 'Entrer →', skip: 'Passer',
     loginTitle: 'Connexion', loginDesc: 'Entrez votre adresse email pour créer ou accéder à votre compte.',
     loginDescPhone: 'Entrez votre numéro pour créer ou accéder à votre compte.',
     phoneLabel: 'Numéro de téléphone', emailLabel: 'Adresse email', sendCode: 'Envoyer le code →', viaSms: 'Votre code à 6 chiffres vous sera envoyé par email',

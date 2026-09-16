@@ -1,34 +1,35 @@
 import { useState } from 'react'
 import { useI18n } from '@/i18n/I18nContext'
-import { useAppSettings } from '@/hooks/useAppSettings'
+import { FlameShaderBackground } from '@/components/FlameShaderBackground'
+import { BRAND_NAME, BRAND_WORDMARK_URL } from '@/lib/brand'
 
 export function SplashScreen({ onEnter }: { onEnter: () => void }) {
   const { t } = useI18n()
-  const { settings } = useAppSettings()
   const [imgFailed, setImgFailed] = useState(false)
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-pattern-gold px-6">
-      <div className="text-center">
-        {settings.logo_url && !imgFailed ? (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 overflow-hidden px-6">
+      <FlameShaderBackground />
+      <div className="relative z-10 text-center">
+        {!imgFailed ? (
           <img
-            src={settings.logo_url}
-            alt="Marlyse"
+            src={BRAND_WORDMARK_URL}
+            alt={BRAND_NAME}
             onError={() => setImgFailed(true)}
-            className="mx-auto h-auto w-[88%] max-w-[340px] [clip-path:circle(40.5%)] drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
+            className="mx-auto h-auto w-[80%] max-w-[320px] drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]"
           />
         ) : (
-          <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[var(--color-ink)] text-4xl font-black text-[var(--color-accent)]">
-            M
+          <div className="[font-family:var(--font-heading)] text-5xl font-black text-white drop-shadow-lg">
+            {BRAND_NAME}
           </div>
         )}
-        <div className="mt-2 [font-family:var(--font-heading)] text-2xl font-extrabold text-white">
+        <div className="mt-3 [font-family:var(--font-heading)] text-2xl font-extrabold text-white">
           <span className="text-3d animate-float">{t.slogan}</span>
         </div>
       </div>
       <button
         onClick={onEnter}
-        className="absolute bottom-8 left-6 right-6 rounded-xl bg-white px-5 py-4 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)]"
+        className="absolute bottom-8 left-6 right-6 z-10 rounded-xl bg-white px-5 py-4 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)]"
       >
         {t.enter}
       </button>

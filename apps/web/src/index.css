@@ -146,6 +146,40 @@ body {
   background: transparent;
 }
 
+/* Donation box pulse animation to encourage engagement */
+@keyframes pulse-donation {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 166, 35, 0);
+    transform: scale(1.02);
+  }
+}
+
+.donation-pulse {
+  animation: pulse-donation 2.5s ease-in-out infinite;
+}
+
+/* Fireworks celebration animation */
+@keyframes firework-burst {
+  0% {
+    opacity: 1;
+    transform: translate(var(--tx), var(--ty)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--tx) * 2.5), calc(var(--ty) * 2.5)) scale(0);
+  }
+}
+
+.firework-particle {
+  position: fixed;
+  pointer-events: none;
+  animation: firework-burst 1.2s ease-out forwards;
+}
+
 @media print {
   .no-print { display: none !important; }
   body { background: white; }

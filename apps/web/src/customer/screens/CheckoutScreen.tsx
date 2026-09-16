@@ -4,6 +4,7 @@ import { useI18n } from '@/i18n/I18nContext'
 import { BackHeader } from '@/components/AppShell'
 import { Button } from '@/components/Button'
 import { Field, Input } from '@/components/Field'
+import { Fireworks } from '@/components/Fireworks'
 import { useCartStore, cartSubtotal } from '@/state/cartStore'
 import { useAuthStore } from '@/state/authStore'
 import { useAppSettings } from '@/hooks/useAppSettings'
@@ -44,6 +45,7 @@ export function CheckoutScreen() {
   const [customerPhone, setCustomerPhone] = useState(account?.phone ?? '')
   const [proofFile, setProofFile] = useState<File | null>(null)
   const [placing, setPlacing] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const subtotal = cartSubtotal(lines)
@@ -140,11 +142,19 @@ export function CheckoutScreen() {
 
     clearCart()
     setPlacing(false)
-    navigate(`/tracking/${order.ref}`, { replace: true })
+
+    // Show celebration if donation was made
+    if (roundUpDonation && donationPreview > 0) {
+      setShowCelebration(true)
+      setTimeout(() => navigate(`/tracking/${order.ref}`, { replace: true }), 1500)
+    } else {
+      navigate(`/tracking/${order.ref}`, { replace: true })
+    }
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      <Fireworks show={showCelebration} />
       <BackHeader
         title={t.checkoutTitle}
         onBack={() => (step === 'summary' ? navigate('/cart') : setStep(step === 'result' ? 'payment' : 'summary'))}
@@ -161,9 +171,9 @@ export function CheckoutScreen() {
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         {step === 'summary' && (
           <div className="rounded-xl border border-[var(--color-divider)] p-4">
-            <div className="mb-3 [font-family:var(--font-heading)] text-sm font-bold">{t.orderSummary}</div>
+            <div className="mb-4 [font-family:var(--font-heading)] text-lg font-bold">{t.orderSummary}</div>
             {lines.map((l) => (
-              <div key={l.key} className="flex justify-between border-b border-[var(--color-divider)] py-1 text-xs">
+              <div key={l.key} className="flex justify-between border-b border-[var(--color-divider)] py-2 text-sm">
                 <span>
                   {l.qty}× {lang === 'fr' ? l.nameFr : l.name}
                 </span>
@@ -207,7 +217,7 @@ export function CheckoutScreen() {
             {preDonationTotal % 100 !== 0 && (
               <div
                 onClick={() => setRoundUpDonation(!roundUpDonation)}
-                className="mb-3 flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--color-divider)] p-3"
+                className={`mb-3 flex cursor-pointer items-center gap-3 rounded-lg border border-[var(--color-divider)] p-4 transition-all ${!roundUpDonation ? 'donation-pulse' : 'border-[var(--color-accent)]'}`}
               >
                 {settings.charity_logo_url && (
                   <img
@@ -216,16 +226,16 @@ export function CheckoutScreen() {
                     className="h-9 w-9 flex-none rounded-lg border border-[var(--color-divider)] object-contain bg-white p-1"
                   />
                 )}
-                <div className="flex-1 text-xs">
-                  <div className="flex items-center gap-1.5 font-bold">
+                <div className="flex-1 text-sm">
+                  <div className="flex items-center gap-1.5 font-bold text-base">
                     {!settings.charity_logo_url && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
                       </svg>
                     )}
                     {lang === 'fr' ? 'Arrondir pour la charité' : 'Round up for charity'}
                   </div>
-                  <div className="mt-0.5 text-[var(--color-ink)]/60">
+                  <div className="mt-1 text-xs text-[var(--color-ink)]/70">
                     {lang === 'fr'
                       ? `Arrondir à ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} et donner la différence à « Je lis, je m'épanouis ».`
                       : `Round up to ${formatFCFA(Math.ceil(preDonationTotal / 100) * 100)} and give the difference to "Je lis, je m'épanouis".`}
@@ -238,33 +248,33 @@ export function CheckoutScreen() {
               </div>
             )}
 
-            <div className="border-t border-[var(--color-divider)] pt-3 text-xs text-[var(--color-ink)]/70">
-              <div className="mb-1 flex justify-between">
+            <div className="border-t border-[var(--color-divider)] pt-4 text-[var(--color-ink)]/70">
+              <div className="mb-2 flex justify-between text-sm">
                 <span>{t.subtotal}</span>
-                <span>{formatFCFA(subtotal)}</span>
+                <span className="font-semibold">{formatFCFA(subtotal)}</span>
               </div>
-              <div className="mb-1 flex justify-between">
+              <div className="mb-2 flex justify-between text-sm">
                 <span>{t.deliveryFee}</span>
-                <span>{formatFCFA(deliveryFee)}</span>
+                <span className="font-semibold">{formatFCFA(deliveryFee)}</span>
               </div>
               {promoApplied && (
-                <div className="mb-1 flex justify-between text-[var(--color-accent-700)]">
+                <div className="mb-2 flex justify-between text-sm text-[var(--color-accent-700)]">
                   <span>{t.promoLabel}</span>
-                  <span>-{formatFCFA(discount)}</span>
+                  <span className="font-semibold">-{formatFCFA(discount)}</span>
                 </div>
               )}
               {donationPreview > 0 && (
-                <div className="mb-1 flex justify-between text-[var(--color-accent-700)]">
+                <div className="mb-2 flex justify-between text-sm text-[var(--color-accent-700)]">
                   <span className="inline-flex items-center gap-1.5">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
                     </svg>
                     {lang === 'fr' ? 'Don caritatif' : 'Charity donation'}
                   </span>
-                  <span>+{formatFCFA(donationPreview)}</span>
+                  <span className="font-semibold">+{formatFCFA(donationPreview)}</span>
                 </div>
               )}
-              <div className="mt-1 flex justify-between [font-family:var(--font-heading)] text-sm font-extrabold text-[var(--color-ink)]">
+              <div className="mt-2 flex justify-between [font-family:var(--font-heading)] text-xl font-extrabold text-[var(--color-ink)]">
                 <span>{t.total}</span>
                 <span>{formatFCFA(total)}</span>
               </div>
@@ -280,29 +290,29 @@ export function CheckoutScreen() {
 
         {step === 'payment' && (
           <div className="rounded-xl border border-[var(--color-divider)] p-4">
-            <div className="mb-3">
+            <div className="mb-4">
               <Field label={t.customerName}>
                 <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
               </Field>
             </div>
-            <div className="mb-4">
+            <div className="mb-5">
               <Field label={t.customerPhone}>
                 <Input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="6XX XX XX XX" />
               </Field>
             </div>
-            <div className="mb-3 text-sm">
-              {t.totalDue} {formatFCFA(total)}. {t.choosePayment}
+            <div className="mb-4 text-base font-semibold">
+              {t.totalDue} <span className="text-lg font-bold text-[var(--color-accent-700)]">{formatFCFA(total)}</span>. {t.choosePayment}
             </div>
             {PAYMENTS.map((p) => (
               <div
                 key={p}
                 onClick={() => setPaymentMethod(p)}
-                className="flex cursor-pointer items-center gap-3 border-b border-[var(--color-divider)] py-3"
+                className="flex cursor-pointer items-center gap-3 border-b border-[var(--color-divider)] py-4"
               >
                 {settings.payment_icons[p] && (
-                  <img src={settings.payment_icons[p]} alt="" className="h-8 w-8 flex-none rounded-md object-cover" />
+                  <img src={settings.payment_icons[p]} alt="" className="h-10 w-10 flex-none rounded-md object-cover" />
                 )}
-                <div className="flex-1 text-sm">
+                <div className="flex-1 text-base font-medium">
                   {p === 'orange_money' ? t.paymentOrangeMoney : p === 'mtn_momo' ? t.paymentMtnMomo : t.paymentCash}
                 </div>
                 <div
@@ -323,30 +333,30 @@ export function CheckoutScreen() {
           <div className="rounded-xl border border-[var(--color-divider)] p-4">
             {needsProof && (
               <>
-                <div className="mb-3 text-sm">{t.scanTransfer}</div>
-                <div className="mb-3 rounded-lg bg-[var(--color-surface)] p-4">
+                <div className="mb-4 text-base font-semibold">{t.scanTransfer}</div>
+                <div className="mb-4 rounded-lg bg-[var(--color-surface)] p-5">
                   <div className="flex items-center gap-3">
                     {settings.payment_icons[paymentMethod] && (
-                      <img src={settings.payment_icons[paymentMethod]} alt="" className="h-8 w-8 rounded-md object-cover" />
+                      <img src={settings.payment_icons[paymentMethod]} alt="" className="h-10 w-10 rounded-md object-cover" />
                     )}
-                    <div className="[font-family:var(--font-heading)] text-sm font-bold">
+                    <div className="[font-family:var(--font-heading)] text-base font-bold">
                       {paymentMethod === 'orange_money' ? 'Orange Money' : 'MTN MoMo'}
                     </div>
                   </div>
-                  <div className="mt-2 text-lg font-bold tracking-wide">{payAccount.number || '—'}</div>
-                  <div className="mt-1 text-xs text-[var(--color-ink)]/60">{payAccount.name || 'Marlyse'}</div>
+                  <div className="mt-3 text-2xl font-bold tracking-wider">{payAccount.number || '—'}</div>
+                  <div className="mt-1 text-sm text-[var(--color-ink)]/60">{payAccount.name || 'Marlyse'}</div>
                 </div>
-                <div className="mb-3 flex gap-2">
+                <div className="mb-4 flex gap-2">
                   <button
                     onClick={copyPayNumber}
                     disabled={!payAccount.number}
-                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-3 py-2.5 text-xs font-bold disabled:opacity-40"
+                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-3 py-3 text-sm font-bold disabled:opacity-40"
                   >
                     {t.copyNumber}
                   </button>
                   <a
                     href={`tel:${encodeURIComponent(payAccount.ussd)}`}
-                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-3 py-2.5 text-center text-xs font-bold"
+                    className="flex-1 rounded-lg border border-[var(--color-divider)] px-3 py-3 text-center text-sm font-bold"
                   >
                     {t.dialUssd} {payAccount.ussd}
                   </a>
@@ -361,9 +371,9 @@ export function CheckoutScreen() {
                 <Button block variant="secondary" onClick={() => fileInputRef.current?.click()}>
                   {proofFile ? t.proofUploaded : t.uploadProof}
                 </Button>
-                {proofFile && <div className="mt-2 text-[11px] text-[var(--color-ink)]/60">{proofFile.name}</div>}
+                {proofFile && <div className="mt-2 text-xs text-[var(--color-ink)]/60">{proofFile.name}</div>}
                 {!proofFile && (
-                  <div className="mt-2 text-[11px] text-[var(--color-accent-700)]">
+                  <div className="mt-2 text-sm font-semibold text-[var(--color-accent-700)]">
                     {lang === 'fr' ? 'Envoyez votre reçu pour pouvoir confirmer' : 'Upload your receipt to confirm'}
                   </div>
                 )}

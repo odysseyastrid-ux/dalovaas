@@ -4,18 +4,18 @@
   --font-heading: 'Rye', 'Plus Jakarta Sans', 'Segoe UI', system-ui, serif;
   --font-body: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
 
-  --color-accent: #f5c518;
-  --color-accent-600: #e0b010;
-  --color-accent-700: #c99400;
+  --color-accent: #f5a623;
+  --color-accent-600: #e5772b;
+  --color-accent-700: #c9341f;
   --color-ink: #1a1512;
   --color-surface: #ece6d8;
   --color-divider: #e2dbc9;
   --color-bg: #f4f1ea;
   --color-card: #fdfcf9;
 
-  --gradient-gold: linear-gradient(135deg, #ffe066 0%, #f5c518 45%, #c99400 100%);
-  --gradient-ink: linear-gradient(135deg, #34281b 0%, #1a1512 55%, #000000 100%);
-  --gradient-coral: linear-gradient(135deg, #ffab8a 0%, #ff7a52 50%, #e34f2c 100%);
+  --gradient-gold: linear-gradient(135deg, #ffd666 0%, #f5a623 40%, #e5342a 100%);
+  --gradient-ink: linear-gradient(135deg, #3a1710 0%, #1a0e0a 55%, #000000 100%);
+  --gradient-coral: linear-gradient(135deg, #ffb37a 0%, #f5722e 50%, #d13a1f 100%);
 }
 
 html, body, #root {
@@ -41,7 +41,7 @@ body {
   --color-divider: #392c20;
   --color-bg: #17120d;
   --color-card: #1f1811;
-  --color-accent-700: #ffcf3d;
+  --color-accent-700: #ffb23c;
 }
 :root[data-theme="dark"] body {
   background: var(--color-bg);

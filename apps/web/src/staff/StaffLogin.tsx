@@ -3,6 +3,7 @@ import { useI18n } from '@/i18n/I18nContext'
 import { Field, Input } from '@/components/Field'
 import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/Button'
+import { BrandHeading } from '@/components/BrandHeading'
 import { supabase } from '@/lib/supabaseClient'
 
 export function StaffLogin() {
@@ -40,7 +41,7 @@ export function StaffLogin() {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-[var(--color-surface)] p-6">
         <div className="w-full max-w-sm rounded-2xl border border-[var(--color-divider)] bg-white p-6">
-          <div className="mb-1 [font-family:var(--font-heading)] text-xl font-extrabold">Marlyse</div>
+          <BrandHeading />
           <div className="mb-6 text-sm text-[var(--color-ink)]/60">Mot de passe oublié</div>
           {resetSent ? (
             <div className="text-sm text-[var(--color-ink)]/70">
@@ -77,7 +78,7 @@ export function StaffLogin() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-[var(--color-surface)] p-6">
       <div className="w-full max-w-sm rounded-2xl border border-[var(--color-divider)] bg-white p-6">
-        <div className="mb-1 [font-family:var(--font-heading)] text-xl font-extrabold">Marlyse</div>
+        <BrandHeading />
         <div className="mb-6 text-sm text-[var(--color-ink)]/60">{t.staffLoginTitle}</div>
         <div className="mb-3">
           <Field label={t.staffEmail}>

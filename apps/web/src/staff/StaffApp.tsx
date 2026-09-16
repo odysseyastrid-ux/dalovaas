@@ -2,6 +2,7 @@ import { NavLink, Navigate, Routes, Route, useNavigate, useLocation } from 'reac
 import { useI18n } from '@/i18n/I18nContext'
 import { useAuthStore } from '@/state/authStore'
 import { useOtpRelayQueue } from '@/hooks/useOtpRelayQueue'
+import { BrandHeading } from '@/components/BrandHeading'
 import { StaffLogin } from './StaffLogin'
 import { StaffResetPassword } from './StaffResetPassword'
 import { OrdersBoard } from './OrdersBoard'
@@ -63,7 +64,10 @@ export function StaffApp() {
         </button>
       )}
       <div className="flex items-center justify-between border-b border-[var(--color-divider)] bg-white px-6 py-4">
-        <div className="[font-family:var(--font-heading)] text-lg font-extrabold">Marlyse · Dashboard</div>
+        <div className="flex items-center gap-2">
+          <BrandHeading className="h-6 w-auto" />
+          <span className="[font-family:var(--font-heading)] text-lg font-extrabold">· Dashboard</span>
+        </div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-[var(--color-ink)]/60">
             {staff.name} · {staff.role}

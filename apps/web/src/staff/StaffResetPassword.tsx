@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Field } from '@/components/Field'
 import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/Button'
+import { BrandHeading } from '@/components/BrandHeading'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/state/authStore'
 
@@ -41,7 +42,7 @@ export function StaffResetPassword() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-[var(--color-surface)] p-6">
       <div className="w-full max-w-sm rounded-2xl border border-[var(--color-divider)] bg-white p-6">
-        <div className="mb-1 [font-family:var(--font-heading)] text-xl font-extrabold">Marlyse</div>
+        <BrandHeading />
         <div className="mb-6 text-sm text-[var(--color-ink)]/60">Nouveau mot de passe</div>
         {done ? (
           <>

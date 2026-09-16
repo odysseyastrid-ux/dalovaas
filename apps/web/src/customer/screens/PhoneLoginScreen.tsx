@@ -49,7 +49,7 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: Pending
 
       <button
         onClick={signInWithGoogle}
-        className="mb-4 flex items-center justify-center gap-2.5 rounded-xl border border-[var(--color-divider)] bg-white py-3 text-sm font-bold transition-colors hover:border-[var(--color-accent)]"
+        className="btn-shine btn-glow mb-4 flex items-center justify-center gap-2.5 rounded-xl border border-[var(--color-divider)] bg-white py-3 text-sm font-bold text-[var(--color-ink)] transition-colors active:scale-[0.98] hover:border-[var(--color-accent)]"
       >
         <svg width="18" height="18" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -60,7 +60,7 @@ export function PhoneLoginScreen({ onCodeSent }: { onCodeSent: (pending: Pending
         {lang === 'fr' ? 'Continuer avec Google' : 'Continue with Google'}
       </button>
 
-      <div className="mb-4 flex items-center gap-3 text-[11px] text-[var(--color-ink)]/40">
+      <div className="mb-4 flex items-center gap-3 text-[11px] text-[var(--color-ink)]/55">
         <div className="h-px flex-1 bg-[var(--color-divider)]" />
         {lang === 'fr' ? 'ou' : 'or'}
         <div className="h-px flex-1 bg-[var(--color-divider)]" />

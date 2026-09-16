@@ -13,7 +13,7 @@ export function Button({
     <button
       className={clsx(
         'btn-shine rounded-xl px-5 py-3.5 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50',
-        variant === 'primary' && 'bg-pattern-gold text-[var(--color-ink)] hover:brightness-[1.04]',
+        variant === 'primary' && 'btn-glow bg-pattern-gold text-[var(--color-ink)] hover:brightness-[1.04]',
         variant === 'secondary' && 'bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-divider)] hover:border-[var(--color-accent)]',
         variant === 'ghost' && 'bg-transparent text-[var(--color-accent-700)] hover:underline',
         block && 'block w-full',

@@ -13,6 +13,12 @@
   --color-bg: #f4f1ea;
   --color-card: #fdfcf9;
 
+  /* Fixed (never flips in dark mode) dark ink for surfaces that themselves
+     never change with theme -- white cards/buttons, the gold/coral gradient
+     fills. Text sitting on those must stay dark or it disappears when
+     --color-ink flips to a light value in dark mode. */
+  --color-ink-fixed: #1a1512;
+
   --gradient-gold: linear-gradient(135deg, #ffd666 0%, #f5a623 40%, #e5342a 100%);
   --gradient-ink: linear-gradient(135deg, #3a1710 0%, #1a0e0a 55%, #000000 100%);
   --gradient-coral: linear-gradient(135deg, #ffb37a 0%, #f5722e 50%, #d13a1f 100%);
@@ -46,6 +52,16 @@ body {
 :root[data-theme="dark"] body {
   background: var(--color-bg);
 }
+/* White cards/buttons and the gold/coral gradient fills are fixed surfaces
+   that don't invert with the theme, so any text or icon sitting on them
+   (often inherited via currentColor) must stay pinned to a dark ink too --
+   otherwise it flips light along with the rest of the page and disappears. */
+:root[data-theme="dark"] .bg-white,
+:root[data-theme="dark"] .bg-pattern-gold,
+:root[data-theme="dark"] .bg-pattern-coral,
+:root[data-theme="dark"] [class~="bg-[var(--color-accent)]"] {
+  color: var(--color-ink-fixed);
+}
 
 /* "Shader" press effect for clickable buttons -- a light sweep animates
    across the surface on tap/click, giving CTAs a tactile, glossy feel. */
@@ -70,6 +86,28 @@ body {
   transition: left 0.55s ease;
 }
 
+/* Brand-colored glow, adapted from the gradient-button look the owner
+   shared -- same lifted, glossy feel, but in the flame red/gold palette
+   instead of the original purple/cyan so it matches the logo. */
+.btn-glow {
+  box-shadow:
+    0 10px 24px -6px rgba(197, 52, 31, 0.4),
+    0 4px 10px -4px rgba(245, 166, 35, 0.35);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+.btn-glow:hover {
+  box-shadow:
+    0 14px 32px -6px rgba(197, 52, 31, 0.55),
+    0 6px 16px -4px rgba(245, 166, 35, 0.5);
+}
+.btn-glow:active {
+  box-shadow:
+    0 4px 12px -4px rgba(197, 52, 31, 0.3),
+    0 2px 6px -2px rgba(245, 166, 35, 0.25);
+}
+
 @media print {
   .no-print { display: none !important; }
   body { background: white; }
@@ -86,11 +124,16 @@ body {
 }
 
 .text-3d {
+  /* Fixed dark shadow, not the theme-flipping ink token: this sits on the
+     flame background regardless of light/dark mode, and letting the shadow
+     follow --color-ink meant it turned near-white in dark mode -- the same
+     color as the text itself -- which read as a blurry, doubled smear
+     instead of a crisp bevel. */
   text-shadow:
-    1px 1px 0 var(--color-ink),
-    2px 2px 0 var(--color-ink),
-    3px 3px 0 var(--color-ink),
-    4px 4px 0 var(--color-ink),
+    1px 1px 0 var(--color-ink-fixed),
+    2px 2px 0 var(--color-ink-fixed),
+    3px 3px 0 var(--color-ink-fixed),
+    4px 4px 0 var(--color-ink-fixed),
     5px 5px 12px rgba(0, 0, 0, 0.4);
 }
 

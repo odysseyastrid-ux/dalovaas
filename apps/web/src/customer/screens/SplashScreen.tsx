@@ -29,7 +29,7 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
       </div>
       <button
         onClick={onEnter}
-        className="absolute bottom-8 left-6 right-6 z-10 rounded-xl bg-white px-5 py-4 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)]"
+        className="btn-shine btn-glow absolute bottom-8 left-6 right-6 z-10 rounded-xl bg-white px-5 py-4 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)] transition active:scale-[0.98]"
       >
         {t.enter}
       </button>

@@ -12,9 +12,8 @@ import { PromoCarousel } from '@/components/PromoCarousel'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { ScrollProgressBar } from '@/components/ScrollProgressBar'
 import { Spinner } from '@/components/Spinner'
+import { CategoryIcon } from '@/lib/categoryIcons'
 import { ComboOfferModal } from './ComboOfferModal'
-
-const STAFF_WHATSAPP_NUMBER = import.meta.env.VITE_STAFF_WHATSAPP_NUMBER || '237652776763'
 
 // "Tout" and "Combo" are deliberately not customer-browsable categories --
 // combos are now offered dynamically via the add-to-cart upsell popup
@@ -131,9 +130,34 @@ export function HomeScreen() {
         <ScrollProgressBar containerRef={scrollRef} />
         <PromoCarousel slides={settings.promo_slides} />
 
+        <div className="bg-pattern-ink px-4 py-5 text-[var(--color-accent)]">
+          <div className="[font-family:var(--font-heading)] text-lg font-extrabold text-white">
+            {lang === 'fr' ? 'Préparé minute, servi brûlant.' : 'Made fresh, served hot.'}
+          </div>
+          <div className="mt-1 text-xs text-white/70">
+            {lang === 'fr'
+              ? 'Des ingrédients frais chaque jour et des points fidélité à chaque commande.'
+              : 'Fresh ingredients every day, and loyalty points on every order.'}
+          </div>
+          <div className="mt-3.5 flex gap-2 overflow-x-auto">
+            {(lang === 'fr'
+              ? ['Ingrédients frais', 'Prêt en 15 min', 'Points fidélité']
+              : ['Fresh ingredients', 'Ready in 15 min', 'Loyalty points']
+            ).map((label) => (
+              <span
+                key={label}
+                className="flex-none whitespace-nowrap rounded-full border border-white/25 px-3 py-1 text-[11px] font-semibold text-white"
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+
         <div className="no-scrollbar flex gap-2.5 overflow-x-auto px-4 py-4">
           {CUSTOMER_CATEGORIES.map((cat) => (
             <CategoryChip key={cat} active={category === cat} onClick={() => setCategory(cat)}>
+              <CategoryIcon cat={cat} />
               {CATEGORY_LABELS[cat][lang as Lang]}
             </CategoryChip>
           ))}
@@ -169,7 +193,7 @@ export function HomeScreen() {
               <button
                 disabled={item.out_of_stock}
                 onClick={(e) => quickAdd(item, e)}
-                className="flex h-8 w-8 flex-none items-center self-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-ink)] disabled:opacity-30"
+                className="btn-shine flex h-8 w-8 flex-none items-center self-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-ink)] disabled:opacity-30"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M12 5v14M5 12h14" />
@@ -180,17 +204,6 @@ export function HomeScreen() {
         </div>
       </div>
       <ScrollToTop containerRef={scrollRef} />
-      <a
-        href={`https://wa.me/${STAFF_WHATSAPP_NUMBER}`}
-        target="_blank"
-        rel="noopener"
-        aria-label="Contacter le support sur WhatsApp"
-        className="absolute bottom-20 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:brightness-105"
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm5.83 14.02c-.24.68-1.41 1.32-1.95 1.36-.5.04-1 .24-3.37-.7-2.86-1.14-4.7-4.06-4.84-4.25-.14-.19-1.16-1.54-1.16-2.93 0-1.4.73-2.08 1-2.36.24-.26.5-.34.68-.34h.5c.16 0 .38-.06.58.45.24.6.79 2.06.86 2.21.07.14.11.31.02.5-.1.19-.14.31-.28.48-.14.16-.29.36-.42.48-.14.14-.28.28-.12.55.16.28.72 1.18 1.55 1.9 1.06.94 1.96 1.24 2.24 1.38.28.14.44.12.6-.07.16-.19.7-.82.88-1.1.19-.28.38-.23.63-.14.26.1 1.63.77 1.91.91.28.14.47.21.54.32.07.12.07.68-.17 1.36z" />
-        </svg>
-      </a>
 
       {comboPromptItem && (
         <ComboOfferModal
@@ -215,7 +228,7 @@ function CategoryChip({ active, onClick, children }: { active: boolean; onClick:
   return (
     <button
       onClick={onClick}
-      className="flex-none whitespace-nowrap rounded-full border-2 border-[var(--color-ink)] px-4 py-2 [font-family:var(--font-heading)] text-sm font-bold"
+      className="flex flex-none items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[var(--color-ink)] px-4 py-2 [font-family:var(--font-heading)] text-sm font-bold"
       style={{ backgroundImage: active ? 'var(--gradient-ink)' : 'none', color: active ? 'var(--color-accent)' : 'var(--color-ink)' }}
     >
       {children}

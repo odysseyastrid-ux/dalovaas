@@ -94,9 +94,9 @@ export function ItemDetailScreen() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-28">
-        <div className="relative bg-pattern-gold p-4 pb-6">
+        <div className="relative p-4 pb-2">
           <div
-            className={`h-[260px] w-full overflow-hidden rounded-2xl bg-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.15)] ${item.image_url ? 'cursor-zoom-in' : ''}`}
+            className={`h-[260px] w-full overflow-hidden rounded-2xl bg-[var(--color-surface)] ${item.image_url ? 'cursor-zoom-in' : ''}`}
             onClick={() => item.image_url && setZoomed(true)}
           >
             {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
@@ -161,11 +161,11 @@ export function ItemDetailScreen() {
       <div className="absolute inset-x-0 bottom-0 border-t border-[var(--color-divider)] bg-[var(--color-bg)] p-4">
         <div className="flex items-center gap-3">
           <div className="flex flex-none items-center gap-3 rounded-xl border-[1.5px] border-[var(--color-divider)] px-3 py-3">
-            <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-5 w-5 items-center justify-center text-lg font-bold">
+            <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="btn-shine flex h-5 w-5 items-center justify-center text-lg font-bold">
               −
             </button>
             <div className="min-w-4 text-center text-sm font-bold">{qty}</div>
-            <button onClick={() => setQty((q) => q + 1)} className="flex h-5 w-5 items-center justify-center text-lg font-bold">
+            <button onClick={() => setQty((q) => q + 1)} className="btn-shine flex h-5 w-5 items-center justify-center text-lg font-bold">
               +
             </button>
           </div>

@@ -47,6 +47,29 @@ body {
   background: var(--color-bg);
 }
 
+/* "Shader" press effect for clickable buttons -- a light sweep animates
+   across the surface on tap/click, giving CTAs a tactile, glossy feel. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  transition: left 0.55s ease;
+}
+.btn-shine:active::after {
+  left: 130%;
+  transition: left 0.55s ease;
+}
+
 @media print {
   .no-print { display: none !important; }
   body { background: white; }

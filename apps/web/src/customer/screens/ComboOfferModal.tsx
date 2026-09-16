@@ -24,7 +24,7 @@ export function ComboOfferModal({
   const isBurger = item.cat === 'burgers'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center" onClick={onDecline}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-orange-900/30 backdrop-blur-sm p-4 sm:items-center" onClick={onDecline}>
       <div
         className="w-full max-w-sm rounded-2xl bg-[var(--color-bg)] p-5"
         onClick={(e) => e.stopPropagation()}

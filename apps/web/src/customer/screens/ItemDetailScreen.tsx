@@ -176,7 +176,7 @@ export function ItemDetailScreen() {
       </div>
       {zoomed && item.image_url && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-orange-900/70 backdrop-blur-sm p-4"
           onClick={() => setZoomed(false)}
         >
           <img src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain" />

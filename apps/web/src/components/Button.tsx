@@ -10,7 +10,7 @@ export function Button({
   children,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; block?: boolean; children?: ReactNode }) {
-  if (variant === 'primary' || variant === 'secondary') {
+  if (variant === 'primary') {
     return (
       <button
         className={clsx(
@@ -23,7 +23,27 @@ export function Button({
         <span
           className={clsx(
             'btn-gradient-inner flex items-center justify-center gap-1.5 rounded-[9px] px-5 py-3.5 [font-family:var(--font-heading)] text-sm font-bold tracking-wide',
-            variant === 'secondary' && 'btn-gradient-inner--light',
+          )}
+        >
+          {children}
+        </span>
+      </button>
+    )
+  }
+
+  if (variant === 'secondary') {
+    return (
+      <button
+        className={clsx(
+          'btn-outline rounded-xl transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50',
+          block && 'block w-full',
+          className,
+        )}
+        {...props}
+      >
+        <span
+          className={clsx(
+            'flex items-center justify-center gap-1.5 rounded-[9px] px-5 py-3.5 [font-family:var(--font-heading)] text-sm font-bold tracking-wide',
           )}
         >
           {children}

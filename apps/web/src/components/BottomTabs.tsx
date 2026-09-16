@@ -38,7 +38,7 @@ export function BottomTabs() {
   ]
 
   return (
-    <div className="flex border-t border-[var(--color-divider)] bg-[var(--color-bg)]">
+    <div className="flex border-t border-[var(--color-divider)] bg-white">
       {tabs.map((tab) => (
         <NavLink
           key={tab.to}
@@ -46,8 +46,8 @@ export function BottomTabs() {
           end={tab.to === '/'}
           className={({ isActive }) =>
             clsx(
-              'flex flex-1 flex-col items-center gap-1 py-2.5 pb-3',
-              isActive ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink)]/40',
+              'flex flex-1 flex-col items-center gap-1 py-2.5 pb-3 transition-colors rounded-t-lg',
+              isActive ? 'bg-orange-50 text-orange-600' : 'text-gray-400 hover:text-gray-600',
             )
           }
         >

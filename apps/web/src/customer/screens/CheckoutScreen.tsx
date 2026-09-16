@@ -161,7 +161,7 @@ export function CheckoutScreen() {
         right={
           <button
             onClick={toggleLang}
-            className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold"
+            className="rounded-full border-2 border-orange-500 px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold text-orange-600 hover:bg-orange-50"
           >
             {lang.toUpperCase()}
           </button>

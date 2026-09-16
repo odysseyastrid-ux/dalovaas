@@ -94,10 +94,10 @@ export function HomeScreen() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="relative flex items-center justify-between border-b border-[var(--color-divider)] p-4">
+      <div className="relative flex items-center justify-between border-b border-[var(--color-divider)] p-4 bg-white">
         <button
           onClick={toggleLang}
-          className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold"
+          className="rounded-full border-2 border-orange-500 px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold text-orange-600 hover:bg-orange-50"
         >
           {lang.toUpperCase()} / {lang === 'fr' ? 'EN' : 'FR'}
         </button>
@@ -117,7 +117,7 @@ export function HomeScreen() {
         </div>
         <button
           onClick={() => navigate('/account')}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-surface)]"
+          className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -230,8 +230,11 @@ function CategoryChip({ active, onClick, children }: { active: boolean; onClick:
   return (
     <button
       onClick={onClick}
-      className="flex flex-none items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-[var(--color-ink)] px-4 py-2 [font-family:var(--font-heading)] text-sm font-bold"
-      style={{ backgroundImage: active ? 'var(--gradient-ink)' : 'none', color: active ? 'var(--color-accent)' : 'var(--color-ink)' }}
+      className={`flex flex-none items-center gap-1.5 whitespace-nowrap rounded-full border-2 px-4 py-2 [font-family:var(--font-heading)] text-sm font-bold transition-colors ${
+        active
+          ? 'border-orange-600 bg-gradient-to-r from-red-500 to-orange-600 text-white'
+          : 'border-orange-300 text-orange-600 hover:border-orange-400 hover:bg-orange-50'
+      }`}
     >
       {children}
     </button>

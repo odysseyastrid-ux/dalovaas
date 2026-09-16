@@ -30,13 +30,13 @@ export function AccountScreen() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center justify-between border-b border-[var(--color-divider)] p-4">
+      <div className="flex items-center justify-between border-b border-[var(--color-divider)] p-4 bg-white">
         <div className="[font-family:var(--font-heading)] text-lg font-extrabold">{t.account}</div>
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-surface)]"
+            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
           >
             {theme === 'dark' ? (
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
@@ -58,7 +58,7 @@ export function AccountScreen() {
           </button>
           <button
             onClick={toggleLang}
-            className="rounded-full bg-[var(--color-surface)] px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold"
+            className="rounded-full border-2 border-orange-500 px-3 py-1.5 [font-family:var(--font-heading)] text-[11px] font-bold text-orange-600 hover:bg-orange-50"
           >
             {lang.toUpperCase()}
           </button>

@@ -115,6 +115,7 @@ body {
    of a few px lets it show through as a thin border ring around the solid
    inner fill until hover/press. */
 .btn-gradient {
+  display: block;
   background-image: var(--gradient-gold);
   box-shadow: 0 15px 30px -8px rgba(197, 52, 31, 0.4);
   padding: 3px;
@@ -129,6 +130,7 @@ body {
   transform: scale(0.96);
 }
 .btn-gradient-inner {
+  display: block;
   background-color: var(--color-ink-fixed);
   color: #fff;
   transition: background 300ms ease;
@@ -212,12 +214,12 @@ body {
 }
 
 .ticket-wrapper {
-  --t-bg: #221912;
-  --t-bg-light: #2e2216;
+  --t-bg: #ece6d8;
+  --t-bg-light: #f4f1ea;
   --t-accent: #f5a623;
   --t-accent-glow: rgba(245, 166, 35, 0.5);
-  --t-text-main: #f8f4ea;
-  --t-text-muted: #b8a998;
+  --t-text-main: #1a1512;
+  --t-text-muted: #8b7d6f;
   font-size: 13px;
   perspective: 1000px;
   display: block;
@@ -337,7 +339,7 @@ body {
   font-weight: 900;
   font-size: 1.2em;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: #1a1512;
 }
 
 .t-logo svg {
@@ -374,7 +376,7 @@ body {
   line-height: 1.1;
   margin-bottom: 0.2em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #fff 0%, #ffd666 100%);
+  background: linear-gradient(135deg, #c9341f 0%, #f5a623 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -424,7 +426,7 @@ body {
 .t-perf-line {
   flex-grow: 1;
   height: 0;
-  border-top: 2px dashed rgba(255, 255, 255, 0.2);
+  border-top: 2px dashed rgba(26, 21, 18, 0.2);
   margin: 0 1.5em;
 }
 
@@ -455,20 +457,20 @@ body {
   height: 3em;
   background: repeating-linear-gradient(
     90deg,
-    #fff 0,
-    #fff 2px,
+    #1a1512 0,
+    #1a1512 2px,
     transparent 2px,
     transparent 4px,
-    #fff 4px,
-    #fff 5px,
+    #1a1512 4px,
+    #1a1512 5px,
     transparent 5px,
     transparent 8px,
-    #fff 8px,
-    #fff 12px,
+    #1a1512 8px,
+    #1a1512 12px,
     transparent 12px,
     transparent 15px,
-    #fff 15px,
-    #fff 16px,
+    #1a1512 15px,
+    #1a1512 16px,
     transparent 16px,
     transparent 18px
   );

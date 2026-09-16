@@ -5,7 +5,7 @@ export function Toast() {
   if (!message) return null
   return (
     <div className="pointer-events-none absolute inset-x-4 bottom-24 z-30 flex justify-center">
-      <div className="rounded-lg bg-[var(--color-ink)] px-4 py-3 text-center text-sm text-white shadow-lg">
+      <div className="rounded-lg bg-gradient-to-r from-red-500 to-orange-600 px-4 py-3 text-center text-sm text-white shadow-lg">
         {message}
       </div>
     </div>

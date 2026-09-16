@@ -30,7 +30,7 @@ export function AboutScreen() {
           {settings.logo_url ? (
             <img src={settings.logo_url} alt="Marlyse" className="mb-3 h-16 w-16 rounded-full object-cover ring-4 ring-white/40" />
           ) : (
-            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-ink)] text-lg font-black text-[var(--color-accent)]">
+            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-orange-600 text-lg font-black text-white">
               M
             </div>
           )}

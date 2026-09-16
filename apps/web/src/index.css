@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: 'Baloo 2', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Baloo 2', 'Segoe UI', system-ui, sans-serif;
+  --font-heading: Georgia, 'Times New Roman', Times, serif;
+  --font-body: Georgia, 'Times New Roman', Times, serif;
 
   --color-accent: #f5a623;
   --color-accent-600: #e5772b;

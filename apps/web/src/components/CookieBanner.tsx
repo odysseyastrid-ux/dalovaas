@@ -27,7 +27,7 @@ export function CookieBanner() {
       </div>
       <button
         onClick={accept}
-        className="self-end rounded-lg bg-[var(--color-ink)] px-4 py-1.5 text-[11px] font-bold text-[var(--color-accent)]"
+        className="self-end rounded-lg bg-gradient-to-r from-red-500 to-orange-600 px-4 py-1.5 text-[11px] font-bold text-white"
       >
         {lang === 'fr' ? "J'ai compris" : 'Got it'}
       </button>

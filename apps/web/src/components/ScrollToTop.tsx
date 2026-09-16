@@ -19,7 +19,7 @@ export function ScrollToTop({ containerRef }: { containerRef: RefObject<HTMLElem
     <button
       onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Remonter en haut"
-      className="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-ink)] text-[var(--color-accent)] shadow-lg transition hover:brightness-110"
+      className="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-lg transition hover:brightness-110"
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 19V5M5 12l7-7 7 7" />

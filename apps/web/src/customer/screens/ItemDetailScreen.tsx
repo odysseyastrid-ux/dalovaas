@@ -94,16 +94,16 @@ export function ItemDetailScreen() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-28">
-        <div className="relative">
+        <div className="relative bg-pattern-gold p-4 pb-6">
           <div
-            className={`h-[280px] w-full overflow-hidden bg-[var(--color-surface)] ${item.image_url ? 'cursor-zoom-in' : ''}`}
+            className={`h-[260px] w-full overflow-hidden rounded-2xl bg-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.15)] ${item.image_url ? 'cursor-zoom-in' : ''}`}
             onClick={() => item.image_url && setZoomed(true)}
           >
             {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
           </div>
           <button
             onClick={() => navigate(-1)}
-            className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white"
+            className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -156,29 +156,23 @@ export function ItemDetailScreen() {
               })}
             </div>
           )}
-
-          <div className="mt-6 flex items-center gap-4">
-            <div className="[font-family:var(--font-heading)] text-xs font-bold uppercase tracking-wide">{t.qty}</div>
-            <button
-              onClick={() => setQty((q) => Math.max(1, q - 1))}
-              className="flex h-8 w-8 items-center justify-center rounded-full border-[1.5px] border-[var(--color-divider)]"
-            >
-              −
-            </button>
-            <div className="min-w-5 text-center text-sm">{qty}</div>
-            <button
-              onClick={() => setQty((q) => q + 1)}
-              className="flex h-8 w-8 items-center justify-center rounded-full border-[1.5px] border-[var(--color-divider)]"
-            >
-              +
-            </button>
-          </div>
         </div>
       </div>
       <div className="absolute inset-x-0 bottom-0 border-t border-[var(--color-divider)] bg-[var(--color-bg)] p-4">
-        <Button block onClick={add}>
-          {t.addToCart} · {formatFCFA(unitPrice * qty)}
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-none items-center gap-3 rounded-xl border-[1.5px] border-[var(--color-divider)] px-3 py-3">
+            <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="flex h-5 w-5 items-center justify-center text-lg font-bold">
+              −
+            </button>
+            <div className="min-w-4 text-center text-sm font-bold">{qty}</div>
+            <button onClick={() => setQty((q) => q + 1)} className="flex h-5 w-5 items-center justify-center text-lg font-bold">
+              +
+            </button>
+          </div>
+          <Button block onClick={add} className="flex-1 text-center">
+            {t.addToCart} · {formatFCFA(unitPrice * qty)}
+          </Button>
+        </div>
       </div>
       {zoomed && item.image_url && (
         <div

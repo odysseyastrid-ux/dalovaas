@@ -3,6 +3,7 @@ export type MenuCategory =
   | 'burgers'
   | 'fries'
   | 'poutine'
+  | 'poisson'
   | 'shakes'
   | 'cocktails'
   | 'soft_drinks'
@@ -12,6 +13,7 @@ export const CATEGORY_ORDER: MenuCategory[] = [
   'burgers',
   'fries',
   'poutine',
+  'poisson',
   'shakes',
   'cocktails',
   'soft_drinks',

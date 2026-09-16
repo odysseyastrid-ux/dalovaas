@@ -105,6 +105,7 @@ export const CATEGORY_LABELS: Record<string, { en: string; fr: string }> = {
   burgers: { en: 'Burgers', fr: 'Burgers' },
   fries: { en: 'Fries', fr: 'Frites' },
   poutine: { en: 'Poutine', fr: 'Poutine' },
+  poisson: { en: 'Fish', fr: 'Poisson' },
   shakes: { en: 'Shakes', fr: 'Milkshakes' },
   cocktails: { en: 'Cocktails', fr: 'Cocktails' },
   soft_drinks: { en: 'Soft Drinks', fr: 'Boissons' },

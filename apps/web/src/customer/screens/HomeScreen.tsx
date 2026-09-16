@@ -139,9 +139,9 @@ export function HomeScreen() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 px-4 pb-8">
+        <div className="flex flex-col gap-3 px-4 pb-8">
           {loading && (
-            <div className="col-span-2 flex justify-center py-8">
+            <div className="flex justify-center py-8">
               <Spinner />
             </div>
           )}
@@ -149,34 +149,32 @@ export function HomeScreen() {
             <div
               key={item.id}
               onClick={() => navigate(`/item/${item.id}`)}
-              className="flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-[var(--color-card)] shadow-[0_2px_10px_rgba(26,21,18,0.06)]"
+              className="flex cursor-pointer gap-4 rounded-2xl bg-[var(--color-card)] p-3 shadow-[0_2px_10px_rgba(26,21,18,0.06)]"
             >
-              <div className="relative h-[110px] w-full flex-none bg-[var(--color-surface)]">
+              <div className="h-[76px] w-[76px] flex-none overflow-hidden rounded-xl bg-[var(--color-surface)]">
                 {item.image_url && <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />}
-                {item.out_of_stock && (
-                  <span className="absolute left-2 top-2 rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-bold text-white">
-                    {t.outOfStock}
-                  </span>
-                )}
               </div>
-              <div className="flex flex-1 flex-col p-2.5">
-                <div className="line-clamp-1 [font-family:var(--font-heading)] text-[13px] font-bold">
+              <div className="min-w-0 flex-1">
+                <div className="[font-family:var(--font-heading)] text-[15px] font-bold">
                   {lang === 'fr' ? item.name_fr : item.name}
+                  {item.out_of_stock && (
+                    <span className="ml-2 text-[10px] font-normal text-red-600">{t.outOfStock}</span>
+                  )}
                 </div>
-                <div className="mt-0.5 line-clamp-1 text-[10px] text-[var(--color-ink)]/60">
+                <div className="mt-0.5 truncate text-xs text-[var(--color-ink)]/60">
                   {lang === 'fr' ? item.description_fr : item.description}
                 </div>
-                <button
-                  disabled={item.out_of_stock}
-                  onClick={(e) => quickAdd(item, e)}
-                  className="mt-2 flex items-center justify-between rounded-xl bg-pattern-gold px-2.5 py-2 text-[var(--color-ink)] transition active:scale-[0.97] disabled:opacity-30"
-                >
-                  <span className="[font-family:var(--font-heading)] text-xs font-bold">{formatFCFA(item.price)}</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
+                <div className="mt-1.5 [font-family:var(--font-heading)] text-[13px] font-bold">{formatFCFA(item.price)}</div>
               </div>
+              <button
+                disabled={item.out_of_stock}
+                onClick={(e) => quickAdd(item, e)}
+                className="flex h-8 w-8 flex-none items-center self-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-ink)] disabled:opacity-30"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
             </div>
           ))}
         </div>

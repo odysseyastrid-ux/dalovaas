@@ -319,7 +319,7 @@ export function TrackingScreen() {
                       onChange={(e) => setReviewComment(e.target.value)}
                       placeholder={lang === 'fr' ? 'Un commentaire (facultatif)' : 'A comment (optional)'}
                       rows={2}
-                      className="mb-3 w-full rounded-lg border border-[var(--color-divider)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-accent)]"
+                      className="mb-3 w-full rounded-lg border border-[var(--color-divider)] bg-white px-3 py-2 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
                     />
                     <Button block disabled={ratingChoice < 1 || submittingReview} onClick={submitReview}>
                       {submittingReview ? '…' : lang === 'fr' ? 'Envoyer mon avis' : 'Submit my review'}

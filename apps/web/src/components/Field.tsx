@@ -15,7 +15,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full rounded-lg border border-[var(--color-divider)] bg-white px-3.5 py-3 text-sm outline-none focus:border-[var(--color-accent)]"
+      className="w-full rounded-lg border border-[var(--color-divider)] bg-white px-3.5 py-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
     />
   )
 }

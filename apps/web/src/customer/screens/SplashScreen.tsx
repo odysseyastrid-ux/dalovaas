@@ -8,7 +8,7 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
   const [imgFailed, setImgFailed] = useState(false)
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 overflow-hidden px-6">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 overflow-hidden px-6 pb-32">
       <FlameShaderBackground />
       <div className="relative z-10 text-center">
         {!imgFailed ? (
@@ -29,9 +29,11 @@ export function SplashScreen({ onEnter }: { onEnter: () => void }) {
       </div>
       <button
         onClick={onEnter}
-        className="btn-shine btn-glow absolute bottom-8 left-6 right-6 z-10 rounded-xl bg-white px-5 py-4 text-left [font-family:var(--font-heading)] text-sm font-bold tracking-wide text-[var(--color-ink)] transition active:scale-[0.98]"
+        className="btn-gradient absolute bottom-8 left-6 right-6 z-10 rounded-xl transition active:scale-[0.98]"
       >
-        {t.enter}
+        <span className="btn-gradient-inner flex items-center justify-center rounded-[9px] px-5 py-4 [font-family:var(--font-heading)] text-sm font-bold tracking-wide">
+          {t.enter}
+        </span>
       </button>
     </div>
   )

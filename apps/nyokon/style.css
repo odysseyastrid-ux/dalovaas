@@ -847,57 +847,46 @@ main > section{
 .checkout-field input:focus,.checkout-field select:focus{outline:none;border-color:var(--accent-ink);box-shadow:0 0 0 3px rgba(209,255,60,.18);}
 .checkout-radio-row{display:flex;flex-direction:column;gap:10px;}
 .checkout-radio-row label{display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;}
-.payment-method-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;}
+/* Payment-method list: a stacked row per method (logo, name + detail,
+   trailing check bubble) rather than a grid of small tiles — reads faster
+   at a glance and gives each option room for a one-line description. */
+.payment-method-grid{display:flex;flex-direction:column;gap:10px;}
 .payment-method-card{
   position:relative;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  padding:14px 8px;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
   border:1px solid var(--line);border-radius:var(--radius);
   cursor:pointer;
-  transition:border-color .2s ease, background .2s ease, transform .2s ease;
+  transition:border-color .2s ease, background .2s ease, box-shadow .2s ease;
 }
-.payment-method-card:hover{background:var(--bg-alt);transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(0,0,0,.4);}
+.payment-method-card:hover{background:var(--bg-alt);}
 .payment-method-card input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
-.payment-method-card:has(input:checked){border-color:var(--accent-ink);background:var(--bg-alt);transform:translateY(-1px);}
-.payment-method-card::after{
-  content:'';
-  position:absolute;top:8px;right:8px;
-  width:16px;height:16px;border-radius:50%;
-  background:var(--accent);
-  opacity:0;transform:scale(.4);
-  transition:opacity .2s ease, transform .2s ease;
-}
-.payment-method-card:has(input:checked)::after{opacity:1;transform:scale(1);}
-.payment-method-card .pm-check{
-  position:absolute;top:8px;right:8px;width:16px;height:16px;
-  z-index:1;opacity:0;transform:scale(.4);
-  transition:opacity .2s ease, transform .2s ease;
-  color:#0b0b0c;
-}
-.payment-method-card:has(input:checked) .pm-check{opacity:1;transform:scale(1);}
+.payment-method-card:has(input:checked){border-color:var(--accent-ink);background:var(--bg-alt);box-shadow:0 0 0 1px var(--accent-ink);}
 .pm-badge{
+  flex:none;width:44px;height:44px;
   display:flex;align-items:center;justify-content:center;
-  min-width:46px;height:28px;padding:0 10px;
-  border-radius:4px;
-  font-size:12px;font-weight:800;letter-spacing:.02em;
-  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-.pm-badge-logo{
-  width:100%;
-  aspect-ratio:1/1;
-  background:#fff;
-  border-radius:6px;
+  border-radius:var(--radius);
   overflow:hidden;
-  padding:8px;
 }
+.pm-badge-logo{background:#fff;padding:7px;}
 /* contain, not cover: these source logos are lockups (icon + wordmark, or
    a whole multi-brand sheet) rather than square marks — cropping them to
    fill the square cut off the readable part. contain always shows the
    whole logo, padded, never cropped. */
 .pm-badge-logo img{width:100%;height:100%;object-fit:contain;display:block;}
-.pm-fidelity .pm-badge{background:transparent;color:#7a3bd1;}
-.pm-label{font-size:11px;font-weight:600;text-align:center;color:var(--fg-dim);}
-.payment-method-card:has(input:checked) .pm-label{color:var(--fg);}
+.pm-badge-icon{background:var(--bg-alt);color:var(--fg-dim);}
+.pm-fidelity .pm-badge-icon{color:#7a3bd1;}
+.pm-text{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;text-align:left;}
+.pm-label{font-size:13px;font-weight:700;color:var(--fg);}
+.pm-detail{font-size:11.5px;color:var(--fg-dim);}
+.pm-check{
+  flex:none;box-sizing:border-box;width:20px;height:20px;padding:3px;
+  border:1.5px solid var(--line);border-radius:50%;color:transparent;
+  transition:border-color .2s ease, background .2s ease, color .2s ease;
+}
+.payment-method-card:has(input:checked) .pm-check{
+  border-color:var(--accent-ink);background:var(--accent-ink);color:var(--bg);
+}
 
 /* Checkout — payment method selection (step 1) and payment details
    (step 2) are two separate screens inside the drawer, not one long form. */

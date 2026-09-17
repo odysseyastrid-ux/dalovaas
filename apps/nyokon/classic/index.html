@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7" />
+<link rel="stylesheet" href="style.css?v=8" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
@@ -314,33 +314,48 @@
         <div class="payment-method-grid">
           <label class="payment-method-card pm-orange">
             <input type="radio" name="payment" value="orange_money" checked />
-            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="pm-badge pm-badge-logo"><img src="../assets/orange-money-logo.jpg?v=2" alt="Orange Money" /></span>
-            <span class="pm-label">Orange Money</span>
+            <span class="pm-text">
+              <span class="pm-label">Orange Money</span>
+              <span class="pm-detail" data-i18n="checkout_pm_orange_detail"></span>
+            </span>
+            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </label>
           <label class="payment-method-card pm-mtn">
             <input type="radio" name="payment" value="mtn_momo" />
-            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="pm-badge pm-badge-logo"><img src="../assets/mtn-momo-logo.jpg?v=2" alt="MTN Mobile Money" /></span>
-            <span class="pm-label">MTN MoMo</span>
+            <span class="pm-text">
+              <span class="pm-label">MTN MoMo</span>
+              <span class="pm-detail" data-i18n="checkout_pm_mtn_detail"></span>
+            </span>
+            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </label>
           <label class="payment-method-card pm-cash">
             <input type="radio" name="payment" value="cash" />
-            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="pm-badge pm-badge-logo"><img src="../assets/cash-pickup-photo.jpg?v=1" alt="Cash à la récupération" /></span>
-            <span class="pm-label" data-i18n="checkout_cash"></span>
+            <span class="pm-text">
+              <span class="pm-label" data-i18n="checkout_cash"></span>
+              <span class="pm-detail" data-i18n="checkout_pm_cash_detail"></span>
+            </span>
+            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </label>
           <label class="payment-method-card pm-card">
             <input type="radio" name="payment" value="bank_card" />
-            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="pm-badge pm-badge-logo"><img src="../assets/card-networks-logo.jpg?v=2" alt="Visa, Mastercard, American Express" /></span>
-            <span class="pm-label">Visa / Mastercard</span>
+            <span class="pm-text">
+              <span class="pm-label">Visa / Mastercard</span>
+              <span class="pm-detail" data-i18n="checkout_pm_card_detail"></span>
+            </span>
+            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </label>
           <label class="payment-method-card pm-fidelity">
             <input type="radio" name="payment" value="fidelity" />
-            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="pm-badge pm-badge-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 6 21l6-3 6 3-2.5-8.5"/></svg></span>
-            <span class="pm-label" data-i18n="checkout_fidelity"></span>
+            <span class="pm-text">
+              <span class="pm-label" data-i18n="checkout_fidelity"></span>
+              <span class="pm-detail" data-i18n="checkout_pm_fidelity_detail"></span>
+            </span>
+            <svg class="pm-check" viewBox="0 0 16 16" fill="none"><path d="M4 8.5 6.5 11 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </label>
         </div>
       </div>

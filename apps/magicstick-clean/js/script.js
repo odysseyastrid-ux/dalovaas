@@ -1,0 +1,160 @@
+const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+
+// The homepage nav floats transparent over the hero's photo, then becomes
+// the site's normal solid cream bar once it's scrolled past the hero (or
+// as soon as the mobile menu opens under it, so a solid dropdown never
+// hangs beneath a see-through bar).
+const siteHeader = document.getElementById('siteHeader');
+const headerFloatsOnPhoto = Boolean(siteHeader && siteHeader.classList.contains('header-on-photo'));
+function updateHeaderScrolled() {
+  if (!headerFloatsOnPhoto) return;
+  const heroEl = document.querySelector('.hero');
+  const threshold = heroEl ? Math.max(heroEl.offsetHeight - 120, 60) : 60;
+  siteHeader.classList.toggle('scrolled', window.scrollY > threshold);
+}
+if (headerFloatsOnPhoto) {
+  updateHeaderScrolled();
+  window.addEventListener('scroll', updateHeaderScrolled, { passive: true });
+}
+
+// The hero's before/after proof clip is decorative background footage —
+// respect prefers-reduced-motion by freezing it on the poster frame instead
+// of autoplaying/looping.
+const heroProofVideo = document.getElementById('heroProofVideo');
+if (heroProofVideo && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  heroProofVideo.removeAttribute('autoplay');
+  heroProofVideo.removeAttribute('loop');
+  heroProofVideo.pause();
+}
+
+// "What I offer" sits below the fold, so its attention-grabbing accent-word
+// mark plays on scroll-into-view rather than on page load (where it would
+// already be finished by the time anyone sees it).
+document.querySelectorAll('.reveal-heading').forEach((heading) => {
+  if (!('IntersectionObserver' in window)) { heading.classList.add('in-view'); return; }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        heading.classList.add('in-view');
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.4 });
+  observer.observe(heading);
+});
+
+// Splash gate: dismiss on click/tap or Enter/Space, remember for the rest
+// of this tab's session (see the inline script next to #splashGate in
+// index.html, which hides it instantly on repeat visits before this file
+// even loads).
+const splashGate = document.getElementById('splashGate');
+if (splashGate) {
+  const dismissSplash = () => {
+    splashGate.classList.add('splash-hide');
+    document.documentElement.classList.remove('splash-locked');
+    try { sessionStorage.setItem('magicstick_splash_seen', '1'); } catch (err) {}
+    setTimeout(() => { splashGate.style.display = 'none'; }, 550);
+  };
+  splashGate.addEventListener('click', dismissSplash);
+  splashGate.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      dismissSplash();
+    }
+  });
+}
+
+// Smooth-scroll every in-page link ourselves, instead of relying on default
+// anchor navigation (which can misbehave inside an embedded preview).
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const id = link.getAttribute('href').slice(1);
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+
+// Highlights tabs (Gallery / Testimonials): only one panel shown at a time,
+// so the before/after photos and the testimonials each get their own space
+// without crowding one another off the homepage.
+document.querySelectorAll('.tabs-nav .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs-nav .tab-btn').forEach(b => {
+      const isActive = b === btn;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    document.querySelectorAll('.tabs-panels .tab-panel').forEach(panel => {
+      const isActive = panel.id === `tab-${btn.dataset.tab}`;
+      panel.classList.toggle('active', isActive);
+      panel.hidden = !isActive;
+    });
+  });
+});
+
+// Before/after gallery: click any photo to view it full-size
+const photoButtons = Array.from(document.querySelectorAll('.ba-pair .photo-btn'));
+const lightbox = document.getElementById('lightbox');
+if (lightbox) {
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  let lightboxIndex = 0;
+
+  function showPhoto(index){
+    lightboxIndex = (index + photoButtons.length) % photoButtons.length;
+    const btn = photoButtons[lightboxIndex];
+    const img = btn.querySelector('img');
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightboxCaption.textContent = btn.dataset.captionKey ? t(btn.dataset.captionKey) : img.alt;
+  }
+
+  function openLightbox(index){
+    showPhoto(index);
+    lightbox.classList.add('show');
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('show');
+  }
+
+  photoButtons.forEach((btn, index) => {
+    btn.addEventListener('click', () => openLightbox(index));
+  });
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxPrev').addEventListener('click', () => showPhoto(lightboxIndex - 1));
+  document.getElementById('lightboxNext').addEventListener('click', () => showPhoto(lightboxIndex + 1));
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('show')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') showPhoto(lightboxIndex - 1);
+    if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
+  });
+}
+
+// Mobile menu toggle
+const burger = document.getElementById('burgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => {
+  const isOpen = mobileMenu.classList.toggle('open');
+  burger.classList.toggle('open', isOpen);
+  burger.setAttribute('aria-expanded', isOpen);
+  if (headerFloatsOnPhoto) {
+    if (isOpen) siteHeader.classList.add('scrolled');
+    else updateHeaderScrolled();
+  }
+});
+mobileMenu.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+  });
+});

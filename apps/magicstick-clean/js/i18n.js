@@ -181,6 +181,7 @@
     'home.why.item3': { en: 'I bring my own eco-friendly supplies', fr: 'J’apporte mes propres produits écologiques' },
     'home.why.item4': { en: 'Locally owned and operated', fr: 'Entreprise locale, propriété locale' },
     'home.why.item5': { en: 'Not happy? I’ll come back and make it right, free', fr: 'Pas satisfait? Je reviens gratuitement pour corriger le tout' },
+    'home.why.aboutLink': { en: 'Want to know more about who\'s behind the mop? <a href="about.html">Read my story &rarr;</a>', fr: 'Tu veux savoir qui est derrière la vadrouille? <a href="about.html">Découvre mon histoire &rarr;</a>' },
 
     // ---------- index.html: comparison table ----------
     'home.compare.title': { en: 'How our Ottawa cleaning services compare', fr: 'Comment nos services se comparent à Ottawa' },
@@ -627,6 +628,7 @@
     'about.values.item3': { en: 'Eco-friendly supplies, brought by me', fr: 'Produits écologiques, apportés par moi' },
     'about.values.item4': { en: 'Locally owned and operated', fr: 'Propriété locale et gestion locale' },
     'about.values.item5': { en: 'Not happy? I’ll come back and make it right, free', fr: 'Pas satisfait? Je reviens tout arranger, gratuitement' },
+    'about.values.careersLink': { en: 'As the business grows, so does the team — interested in joining? <a href="careers.html">See open positions &rarr;</a>', fr: "L'entreprise grandit, l'équipe aussi — intéressé(e) à te joindre? <a href=\"careers.html\">Voir les postes ouverts &rarr;</a>" },
     'about.cta.title': { en: 'Ready to see the difference?', fr: 'Prêt à voir la différence?' },
     'about.cta.desc': { en: 'Request a free quote, or book your first cleaning online.', fr: 'Demandez un devis gratuit, ou réservez votre premier ménage en ligne.' },
     'about.cta.quote': { en: 'Get a quote', fr: 'Demander un devis' },

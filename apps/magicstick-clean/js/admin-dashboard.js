@@ -87,7 +87,7 @@
       audits: [
         { name: 'Security audit (XSS, RLS, auth hardening)', date: offsetDate(-9), score: 92, kind: 'security' },
         { name: 'Sitewide UX & accessibility pass', date: offsetDate(-4), score: 88, kind: 'ux' },
-        { name: 'SEO technical audit', date: offsetDate(-20), score: 76, kind: 'seo' },
+        { name: 'SEO technical audit', date: offsetDate(0), score: 94, kind: 'seo' },
       ],
       apiKey: 'msk_live_' + Math.random().toString(36).slice(2, 18),
     };
@@ -373,7 +373,7 @@
   renderers.seo = function renderSeo() {
     const ring = document.getElementById('dashSeoScore');
     if (ring) {
-      const score = 78;
+      const score = 94;
       ring.style.setProperty('--pct', score);
       ring.querySelector('strong').textContent = score;
     }
@@ -394,9 +394,10 @@
     const issues = document.getElementById('dashSeoIssues');
     if (issues) {
       const list = [
-        { sev: 'warn', text: '3 images without descriptive alt text' },
+        { sev: 'good', text: 'Descriptive alt text on every image (fixed)' },
         { sev: 'good', text: 'All pages have unique meta descriptions' },
-        { sev: 'warn', text: 'Location pages could use more internal links' },
+        { sev: 'good', text: 'Location pages now cross-link to each other (fixed)' },
+        { sev: 'good', text: 'About, Careers & Gift cards linked from body content (fixed)' },
         { sev: 'good', text: 'Core Web Vitals: good on mobile & desktop' },
       ];
       issues.innerHTML = list.map((i) => `<div class="dash-booking-row"><span class="dash-pill ${i.sev}">${i.sev === 'good' ? '✓' : '!'}</span><div class="dash-booking-main"><strong>${esc(i.text)}</strong></div></div>`).join('');

@@ -10,10 +10,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/admin-dashboard.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
 <script src="js/i18n.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
 <script>(function(){try{var t=localStorage.getItem('magicstick_theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
@@ -34,14 +36,14 @@
   </nav>
 </header>
 
-<section style="padding:40px 0 24px;">
+<section style="padding:32px 0 20px;">
   <div class="wrap">
-    <h1 style="font-size:30px;" data-i18n="admin.title">Owner dashboard</h1>
+    <h1 style="font-size:28px;" data-i18n="admin.title">Owner dashboard</h1>
   </div>
 </section>
 
 <section id="adminApp">
-  <div class="wrap">
+  <div class="wrap" style="max-width:1440px;">
 
     <div id="backendNotice" class="notice-box" hidden>
       <p data-i18n="admin.notice.backend">The backend isn't configured yet — see SETUP.md to connect Supabase.</p>
@@ -65,113 +67,493 @@
     </div>
 
     <div id="adminDashboard" hidden>
-      <div class="dash-header">
-        <div class="admin-tabs">
-          <button type="button" class="auth-tab active" data-tab="quotes" data-i18n="admin.tab.quotes">Quote requests</button>
-          <button type="button" class="auth-tab" data-tab="bookings" data-i18n="admin.tab.bookings">Bookings</button>
-          <button type="button" class="auth-tab" data-tab="services" data-i18n="admin.tab.services">Services</button>
-        </div>
-        <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
-      </div>
 
-      <div id="quotesPanel" class="admin-panel">
-        <div class="table-scroll">
-          <table class="admin-table" id="quotesTable">
-            <thead>
-              <tr>
-                <th data-i18n="admin.col.date">Date</th>
-                <th data-i18n="admin.col.name">Name</th>
-                <th data-i18n="admin.col.contact">Contact</th>
-                <th data-i18n="admin.col.service">Service</th>
-                <th data-i18n="admin.col.frequency">Frequency</th>
-                <th data-i18n="admin.col.area">Area</th>
-                <th data-i18n="admin.col.home">Home</th>
-                <th data-i18n="admin.col.preferredDay">Preferred day</th>
-                <th data-i18n="admin.col.pets">Pets</th>
-                <th data-i18n="admin.col.files">Files</th>
-                <th data-i18n="admin.col.notes">Notes</th>
-                <th data-i18n="admin.col.status">Status</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <div class="dash-topbar">
+        <h2 data-i18n="admin.dash.title">Dashboard</h2>
+        <div class="dash-topbar-actions">
+          <div class="dash-bell-wrap">
+            <button type="button" class="dash-bell-btn" id="dashBellBtn" aria-label="Notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="dash-bell-dot" id="dashBellDot" hidden></span>
+            </button>
+            <div class="dash-bell-panel" id="dashBellPanel">
+              <div class="dash-bell-panel-head"><strong data-i18n="admin.dash.notifications">Notifications</strong></div>
+              <div id="dashBellList"></div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
         </div>
       </div>
 
-      <div id="bookingsPanel" class="admin-panel" hidden>
-        <div class="table-scroll">
-          <table class="admin-table" id="bookingsTable">
-            <thead>
-              <tr>
-                <th data-i18n="admin.col.date">Date</th>
-                <th data-i18n="admin.col.time">Time</th>
-                <th data-i18n="admin.col.name">Name</th>
-                <th data-i18n="admin.col.contact">Contact</th>
-                <th data-i18n="admin.col.service">Service</th>
-                <th data-i18n="admin.col.area">Area</th>
-                <th data-i18n="admin.col.deposit">Deposit</th>
-                <th data-i18n="admin.col.status">Status</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
+      <div class="dash-shell" id="dashShell">
+        <aside class="dash-sidebar">
 
-      <div id="servicesPanel" class="admin-panel" hidden>
-        <div class="table-scroll">
-          <table class="admin-table" id="servicesTable">
-            <thead>
-              <tr>
-                <th data-i18n="admin.col.serviceName">Name</th>
-                <th data-i18n="admin.col.category">Category</th>
-                <th data-i18n="admin.col.price">Price</th>
-                <th data-i18n="admin.col.depositCol">Deposit</th>
-                <th data-i18n="admin.col.duration">Duration</th>
-                <th data-i18n="admin.col.active">Active</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+          <div class="dash-nav-group">
+            <div class="dash-nav-label" data-i18n="admin.dash.nav.dashboard">Dashboard</div>
+            <button type="button" class="dash-nav-btn active" data-section="overview">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+              <span data-i18n="admin.dash.nav.overview">Overview</span>
+            </button>
+          </div>
 
-        <form id="addServiceForm" class="auth-form" style="max-width:480px;margin-top:28px;">
-          <h2 style="font-size:18px;margin:0 0 16px;" data-i18n="admin.services.addTitle">Add a service</h2>
-          <div class="field">
-            <label for="svcName" data-i18n="admin.services.name">Name (EN)</label>
-            <input type="text" id="svcName" required>
+          <div class="dash-nav-group">
+            <div class="dash-nav-label" data-i18n="admin.dash.nav.operations">Operations</div>
+            <button type="button" class="dash-nav-btn" data-section="calendar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span data-i18n="admin.dash.nav.calendar">Calendar &amp; bookings</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="crm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span data-i18n="admin.dash.nav.crm">Quotes, bookings &amp; services</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span data-i18n="admin.dash.nav.notifications">Notifications</span>
+            </button>
           </div>
-          <div class="field">
-            <label for="svcNameFr" data-i18n="admin.services.nameFr">Name (FR)</label>
-            <input type="text" id="svcNameFr">
+
+          <div class="dash-nav-group">
+            <div class="dash-nav-label" data-i18n="admin.dash.nav.marketing">Marketing</div>
+            <button type="button" class="dash-nav-btn" data-section="local-research">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span data-i18n="admin.dash.nav.localResearch">Local research</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="content-marketing">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              <span data-i18n="admin.dash.nav.contentMarketing">Content marketing</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="local-marketing">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span data-i18n="admin.dash.nav.localMarketing">Local marketing</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="seo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+              <span data-i18n="admin.dash.nav.seo">SEO</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="smm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+              <span data-i18n="admin.dash.nav.smm">Social media (SMM)</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="ads">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><circle cx="7" cy="14" r="1.5"/></svg>
+              <span data-i18n="admin.dash.nav.ads">Ads &amp; site banners</span>
+            </button>
           </div>
-          <div class="field">
-            <label for="svcDescription" data-i18n="admin.services.description">Description (EN)</label>
-            <input type="text" id="svcDescription">
+
+          <div class="dash-nav-group">
+            <div class="dash-nav-label" data-i18n="admin.dash.nav.aiTools">AI &amp; reports</div>
+            <button type="button" class="dash-nav-btn" data-section="ai-research">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 4 2 7h10c0-3 2-4 2-7a7 7 0 0 0-7-7z"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="10" y1="23" x2="14" y2="23"/></svg>
+              <span data-i18n="admin.dash.nav.aiResearch">AI research</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="report-generator">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M9 15l2 2 4-4"/></svg>
+              <span data-i18n="admin.dash.nav.reportGenerator">Report generator</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="agency-pack">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.59a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              <span data-i18n="admin.dash.nav.agencyPack">Agency pack</span>
+            </button>
           </div>
-          <div class="field">
-            <label for="svcDescriptionFr" data-i18n="admin.services.descriptionFr">Description (FR)</label>
-            <input type="text" id="svcDescriptionFr">
+
+          <div class="dash-nav-group">
+            <div class="dash-nav-label" data-i18n="admin.dash.nav.system">System</div>
+            <button type="button" class="dash-nav-btn" data-section="files">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <span data-i18n="admin.dash.nav.files">Files</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="api">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              <span data-i18n="admin.dash.nav.api">API</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="backups">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+              <span data-i18n="admin.dash.nav.backups">Backups</span>
+            </button>
+            <button type="button" class="dash-nav-btn" data-section="audits">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span data-i18n="admin.dash.nav.audits">Audits</span>
+            </button>
           </div>
-          <div class="field">
-            <label for="svcCategory" data-i18n="admin.col.category">Category</label>
-            <select id="svcCategory"></select>
-          </div>
-          <div class="field">
-            <label for="svcPrice" data-i18n="admin.services.price">Price ($)</label>
-            <input type="number" id="svcPrice" min="0" step="0.01" required>
-          </div>
-          <div class="field">
-            <label for="svcDeposit" data-i18n="admin.services.deposit">Deposit ($)</label>
-            <input type="number" id="svcDeposit" min="0" step="0.01" required>
-          </div>
-          <div class="field">
-            <label for="svcDuration" data-i18n="admin.services.duration">Duration (minutes)</label>
-            <input type="number" id="svcDuration" min="0" step="5" value="120" required>
-          </div>
-          <button type="submit" class="btn" data-i18n="admin.services.add">Add service</button>
-          <p class="form-note" id="addServiceNote"></p>
-        </form>
+
+        </aside>
+
+        <main class="dash-main">
+
+          <!-- 1. OVERVIEW -->
+          <section class="dash-section active" id="dashSection-overview">
+            <div class="dash-kpi-grid" id="dashOverviewKpis"></div>
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.overview.trend">Revenue trend</h3></div>
+                <div class="dash-chart-wrap"><canvas id="dashOverviewChart"></canvas></div>
+              </div>
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.overview.activity">Recent activity</h3></div>
+                <div id="dashOverviewActivity"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. CALENDAR -->
+          <section class="dash-section" id="dashSection-calendar">
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-cal-head">
+                  <strong id="dashCalLabel"></strong>
+                  <div class="dash-cal-nav">
+                    <button type="button" id="dashCalPrev" aria-label="Previous month">&larr;</button>
+                    <button type="button" id="dashCalNext" aria-label="Next month">&rarr;</button>
+                  </div>
+                </div>
+                <div class="dash-cal-grid" id="dashCalGrid"></div>
+              </div>
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 id="dashBookingListDate"></h3></div>
+                <div class="dash-booking-list" id="dashBookingList"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. CRM (existing quotes/bookings/services, unchanged wiring) -->
+          <section class="dash-section" id="dashSection-crm">
+            <div class="admin-tabs" style="margin-bottom:20px;">
+              <button type="button" class="auth-tab active" data-tab="quotes" data-i18n="admin.tab.quotes">Quote requests</button>
+              <button type="button" class="auth-tab" data-tab="bookings" data-i18n="admin.tab.bookings">Bookings</button>
+              <button type="button" class="auth-tab" data-tab="services" data-i18n="admin.tab.services">Services</button>
+            </div>
+
+            <div id="quotesPanel" class="admin-panel">
+              <div class="table-scroll">
+                <table class="admin-table" id="quotesTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="admin.col.date">Date</th>
+                      <th data-i18n="admin.col.name">Name</th>
+                      <th data-i18n="admin.col.contact">Contact</th>
+                      <th data-i18n="admin.col.service">Service</th>
+                      <th data-i18n="admin.col.frequency">Frequency</th>
+                      <th data-i18n="admin.col.area">Area</th>
+                      <th data-i18n="admin.col.home">Home</th>
+                      <th data-i18n="admin.col.preferredDay">Preferred day</th>
+                      <th data-i18n="admin.col.pets">Pets</th>
+                      <th data-i18n="admin.col.files">Files</th>
+                      <th data-i18n="admin.col.notes">Notes</th>
+                      <th data-i18n="admin.col.status">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="bookingsPanel" class="admin-panel" hidden>
+              <div class="table-scroll">
+                <table class="admin-table" id="bookingsTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="admin.col.date">Date</th>
+                      <th data-i18n="admin.col.time">Time</th>
+                      <th data-i18n="admin.col.name">Name</th>
+                      <th data-i18n="admin.col.contact">Contact</th>
+                      <th data-i18n="admin.col.service">Service</th>
+                      <th data-i18n="admin.col.area">Area</th>
+                      <th data-i18n="admin.col.deposit">Deposit</th>
+                      <th data-i18n="admin.col.status">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="servicesPanel" class="admin-panel" hidden>
+              <div class="table-scroll">
+                <table class="admin-table" id="servicesTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="admin.col.serviceName">Name</th>
+                      <th data-i18n="admin.col.category">Category</th>
+                      <th data-i18n="admin.col.price">Price</th>
+                      <th data-i18n="admin.col.depositCol">Deposit</th>
+                      <th data-i18n="admin.col.duration">Duration</th>
+                      <th data-i18n="admin.col.active">Active</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <form id="addServiceForm" class="auth-form" style="max-width:480px;margin-top:28px;">
+                <h2 style="font-size:18px;margin:0 0 16px;" data-i18n="admin.services.addTitle">Add a service</h2>
+                <div class="field">
+                  <label for="svcName" data-i18n="admin.services.name">Name (EN)</label>
+                  <input type="text" id="svcName" required>
+                </div>
+                <div class="field">
+                  <label for="svcNameFr" data-i18n="admin.services.nameFr">Name (FR)</label>
+                  <input type="text" id="svcNameFr">
+                </div>
+                <div class="field">
+                  <label for="svcDescription" data-i18n="admin.services.description">Description (EN)</label>
+                  <input type="text" id="svcDescription">
+                </div>
+                <div class="field">
+                  <label for="svcDescriptionFr" data-i18n="admin.services.descriptionFr">Description (FR)</label>
+                  <input type="text" id="svcDescriptionFr">
+                </div>
+                <div class="field">
+                  <label for="svcCategory" data-i18n="admin.col.category">Category</label>
+                  <select id="svcCategory"></select>
+                </div>
+                <div class="field">
+                  <label for="svcPrice" data-i18n="admin.services.price">Price ($)</label>
+                  <input type="number" id="svcPrice" min="0" step="0.01" required>
+                </div>
+                <div class="field">
+                  <label for="svcDeposit" data-i18n="admin.services.deposit">Deposit ($)</label>
+                  <input type="number" id="svcDeposit" min="0" step="0.01" required>
+                </div>
+                <div class="field">
+                  <label for="svcDuration" data-i18n="admin.services.duration">Duration (minutes)</label>
+                  <input type="number" id="svcDuration" min="0" step="5" value="120" required>
+                </div>
+                <button type="submit" class="btn" data-i18n="admin.services.add">Add service</button>
+                <p class="form-note" id="addServiceNote"></p>
+              </form>
+            </div>
+          </section>
+
+          <!-- 4. LOCAL RESEARCH -->
+          <section class="dash-section" id="dashSection-local-research">
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-card-head">
+                  <h3 data-i18n="admin.dash.localResearch.keywords">Local keyword opportunities</h3>
+                </div>
+                <div class="dash-table-wrap">
+                  <table class="dash-table">
+                    <thead><tr><th data-i18n="admin.dash.keyword">Keyword</th><th data-i18n="admin.dash.position">Position</th><th data-i18n="admin.dash.change">Change</th><th data-i18n="admin.dash.volume">Volume</th></tr></thead>
+                    <tbody id="dashLocalKeywords"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.localResearch.competitors">Nearby competitors</h3></div>
+                <div id="dashLocalCompetitors"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. CONTENT MARKETING -->
+          <section class="dash-section" id="dashSection-content-marketing">
+            <div class="dash-card">
+              <form id="dashContentForm" style="display:flex;gap:10px;flex-wrap:wrap;">
+                <input type="text" id="dashContentInput" placeholder="New content idea…" style="flex:1;min-width:220px;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-size:13.5px;">
+                <button type="submit" class="dash-btn primary" data-i18n="admin.dash.content.add">Add idea</button>
+              </form>
+            </div>
+            <div id="dashContentBoard" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+            </div>
+          </section>
+
+          <!-- 6. LOCAL MARKETING -->
+          <section class="dash-section" id="dashSection-local-marketing">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.localMarketing.title">Local listings &amp; citations</h3>
+                <p class="dash-card-sub" data-i18n="admin.dash.localMarketing.sub">Where Magicstick Clean shows up across local directories.</p>
+              </div>
+              <div class="dash-table-wrap">
+                <table class="dash-table">
+                  <thead><tr><th data-i18n="admin.dash.listing">Listing</th><th data-i18n="admin.dash.status">Status</th><th data-i18n="admin.dash.note">Note</th></tr></thead>
+                  <tbody id="dashLocalListingsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 7. SEO -->
+          <section class="dash-section" id="dashSection-seo">
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.seo.traffic">Traffic &amp; leads</h3></div>
+                <div class="dash-chart-wrap"><canvas id="dashSeoTrafficChart"></canvas></div>
+              </div>
+              <div class="dash-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
+                <div class="dash-card-head" style="width:100%;"><h3 data-i18n="admin.dash.seo.score">SEO score</h3></div>
+                <div class="dash-score-ring" id="dashSeoScore" style="--pct:78;">
+                  <div class="dash-score-ring-inner"><strong>78</strong><span>/100</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.seo.keywords">Keyword rankings</h3></div>
+                <div class="dash-table-wrap">
+                  <table class="dash-table">
+                    <thead><tr><th data-i18n="admin.dash.keyword">Keyword</th><th data-i18n="admin.dash.position">Position</th><th data-i18n="admin.dash.change">Change</th></tr></thead>
+                    <tbody id="dashSeoKeywordsBody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.seo.issues">Technical issues</h3></div>
+                <div id="dashSeoIssues"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 8. SMM -->
+          <section class="dash-section" id="dashSection-smm">
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.smm.accounts">Connected accounts</h3></div>
+                <div id="dashSmmAccounts"></div>
+              </div>
+              <div class="dash-card">
+                <div class="dash-card-head"><h3 data-i18n="admin.dash.smm.queue">Content queue</h3></div>
+                <div class="dash-table-wrap">
+                  <table class="dash-table">
+                    <thead><tr><th data-i18n="admin.dash.date">Date</th><th data-i18n="admin.dash.platform">Platform</th><th data-i18n="admin.dash.smm.post">Post</th></tr></thead>
+                    <tbody id="dashSmmQueueBody"></tbody>
+                  </table>
+                </div>
+                <form id="dashSmmForm" style="margin-top:16px;">
+                  <div class="dash-form-row">
+                    <div class="dash-field">
+                      <label for="dashSmmPlatform" data-i18n="admin.dash.platform">Platform</label>
+                      <select id="dashSmmPlatform"><option>Instagram</option><option>Facebook</option><option>Google Business Profile</option><option>TikTok</option></select>
+                    </div>
+                    <div class="dash-field">
+                      <label for="dashSmmCopy" data-i18n="admin.dash.smm.post">Post</label>
+                      <input type="text" id="dashSmmCopy" placeholder="Post copy…">
+                    </div>
+                  </div>
+                  <button type="submit" class="dash-btn primary" data-i18n="admin.dash.smm.schedule">Add to queue</button>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <!-- 9. ADS / BANNERS -->
+          <section class="dash-section" id="dashSection-ads">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.ads.title">Site ads &amp; banners</h3>
+                <p class="dash-card-sub" data-i18n="admin.dash.ads.sub">Toggle promotional banners and animated call-outs across the site.</p>
+              </div>
+              <div id="dashAdsList"></div>
+            </div>
+          </section>
+
+          <!-- 10. AI RESEARCH -->
+          <section class="dash-section" id="dashSection-ai-research">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.ai.title">AI research &amp; content assistant</h3>
+                <p class="dash-card-sub" data-i18n="admin.dash.ai.sub">Draft ideas locally today — connect a real Claude API key under Settings → API to generate live.</p>
+              </div>
+              <div class="dash-field">
+                <label for="dashAiTopic" data-i18n="admin.dash.ai.topic">Topic</label>
+                <input type="text" id="dashAiTopic" placeholder="e.g. move-out cleaning checklist">
+              </div>
+              <button type="button" class="dash-btn primary" id="dashAiDraftBtn" data-i18n="admin.dash.ai.generate">Generate draft</button>
+              <div class="dash-field" style="margin-top:16px;">
+                <label for="dashAiOutput" data-i18n="admin.dash.ai.output">Draft</label>
+                <textarea id="dashAiOutput" rows="8"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <!-- 11. REPORT GENERATOR -->
+          <section class="dash-section" id="dashSection-report-generator">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.report.title">Report generator</h3>
+                <p class="dash-card-sub" data-i18n="admin.dash.report.sub">Builds a printable summary from your current dashboard data — use your browser's Print dialog to save as PDF.</p>
+              </div>
+              <button type="button" class="dash-btn primary" id="dashReportBtn" data-i18n="admin.dash.report.generate">Generate monthly report</button>
+            </div>
+          </section>
+
+          <!-- 12. AGENCY PACK -->
+          <section class="dash-section" id="dashSection-agency-pack">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.pack.title">Agency pack</h3>
+                <p class="dash-card-sub" data-i18n="admin.dash.pack.sub">Ready-made marketing collateral you can hand to a partner or print for a client.</p>
+              </div>
+              <button type="button" class="dash-btn primary" id="dashMediaKitBtn" data-i18n="admin.dash.pack.mediaKit">Open media kit</button>
+            </div>
+          </section>
+
+          <!-- 13. API -->
+          <section class="dash-section" id="dashSection-api">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.api.title">API access</h3>
+                <p class="dash-card-sub" data-i18n="admin.dash.api.sub">Placeholder key — wire this to your real backend once it's provisioned.</p>
+              </div>
+              <div class="dash-key-row">
+                <span id="dashApiKey"></span>
+                <button type="button" class="dash-btn" id="dashApiCopyBtn" data-i18n="admin.dash.copy">Copy</button>
+                <button type="button" class="dash-btn" id="dashApiRegenBtn" data-i18n="admin.dash.api.regenerate">Regenerate</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 14. FILES -->
+          <section class="dash-section" id="dashSection-files">
+            <div class="dash-card">
+              <div class="dash-card-head"><h3 data-i18n="admin.dash.files.title">File manager</h3></div>
+              <div class="dash-dropzone" id="dashDropzone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p data-i18n="admin.dash.files.drop">Drag files here, or click to browse</p>
+              </div>
+              <input type="file" id="dashFileInput" multiple hidden>
+              <div class="dash-storage-bar"><div class="dash-storage-fill" id="dashStorageFill"></div></div>
+              <p class="dash-card-sub" id="dashStorageLabel"></p>
+              <div id="dashFileList"></div>
+            </div>
+          </section>
+
+          <!-- 15. NOTIFICATIONS -->
+          <section class="dash-section" id="dashSection-notifications">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.notifications">Notifications</h3>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button type="button" class="dash-btn" id="dashSimOrderBtn" data-i18n="admin.dash.simOrder">Simulate new order</button>
+                  <button type="button" class="dash-btn" id="dashSimPayBtn" data-i18n="admin.dash.simPay">Simulate payment proof</button>
+                  <button type="button" class="dash-btn" id="dashNotifMarkAll" data-i18n="admin.dash.markAllRead">Mark all read</button>
+                </div>
+              </div>
+              <div id="dashNotifPageList"></div>
+            </div>
+          </section>
+
+          <!-- 16. BACKUPS -->
+          <section class="dash-section" id="dashSection-backups">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <h3 data-i18n="admin.dash.backups.title">Backups</h3>
+                <button type="button" class="dash-btn primary" id="dashBackupNowBtn" data-i18n="admin.dash.backups.now">Back up now</button>
+              </div>
+              <p class="dash-card-sub" data-i18n="admin.dash.backups.sub" style="margin-bottom:14px;">Exports the dashboard's current data as a JSON file you can keep offline.</p>
+              <div id="dashBackupsList"></div>
+            </div>
+          </section>
+
+          <!-- 17. AUDITS -->
+          <section class="dash-section" id="dashSection-audits">
+            <div class="dash-card">
+              <div class="dash-card-head"><h3 data-i18n="admin.dash.audits.title">Audits</h3></div>
+              <div id="dashAuditsList"></div>
+            </div>
+          </section>
+
+        </main>
       </div>
     </div>
 
@@ -179,6 +561,7 @@
 </section>
 
 <script src="js/admin.js"></script>
+<script src="js/admin-dashboard.js"></script>
 <script src="js/site-enhancements.js"></script>
 </body>
 </html>

@@ -624,7 +624,6 @@
   .compare-table thead th:first-child{background:transparent;}
   .compare-table tbody tr:nth-child(even){background:var(--teal-tint);}
   .compare-table td.muted{color:var(--gray);font-size:14px;}
-  .compare-table td.soon{color:var(--gold);font-weight:600;font-size:13.5px;font-style:italic;}
   .compare-table .check-icon{width:20px;height:20px;color:var(--teal);}
   .compare-scroll{overflow-x:auto;}
   @media (max-width:600px){ .compare-table{font-size:13.5px;} .compare-table th, .compare-table td{padding:10px 10px;} }

@@ -197,7 +197,6 @@
     'home.compare.varies': { en: 'Varies', fr: 'Varie' },
     'home.compare.oftenRotates': { en: 'Often rotates staff', fr: 'Change souvent de personnel' },
     'home.compare.rarely': { en: 'Rarely', fr: 'Rarement' },
-    'home.compare.comingSoon': { en: 'Coming soon', fr: 'Bientôt disponible' },
 
     // ---------- index.html: service area ----------
     'home.area.title': { en: 'Proudly serving three communities', fr: 'Fièrement au service de trois communautés' },

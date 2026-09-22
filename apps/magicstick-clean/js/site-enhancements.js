@@ -159,14 +159,16 @@
     banner.setAttribute('role', 'region');
     banner.setAttribute('aria-label', t('cookies.bannerLabel'));
     banner.innerHTML = `
-      <div class="cookie-main">
-        <p>${esc(t('cookies.text'))} <a href="privacy.html">${esc(t('cookies.learnMore'))}</a></p>
-        <div class="cookie-actions">
-          <button type="button" class="cookie-link-btn" id="cookieCustomizeBtn">${esc(t('cookies.customize'))}</button>
-          <button type="button" class="btn-outline" id="cookieRejectBtn">${esc(t('cookies.reject'))}</button>
-          <button type="button" class="btn" id="cookieAcceptBtn">${esc(t('cookies.accept'))}</button>
-        </div>
+      <button type="button" class="cookie-exit" id="cookieCloseBtn" aria-label="${esc(t('cookies.close'))}">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg>
+      </button>
+      <p class="cookie-heading">${esc(t('cookies.bannerLabel'))}</p>
+      <p class="cookie-para">${esc(t('cookies.text'))} <a href="privacy.html">${esc(t('cookies.learnMore'))}</a></p>
+      <div class="cookie-button-wrapper">
+        <button type="button" class="cookie-btn cookie-btn-accept" id="cookieAcceptBtn">${esc(t('cookies.accept'))}</button>
+        <button type="button" class="cookie-btn cookie-btn-reject" id="cookieRejectBtn">${esc(t('cookies.reject'))}</button>
       </div>
+      <button type="button" class="cookie-customize-link" id="cookieCustomizeBtn">${esc(t('cookies.customize'))}</button>
       <div class="cookie-prefs" id="cookiePrefs" hidden>
         <label class="cookie-toggle-row">
           <span class="cookie-toggle-body">
@@ -182,7 +184,7 @@
           </span>
           <input type="checkbox" id="cookieAnalyticsToggle" class="cookie-toggle-switch">
         </label>
-        <button type="button" class="btn" id="cookieSavePrefsBtn">${esc(t('cookies.savePreferences'))}</button>
+        <button type="button" class="cookie-btn cookie-btn-accept cookie-btn-full" id="cookieSavePrefsBtn">${esc(t('cookies.savePreferences'))}</button>
       </div>
     `;
     document.body.appendChild(banner);
@@ -197,6 +199,13 @@
       dismiss();
     });
     banner.querySelector('#cookieRejectBtn').addEventListener('click', () => {
+      setCookieConsent(false);
+      dismiss();
+    });
+    // Closing with the X is the same as rejecting non-essential cookies —
+    // a plain dismissal with no recorded choice would just show the banner
+    // again on the next page.
+    banner.querySelector('#cookieCloseBtn').addEventListener('click', () => {
       setCookieConsent(false);
       dismiss();
     });

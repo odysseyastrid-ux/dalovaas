@@ -167,18 +167,42 @@
     </form>
   </div>
 
-  <div id="dashboardPanel" class="portal-card" hidden>
-    <div class="portal-dash-header">
-      <div>
-        <p class="fine" data-i18n="account.signedInAs">Signed in as</p>
-        <p id="accountEmail" class="portal-dash-email"></p>
+  <div id="dashboardPanel" class="portal-card dash-shell-card" hidden>
+    <div class="dash-shell">
+      <nav class="dash-sidebar">
+        <button type="button" class="dash-nav-btn active" data-tab="bookings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span data-i18n="account.nav.bookings">My bookings</span>
+        </button>
+        <button type="button" class="dash-nav-btn" data-tab="quotes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
+          <span data-i18n="account.nav.quotes">My quote requests</span>
+        </button>
+        <button type="button" class="dash-nav-btn" data-tab="account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+          <span data-i18n="account.nav.account">Account</span>
+        </button>
+      </nav>
+      <div class="dash-content">
+        <div id="dashTabBookings" class="dash-tab">
+          <h2 class="portal-dash-title" data-i18n="account.myBookings">My bookings</h2>
+          <div id="bookingsList" class="bookings-list"></div>
+        </div>
+        <div id="dashTabQuotes" class="dash-tab" hidden>
+          <h2 class="portal-dash-title" data-i18n="account.myQuoteRequests">My quote requests</h2>
+          <div id="quoteRequestsList" class="bookings-list"></div>
+        </div>
+        <div id="dashTabAccount" class="dash-tab" hidden>
+          <div class="portal-dash-header">
+            <div>
+              <p class="fine" data-i18n="account.signedInAs">Signed in as</p>
+              <p id="accountEmail" class="portal-dash-email"></p>
+            </div>
+            <button type="button" class="portal-oauth" id="logoutBtn" data-i18n="account.logout">Log out</button>
+          </div>
+        </div>
       </div>
-      <button type="button" class="portal-oauth" id="logoutBtn" data-i18n="account.logout">Log out</button>
     </div>
-    <h2 class="portal-dash-title" data-i18n="account.myBookings">My bookings</h2>
-    <div id="bookingsList" class="bookings-list"></div>
-    <h2 class="portal-dash-title" data-i18n="account.myQuoteRequests">My quote requests</h2>
-    <div id="quoteRequestsList" class="bookings-list"></div>
   </div>
 </main>
 

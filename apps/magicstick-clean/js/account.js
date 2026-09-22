@@ -221,4 +221,14 @@
     await supabase.auth.signOut();
     window.location.reload();
   });
+
+  // Dashboard sidebar: which tab (bookings / quotes / account) is shown.
+  document.querySelectorAll('.dash-nav-btn[data-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.dash-nav-btn[data-tab]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.dash-tab').forEach((tab) => { tab.hidden = true; });
+      document.getElementById('dashTab' + btn.dataset.tab[0].toUpperCase() + btn.dataset.tab.slice(1)).hidden = false;
+    });
+  });
 })();

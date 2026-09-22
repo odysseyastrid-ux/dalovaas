@@ -62,14 +62,25 @@
   async function loadBookings() {
     const { data, error } = await supabase
       .from('bookings')
-      .select('*, services(name, name_fr)')
+      .select('*')
       .order('requested_date', { ascending: false });
     const list = document.getElementById('bookingsList');
     if (error) {
       list.textContent = t('account.bookings.loadError');
       return;
     }
-    lastBookings = data;
+    // Fetched separately from services (rather than a nested select) to
+    // sidestep a PostgREST embed that intermittently 401s on this project.
+    const serviceIds = [...new Set(data.map((b) => b.service_id))];
+    let servicesById = {};
+    if (serviceIds.length) {
+      const { data: services } = await supabase
+        .from('services')
+        .select('id, name, name_fr')
+        .in('id', serviceIds);
+      servicesById = Object.fromEntries((services ?? []).map((s) => [s.id, s]));
+    }
+    lastBookings = data.map((b) => ({ ...b, services: servicesById[b.service_id] }));
     renderBookings();
   }
 

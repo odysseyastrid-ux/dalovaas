@@ -77,6 +77,14 @@ document.getElementById('zoneSkip').addEventListener('click', () => chooseZone('
 document.getElementById('zoneClose').addEventListener('click', closeZoneModal);
 document.getElementById('zoneDismiss').addEventListener('click', closeZoneModal);
 document.getElementById('zoneClaim').addEventListener('click', () => {
+  // Already signed in — we already know their name/email (showSignedIn()
+  // filled qName/qContact at page load), so don't ask again.
+  if (quoteCustomerId) {
+    discountClaimed = true;
+    closeZoneModal();
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
   zoneStep2.style.display = 'none';
   zoneStep3.style.display = 'block';
 });
@@ -90,11 +98,26 @@ document.getElementById('zoneLeadForm').addEventListener('submit', (e) => {
   contactField.classList.toggle('invalid', contactInput.value.trim() === '');
   if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) return;
 
+  const name = nameInput.value.trim();
+  const contact = contactInput.value.trim();
   discountClaimed = true;
-  document.getElementById('qName').value = nameInput.value.trim();
-  document.getElementById('qContact').value = contactInput.value.trim();
+  document.getElementById('qName').value = name;
+  document.getElementById('qContact').value = contact;
   closeZoneModal();
-  document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+
+  // Not signed in — carry what they just typed into the account card so
+  // creating an account (to track this request) takes one less step.
+  if (!quoteCustomerId && quoteAuthCard && !quoteAuthCard.hidden) {
+    const signupNameInput = document.getElementById('qaSignupName');
+    const signupEmailInput = document.getElementById('qaSignupEmail');
+    if (signupNameInput) signupNameInput.value = name;
+    if (signupEmailInput && contact.includes('@')) signupEmailInput.value = contact;
+    const signupTab = quoteAuthCard.querySelector('.portal-tab[data-tab="signup"]');
+    if (signupTab) signupTab.click();
+    quoteAuthCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  }
 });
 zoneBackdrop.addEventListener('click', (e) => {
   if (e.target === zoneBackdrop) closeZoneModal();

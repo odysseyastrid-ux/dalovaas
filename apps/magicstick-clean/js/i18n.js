@@ -753,14 +753,14 @@
     'learnMore.cta.desc': { en: 'Request a free quote, or book your first cleaning online.', fr: 'Demandez un devis gratuit, ou réservez votre premier ménage en ligne.' },
 
     'aiChat.toggle': { en: 'Chat with us', fr: 'Clavarder avec nous' },
-    'aiChat.title': { en: 'MagicStick Clean', fr: 'MagicStick Clean' },
-    'aiChat.subtitle': { en: 'Usually replies in seconds', fr: 'Répond habituellement en quelques secondes' },
-    'aiChat.greeting': { en: "Hi! I'm the virtual assistant for MagicStick Clean. Ask me about services, pricing, or how booking works.", fr: 'Bonjour! Je suis l’assistante virtuelle de MagicStick Clean. Pose-moi une question sur les services, les prix, ou comment fonctionne la réservation.' },
+    'aiChat.title': { en: 'Louis', fr: 'Louis' },
+    'aiChat.subtitle': { en: 'MagicStick Clean · usually replies in seconds', fr: 'MagicStick Clean · répond habituellement en quelques secondes' },
+    'aiChat.greeting': { en: "Hi, I'm Louis from MagicStick Clean. How can I help you?", fr: 'Salut, je suis Louis de MagicStick Clean. Comment puis-je t’aider?' },
     'aiChat.placeholder': { en: 'Type a message…', fr: 'Écris un message…' },
     'aiChat.send': { en: 'Send', fr: 'Envoyer' },
     'aiChat.close': { en: 'Close chat', fr: 'Fermer le clavardage' },
-    'aiChat.error': { en: "Sorry, I'm having trouble replying right now — call (343) 843-7761 or email magicstickclean@gmail.com and we'll help right away.", fr: 'Désolée, j’ai un problème technique en ce moment — appelle le (343) 843-7761 ou écris à magicstickclean@gmail.com, on va t’aider tout de suite.' },
-    'aiChat.disclaimer': { en: 'AI assistant — a real person is always reachable by phone or email.', fr: 'Assistante virtuelle — une vraie personne est toujours joignable par téléphone ou courriel.' },
+    'aiChat.error': { en: "Sorry, I'm having trouble replying right now — call (343) 843-7761 or email magicstickclean@gmail.com and we'll help right away.", fr: 'Désolé, j’ai un problème technique en ce moment — appelle le (343) 843-7761 ou écris à magicstickclean@gmail.com, on va t’aider tout de suite.' },
+    'aiChat.disclaimer': { en: 'AI assistant — a real person is always reachable by phone or email.', fr: 'Assistant virtuel — une vraie personne est toujours joignable par téléphone ou courriel.' },
   };
 
   function getLang() {

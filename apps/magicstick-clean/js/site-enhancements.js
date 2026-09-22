@@ -129,25 +129,83 @@
   }
 
   // ---------- Cookie banner ----------
-  const COOKIE_KEY = 'magicstick_cookie_ack';
+  // Consent is a real choice, not just an acknowledgement: "necessary"
+  // (language, dark mode, staying signed in) is always on since the site
+  // can't work without it; "analytics" (UTM attribution — see
+  // initUtmCapture below) is off unless the visitor turns it on.
+  const COOKIE_KEY = 'magicstick_cookie_consent';
+  function getCookieConsent() {
+    try {
+      const raw = localStorage.getItem(COOKIE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      return null;
+    }
+  }
+  function hasAnalyticsConsent() {
+    const consent = getCookieConsent();
+    return Boolean(consent && consent.analytics);
+  }
+  function setCookieConsent(analytics) {
+    const consent = { necessary: true, analytics: Boolean(analytics), ts: Date.now() };
+    try { localStorage.setItem(COOKIE_KEY, JSON.stringify(consent)); } catch (err) { /* ignore */ }
+    persistUtmIfConsented();
+    return consent;
+  }
   function initCookieBanner() {
-    let acked = false;
-    try { acked = localStorage.getItem(COOKIE_KEY) === '1'; } catch (err) { /* ignore */ }
-    if (acked) return;
+    if (getCookieConsent()) return;
     const banner = document.createElement('div');
     banner.id = 'cookieBanner';
     banner.setAttribute('role', 'region');
     banner.setAttribute('aria-label', t('cookies.bannerLabel'));
     banner.innerHTML = `
-      <p>${esc(t('cookies.text'))} <a href="privacy.html">${esc(t('cookies.learnMore'))}</a></p>
-      <button type="button" class="btn" id="cookieAcceptBtn">${esc(t('cookies.accept'))}</button>
+      <div class="cookie-main">
+        <p>${esc(t('cookies.text'))} <a href="privacy.html">${esc(t('cookies.learnMore'))}</a></p>
+        <div class="cookie-actions">
+          <button type="button" class="cookie-link-btn" id="cookieCustomizeBtn">${esc(t('cookies.customize'))}</button>
+          <button type="button" class="btn-outline" id="cookieRejectBtn">${esc(t('cookies.reject'))}</button>
+          <button type="button" class="btn" id="cookieAcceptBtn">${esc(t('cookies.accept'))}</button>
+        </div>
+      </div>
+      <div class="cookie-prefs" id="cookiePrefs" hidden>
+        <label class="cookie-toggle-row">
+          <span class="cookie-toggle-body">
+            <span class="cookie-toggle-title">${esc(t('cookies.necessary.title'))}</span>
+            <span class="cookie-toggle-desc">${esc(t('cookies.necessary.desc'))}</span>
+          </span>
+          <span class="cookie-toggle-fixed">${esc(t('cookies.alwaysOn'))}</span>
+        </label>
+        <label class="cookie-toggle-row">
+          <span class="cookie-toggle-body">
+            <span class="cookie-toggle-title">${esc(t('cookies.analytics.title'))}</span>
+            <span class="cookie-toggle-desc">${esc(t('cookies.analytics.desc'))}</span>
+          </span>
+          <input type="checkbox" id="cookieAnalyticsToggle" class="cookie-toggle-switch">
+        </label>
+        <button type="button" class="btn" id="cookieSavePrefsBtn">${esc(t('cookies.savePreferences'))}</button>
+      </div>
     `;
     document.body.appendChild(banner);
     requestAnimationFrame(() => requestAnimationFrame(() => banner.classList.add('show')));
-    banner.querySelector('#cookieAcceptBtn').addEventListener('click', () => {
-      try { localStorage.setItem(COOKIE_KEY, '1'); } catch (err) { /* ignore */ }
+
+    function dismiss() {
       banner.classList.remove('show');
       setTimeout(() => banner.remove(), 400);
+    }
+    banner.querySelector('#cookieAcceptBtn').addEventListener('click', () => {
+      setCookieConsent(true);
+      dismiss();
+    });
+    banner.querySelector('#cookieRejectBtn').addEventListener('click', () => {
+      setCookieConsent(false);
+      dismiss();
+    });
+    banner.querySelector('#cookieCustomizeBtn').addEventListener('click', () => {
+      banner.querySelector('#cookiePrefs').hidden = false;
+    });
+    banner.querySelector('#cookieSavePrefsBtn').addEventListener('click', () => {
+      setCookieConsent(banner.querySelector('#cookieAnalyticsToggle').checked);
+      dismiss();
     });
   }
 
@@ -300,7 +358,11 @@
   }
 
   // ---------- UTM capture + propagation ----------
+  // Reading the URL itself needs no permission, but *keeping* where a visitor
+  // came from is marketing attribution — only written to sessionStorage once
+  // the "Analytics & marketing" cookie choice above is turned on.
   const UTM_KEY = 'magicstick_utm';
+  let utmMemory = null;
   function initUtmCapture() {
     const params = new URLSearchParams(window.location.search);
     const utm = {};
@@ -308,19 +370,21 @@
       const v = params.get(k);
       if (v) utm[k] = v;
     });
-    if (Object.keys(utm).length) {
-      try { sessionStorage.setItem(UTM_KEY, JSON.stringify(utm)); } catch (err) { /* ignore */ }
-    }
+    if (Object.keys(utm).length) utmMemory = utm;
+    persistUtmIfConsented();
+  }
+  function persistUtmIfConsented() {
+    if (!utmMemory || !hasAnalyticsConsent()) return;
+    try { sessionStorage.setItem(UTM_KEY, JSON.stringify(utmMemory)); } catch (err) { /* ignore */ }
   }
   // Read back anywhere (quote.js/booking.js) via window.MagicstickUtm.get().
   window.MagicstickUtm = {
     get() {
       try {
         const raw = sessionStorage.getItem(UTM_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch (err) {
-        return null;
-      }
+        if (raw) return JSON.parse(raw);
+      } catch (err) { /* ignore */ }
+      return hasAnalyticsConsent() ? utmMemory : null;
     },
     describe() {
       const utm = window.MagicstickUtm.get();

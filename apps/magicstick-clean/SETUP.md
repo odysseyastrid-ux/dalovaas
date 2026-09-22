@@ -106,7 +106,31 @@ elsewhere in this repo — don't link the two.
 6. When you're ready to take real payments, switch Stripe out of test mode
    and swap in your live secret key + a live webhook endpoint/secret.
 
-## 5. Point the site at your backend
+## 5. Set up the AI chat widget (optional)
+
+The "Chat with us" button (bottom-right, every page) answers visitor
+questions about services, pricing, and booking using Claude, grounded in
+your real `services` table so it can't invent prices. It's a plain HTTP
+call from the browser to a Supabase Edge Function — no separate account
+needed beyond an Anthropic API key.
+
+1. Create an API key at [console.anthropic.com](https://console.anthropic.com/settings/keys).
+2. Set it as a function secret:
+   ```bash
+   supabase secrets set ANTHROPIC_API_KEY=sk-ant-xxx
+   ```
+3. Deploy the function:
+   ```bash
+   supabase functions deploy ai-chat --no-verify-jwt
+   ```
+   (`--no-verify-jwt` because visitors chat anonymously, same as the
+   booking/checkout function — the function has its own message-length and
+   history caps to keep a single visitor's cost bounded.)
+
+Leaving `ANTHROPIC_API_KEY` unset just means the widget falls back to a
+"call or email us" message instead of crashing.
+
+## 6. Point the site at your backend
 
 Edit `js/config.js`:
 
@@ -123,13 +147,13 @@ Leaving any of these blank keeps that part of the site gracefully falling
 back (the quote form emails instead of saving; booking/account/admin pages
 show a "not turned on yet" notice instead of crashing).
 
-## 6. Deploy the static site
+## 7. Deploy the static site
 
 Any static host works — GitHub Pages, Netlify, Vercel. Just make sure
 `SITE_URL` (step 4) and Supabase's `additional_redirect_urls`
 (`supabase/config.toml`) match wherever you actually deploy it.
 
-## 7. Sync customers to a CRM (optional)
+## 8. Sync customers to a CRM (optional)
 
 Want every quote request and booking to also show up in a CRM automatically?
 See [`twenty-crm/README.md`](twenty-crm/README.md) — it self-hosts

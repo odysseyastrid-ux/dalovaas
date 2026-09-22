@@ -1640,22 +1640,39 @@
   .portal-inputWrap.pw-field-wrap .pw-toggle{right:8px;}
 
   /* ---------- NEWSLETTER SIGNUP (footer) ---------- */
-  .foot-newsletter{margin-bottom:8px;}
-  .foot-newsletter p{color:#9AA1AC;font-size:13px;margin:0 0 10px;max-width:32ch;}
-  .foot-newsletter-form{display:flex;gap:8px;max-width:280px;}
-  .foot-newsletter-form input{
-    flex:1;min-width:0;font-family:'Inter',Arial,sans-serif;font-size:13.5px;
-    padding:9px 12px;border-radius:100px;border:1.5px solid #3A404A;
-    background:#252B33;color:#fff;
+  .foot-newsletter{margin-bottom:28px;}
+  .foot-newsletter p{color:#9AA1AC;font-size:13px;margin:0 0 16px;max-width:32ch;}
+  .subscribe-card{
+    position:relative;width:240px;padding:20px 20px 26px;
+    background:var(--paper);border-radius:8px;color:var(--charcoal);
+    box-shadow:0 14px 40px rgba(0,0,0,.35);
   }
-  .foot-newsletter-form input::placeholder{color:#7B828C;}
-  .foot-newsletter-form input:focus{outline:none;border-color:var(--gold);}
-  .foot-newsletter-form button{
-    flex:none;padding:9px 16px;border-radius:100px;border:none;
-    background:var(--gold);color:var(--charcoal);font-weight:700;font-size:13px;cursor:pointer;
+  .subscribe-card::after{
+    content:"";position:absolute;right:-9px;bottom:20px;width:0;height:0;
+    border-left:0 solid transparent;border-right:9px solid transparent;
+    border-bottom:9px solid var(--teal);
   }
-  .foot-newsletter-form button:hover{background:#B7911F;}
-  .foot-newsletter-note{font-size:12px;margin-top:8px;color:#9AA1AC;}
+  .subscribe-heading{
+    margin:0 0 16px;text-align:center;font-size:15px;font-weight:800;
+    letter-spacing:3px;font-family:'Inter',Arial,sans-serif;
+  }
+  .foot-newsletter-form{position:relative;display:block;}
+  .subscribe-input{
+    display:block;width:100%;border:none;border-bottom:1.5px solid var(--line);
+    padding:0 0 10px;background:transparent;font-family:'Inter',Arial,sans-serif;
+    font-size:13.5px;color:var(--charcoal);transition:border-color .2s ease;
+  }
+  .subscribe-input::placeholder{color:var(--gray);}
+  .subscribe-input:focus{outline:none;border-bottom-color:var(--teal);}
+  .subscribe-submit{
+    margin-top:22px;border-radius:30px;border-bottom-right-radius:0;border-top-right-radius:0;
+    background:var(--teal);color:#fff;padding:11px 22px;display:inline-block;
+    font-family:'Inter',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;
+    border:none;cursor:pointer;float:right;margin-right:-20px;margin-bottom:-26px;
+    box-shadow:-5px 6px 20px rgba(11,93,82,.35);transition:background .2s ease;
+  }
+  .subscribe-submit:hover{background:var(--teal-light);}
+  .foot-newsletter-note{font-size:12px;margin-top:34px;color:#9AA1AC;clear:both;}
   .foot-newsletter-note.sent{color:#7FCDBD;}
 
   /* ---------- PRINT ---------- */

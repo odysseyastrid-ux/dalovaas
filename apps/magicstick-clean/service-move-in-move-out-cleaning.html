@@ -190,12 +190,15 @@
         <div class="foot-newsletter">
       <div class="foot-links-title" data-i18n="footer.newsletter.title">Stay in the loop</div>
       <p data-i18n="footer.newsletter.desc">Occasional tips and seasonal offers. No spam.</p>
-      <form id="newsletterForm" class="foot-newsletter-form" novalidate>
-        <label for="newsletterEmail" class="sr-only" data-i18n="footer.newsletter.emailLabel">Email address</label>
-        <input type="email" id="newsletterEmail" name="email" required data-i18n-placeholder="footer.newsletter.placeholder" placeholder="you@email.com">
-        <input type="text" name="company" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <button type="submit" data-i18n="footer.newsletter.submit">Sign up</button>
-      </form>
+      <div class="subscribe-card">
+        <p class="subscribe-heading" data-i18n="footer.newsletter.subscribeHeading">SUBSCRIBE</p>
+        <form id="newsletterForm" class="foot-newsletter-form" novalidate>
+          <label for="newsletterEmail" class="sr-only" data-i18n="footer.newsletter.emailLabel">Email address</label>
+          <input type="email" id="newsletterEmail" name="email" required class="subscribe-input" data-i18n-placeholder="footer.newsletter.placeholder" placeholder="you@email.com">
+          <input type="text" name="company" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit" class="subscribe-submit" data-i18n="footer.newsletter.submit">Sign up</button>
+        </form>
+      </div>
       <p class="foot-newsletter-note" id="newsletterNote"></p>
     </div>
 <div class="foot-contact">

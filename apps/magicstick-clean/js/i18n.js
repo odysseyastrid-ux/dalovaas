@@ -62,6 +62,7 @@
     'footer.newsletter.emailLabel': { en: 'Email address', fr: 'Adresse courriel' },
     'footer.newsletter.placeholder': { en: 'you@email.com', fr: 'toi@courriel.com' },
     'footer.newsletter.submit': { en: 'Sign up', fr: "S'inscrire" },
+    'footer.newsletter.subscribeHeading': { en: 'SUBSCRIBE', fr: "S'ABONNER" },
     'notFound.tag': { en: 'Error 404', fr: 'Erreur 404' },
     'notFound.title': { en: "This page took a cleaning day off.", fr: "Cette page a pris congé." },
     'notFound.lede': { en: "The page you're looking for doesn't exist, or it moved. Let's get you back to something useful.", fr: "La page que tu cherches n'existe pas, ou elle a déménagé. Retournons vers quelque chose d'utile." },

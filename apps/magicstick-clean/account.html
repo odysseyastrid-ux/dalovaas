@@ -115,6 +115,28 @@
     </div>
   </div>
 
+  <div id="resetPasswordPanel" class="portal-card" hidden>
+    <p class="portal-dash-title" data-i18n="account.resetPassword.title">Set a new password</p>
+    <form id="resetPasswordForm" class="portal-form">
+      <div class="portal-field">
+        <label for="resetPassword1" data-i18n="account.resetPassword.new">New password</label>
+        <div class="portal-inputWrap">
+          <svg width="16" height="16" viewBox="-64 0 512 512" fill="currentColor" aria-hidden="true"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"/><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"/></svg>
+          <input type="password" id="resetPassword1" class="portal-input" minlength="6" data-i18n-placeholder="account.password.placeholder" placeholder="Enter your password" required>
+        </div>
+      </div>
+      <div class="portal-field">
+        <label for="resetPassword2" data-i18n="account.resetPassword.confirm">Confirm new password</label>
+        <div class="portal-inputWrap">
+          <svg width="16" height="16" viewBox="-64 0 512 512" fill="currentColor" aria-hidden="true"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"/><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"/></svg>
+          <input type="password" id="resetPassword2" class="portal-input" minlength="6" data-i18n-placeholder="account.resetPassword.confirm.placeholder" placeholder="Re-enter your password" required>
+        </div>
+      </div>
+      <button type="submit" class="portal-submit" data-i18n="account.resetPassword.submit">Set new password</button>
+      <p class="form-note" id="resetPasswordNote"></p>
+    </form>
+  </div>
+
   <div id="dashboardPanel" class="portal-card" hidden>
     <div class="portal-dash-header">
       <div>

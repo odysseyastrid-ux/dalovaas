@@ -42,7 +42,9 @@
           note.textContent = t('account.forgotPassword.note.needEmail');
           return;
         }
-        await supabase.auth.resetPasswordForEmail(email);
+        await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/account.html`,
+        });
         note.textContent = t('account.forgotPassword.note.sent');
       });
     }

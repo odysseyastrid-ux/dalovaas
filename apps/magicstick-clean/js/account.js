@@ -118,7 +118,46 @@
     loadQuoteRequests();
   }
 
+  const resetPasswordPanel = document.getElementById('resetPasswordPanel');
+  const resetPasswordForm = document.getElementById('resetPasswordForm');
+  const resetPasswordNote = document.getElementById('resetPasswordNote');
+
+  function showResetPassword() {
+    authPanel.hidden = true;
+    dashboardPanel.hidden = true;
+    resetPasswordPanel.hidden = false;
+  }
+
+  // Clicking the link in the password-reset email brings the visitor back
+  // here with a #type=recovery fragment; the Supabase client parses it into
+  // a real (but reset-only-intended) session and fires this event.
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') showResetPassword();
+  });
+
+  resetPasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newPassword = document.getElementById('resetPassword1').value;
+    const confirmPassword = document.getElementById('resetPassword2').value;
+    if (newPassword !== confirmPassword) {
+      resetPasswordNote.textContent = t('account.resetPassword.note.mismatch');
+      return;
+    }
+    resetPasswordNote.textContent = t('account.resetPassword.note.saving');
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      resetPasswordNote.textContent = window.MagicstickAuthWidget.translateAuthError(t, error.message);
+      return;
+    }
+    resetPasswordPanel.hidden = true;
+    showDashboard(data.user);
+  });
+
   async function checkSession() {
+    if (window.location.hash.includes('type=recovery')) {
+      showResetPassword();
+      return;
+    }
     const { data } = await supabase.auth.getSession();
     if (data?.session?.user) {
       showDashboard(data.session.user);

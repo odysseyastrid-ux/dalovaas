@@ -27,7 +27,7 @@ function shell(bodyHtml: string) {
   return `<div style="background:#F3F7F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
   <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E4E0D4;">
     <div style="background:#0B5D52;padding:24px;text-align:center;">
-      <img src="https://magicstickclean.vercel.app/assets/images/favicon.svg" width="40" height="40" alt="Magicstick Clean" style="display:block;margin:0 auto 8px;">
+      <img src="https://magicstickclean.vercel.app/assets/images/logo-email.png" width="40" height="40" alt="Magicstick Clean" style="display:block;margin:0 auto 8px;">
       <span style="color:#ffffff;font-size:18px;font-weight:700;">Magicstick Clean</span>
     </div>
     <div style="padding:32px 28px;color:#1F2937;text-align:center;">

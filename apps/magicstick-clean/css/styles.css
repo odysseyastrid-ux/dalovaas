@@ -1122,17 +1122,8 @@
   /* ---------- ACCOUNT PORTAL (account.html only) ---------- */
   .portal-body{background:#000;}
 
-  .matrix-bg{position:fixed;inset:0;background:#000;overflow:hidden;z-index:0;}
-  .matrix-column{
-    position:absolute;top:-100%;width:20px;height:100%;
-    font-size:16px;line-height:18px;font-weight:700;
-    writing-mode:vertical-lr;letter-spacing:1px;white-space:nowrap;overflow:hidden;
-    background:linear-gradient(to bottom,#fff 0%,#fff 5%,#00ff41 10%,#00ff41 20%,#00dd33 30%,#00bb22 40%,#009911 50%,#007700 60%,#005500 70%,#003300 80%,rgba(0,255,65,.5) 90%,transparent 100%);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-    animation:matrixFall linear infinite;
-  }
-  @keyframes matrixFall{0%{transform:translateY(-10%);opacity:1;}100%{transform:translateY(200%);opacity:0;}}
-  @media (prefers-reduced-motion:reduce){ .matrix-column{animation:none;opacity:.4;} }
+  .portal-shader-bg{position:fixed;inset:0;background:#000;overflow:hidden;z-index:0;}
+  .portal-shader-bg canvas{display:block;width:100%;height:100%;}
 
   .portal-lang{position:fixed;top:20px;right:20px;z-index:2;background:rgba(0,0,0,.5);border-color:rgba(255,255,255,.3);}
   .portal-lang .lang-btn{color:#cfcfcf;}

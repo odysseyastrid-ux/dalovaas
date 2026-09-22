@@ -5,23 +5,6 @@
   // contents as HTML before it goes into innerHTML.
   const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
 
-  // Matrix rain background: a fixed number of columns of falling glyphs,
-  // built once at load — purely decorative, no interaction.
-  const GLYPHS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const matrixBg = document.getElementById('matrixBg');
-  if (matrixBg) {
-    const columnCount = Math.ceil(window.innerWidth / 22);
-    for (let i = 0; i < columnCount; i++) {
-      const col = document.createElement('div');
-      col.className = 'matrix-column';
-      col.textContent = GLYPHS;
-      col.style.left = ((i / columnCount) * 100) + '%';
-      col.style.animationDelay = (-Math.random() * 5).toFixed(2) + 's';
-      col.style.animationDuration = (2.5 + Math.random() * 2.5).toFixed(2) + 's';
-      matrixBg.appendChild(col);
-    }
-  }
-
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
 

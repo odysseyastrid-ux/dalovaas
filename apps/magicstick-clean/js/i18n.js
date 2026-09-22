@@ -436,7 +436,7 @@
     'account.otp.toggle': { en: 'Log in with a code instead', fr: 'Se connecter avec un code plutôt' },
     'account.otp.usePassword': { en: 'Use a password instead', fr: 'Utiliser un mot de passe plutôt' },
     'account.otp.sendCode': { en: 'Send code', fr: 'Envoyer le code' },
-    'account.otp.codeLabel': { en: '6-digit code', fr: 'Code à 6 chiffres' },
+    'account.otp.codeLabel': { en: 'Login code', fr: 'Code de connexion' },
     'account.otp.codePlaceholder': { en: '123456', fr: '123456' },
     'account.otp.verify': { en: 'Verify & log in', fr: 'Vérifier et se connecter' },
     'account.otp.note.sending': { en: 'Sending your code…', fr: 'Envoi de ton code…' },

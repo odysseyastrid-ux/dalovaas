@@ -84,17 +84,24 @@ Deno.serve(async (req) => {
   const payload = await req.text();
   const headers = Object.fromEntries(req.headers);
 
+  // Signature verification failures are the only case that should surface as
+  // a 401 ("Hook requires authorization token" on the client) — every other
+  // failure (missing secret, Resend error, etc.) must return 500, or Supabase
+  // Auth reports the same misleading 401 message no matter the real cause.
+  let verified: { user: { email: string }; email_data: { token: string; token_hash: string; redirect_to: string; email_action_type: string } };
   try {
     const wh = new Webhook(HOOK_SECRET);
-    const { user, email_data } = wh.verify(payload, headers) as {
-      user: { email: string };
-      email_data: {
-        token: string;
-        token_hash: string;
-        redirect_to: string;
-        email_action_type: string;
-      };
-    };
+    verified = wh.verify(payload, headers) as typeof verified;
+  } catch (err) {
+    console.error(err);
+    return new Response(
+      JSON.stringify({ error: { http_code: 401, message: String((err as Error).message ?? err) } }),
+      { status: 401, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  try {
+    const { user, email_data } = verified;
 
     if (!RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured on the server.");
@@ -119,7 +126,7 @@ Deno.serve(async (req) => {
     console.error(err);
     return new Response(
       JSON.stringify({ error: { http_code: 500, message: String((err as Error).message ?? err) } }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 

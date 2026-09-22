@@ -6,14 +6,15 @@
 //
 // Required secrets (supabase secrets set ...):
 //   SUPABASE_URL, SUPABASE_ANON_KEY   (auto-provided on Supabase)
-//   ANTHROPIC_API_KEY                  (console.anthropic.com API key)
+//   GROQ_API_KEY                       (free key from console.groq.com — no
+//                                       credit card needed)
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-const MODEL = "claude-haiku-4-5-20251001";
+const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+const MODEL = "openai/gpt-oss-120b";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -87,8 +88,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    if (!ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY is not configured on the server.");
+    if (!GROQ_API_KEY) {
+      throw new Error("GROQ_API_KEY is not configured on the server.");
     }
 
     const body = await req.json();
@@ -112,32 +113,26 @@ Deno.serve(async (req) => {
 
     const system = await buildSystemPrompt(lang);
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "content-type": "application/json",
       },
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 400,
-        system,
-        messages,
+        messages: [{ role: "system", content: system }, ...messages],
       }),
     });
 
-    const data = await anthropicRes.json();
-    if (!anthropicRes.ok) {
-      console.error("Anthropic error:", anthropicRes.status, data);
+    const data = await groqRes.json();
+    if (!groqRes.ok) {
+      console.error("Groq error:", groqRes.status, data);
       throw new Error(data?.error?.message ?? "The assistant is temporarily unavailable.");
     }
 
-    const reply = (data.content ?? [])
-      .filter((block: any) => block.type === "text")
-      .map((block: any) => block.text)
-      .join("\n")
-      .trim();
+    const reply = (data.choices?.[0]?.message?.content ?? "").trim();
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },

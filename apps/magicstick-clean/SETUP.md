@@ -109,15 +109,15 @@ elsewhere in this repo — don't link the two.
 ## 5. Set up the AI chat widget (optional)
 
 The "Chat with us" button (bottom-right, every page) answers visitor
-questions about services, pricing, and booking using Claude, grounded in
+questions about services, pricing, and booking using a free-tier LLM
+([Groq](https://console.groq.com), no credit card required), grounded in
 your real `services` table so it can't invent prices. It's a plain HTTP
-call from the browser to a Supabase Edge Function — no separate account
-needed beyond an Anthropic API key.
+call from the browser to a Supabase Edge Function.
 
-1. Create an API key at [console.anthropic.com](https://console.anthropic.com/settings/keys).
+1. Create a free API key at [console.groq.com/keys](https://console.groq.com/keys).
 2. Set it as a function secret:
    ```bash
-   supabase secrets set ANTHROPIC_API_KEY=sk-ant-xxx
+   supabase secrets set GROQ_API_KEY=gsk_xxx
    ```
 3. Deploy the function:
    ```bash
@@ -125,10 +125,14 @@ needed beyond an Anthropic API key.
    ```
    (`--no-verify-jwt` because visitors chat anonymously, same as the
    booking/checkout function — the function has its own message-length and
-   history caps to keep a single visitor's cost bounded.)
+   history caps to keep usage bounded.)
 
-Leaving `ANTHROPIC_API_KEY` unset just means the widget falls back to a
-"call or email us" message instead of crashing.
+Leaving `GROQ_API_KEY` unset just means the widget falls back to a
+"call or email us" message instead of crashing. Groq's free tier (30
+requests/minute, hundreds/day) comfortably covers a small business's chat
+volume; if it's ever outgrown, swapping in another OpenAI-compatible
+provider is a one-line change to the endpoint + model in
+`supabase/functions/ai-chat/index.ts`.
 
 ## 6. Point the site at your backend
 

@@ -9,7 +9,7 @@
 //   RESEND_API_KEY, OWNER_EMAIL, OWNER_NOTIFY_FROM
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import Stripe from "npm:stripe@14?target=deno";
+import Stripe from "npm:stripe@14";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,

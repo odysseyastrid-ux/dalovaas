@@ -49,11 +49,13 @@
   function renderServiceOptions() {
     const container = document.getElementById('serviceOptions');
     container.innerHTML = '';
-    services.forEach((service, index) => {
+    const requestedServiceId = params.get('service');
+    const preselectedId = services.some((s) => s.id === requestedServiceId) ? requestedServiceId : services[0]?.id;
+    services.forEach((service) => {
       const label = document.createElement('label');
       label.className = 'service-option';
       label.innerHTML = `
-        <input type="radio" name="serviceId" value="${esc(service.id)}" ${index === 0 ? 'checked' : ''}>
+        <input type="radio" name="serviceId" value="${esc(service.id)}" ${service.id === preselectedId ? 'checked' : ''}>
         <span class="service-option-body">
           <span class="service-option-name">${esc(serviceName(service))}</span>
           <span class="service-option-desc">${esc(serviceDescription(service))}</span>
@@ -63,7 +65,7 @@
       container.appendChild(label);
     });
     if (services.length) {
-      selectedServiceId = services[0].id;
+      selectedServiceId = preselectedId;
       updateDepositSummary();
     }
     container.querySelectorAll('input[name="serviceId"]').forEach((input) => {

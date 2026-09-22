@@ -1056,6 +1056,18 @@
   .status-booked{background:#E9F0D9;color:#4C7A21;}
   .status-declined{background:#FBE9E7;color:#B3352A;}
 
+  .book-nudge{margin-top:16px;}
+  .book-nudge-title{font-size:13.5px;font-weight:600;color:var(--gray);margin:0 0 10px;}
+  .book-service-cards{display:flex;flex-wrap:wrap;gap:10px;}
+  .book-service-card{
+    display:flex;flex-direction:column;gap:2px;text-decoration:none;color:inherit;
+    background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 18px;
+    transition:border-color .15s ease,transform .15s ease;
+  }
+  .book-service-card:hover{border-color:var(--teal);transform:translateY(-1px);}
+  .book-service-card-name{font-weight:600;font-size:14.5px;}
+  .book-service-card-price{font-size:12.5px;color:var(--gray);}
+
   /* ---------- BOOKING FORM ---------- */
   .booking-form{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:32px;max-width:640px;}
   .booking-form .field{margin-bottom:18px;display:flex;flex-direction:column;}

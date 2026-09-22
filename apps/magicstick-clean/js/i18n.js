@@ -449,6 +449,8 @@
     'account.myBookings': { en: 'My bookings', fr: 'Mes réservations' },
     'account.bookings.loadError': { en: 'Could not load your bookings right now.', fr: 'Impossible de charger tes réservations pour le moment.' },
     'account.bookings.empty': { en: 'No bookings yet. <a href="booking.html">Book your first cleaning</a>.', fr: 'Aucune réservation pour le moment. <a href="booking.html">Réserve ton premier nettoyage</a>.' },
+    'account.bookNudge.title': { en: 'Ready when you are:', fr: 'Prêt quand tu veux :' },
+    'account.bookNudge.priceFrom': { en: 'From ${price}', fr: 'À partir de {price} $' },
     'account.myQuoteRequests': { en: 'My quote requests', fr: 'Mes demandes de devis' },
     'account.quoteRequests.loadError': { en: 'Could not load your quote requests right now.', fr: 'Impossible de charger tes demandes de devis pour le moment.' },
     'account.quoteRequests.empty': { en: 'No quote requests yet. <a href="quote.html">Get your first quote</a>.', fr: 'Aucune demande de devis pour le moment. <a href="quote.html">Obtiens ton premier devis</a>.' },

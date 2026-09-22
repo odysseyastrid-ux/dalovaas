@@ -19,12 +19,43 @@
 
   let lastBookings = null;
   let lastQuoteRequests = null;
+  let activeServices = null;
+
+  function serviceCardsHtml() {
+    if (!activeServices || !activeServices.length) return '';
+    const cards = activeServices.map((s) => {
+      const name = (lang() === 'fr' && s.name_fr) ? s.name_fr : s.name;
+      const price = (s.base_price_cents / 100).toFixed(2);
+      return `
+        <a class="book-service-card" href="booking.html?service=${encodeURIComponent(s.id)}">
+          <span class="book-service-card-name">${esc(name)}</span>
+          <span class="book-service-card-price">${esc(t('account.bookNudge.priceFrom', { price }))}</span>
+        </a>
+      `;
+    }).join('');
+    return `
+      <div class="book-nudge">
+        <p class="book-nudge-title">${t('account.bookNudge.title')}</p>
+        <div class="book-service-cards">${cards}</div>
+      </div>
+    `;
+  }
+
+  async function loadActiveServices() {
+    const { data } = await supabase
+      .from('services')
+      .select('id, name, name_fr, base_price_cents')
+      .eq('active', true)
+      .order('sort_order');
+    activeServices = data ?? [];
+    renderBookings();
+  }
 
   function renderBookings() {
     const list = document.getElementById('bookingsList');
     if (!lastBookings) return;
     if (!lastBookings.length) {
-      list.innerHTML = `<p class="fine">${t('account.bookings.empty')}</p>`;
+      list.innerHTML = `<p class="fine">${t('account.bookings.empty')}</p>${serviceCardsHtml()}`;
       return;
     }
     list.innerHTML = lastBookings.map((b) => {
@@ -110,6 +141,7 @@
     document.getElementById('accountEmail').textContent = user.email;
     loadBookings();
     loadQuoteRequests();
+    loadActiveServices();
   }
 
   const resetPasswordPanel = document.getElementById('resetPasswordPanel');

@@ -7,8 +7,11 @@
   const backendNotice = document.getElementById('backendNotice');
   const statusBanner = document.getElementById('statusBanner');
   const form = document.getElementById('bookingForm');
+  const paymentStep = document.getElementById('paymentStep');
 
-  // Handle the redirect back from Stripe Checkout.
+  // Handle the redirect back from a payment method that required leaving
+  // the page (some wallets/banks do; card payments usually resolve without
+  // ever navigating away — see confirmPayment below).
   const params = new URLSearchParams(window.location.search);
   const status = params.get('status');
   if (status === 'success') {
@@ -59,7 +62,7 @@
         <span class="service-option-body">
           <span class="service-option-name">${esc(serviceName(service))}</span>
           <span class="service-option-desc">${esc(serviceDescription(service))}</span>
-          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.base_price_cents) }))} · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
+          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.first_booking_price_cents) }))} <s>${esc(centsToDollars(service.base_price_cents))}$</s> · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
         </span>
       `;
       container.appendChild(label);
@@ -80,10 +83,17 @@
     const service = services.find((s) => s.id === selectedServiceId);
     const summary = document.getElementById('depositSummary');
     if (!service) { summary.textContent = ''; return; }
-    summary.textContent = t('booking.deposit.summary', {
-      deposit: centsToDollars(service.deposit_cents),
-      remaining: centsToDollars(service.base_price_cents - service.deposit_cents),
-    });
+    // An estimate — the server re-checks eligibility (no prior booking on
+    // this account) and has the final say once "Continue to payment" runs.
+    summary.innerHTML = `
+      ${esc(t('booking.deposit.summary', {
+        deposit: centsToDollars(service.deposit_cents),
+        remaining: centsToDollars(service.first_booking_price_cents - service.deposit_cents),
+      }))}
+      <br><span class="deposit-summary-discount">${esc(t('booking.firstBooking.note', {
+        rate: '37', regular: '43.50',
+      }))}</span>
+    `;
   }
 
   async function loadServices() {
@@ -107,6 +117,96 @@
   document.addEventListener('magicstick:langchange', () => {
     if (services.length) {
       renderServiceOptions();
+    }
+  });
+
+  // ---------- Step 2: embedded Stripe payment ----------
+  const stripePublishableKey = backend.config.STRIPE_PUBLISHABLE_KEY;
+  const stripe = (window.Stripe && stripePublishableKey) ? window.Stripe(stripePublishableKey) : null;
+  let elements = null;
+
+  function renderPaymentSummary(service, result) {
+    const box = document.getElementById('paymentSummary');
+    const totalDollars = centsToDollars(result.amount_cents);
+    const depositDollars = centsToDollars(result.deposit_cents);
+    const remainingDollars = centsToDollars(result.amount_cents - result.deposit_cents);
+    box.innerHTML = `
+      <p class="payment-summary-service">${esc(serviceName(service))}</p>
+      ${result.first_booking_discount_applied
+        ? `<p class="payment-summary-discount">${esc(t('booking.firstBooking.applied', { rate: '37' }))}</p>`
+        : ''}
+      <p class="payment-summary-total">${esc(t('booking.payment.total', { total: totalDollars }))}</p>
+      <p class="payment-summary-line">${esc(t('booking.payment.dueToday', { deposit: depositDollars }))}</p>
+      <p class="payment-summary-line">${esc(t('booking.payment.dueLater', { remaining: remainingDollars }))}</p>
+    `;
+  }
+
+  async function showPaymentStep(result, service) {
+    if (!stripe) {
+      document.getElementById('bookingNote').textContent = t('booking.form.note.stripeUnavailable');
+      return;
+    }
+    renderPaymentSummary(service, result);
+    form.hidden = true;
+    paymentStep.hidden = false;
+    paymentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    elements = stripe.elements({
+      clientSecret: result.client_secret,
+      appearance: {
+        theme: 'flat',
+        variables: {
+          colorPrimary: '#0B5D52',
+          colorBackground: 'transparent',
+          colorText: '#1F2937',
+          fontFamily: "'Inter', Arial, sans-serif",
+          borderRadius: '9px',
+        },
+        rules: {
+          '.Input': { backgroundColor: '#F2F2F2', border: '1px solid transparent', padding: '12px' },
+          '.Input:focus': { border: '1px solid #0B5D52', boxShadow: 'none' },
+          '.Label': { fontSize: '12px', fontWeight: '600', color: '#6B7280', marginBottom: '4px' },
+        },
+      },
+    });
+    const paymentElement = elements.create('payment');
+    paymentElement.mount('#paymentElement');
+  }
+
+  document.getElementById('paymentBackBtn').addEventListener('click', () => {
+    paymentStep.hidden = true;
+    form.hidden = false;
+    document.getElementById('paymentNote').textContent = '';
+  });
+
+  document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payBtn = document.getElementById('paymentSubmitBtn');
+    const note = document.getElementById('paymentNote');
+    const cardholderName = document.getElementById('cardholderName').value.trim();
+    if (!cardholderName) {
+      note.textContent = t('booking.payment.note.needName');
+      return;
+    }
+    payBtn.disabled = true;
+    note.textContent = t('booking.payment.note.processing');
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/booking.html?status=success`,
+        payment_method_data: { billing_details: { name: cardholderName } },
+      },
+      redirect: 'if_required',
+    });
+
+    if (error) {
+      note.textContent = error.message || t('booking.payment.note.error');
+      payBtn.disabled = false;
+      return;
+    }
+    if (paymentIntent && paymentIntent.status === 'succeeded') {
+      window.location.href = `${window.location.pathname}?status=success`;
     }
   });
 
@@ -145,7 +245,7 @@
       const utm = window.MagicstickUtm ? window.MagicstickUtm.get() : null;
       const notesWithUtm = utm ? `${notes}${notes ? '\n\n' : ''}[${window.MagicstickUtm.describe()}]` : notes;
 
-      const res = await fetch(`${backend.config.FUNCTIONS_URL}/create-checkout-session`, {
+      const res = await fetch(`${backend.config.FUNCTIONS_URL}/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -162,10 +262,13 @@
         }),
       });
       const result = await res.json();
-      if (!res.ok || !result.url) {
-        throw new Error(result.error || 'Could not start checkout.');
+      if (!res.ok || !result.client_secret) {
+        throw new Error(result.error || 'Could not start payment.');
       }
-      window.location.href = result.url;
+      const service = services.find((s) => s.id === selectedServiceId);
+      submitBtn.disabled = false;
+      note.textContent = '';
+      await showPaymentStep(result, service);
     } catch (err) {
       console.error(err);
       note.textContent = t('booking.form.note.error');

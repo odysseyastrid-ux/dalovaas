@@ -19,10 +19,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/date-picker.js"></script>
+<script src="js/vendor/paper-shaders-warp.min.js"></script>
+<script src="js/contact-band-shader.js"></script>
 </head>
 <body>
 <script>(function(){try{var t=localStorage.getItem('magicstick_theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
@@ -139,10 +142,27 @@
 
       <div id="depositSummary" class="deposit-summary"></div>
 
-      <button type="submit" class="btn" id="bookingSubmit" data-i18n="booking.form.submit">Pay deposit &amp; book</button>
-      <p class="form-note" id="bookingNote" data-i18n="booking.form.note.default">You'll be redirected to Stripe to pay a refundable deposit securely. The rest is due at your appointment.</p>
+      <button type="submit" class="btn" id="bookingSubmit" data-i18n="booking.form.submit">Continue to payment</button>
+      <p class="form-note" id="bookingNote" data-i18n="booking.form.note.default">You'll pay a refundable deposit securely on this page. The rest is due at your appointment.</p>
     </form>
 
+  </div>
+
+  <div id="paymentStep" class="contact-band payment-band" hidden>
+    <div class="contact-band-shader-bg" aria-hidden="true"></div>
+    <div class="wrap payment-wrap">
+      <form id="paymentForm" class="booking-form payment-card">
+        <div id="paymentSummary" class="payment-summary"></div>
+        <div class="field">
+          <label for="cardholderName" data-i18n="booking.payment.cardholderName">Card holder full name</label>
+          <input type="text" id="cardholderName" autocomplete="cc-name" data-i18n-placeholder="booking.payment.cardholderName.placeholder" placeholder="Enter your full name">
+        </div>
+        <div id="paymentElement"></div>
+        <button type="submit" class="btn" id="paymentSubmitBtn" data-i18n="booking.payment.submit">Pay deposit</button>
+        <button type="button" class="btn-outline" id="paymentBackBtn" data-i18n="booking.payment.back">Back</button>
+        <p class="form-note" id="paymentNote"></p>
+      </form>
+    </div>
   </div>
 </section>
 

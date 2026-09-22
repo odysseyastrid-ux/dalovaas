@@ -1,5 +1,5 @@
 // Stripe webhook endpoint. Configure this URL in the Stripe Dashboard
-// (Developers → Webhooks) listening for `checkout.session.completed`,
+// (Developers → Webhooks) listening for `payment_intent.succeeded`,
 // then set STRIPE_WEBHOOK_SECRET to the signing secret Stripe gives you
 // for that endpoint — see SETUP.md.
 //
@@ -60,11 +60,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const bookingId = session.metadata?.booking_id;
+    if (event.type === "payment_intent.succeeded") {
+      const intent = event.data.object as Stripe.PaymentIntent;
+      const bookingId = intent.metadata?.booking_id;
       if (!bookingId) {
-        console.error("checkout.session.completed with no booking_id in metadata");
+        console.error("payment_intent.succeeded with no booking_id in metadata");
         return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
       }
 
@@ -73,7 +73,6 @@ Deno.serve(async (req) => {
         .update({
           status: "confirmed",
           paid_at: new Date().toISOString(),
-          stripe_payment_intent_id: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id,
         })
         .eq("id", bookingId)
         .select("*, services(name)")
@@ -83,21 +82,28 @@ Deno.serve(async (req) => {
         console.error("Failed to update booking:", error);
       } else {
         const depositDollars = (booking.deposit_cents / 100).toFixed(2);
+        const totalDollars = (booking.amount_cents / 100).toFixed(2);
+        const discountLine = booking.first_booking_discount_applied
+          ? "First-booking discount: applied ($37/h)"
+          : "First-booking discount: not applied";
         const summary = [
           `Booking confirmed for ${booking.guest_name}`,
           `Service: ${booking.services?.name ?? booking.service_id}`,
           `Date: ${booking.requested_date} (${booking.time_window})`,
           `Area: ${booking.zone || "Not specified"}`,
+          `Total price: $${totalDollars} CAD`,
           `Deposit paid: $${depositDollars} CAD`,
+          discountLine,
           `Notes: ${booking.notes || "(none)"}`,
         ].join("\n");
 
         await sendEmail(OWNER_EMAIL, `Booking confirmed & paid: ${booking.guest_name}`, summary);
         if (isEmail(booking.guest_contact)) {
+          const remainingDollars = ((booking.amount_cents - booking.deposit_cents) / 100).toFixed(2);
           await sendEmail(
             booking.guest_contact,
             "Your Magicstick Clean booking is confirmed",
-            `Hi ${booking.guest_name},\n\nYour booking is confirmed for ${booking.requested_date} (${booking.time_window}). Your $${depositDollars} deposit has been received — the rest is due at the appointment.\n\nQuestions? Call or text 343-843-7761.\n\n— Magicstick Clean`,
+            `Hi ${booking.guest_name},\n\nYour booking is confirmed for ${booking.requested_date} (${booking.time_window}). Your $${depositDollars} deposit has been received — the remaining $${remainingDollars} is due at the appointment.\n\nQuestions? Call or text 343-843-7761.\n\n— Magicstick Clean`,
           );
         }
       }

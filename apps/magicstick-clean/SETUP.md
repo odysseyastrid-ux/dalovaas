@@ -79,32 +79,54 @@ elsewhere in this repo — don't link the two.
 
 ## 4. Set up deposit payments (Stripe)
 
+Booking deposits are collected with an **embedded** Stripe payment form
+(Stripe Elements) right on `booking.html` — no redirect to a Stripe-hosted
+page. The booking form's "Continue to payment" step creates a Stripe
+PaymentIntent (`create-payment-intent` function) and mounts Stripe's own
+secure card fields in place.
+
 1. Create a [Stripe](https://dashboard.stripe.com/register) account (test
    mode is fine to start).
-2. Grab your **secret key** from **Developers → API keys**.
-3. Set the function secrets (`SITE_URL` is where the site is actually
-   deployed, e.g. `https://magicstickclean.ca`):
+2. Grab both keys from **Developers → API keys**: the **secret key**
+   (`sk_...`, keep private) and the **publishable key** (`pk_...`, safe to
+   put in client-side code).
+3. Set the **publishable** key in `js/config.js`:
+   ```js
+   STRIPE_PUBLISHABLE_KEY: "pk_test_xxx",
+   ```
+4. Set the **secret** key as a function secret:
    ```bash
    supabase secrets set STRIPE_SECRET_KEY=sk_test_xxx
-   supabase secrets set SITE_URL=https://YOUR-DEPLOYED-SITE-URL
    ```
-4. Deploy the checkout function:
+5. Deploy the payment function:
    ```bash
-   supabase functions deploy create-checkout-session --no-verify-jwt
+   supabase functions deploy create-payment-intent --no-verify-jwt
    ```
-5. Deploy the webhook function, then register its URL in Stripe:
+6. Deploy the webhook function, then register its URL in Stripe:
    ```bash
    supabase functions deploy stripe-webhook --no-verify-jwt
    ```
    In the Stripe dashboard: **Developers → Webhooks → Add endpoint** →
    `https://YOUR-PROJECT-REF.supabase.co/functions/v1/stripe-webhook`,
-   listening for `checkout.session.completed`. Stripe gives you a **signing
+   listening for `payment_intent.succeeded`. Stripe gives you a **signing
    secret** (`whsec_...`) — set it too:
    ```bash
    supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_xxx
    ```
-6. When you're ready to take real payments, switch Stripe out of test mode
-   and swap in your live secret key + a live webhook endpoint/secret.
+7. When you're ready to take real payments, switch Stripe out of test mode
+   and swap in your live secret/publishable keys + a live webhook
+   endpoint/secret.
+
+### First-booking discount
+
+Services are priced on a real hourly rate: **$43.50/h** regular,
+**$37/h** (~15% off) automatically applied to a customer's very first
+booking. Eligibility is decided server-side in `create-payment-intent`
+(no prior `bookings` row for that signed-in account — guests are treated
+as first-time by default) and can't be spoofed from the browser. Adjust
+the two rates in `supabase/migrations/0007_hourly_pricing_first_booking_discount.sql`
+if they ever change, then re-run the `update services set ...` statement
+against the live project.
 
 ## 5. Set up the AI chat widget (optional)
 

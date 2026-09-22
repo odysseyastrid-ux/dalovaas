@@ -1094,10 +1094,26 @@
   .service-option-name{font-weight:600;font-size:15.5px;}
   .service-option-desc{font-size:13.5px;color:var(--gray);}
   .service-option-price{font-size:13.5px;font-weight:600;color:var(--teal);}
+  .service-option-price s{color:var(--gray);font-weight:400;margin-left:4px;}
   .deposit-summary{
     font-size:14px;font-weight:600;color:var(--charcoal);background:var(--teal-tint);
     border-radius:4px;padding:12px 14px;margin-bottom:18px;
   }
+  .deposit-summary-discount{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:600;color:var(--teal);}
+
+  /* ---------- EMBEDDED STRIPE PAYMENT STEP ---------- */
+  .payment-band{padding:60px 0;}
+  .payment-wrap{display:flex;justify-content:center;}
+  .payment-card{max-width:440px;margin:0;text-align:left;}
+  .payment-summary{
+    background:var(--teal-tint);border-radius:10px;padding:16px 18px;margin-bottom:22px;
+  }
+  .payment-summary-service{font-weight:700;font-size:16px;margin:0 0 4px;font-family:'Fraunces',serif;}
+  .payment-summary-discount{color:var(--teal);font-weight:600;font-size:13px;margin:0 0 8px;}
+  .payment-summary-total{font-weight:700;font-size:15px;margin:8px 0 2px;}
+  .payment-summary-line{font-size:13px;color:var(--gray);margin:2px 0;}
+  #paymentElement{margin-bottom:18px;}
+  .payment-card .btn-outline{width:100%;text-align:center;margin-top:8px;background:transparent;}
 
   /* ---------- ADMIN TABLES ---------- */
   .admin-panel{margin-top:24px;}

@@ -5,6 +5,10 @@
     --teal:#0B5D52;
     --teal-light:#127A6C;
     --charcoal:#1F2937;
+    /* Fixed dark ink for bands meant to stay dark in both themes (offer
+       band, footer, cookie banner, etc.) — --charcoal itself flips to a
+       light color in dark mode since it also serves as body text color. */
+    --ink:#1F2937;
     --gold:#C9A227;
     --cream:#FDFCF9;
     --teal-tint:#EEF8F6;
@@ -150,7 +154,7 @@
   .btn-outline{
     background:transparent;border:1.5px solid var(--charcoal);color:var(--charcoal);
   }
-  .btn-outline:hover{background:var(--charcoal);color:#fff;}
+  .btn-outline:hover{background:var(--ink);color:#fff;}
   .btn-outline-light{background:transparent;border:1.5px solid #fff;color:#fff;}
   .btn-outline-light:hover{background:#fff;color:var(--charcoal);}
 
@@ -528,7 +532,7 @@
 
   /* ---------- OFFER BAND ---------- */
   .offer{
-    background:var(--charcoal);color:#fff;
+    background:var(--ink);color:#fff;
     padding:56px 0;
   }
   .offer .wrap{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;}
@@ -913,7 +917,7 @@
   .back-to-top{
     position:fixed;right:24px;bottom:24px;z-index:150;
     width:46px;height:46px;border-radius:100px;
-    background:var(--charcoal);color:#fff;border:none;font-size:18px;cursor:pointer;
+    background:var(--ink);color:#fff;border:none;font-size:18px;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 8px 24px rgba(31,41,55,.25);
     opacity:0;pointer-events:none;transform:translateY(8px);
@@ -934,7 +938,7 @@
   @media (max-width:480px){ .legal-sticky-cta .btn{flex:1;text-align:center;} }
 
   /* ---------- FOOTER ---------- */
-  footer{padding:48px 0;background:var(--charcoal);color:#9AA1AC;}
+  footer{padding:48px 0;background:var(--ink);color:#9AA1AC;}
   .foot-wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:flex-start;}
   .foot-brand{display:flex;gap:10px;align-items:center;}
   .foot-brand span{font-family:'Fraunces',serif;color:#fff;font-weight:700;font-size:17px;}
@@ -1127,7 +1131,7 @@
     padding:5px 11px;border-radius:100px;border:none;background:none;color:var(--gray);cursor:pointer;
     transition:background .15s ease, color .15s ease;
   }
-  .lang-btn.active{background:var(--charcoal);color:#fff;}
+  .lang-btn.active{background:var(--ink);color:#fff;}
   .mobile-menu .lang-toggle{margin:14px 32px;align-self:flex-start;}
 
   /* ---------- ACCOUNT PORTAL (account.html only) ---------- */
@@ -1332,7 +1336,7 @@
   /* ---------- SKIP TO CONTENT ---------- */
   .skip-link{
     position:absolute;top:-48px;left:12px;z-index:1000;
-    background:var(--charcoal);color:#fff;font-weight:700;font-size:14px;
+    background:var(--ink);color:#fff;font-weight:700;font-size:14px;
     padding:12px 20px;border-radius:8px;text-decoration:none;
     transition:top .15s ease;
   }
@@ -1487,7 +1491,7 @@
   #cookieBanner{
     position:fixed;left:16px;right:16px;bottom:16px;z-index:500;
     max-width:560px;margin:0 auto;
-    background:var(--charcoal);color:#fff;border-radius:14px;
+    background:var(--ink);color:#fff;border-radius:14px;
     padding:18px 20px;box-shadow:0 16px 40px rgba(0,0,0,.3);
     display:flex;flex-wrap:wrap;align-items:center;gap:14px;
     transform:translateY(120%);transition:transform .35s cubic-bezier(.16,1,.3,1);

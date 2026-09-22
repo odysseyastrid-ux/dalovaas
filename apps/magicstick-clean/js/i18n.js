@@ -433,6 +433,14 @@
     'account.resetPassword.note.success': { en: 'Password updated — you’re signed in.', fr: 'Mot de passe mis à jour — tu es maintenant connecté(e).' },
     'account.orWith': { en: 'Or with', fr: 'Ou avec' },
     'account.oauth.notConfigured': { en: 'Sign-in with Google/Apple isn’t set up yet — use email and password instead.', fr: 'La connexion avec Google/Apple n’est pas encore configurée — utilise ton courriel et mot de passe.' },
+    'account.otp.toggle': { en: 'Log in with a code instead', fr: 'Se connecter avec un code plutôt' },
+    'account.otp.usePassword': { en: 'Use a password instead', fr: 'Utiliser un mot de passe plutôt' },
+    'account.otp.sendCode': { en: 'Send code', fr: 'Envoyer le code' },
+    'account.otp.codeLabel': { en: '6-digit code', fr: 'Code à 6 chiffres' },
+    'account.otp.codePlaceholder': { en: '123456', fr: '123456' },
+    'account.otp.verify': { en: 'Verify & log in', fr: 'Vérifier et se connecter' },
+    'account.otp.note.sending': { en: 'Sending your code…', fr: 'Envoi de ton code…' },
+    'account.otp.note.verifying': { en: 'Verifying…', fr: 'Vérification…' },
     'account.signup.note.creating': { en: 'Creating your account...', fr: 'Création de ton compte...' },
     'account.signup.note.checkEmail': { en: 'Account created! Check your email to confirm, then log in.', fr: 'Compte créé! Vérifie tes courriels pour confirmer, puis connecte-toi.' },
     'account.login.note.signingIn': { en: 'Signing in...', fr: 'Connexion en cours...' },
@@ -459,6 +467,8 @@
     'status.inactive': { en: 'Inactive', fr: 'Inactif' },
     'authError.invalidCredentials': { en: 'Invalid login credentials', fr: 'Identifiants de connexion invalides' },
     'authError.alreadyRegistered': { en: 'This email is already registered.', fr: 'Ce courriel est déjà enregistré.' },
+    'authError.otpNoAccount': { en: 'No account found for that email — create an account first.', fr: 'Aucun compte trouvé pour ce courriel — crée un compte d’abord.' },
+    'authError.otpInvalidCode': { en: 'That code is wrong or has expired — check your email for the latest one.', fr: 'Ce code est incorrect ou expiré — vérifie ton courriel pour le plus récent.' },
 
     // ---------- admin.html ----------
     'admin.title': { en: 'Owner dashboard', fr: 'Tableau de bord propriétaire' },

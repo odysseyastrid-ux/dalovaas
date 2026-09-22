@@ -134,7 +134,93 @@ volume; if it's ever outgrown, swapping in another OpenAI-compatible
 provider is a one-line change to the endpoint + model in
 `supabase/functions/ai-chat/index.ts`.
 
-## 6. Point the site at your backend
+## 6. Brand the login emails (recommended)
+
+By default every email Supabase Auth sends (login code, signup
+confirmation, password reset) is a plain generic "Supabase" template —
+that's the scary unbranded email new users see. Replace it with the
+Magicstick Clean look:
+
+1. Go to **[Authentication → Emails → Templates](https://supabase.com/dashboard/project/_/auth/templates)**
+   in your Supabase project.
+2. For each of the three templates below, paste the matching HTML over
+   the existing content and save.
+
+**Magic Link** (used for the "Log in with a code" flow):
+
+```html
+<div style="background:#F3F7F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E4E0D4;">
+    <div style="background:#0B5D52;padding:24px;text-align:center;">
+      <img src="https://magicstickclean.vercel.app/assets/images/favicon.svg" width="40" height="40" alt="Magicstick Clean" style="display:block;margin:0 auto 8px;">
+      <span style="color:#ffffff;font-size:18px;font-weight:700;">Magicstick Clean</span>
+    </div>
+    <div style="padding:32px 28px;color:#1F2937;">
+      <h1 style="font-size:20px;margin:0 0 12px;">Your login code</h1>
+      <p style="font-size:15px;line-height:1.6;color:#4B5563;margin:0 0 24px;">Enter this code to log in to your Magicstick Clean account:</p>
+      <div style="background:#EEF8F6;border-radius:8px;padding:18px;text-align:center;margin-bottom:24px;">
+        <span style="font-size:32px;font-weight:700;letter-spacing:6px;color:#0B5D52;">{{ .Token }}</span>
+      </div>
+      <p style="font-size:13px;color:#6B7280;margin:0;">This code expires shortly. If you didn't request this, you can safely ignore this email.</p>
+    </div>
+    <div style="background:#FDFCF9;padding:16px 28px;text-align:center;border-top:1px solid #E4E0D4;">
+      <p style="font-size:12px;color:#6B7280;margin:0;">Magicstick Clean &middot; (343) 843-7761 &middot; magicstickclean@gmail.com</p>
+    </div>
+  </div>
+</div>
+```
+
+**Confirm signup:**
+
+```html
+<div style="background:#F3F7F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E4E0D4;">
+    <div style="background:#0B5D52;padding:24px;text-align:center;">
+      <img src="https://magicstickclean.vercel.app/assets/images/favicon.svg" width="40" height="40" alt="Magicstick Clean" style="display:block;margin:0 auto 8px;">
+      <span style="color:#ffffff;font-size:18px;font-weight:700;">Magicstick Clean</span>
+    </div>
+    <div style="padding:32px 28px;color:#1F2937;text-align:center;">
+      <h1 style="font-size:20px;margin:0 0 12px;">Confirm your email</h1>
+      <p style="font-size:15px;line-height:1.6;color:#4B5563;margin:0 0 24px;">Welcome! Click below to confirm your Magicstick Clean account.</p>
+      <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#0B5D52;color:#ffffff;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:15px;">Confirm my account</a>
+    </div>
+    <div style="background:#FDFCF9;padding:16px 28px;text-align:center;border-top:1px solid #E4E0D4;">
+      <p style="font-size:12px;color:#6B7280;margin:0;">Magicstick Clean &middot; (343) 843-7761 &middot; magicstickclean@gmail.com</p>
+    </div>
+  </div>
+</div>
+```
+
+**Reset Password:**
+
+```html
+<div style="background:#F3F7F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E4E0D4;">
+    <div style="background:#0B5D52;padding:24px;text-align:center;">
+      <img src="https://magicstickclean.vercel.app/assets/images/favicon.svg" width="40" height="40" alt="Magicstick Clean" style="display:block;margin:0 auto 8px;">
+      <span style="color:#ffffff;font-size:18px;font-weight:700;">Magicstick Clean</span>
+    </div>
+    <div style="padding:32px 28px;color:#1F2937;text-align:center;">
+      <h1 style="font-size:20px;margin:0 0 12px;">Reset your password</h1>
+      <p style="font-size:15px;line-height:1.6;color:#4B5563;margin:0 0 24px;">Click below to choose a new password. If you didn't ask for this, ignore this email.</p>
+      <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#0B5D52;color:#ffffff;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:15px;">Set a new password</a>
+    </div>
+    <div style="background:#FDFCF9;padding:16px 28px;text-align:center;border-top:1px solid #E4E0D4;">
+      <p style="font-size:12px;color:#6B7280;margin:0;">Magicstick Clean &middot; (343) 843-7761 &middot; magicstickclean@gmail.com</p>
+    </div>
+  </div>
+</div>
+```
+
+3. While you're there, also set the **Sender name** (Authentication →
+   Settings → SMTP, or the default sender) to `Magicstick Clean` instead
+   of the default so it doesn't show up as "Supabase Auth" in the
+   recipient's inbox. For full control over the sending domain (so it
+   doesn't come from `@supabase.co` at all), connect a custom SMTP
+   provider — Resend, which you already set up in step 3, works for this
+   too.
+
+## 7. Point the site at your backend
 
 Edit `js/config.js`:
 
@@ -151,13 +237,13 @@ Leaving any of these blank keeps that part of the site gracefully falling
 back (the quote form emails instead of saving; booking/account/admin pages
 show a "not turned on yet" notice instead of crashing).
 
-## 7. Deploy the static site
+## 8. Deploy the static site
 
 Any static host works — GitHub Pages, Netlify, Vercel. Just make sure
 `SITE_URL` (step 4) and Supabase's `additional_redirect_urls`
 (`supabase/config.toml`) match wherever you actually deploy it.
 
-## 8. Sync customers to a CRM (optional)
+## 9. Sync customers to a CRM (optional)
 
 Want every quote request and booking to also show up in a CRM automatically?
 See [`twenty-crm/README.md`](twenty-crm/README.md) — it self-hosts

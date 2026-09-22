@@ -164,6 +164,14 @@
     signupNote: '#signupNote',
     googleBtn: '#googleOAuthBtn',
     appleBtn: '#appleOAuthBtn',
+    otpSection: '#otpSection',
+    otpToggleBtn: '#otpToggleBtn',
+    otpRequestForm: '#otpRequestForm',
+    otpEmail: '#otpEmail',
+    otpRequestNote: '#otpRequestNote',
+    otpVerifyForm: '#otpVerifyForm',
+    otpCode: '#otpCode',
+    otpVerifyNote: '#otpVerifyNote',
   }, supabase, showDashboard);
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {

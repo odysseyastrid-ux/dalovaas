@@ -119,7 +119,7 @@
     lastQuotes.forEach((q) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${esc(new Date(q.created_at).toLocaleDateString())}</td>
+        <td>${esc(new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
         <td>${esc(q.name)}</td>
         <td>${esc(q.contact)}${q.address ? `<br><span class="fine">${esc(q.address)}</span>` : ''}</td>
         <td>${esc(q.service)}</td>
@@ -366,7 +366,7 @@
       const tr = document.createElement('tr');
       const who = (name, email) => [name, email].filter(Boolean).map(esc).join('<br>') || '—';
       tr.innerHTML = `
-        <td>${esc(new Date(g.created_at).toLocaleDateString())}</td>
+        <td>${esc(new Date(g.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
         <td><code class="gift-code">${esc(g.code || '—')}</code></td>
         <td>${money(g.initial_cents)}</td>
         <td><strong>${g.status === 'active' ? money(g.balance_cents) : '—'}</strong></td>
@@ -413,7 +413,7 @@
     lastGiftRequests.forEach((r) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${esc(new Date(r.created_at).toLocaleDateString())}</td>
+        <td>${esc(new Date(r.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
         <td>${esc(r.name)}</td>
         <td>${esc(r.contact)}</td>
         <td>${esc(r.amount)}</td>

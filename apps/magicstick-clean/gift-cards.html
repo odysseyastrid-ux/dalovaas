@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
-<title>House Cleaning Gift Cards | Magicstick Clean</title>
+<title data-i18n="title.gift-cards">House Cleaning Gift Cards | Magicstick Clean</title>
 <meta name="description" content="Give the gift of a spotless home. Order a Magicstick Clean gift card for house cleaning in Ottawa, Gatineau or Clarence-Rockland.">
 <link rel="canonical" href="https://magicstickclean.ca/gift-cards.html">
 <meta property="og:type" content="website">
@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="css/styles.css">
 <script src="https://js.stripe.com/v3/"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n-content.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/form-guard.js"></script>
 <script type="application/ld+json">
@@ -115,7 +116,7 @@
 </header>
 
 <nav class="breadcrumbs wrap" aria-label="Breadcrumb">
-  <a href="index.html">Home</a><span class="sep">/</span><span aria-current="page">Gift Cards</span>
+  <a data-i18n="nav.home" href="index.html">Home</a><span class="sep">/</span><span data-i18n="c.gift-cards" aria-current="page">Gift Cards</span>
 </nav>
 
 <section class="hero" style="padding:64px 0 48px;">
@@ -272,7 +273,7 @@
         <textarea id="giftMessage" rows="3" maxlength="500" data-i18n-placeholder="giftcards.buy.messagePlaceholder" placeholder="Happy housewarming! Enjoy a spotless home on us."></textarea>
       </div>
       <input type="text" name="company" id="giftBuyHp" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button type="submit" class="btn" id="giftBuySubmit">Continue to payment</button>
+      <button data-i18n="booking.form.submit" type="submit" class="btn" id="giftBuySubmit">Continue to payment</button>
       <p class="form-note" id="giftBuyNote"></p>
       <button type="button" class="quote-switch-link" id="giftShowRequest" data-i18n="giftcards.buy.preferRequest">Prefer to pay by e-transfer? Send a request instead</button>
     </form>

@@ -15,6 +15,36 @@
 
   const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
   const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
+  const isFr = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() === 'fr' : false);
+
+  // The demo data below is stored once (in English) in localStorage, so it's
+  // translated at display time rather than re-seeded per language.
+  const SAMPLE_FR = {
+    'New booking request': 'Nouvelle demande de réservation',
+    'Payment proof received': 'Preuve de paiement reçue',
+    'New quote request': 'Nouvelle demande de devis',
+    'Yesterday': 'Hier',
+    'Deep Cleaning': 'Nettoyage en profondeur',
+    'Standard Cleaning': 'Nettoyage standard',
+    'Move-In/Move-Out': 'Déménagement',
+    'Airbnb Turnover': 'Roulement Airbnb',
+    'Office Cleaning': 'Nettoyage de bureaux',
+    'Demo client': 'Client démo',
+    'Weekly auto-backup': 'Sauvegarde automatique hebdomadaire',
+  };
+  const MONTHS_FR = { Jan: 'janv.', Feb: 'févr.', Mar: 'mars', Apr: 'avr.', May: 'mai', Jun: 'juin', Jul: 'juil.', Aug: 'août', Sep: 'sept.', Oct: 'oct.', Nov: 'nov.', Dec: 'déc.' };
+  function sampleText(value) {
+    const v = String(value ?? '');
+    if (!isFr()) return v;
+    let out = SAMPLE_FR[v] || MONTHS_FR[v] || v;
+    out = out
+      .replace(/^(\d+) min ago$/, 'il y a $1 min')
+      .replace(/^(\d+) hours? ago$/, 'il y a $1 h')
+      .replace(/^Deposit for booking (#\w+) — \$(\d+)$/, 'Dépôt pour la réservation $1 — $2 $')
+      .replace(/^Deposit — \$(\d+)$/, 'Dépôt — $1 $');
+    Object.keys(SAMPLE_FR).forEach((en) => { out = out.replace(en, SAMPLE_FR[en]); });
+    return out;
+  }
 
   const STORE_KEY = 'magicstick_admin_mock_v1';
   const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -165,10 +195,10 @@
       <div class="dash-notif-item ${n.unread ? 'unread' : ''}">
         <span class="dash-notif-icon ${n.type === 'payment' ? 'pay' : ''}">${notifIconSvg(n.type)}</span>
         <div class="dash-notif-body" style="flex:1;">
-          <strong>${esc(n.title)}</strong>
-          <span>${esc(n.detail)}</span>
+          <strong>${esc(sampleText(n.title))}</strong>
+          <span>${esc(sampleText(n.detail))}</span>
         </div>
-        <span class="dash-notif-time">${esc(n.time)}</span>
+        <span class="dash-notif-time">${esc(sampleText(n.time))}</span>
       </div>
     `).join('') || `<div class="dash-empty">${esc(t('admin.dash.notifEmpty'))}</div>`;
   }
@@ -208,7 +238,7 @@
         </div>
       `;
     }
-    makeLineChart('dashOverviewChart', data.revenueByMonth.map((m) => m.label), [
+    makeLineChart('dashOverviewChart', data.revenueByMonth.map((m) => sampleText(m.label)), [
       { label: t('admin.dash.kpi.revenue'), data: data.revenueByMonth.map((m) => m.revenue), color: '#0B5D52' },
     ]);
     const activity = document.getElementById('dashOverviewActivity');
@@ -216,8 +246,8 @@
       activity.innerHTML = data.notifications.slice(0, 5).map((n) => `
         <div class="dash-notif-item">
           <span class="dash-notif-icon ${n.type === 'payment' ? 'pay' : ''}">${notifIconSvg(n.type)}</span>
-          <div class="dash-notif-body" style="flex:1;"><strong>${esc(n.title)}</strong><span>${esc(n.detail)}</span></div>
-          <span class="dash-notif-time">${esc(n.time)}</span>
+          <div class="dash-notif-body" style="flex:1;"><strong>${esc(sampleText(n.title))}</strong><span>${esc(sampleText(n.detail))}</span></div>
+          <span class="dash-notif-time">${esc(sampleText(n.time))}</span>
         </div>
       `).join('');
     }
@@ -279,7 +309,7 @@
       <div class="dash-booking-row">
         <div class="dash-booking-time">${b.time}</div>
         <div class="dash-booking-main">
-          <strong>${esc(b.name)} — ${esc(b.service)}</strong>
+          <strong>${esc(b.name)} — ${esc(sampleText(b.service))}</strong>
           <div class="dash-booking-meta">${esc(b.location)} · ${b.hours}h</div>
         </div>
         <span class="dash-pill good">${esc(t('admin.dash.confirmed'))}</span>
@@ -377,7 +407,7 @@
       ring.style.setProperty('--pct', score);
       ring.querySelector('strong').textContent = score;
     }
-    makeLineChart('dashSeoTrafficChart', data.trafficByMonth.map((m) => m.label), [
+    makeLineChart('dashSeoTrafficChart', data.trafficByMonth.map((m) => sampleText(m.label)), [
       { label: t('admin.dash.seo.sessions'), data: data.trafficByMonth.map((m) => m.sessions), color: '#0B5D52' },
       { label: t('admin.dash.seo.leads'), data: data.trafficByMonth.map((m) => m.leads), color: '#C9A227' },
     ]);
@@ -654,8 +684,8 @@
       list.innerHTML = data.notifications.map((n) => `
         <div class="dash-notif-item ${n.unread ? 'unread' : ''}">
           <span class="dash-notif-icon ${n.type === 'payment' ? 'pay' : ''}">${notifIconSvg(n.type)}</span>
-          <div class="dash-notif-body" style="flex:1;"><strong>${esc(n.title)}</strong><span>${esc(n.detail)}</span></div>
-          <span class="dash-notif-time">${esc(n.time)}</span>
+          <div class="dash-notif-body" style="flex:1;"><strong>${esc(sampleText(n.title))}</strong><span>${esc(sampleText(n.detail))}</span></div>
+          <span class="dash-notif-time">${esc(sampleText(n.time))}</span>
         </div>
       `).join('') || `<div class="dash-empty">${esc(t('admin.dash.notifEmpty'))}</div>`;
     }
@@ -674,7 +704,7 @@
     if (simOrder && !simOrder.dataset.wired) {
       simOrder.dataset.wired = '1';
       simOrder.addEventListener('click', () => {
-        data.notifications.unshift({ id: 'n' + Date.now(), type: 'order', title: t('admin.dash.newOrderSim'), detail: 'Client démo — Standard Cleaning', time: t('admin.dash.justNow'), unread: true });
+        data.notifications.unshift({ id: 'n' + Date.now(), type: 'order', title: t('admin.dash.newOrderSim'), detail: 'Demo client — Standard Cleaning', time: t('admin.dash.justNow'), unread: true });
         saveData(data);
         draw();
         updateBellDot();
@@ -726,7 +756,7 @@
     if (list) {
       list.innerHTML = data.backups.map((b) => `
         <div class="dash-booking-row">
-          <div class="dash-booking-main"><strong>${esc(b.label)}</strong><div class="dash-booking-meta">${esc(b.date)} · ${esc(b.size)}</div></div>
+          <div class="dash-booking-main"><strong>${esc(sampleText(b.label))}</strong><div class="dash-booking-meta">${esc(b.date)} · ${esc(b.size)}</div></div>
         </div>
       `).join('');
     }

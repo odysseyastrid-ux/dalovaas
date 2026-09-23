@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
-<title>Book a Cleaning Online | Magicstick Clean</title>
+<title data-i18n="title.booking">Book a Cleaning Online | Magicstick Clean</title>
 <meta name="description" content="Book your house cleaning online in minutes. Pick a service, date and time, and secure your spot in Ottawa, Gatineau or Clarence-Rockland with a refundable deposit.">
 <link rel="canonical" href="https://magicstickclean.ca/booking.html">
 <meta property="og:type" content="website">
@@ -22,6 +22,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
+<script src="js/i18n-content.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/date-picker.js"></script>
 <script src="js/vendor/paper-shaders-warp.min.js"></script>
@@ -129,8 +130,8 @@
       <div class="field">
         <label for="bZone" data-i18n="booking.form.area">Area</label>
         <select id="bZone" name="zone">
-          <option value="Rockland-Orléans">Rockland-Orléans</option>
-          <option value="Ottawa-Gatineau">Ottawa-Gatineau</option>
+          <option data-i18n="zone.rockland" value="Rockland-Orléans">Rockland-Orléans</option>
+          <option data-i18n="zone.ottawaGatineau" value="Ottawa-Gatineau">Ottawa-Gatineau</option>
           <option value="Other" data-i18n="booking.form.area.other">Other / not sure</option>
         </select>
       </div>

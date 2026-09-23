@@ -943,7 +943,7 @@
   }
 
   function t(key, vars) {
-    const entry = STRINGS[key];
+    const entry = STRINGS[key] || (window.MAGICSTICK_I18N_CONTENT || {})[key];
     let text = entry ? (entry[getLang()] || entry.en) : key;
     if (vars) {
       Object.keys(vars).forEach((k) => {

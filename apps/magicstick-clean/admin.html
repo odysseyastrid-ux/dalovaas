@@ -106,6 +106,10 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               <span data-i18n="admin.dash.nav.crm">Quotes, bookings &amp; services</span>
             </button>
+            <button type="button" class="dash-nav-btn" data-section="gift-cards">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M3 12h18"/><path d="M12 8c-1.5-3-5-3.5-5-1.5S10 8 12 8zM12 8c1.5-3 5-3.5 5-1.5S14 8 12 8z"/></svg>
+              <span data-i18n="admin.dash.nav.giftCards">Gift cards</span>
+            </button>
             <button type="button" class="dash-nav-btn" data-section="notifications">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span data-i18n="admin.dash.nav.notifications">Notifications</span>
@@ -321,6 +325,106 @@
                 <button type="submit" class="btn" data-i18n="admin.services.add">Add service</button>
                 <p class="form-note" id="addServiceNote"></p>
               </form>
+            </div>
+          </section>
+
+          <section class="dash-section" id="dashSection-gift-cards">
+            <div class="gift-admin-grid">
+              <div class="dash-card">
+                <div class="dash-card-head">
+                  <div>
+                    <h3 data-i18n="admin.gift.cardsTitle">Gift cards</h3>
+                    <p class="dash-card-sub" data-i18n="admin.gift.cardsSub">Every card sold online or issued by you, with what's left on it.</p>
+                  </div>
+                </div>
+                <div class="table-scroll">
+                  <table class="admin-table" id="giftCardsTable">
+                    <thead>
+                      <tr>
+                        <th data-i18n="admin.col.date">Date</th>
+                        <th data-i18n="admin.gift.col.code">Code</th>
+                        <th data-i18n="admin.gift.col.amount">Amount</th>
+                        <th data-i18n="admin.gift.col.balance">Balance</th>
+                        <th data-i18n="admin.gift.col.recipient">Recipient</th>
+                        <th data-i18n="admin.gift.col.buyer">Buyer</th>
+                        <th data-i18n="admin.gift.col.source">Source</th>
+                        <th data-i18n="admin.col.status">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <p class="fine" id="giftCardsEmpty" data-i18n="admin.gift.empty" hidden>No gift cards yet.</p>
+              </div>
+
+              <div class="dash-card">
+                <form id="issueGiftForm" class="auth-form">
+                  <h3 style="font-family:'Fraunces',serif;font-size:17px;margin:0 0 4px;" data-i18n="admin.gift.issueTitle">Issue a gift card</h3>
+                  <p class="dash-card-sub" style="margin-bottom:16px;" data-i18n="admin.gift.issueSub">For cards paid by e-transfer or cash, or given as a gesture. A unique code is generated and emailed automatically.</p>
+                  <input type="hidden" id="issueRequestId">
+                  <div class="field">
+                    <label for="issueAmount" data-i18n="admin.gift.amount">Amount ($)</label>
+                    <input type="number" id="issueAmount" min="5" max="2000" step="1" required>
+                  </div>
+                  <div class="field">
+                    <label for="issueRecipientName" data-i18n="admin.gift.recipientName">Recipient's name</label>
+                    <input type="text" id="issueRecipientName">
+                  </div>
+                  <div class="field">
+                    <label for="issueRecipientEmail" data-i18n="admin.gift.recipientEmail">Recipient's email</label>
+                    <input type="email" id="issueRecipientEmail">
+                  </div>
+                  <div class="field">
+                    <label for="issueBuyerName" data-i18n="admin.gift.buyerName">Buyer's name (optional)</label>
+                    <input type="text" id="issueBuyerName">
+                  </div>
+                  <div class="field">
+                    <label for="issueBuyerEmail" data-i18n="admin.gift.buyerEmail">Buyer's email (optional — gets a copy)</label>
+                    <input type="email" id="issueBuyerEmail">
+                  </div>
+                  <div class="field">
+                    <label for="issueMessage" data-i18n="admin.gift.message">Message (optional)</label>
+                    <input type="text" id="issueMessage" maxlength="500">
+                  </div>
+                  <div class="field">
+                    <label for="issueLang" data-i18n="admin.gift.lang">Email language</label>
+                    <select id="issueLang">
+                      <option value="en">English</option>
+                      <option value="fr">Français</option>
+                    </select>
+                  </div>
+                  <label class="issue-send-row"><input type="checkbox" id="issueSendEmail" checked> <span data-i18n="admin.gift.sendEmail">Email the gift card now</span></label>
+                  <button type="submit" class="btn" data-i18n="admin.gift.issueSubmit">Issue gift card</button>
+                  <p class="form-note" id="issueGiftNote"></p>
+                </form>
+              </div>
+            </div>
+
+            <div class="dash-card" style="margin-top:20px;">
+              <div class="dash-card-head">
+                <div>
+                  <h3 data-i18n="admin.gift.requestsTitle">Gift card requests</h3>
+                  <p class="dash-card-sub" data-i18n="admin.gift.requestsSub">Sent through the request form (to pay by e-transfer). Once paid, click "Issue card" to create and send it.</p>
+                </div>
+              </div>
+              <div class="table-scroll">
+                <table class="admin-table" id="giftRequestsTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="admin.col.date">Date</th>
+                      <th data-i18n="admin.col.name">Name</th>
+                      <th data-i18n="admin.col.contact">Contact</th>
+                      <th data-i18n="admin.gift.col.amount">Amount</th>
+                      <th data-i18n="admin.gift.col.recipient">Recipient</th>
+                      <th data-i18n="admin.col.notes">Notes</th>
+                      <th data-i18n="admin.col.status">Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <p class="fine" id="giftRequestsEmpty" data-i18n="admin.gift.requestsEmpty" hidden>No requests yet.</p>
             </div>
           </section>
 

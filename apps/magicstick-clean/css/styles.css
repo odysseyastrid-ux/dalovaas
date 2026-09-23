@@ -1744,3 +1744,55 @@
     * { box-shadow:none!important; text-shadow:none!important; }
   }
   @media (prefers-reduced-motion:reduce){ .cta-arrow-box::before{animation:none;} }
+
+  /* ---------- GIFT CARDS (booking field, balance check, buy flow, admin) ---------- */
+  .field[hidden],.gift-custom-amount[hidden],.quote-switch-link[hidden]{display:none;}
+  .gift-code-row{display:flex;gap:8px;}
+  .gift-code-row input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.04em;}
+  .gift-code-row .btn-outline{white-space:nowrap;padding:0 18px;}
+  .gift-code-status{font-size:13px;margin:6px 0 0;min-height:1em;color:var(--gray);}
+  .gift-code-status.ok,.balance-result.ok,.deposit-summary-gift,.payment-summary-gift{color:var(--teal);font-weight:600;}
+  .gift-code-status.error,.balance-result.error{color:#B42318;}
+  :root[data-theme="dark"] .gift-code-status.ok,
+  :root[data-theme="dark"] .balance-result.ok,
+  :root[data-theme="dark"] .deposit-summary-gift{color:#6FCBBB;}
+  :root[data-theme="dark"] .gift-code-status.error,
+  :root[data-theme="dark"] .balance-result.error{color:#F2A09A;}
+
+  .balance-card{
+    display:grid;grid-template-columns:1fr auto;gap:14px 32px;align-items:center;
+    background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:28px 32px;
+  }
+  .balance-card h2{font-size:26px;margin:0 0 6px;}
+  .balance-card p{color:var(--gray);margin:0;}
+  .balance-form{display:flex;gap:8px;}
+  .balance-form input{
+    width:260px;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+    font:inherit;text-transform:uppercase;letter-spacing:.04em;background:var(--paper);color:var(--charcoal);
+  }
+  .balance-form .btn{white-space:nowrap;}
+  .balance-card .balance-result{grid-column:1/-1;margin:0;min-height:1.2em;}
+  @media (max-width:760px){
+    .balance-card{grid-template-columns:1fr;padding:22px;}
+    .balance-form input{width:auto;flex:1;}
+  }
+
+  .gift-custom-amount{display:flex;align-items:center;gap:8px;margin-top:10px;max-width:220px;font-weight:600;}
+  .gift-custom-amount input{flex:1;}
+  .quote-switch-link{
+    display:block;margin:14px auto 0;background:none;border:none;cursor:pointer;
+    color:var(--teal);font:inherit;font-size:13.5px;font-weight:600;
+    text-decoration:underline;text-underline-offset:3px;
+  }
+  .gift-payment-card{margin:0 auto;}
+  .contact-band .quote-form .form-note{color:var(--gray);text-shadow:none;}
+  #giftPaymentElement{margin-bottom:18px;}
+
+  .gift-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start;}
+  .gift-admin-grid > .dash-card{min-width:0;}
+  @media (max-width:1100px){ .gift-admin-grid{grid-template-columns:minmax(0,1fr);} }
+  code.gift-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;white-space:nowrap;}
+  .issue-send-row,.auth-form .issue-send-row{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;margin:4px 0 14px;}
+  .auth-form .issue-send-row input{width:auto;margin:0;flex:none;}
+  .gift-issue-btn{padding:6px 12px;font-size:13px;white-space:nowrap;}
+  .gift-void-btn{background:none;border:none;padding:0;font:inherit;font-size:12.5px;color:#B42318;cursor:pointer;}

@@ -156,7 +156,7 @@
         <td>${esc(b.guest_contact)}</td>
         <td>${esc(serviceName)}</td>
         <td>${esc(b.zone) || '—'}</td>
-        <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}</td>
+        <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}${b.gift_card_applied_cents ? `<br><span class="fine">${esc(t('admin.gift.bookingLine', { amount: (b.gift_card_applied_cents / 100).toFixed(2) }))}</span>` : ''}</td>
         <td class="status-cell"></td>
       `;
       tr.querySelector('.status-cell').appendChild(
@@ -336,17 +336,198 @@
     renderBookings();
   }
 
+  // ---------- Gift cards ----------
+  const GIFT_REQUEST_STATUSES = ['new', 'contacted', 'paid', 'delivered', 'cancelled'];
+  let lastGiftCards = null;
+  let lastGiftRequests = null;
+  const money = (cents) => `$${(cents / 100).toFixed(2)}`;
+
+  async function callGiftCards(payload) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const res = await fetch(`${backend.config.FUNCTIONS_URL}/gift-cards`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionData?.session?.access_token ?? ''}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  function renderGiftCards() {
+    const tbody = document.querySelector('#giftCardsTable tbody');
+    tbody.innerHTML = '';
+    document.getElementById('giftCardsEmpty').hidden = Boolean(lastGiftCards && lastGiftCards.length);
+    if (!lastGiftCards) return;
+    lastGiftCards.forEach((g) => {
+      const tr = document.createElement('tr');
+      const who = (name, email) => [name, email].filter(Boolean).map(esc).join('<br>') || '—';
+      tr.innerHTML = `
+        <td>${esc(new Date(g.created_at).toLocaleDateString())}</td>
+        <td><code class="gift-code">${esc(g.code || '—')}</code></td>
+        <td>${money(g.initial_cents)}</td>
+        <td><strong>${g.status === 'active' ? money(g.balance_cents) : '—'}</strong></td>
+        <td>${who(g.recipient_name, g.recipient_email)}</td>
+        <td>${who(g.purchaser_name, g.purchaser_email)}</td>
+        <td>${esc(t('admin.gift.source.' + g.source))}</td>
+        <td class="gift-status-cell">${esc(t('admin.gift.status.' + g.status))}</td>
+      `;
+      if (g.status === 'active') {
+        const voidBtn = document.createElement('button');
+        voidBtn.type = 'button';
+        voidBtn.className = 'portal-link gift-void-btn';
+        voidBtn.textContent = t('admin.gift.void');
+        voidBtn.addEventListener('click', async () => {
+          if (window.MagicstickConfirm) {
+            const ok = await window.MagicstickConfirm.ask({
+              title: t('admin.gift.voidConfirmTitle'),
+              body: t('admin.gift.voidConfirmBody', { code: g.code, balance: money(g.balance_cents) }),
+              confirmLabel: t('admin.gift.void'),
+              cancelLabel: t('booking.confirm.cancelLabel'),
+            });
+            if (!ok) return;
+          }
+          try {
+            await callGiftCards({ action: 'void', gift_card_id: g.id });
+            logActivity('gift_card_void', { code: g.code });
+            loadGiftCards();
+          } catch (err) {
+            console.error(err);
+          }
+        });
+        tr.querySelector('.gift-status-cell').appendChild(document.createElement('br'));
+        tr.querySelector('.gift-status-cell').appendChild(voidBtn);
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderGiftRequests() {
+    const tbody = document.querySelector('#giftRequestsTable tbody');
+    tbody.innerHTML = '';
+    document.getElementById('giftRequestsEmpty').hidden = Boolean(lastGiftRequests && lastGiftRequests.length);
+    if (!lastGiftRequests) return;
+    lastGiftRequests.forEach((r) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${esc(new Date(r.created_at).toLocaleDateString())}</td>
+        <td>${esc(r.name)}</td>
+        <td>${esc(r.contact)}</td>
+        <td>${esc(r.amount)}</td>
+        <td>${esc(r.recipient) || '—'}</td>
+        <td>${esc(r.message) || '—'}</td>
+        <td class="status-cell"></td>
+        <td class="action-cell"></td>
+      `;
+      tr.querySelector('.status-cell').appendChild(
+        statusSelect(r.status, GIFT_REQUEST_STATUSES, async (value) => {
+          await supabase.from('gift_card_requests').update({ status: value }).eq('id', r.id);
+        })
+      );
+      if (r.status !== 'delivered' && r.status !== 'cancelled') {
+        const issueBtn = document.createElement('button');
+        issueBtn.type = 'button';
+        issueBtn.className = 'btn-outline gift-issue-btn';
+        issueBtn.textContent = t('admin.gift.issueFromRequest');
+        issueBtn.addEventListener('click', () => {
+          const dollars = parseInt(String(r.amount).replace(/[^0-9]/g, ''), 10);
+          document.getElementById('issueAmount').value = Number.isFinite(dollars) ? dollars : '';
+          document.getElementById('issueRecipientName').value = r.recipient || '';
+          document.getElementById('issueRecipientEmail').value = '';
+          document.getElementById('issueBuyerName').value = r.name || '';
+          document.getElementById('issueBuyerEmail').value = /@/.test(r.contact) ? r.contact : '';
+          document.getElementById('issueMessage').value = r.message || '';
+          document.getElementById('issueRequestId').value = r.id;
+          document.getElementById('issueGiftNote').textContent = t('admin.gift.fromRequestNote', { name: r.name });
+          document.getElementById('issueGiftForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        tr.querySelector('.action-cell').appendChild(issueBtn);
+      }
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function loadGiftCards() {
+    const { data, error } = await supabase
+      .from('gift_cards')
+      .select('*')
+      .neq('status', 'pending_payment')
+      .order('created_at', { ascending: false });
+    if (error || !data) return;
+    lastGiftCards = data;
+    renderGiftCards();
+  }
+
+  async function loadGiftRequests() {
+    const { data, error } = await supabase
+      .from('gift_card_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error || !data) return;
+    lastGiftRequests = data;
+    renderGiftRequests();
+  }
+
+  document.getElementById('issueGiftForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const note = document.getElementById('issueGiftNote');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const dollars = Number(document.getElementById('issueAmount').value);
+    if (!Number.isInteger(dollars) || dollars < 5 || dollars > 2000) {
+      note.textContent = t('admin.gift.amountErr');
+      return;
+    }
+    const sendEmail = document.getElementById('issueSendEmail').checked;
+    const recipientEmail = document.getElementById('issueRecipientEmail').value.trim();
+    const buyerEmail = document.getElementById('issueBuyerEmail').value.trim();
+    submitBtn.disabled = true;
+    note.textContent = t('admin.gift.issuing');
+    try {
+      const { gift_card: card } = await callGiftCards({
+        action: 'issue',
+        amount_cents: dollars * 100,
+        recipient_name: document.getElementById('issueRecipientName').value.trim(),
+        recipient_email: recipientEmail,
+        purchaser_name: document.getElementById('issueBuyerName').value.trim(),
+        purchaser_email: buyerEmail,
+        message: document.getElementById('issueMessage').value.trim(),
+        lang: document.getElementById('issueLang').value,
+        request_id: document.getElementById('issueRequestId').value || undefined,
+        send_email: sendEmail,
+      });
+      logActivity('gift_card_issue', { code: card.code, amount_cents: card.initial_cents });
+      note.textContent = sendEmail && (recipientEmail || buyerEmail)
+        ? t('admin.gift.issuedSent', { code: card.code, email: recipientEmail || buyerEmail })
+        : t('admin.gift.issued', { code: card.code });
+      e.target.reset();
+      document.getElementById('issueRequestId').value = '';
+      loadGiftCards();
+      loadGiftRequests();
+    } catch (err) {
+      console.error(err);
+      note.textContent = t('admin.gift.issueError');
+    }
+    submitBtn.disabled = false;
+  });
+
   document.addEventListener('magicstick:langchange', () => {
     renderQuotes();
     renderBookings();
     fillCategoryPicker();
     renderServices();
+    renderGiftCards();
+    renderGiftRequests();
   });
 
   async function showDashboard() {
     dashboard.hidden = false;
     loadQuotes();
     loadBookings();
+    loadGiftCards();
+    loadGiftRequests();
     await loadCategories();
     loadServices();
   }

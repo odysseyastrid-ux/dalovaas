@@ -79,22 +79,91 @@
     });
   }
 
+  // Gift card applied on this form (checked against the server); the server
+  // re-validates the code and has the final say when the booking is created.
+  let appliedGift = null;
+  const STRIPE_MIN_CHARGE_CENTS = 50;
+
+  function estimateSplit(service) {
+    const total = service.first_booking_price_cents;
+    const gift = appliedGift ? Math.min(appliedGift.balance_cents, total) : 0;
+    let dueToday = Math.max(0, service.deposit_cents - gift);
+    if (dueToday > 0 && dueToday < STRIPE_MIN_CHARGE_CENTS) dueToday = 0;
+    return { total, gift, dueToday, dueLater: total - gift - dueToday };
+  }
+
   function updateDepositSummary() {
     const service = services.find((s) => s.id === selectedServiceId);
     const summary = document.getElementById('depositSummary');
+    const submitBtn = document.getElementById('bookingSubmit');
     if (!service) { summary.textContent = ''; return; }
     // An estimate — the server re-checks eligibility (no prior booking on
     // this account) and has the final say once "Continue to payment" runs.
-    summary.innerHTML = `
-      ${esc(t('booking.deposit.summary', {
+    const split = estimateSplit(service);
+    const lines = [];
+    if (split.gift > 0) {
+      lines.push(`<span class="deposit-summary-gift">${esc(t('booking.gift.summary', {
+        amount: centsToDollars(split.gift), today: centsToDollars(split.dueToday), later: centsToDollars(split.dueLater),
+      }))}</span>`);
+    } else {
+      lines.push(esc(t('booking.deposit.summary', {
         deposit: centsToDollars(service.deposit_cents),
         remaining: centsToDollars(service.first_booking_price_cents - service.deposit_cents),
-      }))}
-      <br><span class="deposit-summary-discount">${esc(t('booking.firstBooking.note', {
-        rate: '37', regular: '43.50',
-      }))}</span>
-    `;
+      })));
+    }
+    lines.push(`<span class="deposit-summary-discount">${esc(t('booking.firstBooking.note', {
+      rate: '37', regular: '43.50',
+    }))}</span>`);
+    summary.innerHTML = lines.join('<br>');
+    const bookingNote = document.getElementById('bookingNote');
+    bookingNote.textContent = t(split.gift > 0 && split.dueToday === 0 ? 'booking.gift.noPaymentNote' : 'booking.form.note.default');
+    submitBtn.textContent = t(split.gift > 0 && split.dueToday === 0 ? 'booking.form.submitGift' : 'booking.form.submit');
   }
+
+  const giftInput = document.getElementById('bGiftCode');
+  const giftStatus = document.getElementById('bGiftStatus');
+  const giftApplyBtn = document.getElementById('bGiftApply');
+
+  giftInput.addEventListener('input', () => {
+    if (appliedGift) {
+      appliedGift = null;
+      giftStatus.textContent = '';
+      giftStatus.className = 'gift-code-status';
+      updateDepositSummary();
+    }
+  });
+
+  giftApplyBtn.addEventListener('click', async () => {
+    const code = giftInput.value.trim();
+    if (!code) return;
+    giftApplyBtn.disabled = true;
+    giftStatus.className = 'gift-code-status';
+    giftStatus.textContent = t('booking.gift.checking');
+    try {
+      const res = await fetch(`${backend.config.FUNCTIONS_URL}/gift-cards`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'check', code }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid && data.balance_cents > 0) {
+        appliedGift = { code: data.code, balance_cents: data.balance_cents };
+        giftInput.value = data.code;
+        giftStatus.textContent = t('booking.gift.valid', { balance: centsToDollars(data.balance_cents) });
+        giftStatus.classList.add('ok');
+      } else {
+        appliedGift = null;
+        giftStatus.textContent = t(res.status === 429 ? 'booking.gift.tooMany' : 'booking.gift.invalid');
+        giftStatus.classList.add('error');
+      }
+    } catch (err) {
+      console.error(err);
+      giftStatus.textContent = t('booking.gift.error');
+      giftStatus.classList.add('error');
+    }
+    giftApplyBtn.disabled = false;
+    updateDepositSummary();
+  });
 
   async function loadServices() {
     const { data, error } = await supabase
@@ -127,15 +196,17 @@
 
   function renderPaymentSummary(service, result) {
     const box = document.getElementById('paymentSummary');
+    const gift = result.gift_card_planned_cents || 0;
     const totalDollars = centsToDollars(result.amount_cents);
     const depositDollars = centsToDollars(result.deposit_cents);
-    const remainingDollars = centsToDollars(result.amount_cents - result.deposit_cents);
+    const remainingDollars = centsToDollars(result.amount_cents - result.deposit_cents - gift);
     box.innerHTML = `
       <p class="payment-summary-service">${esc(serviceName(service))}</p>
       ${result.first_booking_discount_applied
         ? `<p class="payment-summary-discount">${esc(t('booking.firstBooking.applied', { rate: '37' }))}</p>`
         : ''}
       <p class="payment-summary-total">${esc(t('booking.payment.total', { total: totalDollars }))}</p>
+      ${gift > 0 ? `<p class="payment-summary-line payment-summary-gift">${esc(t('booking.payment.gift', { amount: centsToDollars(gift) }))}</p>` : ''}
       <p class="payment-summary-line">${esc(t('booking.payment.dueToday', { deposit: depositDollars }))}</p>
       <p class="payment-summary-line">${esc(t('booking.payment.dueLater', { remaining: remainingDollars }))}</p>
     `;
@@ -259,9 +330,25 @@
           guest_contact: contact,
           zone,
           notes: notesWithUtm,
+          gift_card_code: appliedGift ? appliedGift.code : giftInput.value.trim(),
         }),
       });
       const result = await res.json();
+      if (result.error === 'invalid_gift_card') {
+        appliedGift = null;
+        giftStatus.className = 'gift-code-status error';
+        giftStatus.textContent = t('booking.gift.invalid');
+        updateDepositSummary();
+        note.textContent = t('booking.gift.invalid');
+        submitBtn.disabled = false;
+        giftInput.focus();
+        return;
+      }
+      if (res.ok && result.confirmed) {
+        // The gift card covered everything due today — no online payment.
+        window.location.href = `${window.location.pathname}?status=success`;
+        return;
+      }
       if (!res.ok || !result.client_secret) {
         throw new Error(result.error || 'Could not start payment.');
       }

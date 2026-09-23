@@ -133,6 +133,31 @@ secure card fields in place.
    and swap in your live secret/publishable keys + a live webhook
    endpoint/secret.
 
+### Gift cards
+
+Real gift cards with a unique code (`MSC-XXXX-XXXX-XXXX`) and a balance that
+can be spent over several bookings (migration 0010, function `gift-cards`):
+
+```bash
+supabase functions deploy gift-cards --no-verify-jwt
+```
+
+- **Bought online** on `gift-cards.html` with the same embedded Stripe form
+  as booking (needs the Stripe keys + webhook above). Once Stripe confirms
+  the payment, `stripe-webhook` activates the card and it's emailed to the
+  recipient (or the buyer), with a copy to you.
+- **Issued by you** from the admin dashboard → *Gift cards* (for cards paid
+  by e-transfer/cash), including straight from a request sent through the
+  gift card request form. That page falls back to the request form whenever
+  online payment isn't configured.
+- **Redeemed at booking**: the customer enters the code; it pays the deposit
+  first, then part of the rest, and any leftover stays on the card. The
+  balance is only deducted once the booking is confirmed (never on an
+  abandoned payment), and never twice. If a card covers the whole deposit,
+  the booking is confirmed right away with no online charge.
+- **Balance check** on `gift-cards.html#balance`. Cards never expire (Ontario
+  and Québec law forbid expiry dates on gift cards).
+
 ### First-booking discount
 
 Services are priced on a real hourly rate: **$43.50/h** regular,

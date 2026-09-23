@@ -140,6 +140,15 @@
         <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..." data-i18n-placeholder="booking.form.notesPlaceholder"></textarea>
       </div>
 
+      <div class="field">
+        <label for="bGiftCode"><span data-i18n="booking.gift.label">Gift card</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <div class="gift-code-row">
+          <input type="text" id="bGiftCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="MSC-XXXX-XXXX-XXXX">
+          <button type="button" class="btn-outline" id="bGiftApply" data-i18n="booking.gift.apply">Apply</button>
+        </div>
+        <p class="gift-code-status" id="bGiftStatus" aria-live="polite"></p>
+      </div>
+
       <div id="depositSummary" class="deposit-summary"></div>
 
       <button type="submit" class="btn" id="bookingSubmit" data-i18n="booking.form.submit">Continue to payment</button>

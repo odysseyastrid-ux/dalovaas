@@ -5,7 +5,9 @@
   const config = window.MAGICSTICK_CONFIG || {};
 
   function isBackendConfigured() {
-    return Boolean(config.SUPABASE_URL && config.SUPABASE_ANON_KEY);
+    // Also false if the CDN script failed to load, so pages fall back
+    // gracefully instead of throwing on window.supabase.createClient.
+    return Boolean(config.SUPABASE_URL && config.SUPABASE_ANON_KEY && window.supabase);
   }
 
   let client = null;

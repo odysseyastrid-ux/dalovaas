@@ -77,8 +77,8 @@ document.getElementById('zoneSkip').addEventListener('click', () => chooseZone('
 document.getElementById('zoneClose').addEventListener('click', closeZoneModal);
 document.getElementById('zoneDismiss').addEventListener('click', closeZoneModal);
 document.getElementById('zoneClaim').addEventListener('click', () => {
-  // Already signed in — we already know their name/email (showSignedIn()
-  // filled qName/qContact at page load), so don't ask again.
+  // Already signed in — their name/email were filled in at page load, so
+  // don't ask again.
   if (quoteCustomerId) {
     discountClaimed = true;
     closeZoneModal();
@@ -105,19 +105,7 @@ document.getElementById('zoneLeadForm').addEventListener('submit', (e) => {
   document.getElementById('qContact').value = contact;
   closeZoneModal();
 
-  // Not signed in — carry what they just typed into the account card so
-  // creating an account (to track this request) takes one less step.
-  if (!quoteCustomerId && quoteAuthCard && !quoteAuthCard.hidden) {
-    const signupNameInput = document.getElementById('qaSignupName');
-    const signupEmailInput = document.getElementById('qaSignupEmail');
-    if (signupNameInput) signupNameInput.value = name;
-    if (signupEmailInput && contact.includes('@')) signupEmailInput.value = contact;
-    const signupTab = quoteAuthCard.querySelector('.portal-tab[data-tab="signup"]');
-    if (signupTab) signupTab.click();
-    quoteAuthCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } else {
-    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
-  }
+  document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
 });
 zoneBackdrop.addEventListener('click', (e) => {
   if (e.target === zoneBackdrop) closeZoneModal();
@@ -325,11 +313,10 @@ async function uploadQuoteFiles(supabase, quoteId) {
   return { photoPaths, videoPath };
 }
 
-// Optional account connection, shown above the quote form: a customer can
-// sign in (or create an account) to see this request later under
-// "My account" — or just continue as a guest. Never blocks submitting.
+// No login on this page: logging in or creating a profile only happens on
+// "My account". If the visitor is already signed in, we just link the
+// request to their account and pre-fill their details.
 let quoteCustomerId = null;
-const quoteAuthCard = document.getElementById('quoteAuthCard');
 const quoteSignedIn = document.getElementById('quoteSignedIn');
 const backendForAuth = window.MagicstickBackend;
 
@@ -340,56 +327,40 @@ function fillContactFromUser(user) {
   if (!contactInput.value.trim()) contactInput.value = user.email || '';
 }
 
-function showSignedIn(user) {
-  quoteCustomerId = user.id;
-  quoteAuthCard.hidden = true;
-  quoteSignedIn.hidden = false;
-  document.getElementById('quoteSignedInEmail').textContent = user.email;
-  fillContactFromUser(user);
-}
-
-function showGuestAuthCard() {
-  quoteCustomerId = null;
-  quoteSignedIn.hidden = true;
-  quoteAuthCard.hidden = false;
-}
-
-if (backendForAuth && backendForAuth.isBackendConfigured() && quoteAuthCard) {
+if (backendForAuth && backendForAuth.isBackendConfigured()) {
   const supabaseForAuth = backendForAuth.getSupabaseClient();
-
-  window.MagicstickAuthWidget.initAuthWidget(document, {
-    tabs: '#quoteAuthCard .portal-tab',
-    loginForm: '#qaLoginForm',
-    loginEmail: '#qaLoginEmail',
-    loginPassword: '#qaLoginPassword',
-    loginNote: '#qaLoginNote',
-    forgotBtn: '#qaForgotPasswordBtn',
-    signupForm: '#qaSignupForm',
-    signupName: '#qaSignupName',
-    signupEmail: '#qaSignupEmail',
-    signupPassword: '#qaSignupPassword',
-    signupNote: '#qaSignupNote',
-    googleBtn: '#qaGoogleOAuthBtn',
-    appleBtn: '#qaAppleOAuthBtn',
-  }, supabaseForAuth, showSignedIn);
-
-  document.getElementById('qaContinueGuest').addEventListener('click', () => {
-    quoteAuthCard.hidden = true;
-  });
 
   document.getElementById('quoteSwitchAccount').addEventListener('click', async () => {
     await supabaseForAuth.auth.signOut();
-    showGuestAuthCard();
+    quoteCustomerId = null;
+    quoteSignedIn.hidden = true;
   });
 
   supabaseForAuth.auth.getSession().then(({ data }) => {
-    if (data?.session?.user) {
-      showSignedIn(data.session.user);
-    } else {
-      quoteAuthCard.hidden = false;
-    }
+    const user = data?.session?.user;
+    if (!user) return;
+    quoteCustomerId = user.id;
+    quoteSignedIn.hidden = false;
+    document.getElementById('quoteSignedInEmail').textContent = user.email;
+    fillContactFromUser(user);
   });
 }
+
+// Live one-line explanation of the selected frequency's discount.
+const freqSelect = document.getElementById('qFrequency');
+const freqHint = document.getElementById('qFrequencyHint');
+const freqHintKeys = {
+  'One-time': 'form.frequency.hint.oneTime',
+  'Monthly': 'form.frequency.hint.monthly',
+  'Biweekly': 'form.frequency.hint.biweekly',
+  'Weekly': 'form.frequency.hint.weekly',
+};
+function renderFreqHint() {
+  freqHint.textContent = t(freqHintKeys[freqSelect.value] || freqHintKeys['One-time']);
+}
+freqSelect.addEventListener('change', renderFreqHint);
+document.addEventListener('magicstick:langchange', renderFreqHint);
+renderFreqHint();
 
 // Quote request form: validate, show a loading state on the submit button,
 // then save it to the backend (if configured) or fall back to opening the
@@ -482,6 +453,7 @@ form.addEventListener('submit', async (e) => {
 
   const name = document.getElementById('qName').value.trim();
   const contact = document.getElementById('qContact').value.trim();
+  const address = document.getElementById('qAddress').value.trim();
   const service = document.getElementById('qService').value;
   const frequency = document.getElementById('qFrequency').value;
   const message = document.getElementById('qMsg').value.trim();
@@ -518,6 +490,7 @@ form.addEventListener('submit', async (e) => {
       customer_id: quoteCustomerId,
       name,
       contact,
+      address: address || null,
       service,
       frequency,
       zone: selectedZone || null,
@@ -550,6 +523,7 @@ form.addEventListener('submit', async (e) => {
   const body =
     `${t('mail.label.name')}: ${name}\n` +
     `${t('mail.label.contact')}: ${contact}\n` +
+    `${t('mail.label.address')}: ${address || t('common.notSpecified')}\n` +
     `${t('mail.label.area')}: ${selectedZone || t('common.notSpecified')}\n` +
     `${t('mail.label.frequency')}: ${frequency}\n` +
     `${t('mail.label.service')}: ${service}\n` +

@@ -77,6 +77,22 @@ elsewhere in this repo — don't link the two.
      rejects the request with 401 — that's the point, it means the check
      is working.
 
+### Newsletter, gift card and job application forms
+
+These three forms post to one function, `submit-form`, which saves each
+submission (`newsletter_subscribers`, `gift_card_requests`,
+`job_applications` — see migration 0009), emails you, and sends the visitor
+a confirmation in their language. It reuses the Resend secrets from step 3,
+so there's nothing new to configure:
+
+```bash
+supabase functions deploy submit-form --no-verify-jwt
+```
+
+It protects itself with a honeypot field, length limits, and a per-IP rate
+limit (8 submissions/hour, IPs stored hashed). If the function can't be
+reached, the forms fall back to opening the visitor's email app.
+
 ## 4. Set up deposit payments (Stripe)
 
 Booking deposits are collected with an **embedded** Stripe payment form

@@ -70,6 +70,7 @@ Deno.serve(async (req) => {
     const ownerText = [
       `New quote request from ${record.name}`,
       `Contact: ${record.contact}`,
+      `Address: ${record.address || "Not specified"}`,
       `Service: ${record.service}`,
       `Frequency: ${record.frequency}`,
       `Area: ${record.zone || "Not specified"}`,

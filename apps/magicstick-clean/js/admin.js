@@ -121,7 +121,7 @@
       tr.innerHTML = `
         <td>${esc(new Date(q.created_at).toLocaleDateString())}</td>
         <td>${esc(q.name)}</td>
-        <td>${esc(q.contact)}</td>
+        <td>${esc(q.contact)}${q.address ? `<br><span class="fine">${esc(q.address)}</span>` : ''}</td>
         <td>${esc(q.service)}</td>
         <td>${esc(q.frequency)}</td>
         <td>${esc(q.zone) || '—'}</td>

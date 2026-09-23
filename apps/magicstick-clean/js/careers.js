@@ -16,13 +16,14 @@ mobileMenu.querySelectorAll('a').forEach(a => {
   });
 });
 
-// Job application form: validate, then hand off to the visitor's email app
+// Job application form: validate, then save it and email the team through
+// the submit-form function (the email app is only a fallback).
 const form = document.getElementById('applyForm');
 const note = document.getElementById('applyNote');
 const checkApplyFormGuard = window.MagicstickFormGuard
   ? window.MagicstickFormGuard.attach(document.getElementById('applyFormGuard'))
   : () => 'ok';
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const guardResult = checkApplyFormGuard();
@@ -64,21 +65,21 @@ form.addEventListener('submit', (e) => {
     `${t('mail.label.experience')}: ${experience}\n` +
     `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
 
-  const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  // A hidden link's click() hands off to the mail app without navigating
-  // this page away — a direct window.location.href assignment can get
-  // blocked outright in a sandboxed/embedded context, taking the page with it.
-  try {
-    const mailtoLink = document.createElement('a');
-    mailtoLink.href = mailto;
-    mailtoLink.style.display = 'none';
-    document.body.appendChild(mailtoLink);
-    mailtoLink.click();
-    document.body.removeChild(mailtoLink);
-  } catch (err) {
-    console.error('Could not open the email app silently:', err);
+  const submitBtn = form.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  note.textContent = t('careers.form.note.sending');
+  note.classList.remove('sent');
+  const saved = window.MagicstickForms
+    ? await window.MagicstickForms.submit('job_application', { name, contact, availability, experience, message })
+    : false;
+  submitBtn.disabled = false;
+  if (!saved) {
+    if (window.MagicstickForms) window.MagicstickForms.mailFallback(subject, body);
+    note.textContent = t('careers.form.note.opening');
+    note.classList.add('sent');
+    return;
   }
-
-  note.textContent = t('careers.form.note.opening');
+  form.reset();
+  note.textContent = t('careers.form.note.sent');
   note.classList.add('sent');
 });

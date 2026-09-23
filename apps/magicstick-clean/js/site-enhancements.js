@@ -403,6 +403,46 @@
     },
   };
 
+  // ---------- Form submissions (newsletter, gift cards, applications) ----------
+  // Saves the form through the `submit-form` edge function, which stores it
+  // and sends the emails. Resolves true on success, false if the backend is
+  // unreachable/unconfigured — callers then fall back to the email app.
+  async function submitSiteForm(form, fields) {
+    const cfg = window.MAGICSTICK_CONFIG || {};
+    if (!cfg.FUNCTIONS_URL) return false;
+    try {
+      const res = await fetch(`${cfg.FUNCTIONS_URL}/submit-form`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          form,
+          lang: window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en',
+          page: window.location.pathname,
+          ...fields,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      return res.ok && data.ok === true;
+    } catch (err) {
+      console.error('submit-form failed:', err);
+      return false;
+    }
+  }
+
+  function openMailFallback(subject, body) {
+    const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    try {
+      const a = document.createElement('a');
+      a.href = mailto;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) { /* ignore */ }
+  }
+
+  window.MagicstickForms = { submit: submitSiteForm, mailFallback: openMailFallback };
+
   // ---------- Footer newsletter form ----------
   function initNewsletterForm() {
     const form = document.getElementById('newsletterForm');
@@ -410,28 +450,33 @@
     form.dataset.wired = '1';
     const note = document.getElementById('newsletterNote');
     const honeypot = form.querySelector('input[name="company"]');
-    form.addEventListener('submit', (e) => {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const showNote = (key, ok) => {
+      if (!note) return;
+      note.textContent = t(key);
+      note.classList.toggle('sent', ok);
+    };
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (honeypot && honeypot.value.trim() !== '') {
         // Looks like a bot — pretend success without sending anything.
-        if (note) { note.textContent = t('footer.newsletter.thanks'); note.classList.add('sent'); }
+        showNote('footer.newsletter.thanks', true);
         form.reset();
         return;
       }
-      const email = form.querySelector('input[type="email"]').value.trim();
-      if (!email) return;
-      const subject = t('footer.newsletter.mailSubject');
-      const body = `${t('footer.newsletter.mailBody')}\n\nEmail: ${email}`;
-      const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      try {
-        const a = document.createElement('a');
-        a.href = mailto;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch (err) { /* ignore */ }
-      if (note) { note.textContent = t('footer.newsletter.thanks'); note.classList.add('sent'); }
+      const emailInput = form.querySelector('input[type="email"]');
+      const email = emailInput.value.trim();
+      if (!email || !emailInput.checkValidity()) {
+        showNote('footer.newsletter.invalid', false);
+        return;
+      }
+      if (submitBtn) submitBtn.disabled = true;
+      const saved = await submitSiteForm('newsletter', { email });
+      if (submitBtn) submitBtn.disabled = false;
+      if (!saved) {
+        openMailFallback(t('footer.newsletter.mailSubject'), `${t('footer.newsletter.mailBody')}\n\nEmail: ${email}`);
+      }
+      showNote('footer.newsletter.thanks', true);
       form.reset();
     });
   }

@@ -30,13 +30,14 @@ if (passAmount && gAmountSelect) {
   });
 }
 
-// Gift card request form: validate, then hand off to the visitor's email app
+// Gift card request form: validate, then save it and email the team through
+// the submit-form function (the email app is only a fallback).
 const form = document.getElementById('giftCardForm');
 const note = document.getElementById('giftCardNote');
 const checkGiftCardFormGuard = window.MagicstickFormGuard
   ? window.MagicstickFormGuard.attach(document.getElementById('giftCardFormGuard'))
   : () => 'ok';
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const guardResult = checkGiftCardFormGuard();
@@ -78,21 +79,22 @@ form.addEventListener('submit', (e) => {
     `Recipient: ${recipient || t('common.none')}\n` +
     `${t('mail.label.notes')}: ${message || t('common.none')}\n`;
 
-  const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  // A hidden link's click() hands off to the mail app without navigating
-  // this page away — a direct window.location.href assignment can get
-  // blocked outright in a sandboxed/embedded context, taking the page with it.
-  try {
-    const mailtoLink = document.createElement('a');
-    mailtoLink.href = mailto;
-    mailtoLink.style.display = 'none';
-    document.body.appendChild(mailtoLink);
-    mailtoLink.click();
-    document.body.removeChild(mailtoLink);
-  } catch (err) {
-    console.error('Could not open the email app silently:', err);
+  const submitBtn = form.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  note.textContent = t('giftcards.form.note.sending');
+  note.classList.remove('sent');
+  const saved = window.MagicstickForms
+    ? await window.MagicstickForms.submit('gift_card', { name, contact, amount, recipient, message })
+    : false;
+  submitBtn.disabled = false;
+  if (!saved) {
+    if (window.MagicstickForms) window.MagicstickForms.mailFallback(subject, body);
+    note.textContent = t('giftcards.form.note.opening');
+    note.classList.add('sent');
+    return;
   }
-
-  note.textContent = t('giftcards.form.note.opening');
+  form.reset();
+  if (passAmount) passAmount.textContent = '$100';
+  note.textContent = t('giftcards.form.note.sent');
   note.classList.add('sent');
 });

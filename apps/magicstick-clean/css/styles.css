@@ -665,7 +665,7 @@
 
   /* ---------- QUOTE FORM ---------- */
   .quote-auth-wrap{max-width:560px;margin:0 auto 20px;text-align:left;}
-  .freq-hint{font-size:13px;line-height:1.45;color:var(--gray);margin:8px 0 2px;}
+  .freq-hint,.contact-band .freq-hint{font-size:13px;line-height:1.45;color:var(--gray);margin:8px 0 2px;text-shadow:none;}
   .freq-hint-link{font-size:13px;font-weight:600;color:var(--teal);text-underline-offset:3px;}
   :root[data-theme="dark"] .freq-hint-link{color:#6FCBBB;}
 

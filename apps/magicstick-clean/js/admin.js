@@ -37,6 +37,8 @@
       document.getElementById('quotesPanel').hidden = tab.dataset.tab !== 'quotes';
       document.getElementById('bookingsPanel').hidden = tab.dataset.tab !== 'bookings';
       document.getElementById('servicesPanel').hidden = tab.dataset.tab !== 'services';
+      const extrasPanel = document.getElementById('extrasPanel');
+      if (extrasPanel) extrasPanel.hidden = tab.dataset.tab !== 'extras';
     });
   });
 
@@ -148,13 +150,22 @@
     if (!lastBookings) return;
     lastBookings.forEach((b) => {
       const serviceName = (lang() === 'fr' && b.services?.name_fr) ? b.services.name_fr : (b.services?.name ?? b.service_id);
+      const sizeBits = [];
+      if (b.bedrooms != null) sizeBits.push(`${b.bedrooms} ${t('bed.suffix')}`);
+      if (b.bathrooms != null) sizeBits.push(`${b.bathrooms} ${t('bath.suffix')}`);
+      if (b.half_bathrooms) sizeBits.push(`${b.half_bathrooms} ${t('halfbath.suffix')}`);
+      const addonList = Array.isArray(b.addons) ? b.addons : [];
+      const addonNote = addonList.length
+        ? `<br><span class="fine">${esc(addonList.map((a) => `${(lang() === 'fr' && a.name_fr) ? a.name_fr : a.name}${a.unit && a.unit !== 'flat' ? ` ×${a.qty}` : ''}`).join(', '))} (+$${((b.addons_cents || 0) / 100).toFixed(2)})</span>`
+        : '';
+      const sizeNote = sizeBits.length ? `<br><span class="fine">${esc(sizeBits.join(' · '))}</span>` : '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${esc(b.requested_date)}</td>
         <td>${esc(b.time_window)}</td>
         <td>${esc(b.guest_name)}</td>
         <td>${esc(b.guest_contact)}</td>
-        <td>${esc(serviceName)}</td>
+        <td>${esc(serviceName)}${sizeNote}${addonNote}</td>
         <td>${esc(b.zone) || '—'}</td>
         <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}${b.gift_card_applied_cents ? `<br><span class="fine">${esc(t('admin.gift.bookingLine', { amount: (b.gift_card_applied_cents / 100).toFixed(2) }))}</span>` : ''}</td>
         <td class="status-cell"></td>
@@ -253,6 +264,72 @@
         })
       );
       tbody.appendChild(tr);
+    });
+  }
+
+  let lastAddons = null;
+  const ADDON_UNITS = ['flat', 'window', 'room', 'load', 'hour'];
+
+  function renderAddons() {
+    const table = document.getElementById('addonsTable');
+    if (!table) return;
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
+    if (!lastAddons) return;
+    lastAddons.forEach((a) => {
+      const name = lang() === 'fr' && a.name_fr ? a.name_fr : a.name;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${esc(name)}</td>
+        <td>${esc(t('admin.extras.unit.' + a.unit))}</td>
+        <td class="price-cell"></td>
+        <td class="active-cell"></td>
+      `;
+      tr.querySelector('.price-cell').appendChild(
+        moneyInput(a.price_cents, async (cents) => {
+          await supabase.from('service_addons').update({ price_cents: cents }).eq('id', a.id);
+          logActivity('update_addon_price', `${a.id} -> $${(cents / 100).toFixed(2)}`);
+        })
+      );
+      tr.querySelector('.active-cell').appendChild(
+        activeSelect(a.active, async (value) => {
+          await supabase.from('service_addons').update({ active: value }).eq('id', a.id);
+          logActivity('update_addon_status', `${a.id} -> ${value ? 'active' : 'inactive'}`);
+        })
+      );
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function loadAddons() {
+    const { data, error } = await supabase.from('service_addons').select('*').order('sort_order');
+    if (error || !data) return;
+    lastAddons = data;
+    renderAddons();
+  }
+
+  const addAddonForm = document.getElementById('addAddonForm');
+  if (addAddonForm) {
+    addAddonForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const note = document.getElementById('addAddonNote');
+      const name = document.getElementById('addonName').value.trim();
+      const unit = document.getElementById('addonUnit').value;
+      const id = slugify(name);
+      if (!name || !ADDON_UNITS.includes(unit)) { note.textContent = t('admin.extras.invalid'); return; }
+      const { error } = await supabase.from('service_addons').insert({
+        id,
+        name,
+        name_fr: document.getElementById('addonNameFr').value.trim() || name,
+        unit,
+        price_cents: Math.round(parseFloat(document.getElementById('addonPrice').value || '0') * 100),
+        sort_order: (lastAddons?.length || 0) + 1,
+      });
+      if (error) { note.textContent = error.message; return; }
+      await logActivity('create_addon', id);
+      note.textContent = t('admin.extras.added');
+      e.target.reset();
+      loadAddons();
     });
   }
 
@@ -518,6 +595,7 @@
     renderBookings();
     fillCategoryPicker();
     renderServices();
+    renderAddons();
     renderGiftCards();
     renderGiftRequests();
   });
@@ -530,6 +608,7 @@
     loadGiftRequests();
     await loadCategories();
     loadServices();
+    loadAddons();
   }
 
   async function checkAccess() {

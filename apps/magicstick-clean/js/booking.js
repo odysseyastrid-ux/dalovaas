@@ -37,9 +37,53 @@
 
   let services = [];
   let selectedServiceId = null;
+  let addons = [];
+  // Selected extras: addon id -> quantity (flat add-ons use qty 1 when on).
+  const addonQty = new Map();
+  // Home size: bedrooms / bathrooms / half_bathrooms -> count.
+  const sizeCount = { bedrooms: 0, bathrooms: 0, half_bathrooms: 0 };
+  const SIZE_MAX = 20;
 
   function centsToDollars(cents) {
     return (cents / 100).toFixed(2);
+  }
+
+  function addonName(addon) {
+    return (lang() === 'fr' && addon.name_fr) ? addon.name_fr : addon.name;
+  }
+  function addonDescription(addon) {
+    return (lang() === 'fr' && addon.description_fr) ? addon.description_fr : addon.description;
+  }
+  function addonUnitLabel(addon) {
+    const price = centsToDollars(addon.price_cents);
+    switch (addon.unit) {
+      case 'window': return t('booking.extras.perWindow', { price });
+      case 'room': return t('booking.extras.perRoom', { price });
+      case 'load': return t('booking.extras.perLoad', { price });
+      case 'hour': return t('booking.extras.perHour', { price });
+      default: return t('booking.extras.each', { price });
+    }
+  }
+
+  // Sum of selected extras, priced from the loaded add-ons (the server
+  // re-prices authoritatively — this is only the on-screen estimate).
+  function addonsCents() {
+    let cents = 0;
+    addons.forEach((a) => {
+      const qty = addonQty.get(a.id) || 0;
+      if (qty > 0) cents += a.price_cents * (a.unit === 'flat' ? 1 : qty);
+    });
+    return cents;
+  }
+
+  // The [{ id, qty }] payload the booking function expects.
+  function selectedAddonsPayload() {
+    const out = [];
+    addons.forEach((a) => {
+      const qty = addonQty.get(a.id) || 0;
+      if (qty > 0) out.push({ id: a.id, qty: a.unit === 'flat' ? 1 : qty });
+    });
+    return out;
   }
 
   function serviceName(service) {
@@ -79,17 +123,98 @@
     });
   }
 
+  function renderAddons() {
+    const grid = document.getElementById('addonGrid');
+    const field = document.getElementById('addonsField');
+    if (!grid || !field) return;
+    if (!addons.length) { field.hidden = true; return; }
+    field.hidden = false;
+    grid.innerHTML = '';
+    addons.forEach((addon) => {
+      const isFlat = addon.unit === 'flat';
+      const qty = addonQty.get(addon.id) || 0;
+      const card = document.createElement('div');
+      card.className = 'addon-card' + (qty > 0 ? ' selected' : '');
+      card.dataset.addonId = addon.id;
+      const desc = addonDescription(addon);
+      card.innerHTML = `
+        <div class="addon-card-main">
+          <span class="addon-card-name">${esc(addonName(addon))}</span>
+          ${desc ? `<span class="addon-card-desc">${esc(desc)}</span>` : ''}
+          <span class="addon-card-price">${esc(addonUnitLabel(addon))}</span>
+        </div>
+        <div class="addon-card-control">
+          ${isFlat
+            ? `<span class="addon-card-check" aria-hidden="true">✓</span>`
+            : `<div class="stepper stepper-sm">
+                 <button type="button" class="stepper-btn" data-step="-1" aria-label="${esc(t('booking.size.decrease'))}">−</button>
+                 <span class="stepper-value" data-value>${qty}</span>
+                 <button type="button" class="stepper-btn" data-step="1" aria-label="${esc(t('booking.size.increase'))}">+</button>
+               </div>`}
+        </div>
+      `;
+      if (isFlat) {
+        card.classList.add('addon-card-toggle');
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-pressed', qty > 0 ? 'true' : 'false');
+        const toggle = () => {
+          const on = (addonQty.get(addon.id) || 0) > 0;
+          addonQty.set(addon.id, on ? 0 : 1);
+          card.classList.toggle('selected', !on);
+          card.setAttribute('aria-pressed', on ? 'false' : 'true');
+          updateDepositSummary();
+        };
+        card.addEventListener('click', toggle);
+        card.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+        });
+      } else {
+        const valueEl = card.querySelector('[data-value]');
+        card.querySelectorAll('.stepper-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const step = Number(btn.dataset.step);
+            const current = addonQty.get(addon.id) || 0;
+            const next = Math.max(0, Math.min(50, current + step));
+            addonQty.set(addon.id, next);
+            valueEl.textContent = String(next);
+            card.classList.toggle('selected', next > 0);
+            updateDepositSummary();
+          });
+        });
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  function initSizeSteppers() {
+    document.querySelectorAll('.size-steppers .stepper[data-size]').forEach((stepper) => {
+      const key = stepper.dataset.size;
+      const valueEl = stepper.querySelector('[data-value]');
+      stepper.querySelectorAll('.stepper-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const step = Number(btn.dataset.step);
+          sizeCount[key] = Math.max(0, Math.min(SIZE_MAX, sizeCount[key] + step));
+          valueEl.textContent = String(sizeCount[key]);
+        });
+      });
+    });
+  }
+
   // Gift card applied on this form (checked against the server); the server
   // re-validates the code and has the final say when the booking is created.
   let appliedGift = null;
   const STRIPE_MIN_CHARGE_CENTS = 50;
 
   function estimateSplit(service) {
-    const total = service.first_booking_price_cents;
+    const extras = addonsCents();
+    const total = service.first_booking_price_cents + extras;
     const gift = appliedGift ? Math.min(appliedGift.balance_cents, total) : 0;
+    // Extras add to the total but never to the online deposit — the deposit
+    // stays the service's fixed deposit; extras are collected at the visit.
     let dueToday = Math.max(0, service.deposit_cents - gift);
     if (dueToday > 0 && dueToday < STRIPE_MIN_CHARGE_CENTS) dueToday = 0;
-    return { total, gift, dueToday, dueLater: total - gift - dueToday };
+    return { total, extras, gift, dueToday, dueLater: total - gift - dueToday };
   }
 
   function updateDepositSummary() {
@@ -101,6 +226,11 @@
     // this account) and has the final say once "Continue to payment" runs.
     const split = estimateSplit(service);
     const lines = [];
+    if (split.extras > 0) {
+      lines.push(`<span class="deposit-summary-extras">${esc(t('booking.extras.summary', {
+        amount: centsToDollars(split.extras),
+      }))}</span>`);
+    }
     if (split.gift > 0) {
       lines.push(`<span class="deposit-summary-gift">${esc(t('booking.gift.summary', {
         amount: centsToDollars(split.gift), today: centsToDollars(split.dueToday), later: centsToDollars(split.dueLater),
@@ -108,7 +238,7 @@
     } else {
       lines.push(esc(t('booking.deposit.summary', {
         deposit: centsToDollars(service.deposit_cents),
-        remaining: centsToDollars(service.first_booking_price_cents - service.deposit_cents),
+        remaining: centsToDollars(split.total - service.deposit_cents),
       })));
     }
     lines.push(`<span class="deposit-summary-discount">${esc(t('booking.firstBooking.note', {
@@ -181,11 +311,27 @@
     form.hidden = false;
   }
 
+  async function loadAddons() {
+    const { data, error } = await supabase
+      .from('service_addons')
+      .select('*')
+      .eq('active', true)
+      .order('sort_order', { ascending: true });
+    if (error || !data) return;
+    addons = data;
+    renderAddons();
+  }
+
+  initSizeSteppers();
   loadServices();
+  loadAddons();
 
   document.addEventListener('magicstick:langchange', () => {
     if (services.length) {
       renderServiceOptions();
+    }
+    if (addons.length) {
+      renderAddons();
     }
   });
 
@@ -197,14 +343,17 @@
   function renderPaymentSummary(service, result) {
     const box = document.getElementById('paymentSummary');
     const gift = result.gift_card_planned_cents || 0;
-    const totalDollars = centsToDollars(result.amount_cents);
+    const extras = result.addons_cents || 0;
+    const totalCents = result.amount_cents + extras;
+    const totalDollars = centsToDollars(totalCents);
     const depositDollars = centsToDollars(result.deposit_cents);
-    const remainingDollars = centsToDollars(result.amount_cents - result.deposit_cents - gift);
+    const remainingDollars = centsToDollars(totalCents - result.deposit_cents - gift);
     box.innerHTML = `
       <p class="payment-summary-service">${esc(serviceName(service))}</p>
       ${result.first_booking_discount_applied
         ? `<p class="payment-summary-discount">${esc(t('booking.firstBooking.applied', { rate: '37' }))}</p>`
         : ''}
+      ${extras > 0 ? `<p class="payment-summary-line payment-summary-extras">${esc(t('booking.extras.summary', { amount: centsToDollars(extras) }))}</p>` : ''}
       <p class="payment-summary-total">${esc(t('booking.payment.total', { total: totalDollars }))}</p>
       ${gift > 0 ? `<p class="payment-summary-line payment-summary-gift">${esc(t('booking.payment.gift', { amount: centsToDollars(gift) }))}</p>` : ''}
       <p class="payment-summary-line">${esc(t('booking.payment.dueToday', { deposit: depositDollars }))}</p>
@@ -330,6 +479,10 @@
           guest_contact: contact,
           zone,
           notes: notesWithUtm,
+          bedrooms: sizeCount.bedrooms,
+          bathrooms: sizeCount.bathrooms,
+          half_bathrooms: sizeCount.half_bathrooms,
+          addons: selectedAddonsPayload(),
           gift_card_code: appliedGift ? appliedGift.code : giftInput.value.trim(),
         }),
       });

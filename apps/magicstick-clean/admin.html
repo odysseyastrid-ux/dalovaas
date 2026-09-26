@@ -226,6 +226,7 @@
               <button type="button" class="auth-tab active" data-tab="quotes" data-i18n="admin.tab.quotes">Quote requests</button>
               <button type="button" class="auth-tab" data-tab="bookings" data-i18n="admin.tab.bookings">Bookings</button>
               <button type="button" class="auth-tab" data-tab="services" data-i18n="admin.tab.services">Services</button>
+              <button type="button" class="auth-tab" data-tab="extras" data-i18n="admin.tab.extras">Extras</button>
             </div>
 
             <div id="quotesPanel" class="admin-panel">
@@ -325,6 +326,50 @@
                 </div>
                 <button type="submit" class="btn" data-i18n="admin.services.add">Add service</button>
                 <p class="form-note" id="addServiceNote"></p>
+              </form>
+            </div>
+
+            <div id="extrasPanel" class="admin-panel" hidden>
+              <div class="table-scroll">
+                <table class="admin-table" id="addonsTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="admin.col.extra">Extra</th>
+                      <th data-i18n="admin.col.unit">Unit</th>
+                      <th data-i18n="admin.col.price">Price</th>
+                      <th data-i18n="admin.col.active">Active</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <form id="addAddonForm" class="auth-form" style="max-width:480px;margin-top:28px;">
+                <h2 style="font-size:18px;margin:0 0 16px;" data-i18n="admin.extras.addTitle">Add an extra</h2>
+                <div class="field">
+                  <label for="addonName" data-i18n="admin.extras.name">Name (EN)</label>
+                  <input type="text" id="addonName" required>
+                </div>
+                <div class="field">
+                  <label for="addonNameFr" data-i18n="admin.extras.nameFr">Name (FR)</label>
+                  <input type="text" id="addonNameFr" required>
+                </div>
+                <div class="field">
+                  <label for="addonUnit" data-i18n="admin.extras.unit">Unit</label>
+                  <select id="addonUnit">
+                    <option value="flat" data-i18n="admin.extras.unit.flat">Flat (once)</option>
+                    <option value="window" data-i18n="admin.extras.unit.window">Per window</option>
+                    <option value="room" data-i18n="admin.extras.unit.room">Per room</option>
+                    <option value="load" data-i18n="admin.extras.unit.load">Per load</option>
+                    <option value="hour" data-i18n="admin.extras.unit.hour">Per hour</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="addonPrice" data-i18n="admin.extras.price">Price ($)</label>
+                  <input type="number" id="addonPrice" min="0" step="0.01" required>
+                </div>
+                <button type="submit" class="btn" data-i18n="admin.extras.add">Add extra</button>
+                <p class="form-note" id="addAddonNote"></p>
               </form>
             </div>
           </section>

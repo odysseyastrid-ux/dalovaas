@@ -121,12 +121,27 @@ Deno.serve(async (req) => {
           giftCode = card?.code ?? "";
         }
 
+        const addonsCents = booking.addons_cents ?? 0;
+        const totalCents = booking.amount_cents + addonsCents;
         const depositDollars = (booking.deposit_cents / 100).toFixed(2);
-        const totalDollars = (booking.amount_cents / 100).toFixed(2);
-        const remainingDollars = ((booking.amount_cents - booking.deposit_cents - giftApplied) / 100).toFixed(2);
+        const totalDollars = (totalCents / 100).toFixed(2);
+        const remainingDollars = ((totalCents - booking.deposit_cents - giftApplied) / 100).toFixed(2);
         const discountLine = booking.first_booking_discount_applied
           ? "First-booking discount: applied ($37/h)"
           : "First-booking discount: not applied";
+        const addonLines = Array.isArray(booking.addons) && booking.addons.length
+          ? [
+            "Extras:",
+            ...booking.addons.map((a: { name?: string; unit?: string; qty?: number; line_cents?: number }) => {
+              const q = a.unit && a.unit !== "flat" ? ` ×${a.qty}` : "";
+              return `  • ${a.name}${q}: $${((a.line_cents ?? 0) / 100).toFixed(2)}`;
+            }),
+          ]
+          : [];
+        const sizeParts: string[] = [];
+        if (booking.bedrooms != null) sizeParts.push(`${booking.bedrooms} bed`);
+        if (booking.bathrooms != null) sizeParts.push(`${booking.bathrooms} bath`);
+        if (booking.half_bathrooms) sizeParts.push(`${booking.half_bathrooms} half-bath`);
         const giftLines = booking.gift_card_id
           ? [
             `Gift card ${giftCode}: -$${(giftApplied / 100).toFixed(2)} CAD`,
@@ -140,6 +155,8 @@ Deno.serve(async (req) => {
           `Service: ${booking.services?.name ?? booking.service_id}`,
           `Date: ${booking.requested_date} (${booking.time_window})`,
           `Area: ${booking.zone || "Not specified"}`,
+          `Home: ${sizeParts.length ? sizeParts.join(", ") : "Not specified"}`,
+          ...addonLines,
           `Total price: $${totalDollars} CAD`,
           `Deposit paid: $${depositDollars} CAD`,
           ...giftLines,

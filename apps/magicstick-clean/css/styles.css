@@ -1152,6 +1152,50 @@
     border-radius:4px;padding:12px 14px;margin-bottom:18px;
   }
   .deposit-summary-discount{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:600;color:var(--teal);}
+  .deposit-summary-extras{display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--gold-deep,#9A7B12);}
+
+  /* ---------- HOME SIZE + EXTRAS (ADD-ONS) ---------- */
+  .field-hint{font-size:12.5px;color:var(--gray);margin:2px 0 12px;line-height:1.45;}
+  .size-steppers{display:flex;flex-wrap:wrap;gap:12px;}
+  .size-stepper{
+    flex:1 1 150px;display:flex;flex-direction:column;gap:8px;
+    border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;
+  }
+  .size-stepper-label{font-size:13.5px;font-weight:600;color:var(--charcoal);}
+  .stepper{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;width:max-content;}
+  .stepper-btn{
+    width:36px;height:36px;border:none;background:transparent;cursor:pointer;
+    font-size:20px;line-height:1;color:var(--teal);font-weight:600;display:flex;align-items:center;justify-content:center;
+    transition:background .12s ease;-webkit-tap-highlight-color:transparent;
+  }
+  .stepper-btn:hover{background:var(--teal-tint);}
+  .stepper-btn:active{background:var(--teal);color:#fff;}
+  .stepper-value{min-width:34px;text-align:center;font-size:15px;font-weight:700;color:var(--charcoal);}
+  .stepper-sm .stepper-btn{width:32px;height:32px;font-size:18px;}
+  .stepper-sm .stepper-value{min-width:28px;font-size:14px;}
+
+  .addon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .addon-card{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;
+    transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;background:#fff;
+  }
+  .addon-card-toggle{cursor:pointer;}
+  .addon-card-toggle:hover{border-color:var(--teal);}
+  .addon-card.selected{border-color:var(--teal);background:var(--teal-tint);box-shadow:0 1px 0 var(--teal) inset;}
+  .addon-card-toggle:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .addon-card-main{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .addon-card-name{font-weight:600;font-size:14.5px;color:var(--charcoal);}
+  .addon-card-desc{font-size:12.5px;color:var(--gray);}
+  .addon-card-price{font-size:13px;font-weight:600;color:var(--teal);}
+  .addon-card-control{flex:none;}
+  .addon-card-check{
+    width:26px;height:26px;border-radius:50%;border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;font-weight:700;
+    transition:all .15s ease;
+  }
+  .addon-card.selected .addon-card-check{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .payment-summary-extras{color:var(--gold-deep,#9A7B12);font-weight:600;}
 
   /* ---------- EMBEDDED STRIPE PAYMENT STEP ---------- */
   .payment-band{padding:60px 0;}

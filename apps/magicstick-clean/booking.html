@@ -137,6 +137,43 @@
       </div>
 
       <div class="field">
+        <label><span data-i18n="booking.size.label">Home size</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <p class="field-hint" data-i18n="booking.size.hint">Helps us plan the right team and time. It doesn’t change your deposit.</p>
+        <div class="size-steppers">
+          <div class="size-stepper">
+            <span class="size-stepper-label" data-i18n="booking.size.bedrooms">Bedrooms</span>
+            <div class="stepper" data-size="bedrooms">
+              <button type="button" class="stepper-btn" data-step="-1" data-i18n-aria-label="booking.size.decrease" aria-label="Decrease">−</button>
+              <span class="stepper-value" data-value>0</span>
+              <button type="button" class="stepper-btn" data-step="1" data-i18n-aria-label="booking.size.increase" aria-label="Increase">+</button>
+            </div>
+          </div>
+          <div class="size-stepper">
+            <span class="size-stepper-label" data-i18n="booking.size.bathrooms">Bathrooms</span>
+            <div class="stepper" data-size="bathrooms">
+              <button type="button" class="stepper-btn" data-step="-1" data-i18n-aria-label="booking.size.decrease" aria-label="Decrease">−</button>
+              <span class="stepper-value" data-value>0</span>
+              <button type="button" class="stepper-btn" data-step="1" data-i18n-aria-label="booking.size.increase" aria-label="Increase">+</button>
+            </div>
+          </div>
+          <div class="size-stepper">
+            <span class="size-stepper-label" data-i18n="booking.size.halfBathrooms">Half-baths</span>
+            <div class="stepper" data-size="half_bathrooms">
+              <button type="button" class="stepper-btn" data-step="-1" data-i18n-aria-label="booking.size.decrease" aria-label="Decrease">−</button>
+              <span class="stepper-value" data-value>0</span>
+              <button type="button" class="stepper-btn" data-step="1" data-i18n-aria-label="booking.size.increase" aria-label="Increase">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" id="addonsField" hidden>
+        <label><span data-i18n="booking.extras.label">Add extras</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <p class="field-hint" data-i18n="booking.extras.hint">Optional add-ons. These add to your total and are collected at the appointment — your deposit stays the same.</p>
+        <div id="addonGrid" class="addon-grid"></div>
+      </div>
+
+      <div class="field">
         <label for="bNotes" data-i18n="booking.form.notes">Anything we should know? (optional)</label>
         <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..." data-i18n-placeholder="booking.form.notesPlaceholder"></textarea>
       </div>

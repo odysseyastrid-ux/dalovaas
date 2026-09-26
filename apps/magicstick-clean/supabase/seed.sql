@@ -44,3 +44,18 @@ on conflict (display_order) do update set
   full_content = excluded.full_content,
   is_critical = excluded.is_critical,
   updated_at = current_timestamp;
+
+-- Optional booking add-ons ("extras"). Owner-editable in the admin dashboard;
+-- prices here are the starting defaults. See migration 0011.
+insert into service_addons (id, name, name_fr, price_cents, unit, min_qty, sort_order) values
+  ('inside-oven',       'Inside the Oven',            'Intérieur du four',                     3500, 'flat',   1, 1),
+  ('inside-fridge',     'Inside the Fridge',          'Intérieur du réfrigérateur',            3000, 'flat',   1, 2),
+  ('inside-cabinets',   'Inside Cabinets (emptied)',  'Intérieur des armoires (vidées)',       4000, 'flat',   1, 3),
+  ('baseboards',        'Baseboards (hand-wiped)',    'Plinthes (essuyées à la main)',         2500, 'flat',   1, 4),
+  ('interior-windows',  'Interior Windows',           'Fenêtres intérieures',                   700, 'window', 1, 5),
+  ('walls',             'Walls',                      'Murs',                                   1400, 'room',   1, 6),
+  ('laundry',           'Laundry — Wash & Fold',      'Lavage et pliage',                      2500, 'load',   1, 7),
+  ('pet-premium',       'Pet Premium (extra hair)',   'Supplément animaux (poils)',            1500, 'flat',   1, 8)
+on conflict (id) do update set
+  name_fr = excluded.name_fr,
+  unit = excluded.unit;

@@ -8,14 +8,17 @@
 //
 // The first-booking discount (regular $43.50/h vs $37/h, ~15% off) is
 // decided here, server-side, from the booking history on file — never
-// trusted from the client — and only changes the displayed total/remaining
-// balance.
+// trusted from the client.
+//
+// Optional add-ons ("extras") and home size: the extras and their quantities
+// are re-priced here from the service_addons table (never from the browser)
+// and ADD to the booking total. The online deposit stays the service's fixed
+// deposit — extras are collected at the appointment along with the rest.
 //
 // Gift cards: an optional code is checked here and the amount it will cover
-// is *planned* on the booking (it pays the deposit first, then part of the
-// rest). Nothing is deducted until the booking is confirmed — by
-// stripe-webhook after payment, or right here when the card covers the whole
-// deposit and there's nothing left to charge online.
+// is *planned* on the booking. Nothing is deducted until the booking is
+// confirmed — by stripe-webhook after payment, or right here when the card
+// covers the whole deposit and there's nothing left to charge online.
 //
 // Required secrets (supabase secrets set ...):
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (auto-provided on Supabase)
@@ -65,6 +68,49 @@ function normalizeGiftCode(raw: unknown): string | null {
   return `MSC-${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8, 12)}`;
 }
 
+function clampSize(v: unknown): number | null {
+  const n = Math.floor(Number(v));
+  return Number.isFinite(n) && n >= 0 && n <= 20 ? n : null;
+}
+
+type AddonLine = {
+  id: string; name: string; name_fr: string; unit: string;
+  qty: number; unit_price_cents: number; line_cents: number;
+};
+
+// Re-price the selected add-ons from the database. `raw` is the client's
+// [{ id, qty }] — only the ids and quantities are trusted; every price comes
+// from service_addons here.
+async function computeAddons(raw: unknown): Promise<{ list: AddonLine[]; cents: number }> {
+  if (!Array.isArray(raw) || raw.length === 0) return { list: [], cents: 0 };
+  const wanted = new Map<string, unknown>();
+  for (const a of raw.slice(0, 30)) {
+    const id = a && typeof a === "object" && typeof (a as Record<string, unknown>).id === "string"
+      ? (a as Record<string, unknown>).id as string : null;
+    if (id) wanted.set(id, (a as Record<string, unknown>).qty);
+  }
+  if (wanted.size === 0) return { list: [], cents: 0 };
+
+  const { data } = await supabase
+    .from("service_addons").select("*").eq("active", true).in("id", [...wanted.keys()]);
+  const list: AddonLine[] = [];
+  let cents = 0;
+  for (const addon of (data ?? [])) {
+    let qty = 1;
+    if (addon.unit !== "flat") {
+      const n = Math.floor(Number(wanted.get(addon.id)));
+      qty = Number.isFinite(n) ? Math.max(addon.min_qty, Math.min(n, 50)) : addon.min_qty;
+    }
+    const line = addon.price_cents * qty;
+    cents += line;
+    list.push({
+      id: addon.id, name: addon.name, name_fr: addon.name_fr, unit: addon.unit,
+      qty, unit_price_cents: addon.price_cents, line_cents: line,
+    });
+  }
+  return { list, cents };
+}
+
 async function sendEmail(to: string, subject: string, text: string) {
   if (!RESEND_API_KEY) return;
   const res = await fetch("https://api.resend.com/emails", {
@@ -85,15 +131,27 @@ async function getCustomerId(req: Request): Promise<string | null> {
 }
 
 async function isFirstBooking(customerId: string | null): Promise<boolean> {
-  // Guests have no account history to check against, so they're treated as
-  // first-time — a returning guest who never signs in can re-claim it, which
-  // is an accepted trade-off for a small business without stronger identity.
   if (!customerId) return true;
   const { count } = await supabase
     .from("bookings")
     .select("id", { count: "exact", head: true })
     .eq("customer_id", customerId);
   return (count ?? 0) === 0;
+}
+
+function sizeLine(bedrooms: number | null, bathrooms: number | null, half: number | null): string {
+  const parts: string[] = [];
+  if (bedrooms !== null) parts.push(`${bedrooms} bed`);
+  if (bathrooms !== null) parts.push(`${bathrooms} bath`);
+  if (half) parts.push(`${half} half-bath`);
+  return parts.length ? parts.join(", ") : "Not specified";
+}
+
+function addonsEmailLines(list: AddonLine[]): string[] {
+  return list.map((a) => {
+    const q = a.unit === "flat" ? "" : ` ×${a.qty}`;
+    return `  • ${a.name}${q}: $${(a.line_cents / 100).toFixed(2)}`;
+  });
 }
 
 Deno.serve(async (req) => {
@@ -130,7 +188,14 @@ Deno.serve(async (req) => {
 
     const customerId = await getCustomerId(req);
     const firstBooking = await isFirstBooking(customerId);
-    const amountCents: number = firstBooking ? service.first_booking_price_cents : service.base_price_cents;
+    const serviceCents: number = firstBooking ? service.first_booking_price_cents : service.base_price_cents;
+
+    const { list: addons, cents: addonsCents } = await computeAddons(body.addons);
+    const totalCents = serviceCents + addonsCents;
+
+    const bedrooms = clampSize(body.bedrooms);
+    const bathrooms = clampSize(body.bathrooms);
+    const halfBathrooms = clampSize(body.half_bathrooms);
 
     let giftCard: { id: string; code: string; balance_cents: number } | null = null;
     const giftCode = normalizeGiftCode(body.gift_card_code);
@@ -144,7 +209,7 @@ Deno.serve(async (req) => {
       giftCard = data;
     }
 
-    const giftPlanned = giftCard ? Math.min(giftCard.balance_cents, amountCents) : 0;
+    const giftPlanned = giftCard ? Math.min(giftCard.balance_cents, totalCents) : 0;
     let onlineDue = Math.max(0, service.deposit_cents - giftPlanned);
     if (onlineDue > 0 && onlineDue < STRIPE_MIN_CHARGE_CENTS) onlineDue = 0;
 
@@ -164,7 +229,12 @@ Deno.serve(async (req) => {
         zone: zone || null,
         notes: notes || "",
         status: "pending_payment",
-        amount_cents: amountCents,
+        amount_cents: serviceCents,
+        addons_cents: addonsCents,
+        addons,
+        bedrooms,
+        bathrooms,
+        half_bathrooms: halfBathrooms,
         deposit_cents: onlineDue,
         first_booking_discount_applied: firstBooking,
         gift_card_id: giftCard?.id ?? null,
@@ -193,7 +263,7 @@ Deno.serve(async (req) => {
         gift_card_applied_cents: applied,
       }).eq("id", booking.id);
 
-      const remaining = ((amountCents - applied) / 100).toFixed(2);
+      const remaining = ((totalCents - applied) / 100).toFixed(2);
       await sendEmail(
         OWNER_EMAIL,
         `Booking confirmed (gift card): ${guest_name}`,
@@ -202,7 +272,9 @@ Deno.serve(async (req) => {
           `Service: ${service.name}`,
           `Date: ${requested_date} (${time_window})`,
           `Area: ${zone || "Not specified"}`,
-          `Total price: $${(amountCents / 100).toFixed(2)} CAD`,
+          `Home: ${sizeLine(bedrooms, bathrooms, halfBathrooms)}`,
+          ...(addons.length ? ["Extras:", ...addonsEmailLines(addons)] : []),
+          `Total price: $${(totalCents / 100).toFixed(2)} CAD`,
           `Gift card ${giftCard?.code ?? ""}: -$${(applied / 100).toFixed(2)} CAD`,
           `Due at appointment: $${remaining} CAD`,
           `Contact: ${guest_contact}`,
@@ -220,7 +292,8 @@ Deno.serve(async (req) => {
       return json({
         confirmed: true,
         booking_id: booking.id,
-        amount_cents: amountCents,
+        amount_cents: serviceCents,
+        addons_cents: addonsCents,
         deposit_cents: 0,
         gift_card_applied_cents: applied,
         first_booking_discount_applied: firstBooking,
@@ -244,7 +317,8 @@ Deno.serve(async (req) => {
     return json({
       client_secret: paymentIntent.client_secret,
       booking_id: booking.id,
-      amount_cents: amountCents,
+      amount_cents: serviceCents,
+      addons_cents: addonsCents,
       deposit_cents: onlineDue,
       gift_card_planned_cents: giftPlanned,
       first_booking_discount_applied: firstBooking,

@@ -10,7 +10,7 @@
 
   const { ShaderMount, warpFragmentShader, WarpPatterns, getShaderColorFromString } = lib;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const colors = ['#0A211D', '#127A6C', '#1FAF98', '#E8C468'].map(getShaderColorFromString);
+  const colors = ['#3E1D8C', '#2E8BE6', '#8B4DE6', '#B98BF2'].map(getShaderColorFromString);
 
   function mount(container) {
     if (container.dataset.shaderMounted) return;

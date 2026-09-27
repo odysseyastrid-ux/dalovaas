@@ -60,7 +60,7 @@
           return;
         }
         localStorage.setItem('magicstick_admin_token', data.token);
-        note.textContent = 'Signed in — redirecting…';
+        note.textContent = 'Signed in, redirecting…';
         note.className = 'note success';
         window.location.href = '/dashboard.html';
       } catch (err) {

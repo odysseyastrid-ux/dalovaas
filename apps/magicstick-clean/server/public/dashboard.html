@@ -38,7 +38,7 @@
 </head>
 <body>
   <header><div class="wrap" style="display:flex;justify-content:space-between;align-items:center;width:100%;">
-    <div class="brand"><span class="badge">✓</span> Magicstick Clean — Admin</div>
+    <div class="brand"><span class="badge">✓</span> Magicstick Clean, Admin</div>
     <p id="authNote"></p>
   </div></header>
   <main class="wrap">
@@ -67,7 +67,7 @@
     const addForm = document.getElementById('addForm');
 
     if (token) {
-      authNote.innerHTML = 'Signed in — <a href="#" id="logoutLink">log out</a>';
+      authNote.innerHTML = 'Signed in, <a href="#" id="logoutLink">log out</a>';
       addForm.classList.add('visible');
       document.getElementById('logoutLink').addEventListener('click', (e) => {
         e.preventDefault();

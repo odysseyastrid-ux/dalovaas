@@ -44,6 +44,14 @@
   const sizeCount = { bedrooms: 0, bathrooms: 0, half_bathrooms: 0 };
   const SIZE_MAX = 20;
 
+  // Currency shown the same way the rest of the copy does it: "$74.00" in
+  // English, "74.00$" in French. Keeps the price line consistent instead of
+  // mixing a $-prefix "From $74" with a $-suffix struck price.
+  function money(cents) {
+    const v = centsToDollars(cents);
+    return lang() === 'fr' ? `${v}$` : `$${v}`;
+  }
+
   function centsToDollars(cents) {
     return (cents / 100).toFixed(2);
   }
@@ -106,7 +114,7 @@
         <span class="service-option-body">
           <span class="service-option-name">${esc(serviceName(service))}</span>
           <span class="service-option-desc">${esc(serviceDescription(service))}</span>
-          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.first_booking_price_cents) }))} <s>${esc(centsToDollars(service.base_price_cents))}$</s> · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
+          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.first_booking_price_cents) }))} <s>${esc(money(service.base_price_cents))}</s> · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
         </span>
       `;
       container.appendChild(label);

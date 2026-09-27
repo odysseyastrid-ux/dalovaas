@@ -5,6 +5,9 @@
 // built in JS call MagicstickI18N.t('key').
 (function () {
   const STRINGS = {
+    // Homepage <title>. Kept in the primary dict (not only the content
+    // fallback) so t() always resolves it and crawlers never see the key.
+    'title.index': { en: 'The most affordable & professional cleaning service in Ontario | Magicstick Clean', fr: 'Le service de ménage le plus abordable et professionnel en Ontario | Magicstick Clean' },
     // ---------- shared nav / footer ----------
     'nav.home': { en: 'Home', fr: 'Accueil' },
     'nav.beforeAfter': { en: 'Before & After', fr: 'Avant/Après' },

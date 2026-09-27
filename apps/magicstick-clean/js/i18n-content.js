@@ -187,7 +187,7 @@ window.MAGICSTICK_I18N_CONTENT = {
   "c.dusting-of-reachable-surfaces-shelves-and": { en: "Dusting of reachable surfaces, shelves and furniture", fr: "Époussetage des surfaces accessibles, tablettes et meubles" },
   "c.vacuuming-carpets-and-mopping-hard-floors": { en: "Vacuuming carpets and mopping hard floors throughout", fr: "Aspirateur sur les tapis et vadrouille sur les planchers partout" },
   "c.emptying-trash-and-re-lining-bins": { en: "Emptying trash and re-lining bins", fr: "Vidage des poubelles et remplacement des sacs" },
-  "c.a-real-hardwood-floor-reset-from": { en: "A real hardwood floor reset from a standard visit", fr: "Un vrai plancher de bois franc remis à neuf lors d’une visite standard" },
+  "c.a-real-hardwood-floor-reset-from": { en: "A living space brought back to fresh and tidy", fr: "Un espace de vie retrouvé propre et bien rangé" },
   "c.how-your-visit-goes": { en: "How your visit goes", fr: "Déroulement de votre visite" },
   "c.kitchen-bathrooms-first": { en: "Kitchen & bathrooms first", fr: "Cuisine et salles de bain d’abord" },
   "c.the-rooms-that-get-dirtiest-fastest": { en: "The rooms that get dirtiest fastest are cleaned top to bottom, including anything left in the sink.", fr: "Les pièces qui se salissent le plus vite sont nettoyées de haut en bas, y compris ce qui reste dans l’évier." },

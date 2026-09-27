@@ -319,6 +319,15 @@
      instead of being silently overridden by them. */
   .hero-photo .tag{background:rgba(255,255,255,.2);color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.32);}
   .hero-photo h1{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.48);}
+  /* Over the photo the gradient accent word ("Canada") loses contrast, so on
+     the homepage hero we set it on a small white pill so it stays legible. */
+  .hero-photo h1 .accent-word{
+    background:#fff;-webkit-background-clip:border-box;background-clip:border-box;
+    color:#6B3FE6;-webkit-text-fill-color:#6B3FE6;
+    padding:0 .18em;border-radius:8px;text-shadow:none;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+    box-shadow:0 3px 12px rgba(0,0,0,.22);
+  }
   .hero-photo p.lede{color:#F0EEE7;text-shadow:0 1px 8px rgba(0,0,0,.42);}
   .hero-photo .contactline{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.38);}
   .hero-photo .hero-cover-img{border-color:rgba(255,255,255,.25);}

@@ -112,9 +112,13 @@
 
   .mobile-menu{
     display:none;flex-direction:column;gap:2px;
-    background:var(--cream);border-top:1px solid var(--line);
+    background:var(--cream);
     max-height:0;overflow:hidden;transition:max-height .25s ease;
   }
+  /* Only show the top hairline once the menu is actually open, otherwise the
+     collapsed menu's border rendered as a stray full-width line under the
+     header (visible over the homepage hero photo). */
+  .mobile-menu.open{border-top:1px solid var(--line);}
   /* On the homepage the header floats over the photo (position:fixed), so
      an open mobile menu overlays the hero below it rather than pushing it
      down — a shadow reads it as a distinct floating panel instead of

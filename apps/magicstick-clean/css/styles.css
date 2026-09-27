@@ -76,10 +76,13 @@
   .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
   .brand{display:flex;align-items:center;gap:10px;}
   .brand span{font-family:'Instrument Serif','Fraunces',serif;font-weight:700;font-size:19px;}
-  /* Real brand logo (circular badge with wordmark) in the header. */
-  .brand-logo{height:46px;width:46px;display:block;border-radius:50%;}
-  header.header-on-photo:not(.scrolled) .brand-logo{box-shadow:0 2px 12px rgba(0,0,0,.35);}
-  @media (max-width:640px){ .brand-logo{height:42px;width:42px;} }
+  /* Horizontal brand lockup: gradient badge mark + wordmark (with the
+     gradient "Clean" echoing the logo). */
+  .brand-mark{width:36px;height:36px;display:block;flex:none;}
+  .brand-word{font-family:'Instrument Serif','Fraunces',serif;font-weight:600;font-size:22px;line-height:1;letter-spacing:-0.01em;color:var(--ink);white-space:nowrap;}
+  .brand-clean{font-family:'Inter',Arial,sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.01em;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  header.header-on-photo:not(.scrolled) .brand-mark{filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));}
+  @media (max-width:640px){ .brand-mark{width:32px;height:32px;} .brand-word{font-size:20px;} .brand-clean{font-size:17px;} }
   .navlinks{display:flex;gap:10px;align-items:center;font-size:12.5px;}
   .navlinks a{position:relative;padding-bottom:3px;white-space:nowrap;}
   .navlinks a::after{

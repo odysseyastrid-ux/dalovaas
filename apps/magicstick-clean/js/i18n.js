@@ -971,11 +971,25 @@
     'aiChat.disclaimer': { en: 'AI assistant, a real person is always reachable by phone or email.', fr: 'Assistant virtuel, une vraie personne est toujours joignable par téléphone ou courriel.' },
   };
 
-  function getLang() {
+  // A visitor's saved choice always wins. On a first visit (nothing saved),
+  // fall back to the browser's language: French for a French browser,
+  // English otherwise. The EN/FR toggle still lets anyone switch and that
+  // choice is remembered from then on.
+  function detectBrowserLang() {
     try {
-      return localStorage.getItem('magicstick_lang') || 'en';
+      const langs = navigator.languages && navigator.languages.length
+        ? navigator.languages : [navigator.language || navigator.userLanguage || ''];
+      return langs.some((l) => String(l).toLowerCase().startsWith('fr')) ? 'fr' : 'en';
     } catch (e) {
       return 'en';
+    }
+  }
+
+  function getLang() {
+    try {
+      return localStorage.getItem('magicstick_lang') || detectBrowserLang();
+    } catch (e) {
+      return detectBrowserLang();
     }
   }
 

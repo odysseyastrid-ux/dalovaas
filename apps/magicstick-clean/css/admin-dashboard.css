@@ -285,3 +285,16 @@
 :root[data-theme="dark"] .dash-field textarea,
 :root[data-theme="dark"] .dash-key-row{background:var(--teal-tint);color:var(--charcoal);}
 :root[data-theme="dark"] .dash-score-ring-inner{background:var(--paper);}
+
+/* ---------- Change-password modal ---------- */
+.pw-modal[hidden]{ display:none; }
+.pw-modal{ position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
+.pw-modal-backdrop{ position:absolute; inset:0; background:rgba(23,21,31,.5); backdrop-filter:blur(2px); }
+.pw-modal-card{ position:relative; width:100%; max-width:420px; background:#fff; border-radius:18px; padding:26px 24px; box-shadow:0 24px 60px rgba(23,21,31,.28); }
+.pw-modal-card h3{ margin:0 0 6px; font-size:22px; }
+.pw-modal-card .form-field{ margin-top:14px; display:flex; flex-direction:column; gap:6px; }
+.pw-modal-card .form-field label{ font-size:13px; font-weight:600; color:#4a4844; }
+.pw-modal-card .form-field input{ width:100%; padding:11px 13px; border:1px solid #E6E1D7; border-radius:10px; font-size:15px; background:#fff; }
+.pw-modal-card .form-field input:focus{ outline:none; border-color:#8B4DE6; box-shadow:0 0 0 3px rgba(139,77,230,.15); }
+.pw-modal-card .form-note{ min-height:18px; margin:12px 0 0; font-size:13px; color:#c0392b; }
+.pw-modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }

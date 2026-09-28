@@ -648,4 +648,38 @@
     await supabase.auth.signOut();
     window.location.reload();
   });
+
+  // ---------- Change password ----------
+  (function initChangePassword() {
+    const modal = document.getElementById('adminPwModal');
+    const openBtn = document.getElementById('adminChangePwBtn');
+    const cancelBtn = document.getElementById('adminPwCancel');
+    const backdrop = document.getElementById('adminPwBackdrop');
+    const form = document.getElementById('adminPwForm');
+    if (!modal || !openBtn || !form) return;
+    const note = document.getElementById('adminPwNote');
+    const pw1 = document.getElementById('adminNewPw');
+    const pw2 = document.getElementById('adminNewPw2');
+
+    function open() { note.textContent = ''; form.reset(); modal.hidden = false; setTimeout(() => pw1.focus(), 30); }
+    function close() { modal.hidden = true; }
+
+    openBtn.addEventListener('click', open);
+    cancelBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) close(); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      note.style.color = '';
+      if (pw1.value.length < 8) { note.textContent = t('admin.changePw.tooShort'); return; }
+      if (pw1.value !== pw2.value) { note.textContent = t('admin.changePw.mismatch'); return; }
+      note.textContent = t('admin.changePw.saving');
+      const { error } = await supabase.auth.updateUser({ password: pw1.value });
+      if (error) { note.textContent = translateAuthError(error.message); return; }
+      note.style.color = 'var(--teal, #2E8BE6)';
+      note.textContent = t('admin.changePw.done');
+      setTimeout(close, 1400);
+    });
+  })();
 })();

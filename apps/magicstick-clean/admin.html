@@ -84,7 +84,31 @@
               <div id="dashBellList"></div>
             </div>
           </div>
+          <button type="button" class="btn btn-outline" id="adminChangePwBtn" data-i18n="admin.changePw.btn">Change password</button>
           <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
+        </div>
+      </div>
+
+      <div class="pw-modal" id="adminPwModal" hidden>
+        <div class="pw-modal-backdrop" id="adminPwBackdrop"></div>
+        <div class="pw-modal-card" role="dialog" aria-modal="true" aria-labelledby="adminPwTitle">
+          <h3 id="adminPwTitle" data-i18n="admin.changePw.title">Change my password</h3>
+          <p class="dash-card-sub" data-i18n="admin.changePw.sub">Choose a new password for your account. At least 8 characters.</p>
+          <form id="adminPwForm">
+            <div class="form-field">
+              <label for="adminNewPw" data-i18n="admin.changePw.new">New password</label>
+              <input type="password" id="adminNewPw" minlength="8" autocomplete="new-password" required>
+            </div>
+            <div class="form-field">
+              <label for="adminNewPw2" data-i18n="admin.changePw.confirm">Confirm new password</label>
+              <input type="password" id="adminNewPw2" minlength="8" autocomplete="new-password" required>
+            </div>
+            <p class="form-note" id="adminPwNote"></p>
+            <div class="pw-modal-actions">
+              <button type="button" class="btn btn-outline" id="adminPwCancel" data-i18n="admin.changePw.cancel">Cancel</button>
+              <button type="submit" class="btn" data-i18n="admin.changePw.save">Save password</button>
+            </div>
+          </form>
         </div>
       </div>
 

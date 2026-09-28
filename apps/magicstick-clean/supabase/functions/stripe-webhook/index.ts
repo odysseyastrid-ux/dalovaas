@@ -10,15 +10,16 @@
 //   RESEND_API_KEY, OWNER_EMAIL, OWNER_NOTIFY_FROM
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import Stripe from "npm:stripe@14";
+import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!.trim(), {
   apiVersion: "2023-10-16",
+  httpClient: Stripe.createFetchHttpClient(),
 });
 
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;

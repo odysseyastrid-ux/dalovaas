@@ -26,7 +26,7 @@
 //   RESEND_API_KEY, OWNER_EMAIL, OWNER_NOTIFY_FROM (gift-card-only confirmations)
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import Stripe from "npm:stripe@14";
+import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -34,7 +34,12 @@ const supabase = createClient(
 );
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
-const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" }) : null;
+const stripe = STRIPE_SECRET_KEY
+  ? new Stripe(STRIPE_SECRET_KEY.trim(), {
+      apiVersion: "2023-10-16",
+      httpClient: Stripe.createFetchHttpClient(),
+    })
+  : null;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "magicstickclean@gmail.com";
 const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "onboarding@resend.dev";

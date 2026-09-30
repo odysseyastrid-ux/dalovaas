@@ -114,7 +114,7 @@
         <span class="service-option-body">
           <span class="service-option-name">${esc(serviceName(service))}</span>
           <span class="service-option-desc">${esc(serviceDescription(service))}</span>
-          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.first_booking_price_cents) }))} <s>${esc(money(service.base_price_cents))}</s> · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
+          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.base_price_cents) }))} · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
         </span>
       `;
       container.appendChild(label);
@@ -216,7 +216,7 @@
 
   function estimateSplit(service) {
     const extras = addonsCents();
-    const total = service.first_booking_price_cents + extras;
+    const total = service.base_price_cents + extras;
     const gift = appliedGift ? Math.min(appliedGift.balance_cents, total) : 0;
     // Extras add to the total but never to the online deposit — the deposit
     // stays the service's fixed deposit; extras are collected at the visit.
@@ -249,9 +249,7 @@
         remaining: centsToDollars(split.total - service.deposit_cents),
       })));
     }
-    lines.push(`<span class="deposit-summary-discount">${esc(t('booking.firstBooking.note', {
-      rate: '37', regular: '43.50',
-    }))}</span>`);
+    lines.push(`<span class="deposit-summary-minhours">${esc(t('booking.minHours.note'))}</span>`);
     summary.innerHTML = lines.join('<br>');
     const bookingNote = document.getElementById('bookingNote');
     bookingNote.textContent = t(split.gift > 0 && split.dueToday === 0 ? 'booking.gift.noPaymentNote' : 'booking.form.note.default');
@@ -358,9 +356,6 @@
     const remainingDollars = centsToDollars(totalCents - result.deposit_cents - gift);
     box.innerHTML = `
       <p class="payment-summary-service">${esc(serviceName(service))}</p>
-      ${result.first_booking_discount_applied
-        ? `<p class="payment-summary-discount">${esc(t('booking.firstBooking.applied', { rate: '37' }))}</p>`
-        : ''}
       ${extras > 0 ? `<p class="payment-summary-line payment-summary-extras">${esc(t('booking.extras.summary', { amount: centsToDollars(extras) }))}</p>` : ''}
       <p class="payment-summary-total">${esc(t('booking.payment.total', { total: totalDollars }))}</p>
       ${gift > 0 ? `<p class="payment-summary-line payment-summary-gift">${esc(t('booking.payment.gift', { amount: centsToDollars(gift) }))}</p>` : ''}

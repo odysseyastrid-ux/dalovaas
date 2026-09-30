@@ -100,6 +100,18 @@
   function serviceDescription(service) {
     return (lang() === 'fr' && service.description_fr) ? service.description_fr : service.description;
   }
+  // A service whose first_booking_price is lower than base carries a standing
+  // discount (e.g. Window & Glass Cleaning, 15% off). effPrice is what we charge.
+  function effPrice(service) {
+    const disc = service.first_booking_price_cents;
+    return (disc && disc > 0 && disc < service.base_price_cents) ? disc : service.base_price_cents;
+  }
+  function hasStandingDiscount(service) {
+    return effPrice(service) < service.base_price_cents;
+  }
+  function discountPct(service) {
+    return Math.round((1 - effPrice(service) / service.base_price_cents) * 100);
+  }
 
   function renderServiceOptions() {
     const container = document.getElementById('serviceOptions');
@@ -114,7 +126,7 @@
         <span class="service-option-body">
           <span class="service-option-name">${esc(serviceName(service))}</span>
           <span class="service-option-desc">${esc(serviceDescription(service))}</span>
-          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(service.base_price_cents) }))} · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
+          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(effPrice(service)) }))}${hasStandingDiscount(service) ? ` <s>${esc(money(service.base_price_cents))}</s> <span class="service-option-off">${esc(t('booking.percentOff', { pct: discountPct(service) }))}</span>` : ''} · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
         </span>
       `;
       container.appendChild(label);
@@ -216,7 +228,7 @@
 
   function estimateSplit(service) {
     const extras = addonsCents();
-    const total = service.base_price_cents + extras;
+    const total = effPrice(service) + extras;
     const gift = appliedGift ? Math.min(appliedGift.balance_cents, total) : 0;
     // Extras add to the total but never to the online deposit — the deposit
     // stays the service's fixed deposit; extras are collected at the visit.

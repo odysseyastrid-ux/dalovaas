@@ -193,7 +193,14 @@ Deno.serve(async (req) => {
 
     const customerId = await getCustomerId(req);
     const firstBooking = await isFirstBooking(customerId);
-    const serviceCents: number = firstBooking ? service.first_booking_price_cents : service.base_price_cents;
+    // A service whose first_booking_price is lower than base carries a standing
+    // discount (e.g. Window & Glass Cleaning, 15% off) that applies to everyone,
+    // every time — not just a first booking. Charge the lower of the two.
+    const discPrice = service.first_booking_price_cents;
+    const serviceCents: number =
+      (discPrice && discPrice > 0 && discPrice < service.base_price_cents)
+        ? discPrice
+        : service.base_price_cents;
 
     const { list: addons, cents: addonsCents } = await computeAddons(body.addons);
     const totalCents = serviceCents + addonsCents;

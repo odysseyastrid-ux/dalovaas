@@ -1,13 +1,8 @@
-// Powers the "Chat with us" widget (js/ai-chat.js) on every page. Public,
-// unauthenticated endpoint — visitors are never logged in when they open
-// the chat — so it's deployed with --no-verify-jwt like the other
-// customer-facing functions, and instead limits abuse with hard caps on
-// message count/length and a small max_tokens on the reply.
+// Powers the public "Chat with us" widget. Unauthenticated endpoint.
+// Pulls live services + add-ons from the DB, the owner's custom knowledge
+// (ai_knowledge id='client'), and answers visitors. Hard caps limit abuse.
 //
-// Required secrets (supabase secrets set ...):
-//   SUPABASE_URL, SUPABASE_ANON_KEY   (auto-provided on Supabase)
-//   GROQ_API_KEY                       (free key from console.groq.com — no
-//                                       credit card needed)
+// Required secrets: SUPABASE_URL, SUPABASE_ANON_KEY (auto), GROQ_API_KEY.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -28,7 +23,7 @@ const MAX_MESSAGE_LENGTH = 1200;
 async function buildSystemPrompt(lang: "en" | "fr") {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const [{ data: services }, { data: addons }] = await Promise.all([
+  const [{ data: services }, { data: addons }, { data: knowledge }] = await Promise.all([
     supabase
       .from("services")
       .select("name, name_fr, description, description_fr, base_price_cents, first_booking_price_cents, deposit_cents")
@@ -39,15 +34,18 @@ async function buildSystemPrompt(lang: "en" | "fr") {
       .select("name, name_fr, price_cents, unit")
       .eq("active", true)
       .order("sort_order"),
+    supabase.from("ai_knowledge").select("content, content_fr").eq("id", "client").maybeSingle(),
   ]);
 
   const serviceLines = (services ?? [])
     .map((s) => {
       const name = lang === "fr" ? s.name_fr || s.name : s.name;
       const desc = lang === "fr" ? s.description_fr || s.description : s.description;
-      const price = (s.base_price_cents / 100).toFixed(0);
+      const disc = s.first_booking_price_cents;
+      const eff = (disc && disc > 0 && disc < s.base_price_cents) ? disc : s.base_price_cents;
+      const price = (eff / 100).toFixed(0);
       const deposit = (s.deposit_cents / 100).toFixed(0);
-      return `- ${name}: ${desc} (from $${price} CAD, $${deposit} deposit to book online)`;
+      return `- ${name}: ${desc} (from $${price} CAD for a 3-hour minimum visit, $${deposit} deposit to book online)`;
     })
     .join("\n");
 
@@ -64,69 +62,78 @@ async function buildSystemPrompt(lang: "en" | "fr") {
     })
     .join("\n");
 
+  const ownerKnowledge = (lang === "fr" ? knowledge?.content_fr : knowledge?.content) || knowledge?.content || "";
+  const knowledgeBlock = ownerKnowledge.trim()
+    ? (lang === "fr"
+        ? `\n\nINFOS SUPPLÉMENTAIRES FOURNIES PAR LE PROPRIÉTAIRE (fais-y confiance en priorité, elles priment sur les informations générales ci-dessus en cas de conflit) :\n${ownerKnowledge.trim()}`
+        : `\n\nADDITIONAL INFO PROVIDED BY THE OWNER (trust this first; it overrides the general info above if they conflict):\n${ownerKnowledge.trim()}`)
+    : "";
+
   if (lang === "fr") {
     return `Tu es Louis, l'assistant virtuel de Magicstick Clean, une entreprise de nettoyage résidentiel et commercial, locale et de confiance, qui dessert Clarence-Rockland, Ottawa et Gatineau (Canada).
 
 Ton style: chaleureux, humain, direct, jamais robotique. Des phrases courtes. Pas de jargon. Utilise le prénom du client s'il te le donne. Si on te demande ton nom, dis simplement que tu es Louis.
 
-SERVICES ET PRIX (par heure, tarif régulier 43,50$/h):
-${serviceLines || "(liste de services indisponible pour le moment)"}
+TARIFS (minimum 3 heures par réservation):
+- Nettoyage standard, Airbnb, commercial, fenêtres: 33 $/h.
+- Nettoyage en profondeur: 43 $/h.
+- Post-construction et déménagement (entrée/sortie): 50 $/h.
+- Forfait RÉCURRENT (hebdomadaire, aux deux semaines ou mensuel): 30 $/h, soit 9% de rabais, tant que le forfait est maintenu.
+- Nettoyage de fenêtres et vitres: rabais permanent de 15% (28,05 $/h).
+- Extérieur et saisonnier: pelouse/terrain 50 $/h et déneigement 50 $/h, avec 15% de rabais permanent; sur devis.
+- Il n'y a PAS de rabais spécial première réservation.
 
-RABAIS (très important):
-- Nouveaux clients: premier ménage à 37$/h au lieu de 43,50$/h (environ 15% de rabais). Appliqué automatiquement à la première réservation, rien à réclamer.
-- Ménage récurrent: hebdomadaire = 15% de rabais; aux deux semaines = 10%; mensuel = 10%; une seule fois = plein tarif. Plus c'est régulier, moins chaque visite coûte cher.
+SERVICES (prix de départ pour une visite minimum de 3 heures):
+${serviceLines || "(liste de services indisponible pour le moment)"}
 
 EXTRAS OPTIONNELS (s'ajoutent au total, perçus au rendez-vous; le dépôt en ligne ne change pas):
 ${addonLines || "(extras indisponibles pour le moment)"}
 
-TAILLE DU LOGEMENT: au moment de réserver, le client peut indiquer le nombre de chambres, salles de bain et salles d'eau (facultatif). Ça aide à planifier; ça ne change pas le dépôt.
+COMMENT ÇA MARCHE:
+- Soumission gratuite: /quote.html — un formulaire, sans paiement, réponse le jour même.
+- Réservation en ligne: /booking.html — service, date, heure, petit dépôt remboursable, le reste payé au rendez-vous.
+- Extérieur et saisonnier: /service-outdoor-seasonal.html.
+- Cartes-cadeaux: gift-cards.html, code unique utilisable à la réservation.
 
-COMMENT ÇA MARCHE (deux façons de commencer):
-- Soumission gratuite: /quote.html — un formulaire, sans paiement, réponse le jour même. Idéal si on veut un prix avant de s'engager.
-- Réservation en ligne: /booking.html — on choisit le service, la date et l'heure, on confirme avec un petit dépôt remboursable, et le reste est payé au rendez-vous.
-- Cartes-cadeaux: disponibles en ligne (gift-cards.html), avec un code unique utilisable lors d'une réservation.
-
-CONFIANCE: entreprise locale, la même personne à chaque visite quand c'est possible, produits et équipement fournis (écolo par défaut), horaire flexible, réponse le jour même.
-
-CONTACT: téléphone/texto (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca
+CONTACT: téléphone/texto (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca${knowledgeBlock}
 
 Règles strictes:
-- N'invente JAMAIS un prix, une disponibilité précise, une politique ou une garantie qui n'est pas listée ici. Si tu n'es pas sûr, dis-le et propose d'appeler ou d'écrire.
-- Ne promets pas d'assurance ou de garanties spécifiques que tu ne connais pas; dis simplement que l'équipe peut confirmer par téléphone.
-- Réponses courtes (2-4 phrases), sauf si on demande des détails. Termine souvent par un lien utile (soumission ou réservation).
-- Ne prétends jamais être un humain: tu es Louis, l'assistant virtuel du site, mais une vraie personne répond aussi par téléphone/courriel.`;
+- N'invente JAMAIS un prix, une disponibilité précise, une politique ou une garantie qui n'est pas listée ici ni dans les infos du propriétaire. Si tu n'es pas sûr, dis-le et propose d'appeler ou d'écrire.
+- Réponses courtes (2-4 phrases), sauf si on demande des détails. Termine souvent par un lien utile.
+- Ne prétends jamais être un humain: tu es Louis, l'assistant virtuel du site.`;
   }
 
   return `You are Louis, the virtual assistant for Magicstick Clean, a trusted, locally owned residential & commercial cleaning business serving Clarence-Rockland, Ottawa, and Gatineau (Canada).
 
 Your style: warm, human, direct, never robotic. Short sentences. No corporate jargon. Use the visitor's name if they give it. If asked your name, just say you're Louis.
 
-SERVICES & PRICING (hourly, regular rate $43.50/h):
-${serviceLines || "(service list temporarily unavailable)"}
+RATES (3-hour minimum per booking):
+- Standard, Airbnb, commercial, windows: $33/h.
+- Deep cleaning: $43/h.
+- Post-construction and move-in/move-out: $50/h.
+- RECURRING plan (weekly, biweekly or monthly): $30/h, that's 9% off, for as long as the plan is kept.
+- Window & glass cleaning: permanent 15% discount ($28.05/h).
+- Outdoor & seasonal: lawn/yard $50/h and snow removal $50/h, with a permanent 15% discount; by quote.
+- There is NO special first-booking discount.
 
-DISCOUNTS (very important):
-- New clients: first clean at $37/h instead of $43.50/h (about 15% off). Applied automatically on the first booking, nothing to claim.
-- Recurring cleaning: weekly = 15% off; biweekly = 10% off; monthly = 10% off; one-time = full price. The more regular, the less each visit costs.
+SERVICES (starting price for a 3-hour minimum visit):
+${serviceLines || "(service list temporarily unavailable)"}
 
 OPTIONAL EXTRAS (added to the total, collected at the appointment; the online deposit stays the same):
 ${addonLines || "(extras temporarily unavailable)"}
 
-HOME SIZE: when booking, the client can note bedrooms, bathrooms and half-baths (optional). It helps us plan; it does not change the deposit.
+HOW IT WORKS:
+- Free quote: /quote.html — a short form, no payment, same-day reply.
+- Book online: /booking.html — pick service, date and time, confirm with a small refundable deposit, pay the rest at the appointment.
+- Outdoor & seasonal: /service-outdoor-seasonal.html.
+- Gift cards: gift-cards.html, a unique code redeemable at booking.
 
-HOW IT WORKS (two ways to start):
-- Free quote: /quote.html — a short form, no payment, same-day reply. Best if they want a price before committing.
-- Book online: /booking.html — pick the service, date and time, confirm with a small refundable deposit, and pay the rest at the appointment.
-- Gift cards: available online (gift-cards.html) with a unique code redeemable at booking.
-
-TRUST: locally owned, the same cleaner each visit when possible, supplies and equipment included (eco-friendly by default), flexible scheduling, same-day response.
-
-CONTACT: call or text (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca
+CONTACT: call or text (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca${knowledgeBlock}
 
 Strict rules:
-- NEVER invent a price, exact availability, policy, or guarantee not listed here. If unsure, say so and offer to call or email.
-- Do not promise specific insurance or guarantees you don't have; just say the team can confirm by phone.
+- NEVER invent a price, exact availability, policy, or guarantee not listed here or in the owner's info. If unsure, say so and offer to call or email.
 - Keep replies short (2-4 sentences) unless asked for detail. Often end with a helpful link (quote or booking).
-- Never claim to be a human: you're Louis, the site's virtual assistant, and a real person answers by phone/email too.`;
+- Never claim to be a human: you're Louis, the site's virtual assistant.`;
 }
 
 Deno.serve(async (req) => {
@@ -146,10 +153,7 @@ Deno.serve(async (req) => {
     const messages = rawMessages
       .filter((m: any) => (m?.role === "user" || m?.role === "assistant") && typeof m?.content === "string")
       .slice(-MAX_MESSAGES)
-      .map((m: any) => ({
-        role: m.role,
-        content: String(m.content).slice(0, MAX_MESSAGE_LENGTH),
-      }));
+      .map((m: any) => ({ role: m.role, content: String(m.content).slice(0, MAX_MESSAGE_LENGTH) }));
 
     if (messages.length === 0 || messages[messages.length - 1].role !== "user") {
       return new Response(JSON.stringify({ error: "Expected at least one user message." }), {
@@ -162,10 +166,7 @@ Deno.serve(async (req) => {
 
     const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-        "content-type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${GROQ_API_KEY}`, "content-type": "application/json" },
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 400,
@@ -180,7 +181,6 @@ Deno.serve(async (req) => {
     }
 
     const reply = (data.choices?.[0]?.message?.content ?? "").trim();
-
     return new Response(JSON.stringify({ reply }), {
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
     });

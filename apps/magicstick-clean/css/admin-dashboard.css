@@ -298,3 +298,30 @@
 .pw-modal-card .form-field input:focus{ outline:none; border-color:#8B4DE6; box-shadow:0 0 0 3px rgba(139,77,230,.15); }
 .pw-modal-card .form-note{ min-height:18px; margin:12px 0 0; font-size:13px; color:#c0392b; }
 .pw-modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+
+/* ---------- AI assistant section ---------- */
+.ai-field{ margin-top:14px; }
+.ai-field label{ display:block; font-size:13px; font-weight:600; color:#4a4844; margin-bottom:6px; }
+#dashSection-ai textarea{ width:100%; border:1px solid #E6E1D7; border-radius:12px; padding:12px 13px; font:inherit; font-size:14px; line-height:1.5; background:#fff; resize:vertical; box-sizing:border-box; }
+#dashSection-ai textarea:focus{ outline:none; border-color:#8B4DE6; box-shadow:0 0 0 3px rgba(139,77,230,.15); }
+.ai-actions{ display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap; }
+.ai-actions .form-note{ margin:0; font-size:13px; min-height:16px; }
+.ai-chat-log{ border:1px solid #E6E1D7; border-radius:14px; background:#faf9f6; padding:14px; height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.ai-chat-log:empty::before{ content:""; }
+.ai-msg{ max-width:85%; padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.5; white-space:pre-wrap; word-wrap:break-word; }
+.ai-msg-user{ align-self:flex-end; background:linear-gradient(120deg,#2E8BE6,#8B4DE6); color:#fff; border-bottom-right-radius:4px; }
+.ai-msg-assistant{ align-self:flex-start; background:#fff; border:1px solid #E6E1D7; color:#17151F; border-bottom-left-radius:4px; }
+.ai-msg-thinking{ opacity:.6; font-style:italic; }
+.ai-chat-form{ display:flex; gap:10px; margin-top:12px; align-items:flex-end; }
+.ai-chat-form textarea{ flex:1; }
+.ai-notes{ margin-top:18px; border-top:1px solid #EDE9E0; padding-top:14px; }
+.ai-notes summary{ cursor:pointer; font-weight:600; font-size:14px; color:#4a4844; }
+.ai-notes textarea{ margin-top:12px; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) #dashSection-ai textarea{ background:#1c1b22; border-color:#34323c; color:#ece9f2; }
+  :root:not([data-theme="light"]) .ai-chat-log{ background:#17161c; border-color:#34323c; }
+  :root:not([data-theme="light"]) .ai-msg-assistant{ background:#211f28; border-color:#34323c; color:#ece9f2; }
+}
+:root[data-theme="dark"] #dashSection-ai textarea{ background:#1c1b22; border-color:#34323c; color:#ece9f2; }
+:root[data-theme="dark"] .ai-chat-log{ background:#17161c; border-color:#34323c; }
+:root[data-theme="dark"] .ai-msg-assistant{ background:#211f28; border-color:#34323c; color:#ece9f2; }

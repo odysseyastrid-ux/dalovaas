@@ -121,6 +121,10 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
               <span data-i18n="admin.dash.nav.overview">Overview</span>
             </button>
+            <button type="button" class="dash-nav-btn" data-section="ai">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v1h3a3 3 0 0 1 3 3v2a2 2 0 0 1 0 4v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-2a2 2 0 0 1 0-4V8a3 3 0 0 1 3-3h3V4a2 2 0 0 1 2-2z"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/></svg>
+              <span data-i18n="admin.dash.nav.ai">AI assistant</span>
+            </button>
           </div>
 
           <div class="dash-nav-group">
@@ -210,6 +214,50 @@
         </aside>
 
         <main class="dash-main">
+
+          <!-- AI ASSISTANT -->
+          <section class="dash-section" id="dashSection-ai">
+            <div class="dash-grid-2">
+              <div class="dash-card">
+                <div class="dash-card-head">
+                  <h3 data-i18n="admin.ai.client.title">Client chatbot knowledge</h3>
+                  <p class="dash-card-sub" data-i18n="admin.ai.client.sub">Everything you type here is given to the public assistant (Louis) so it can answer your clients. Prices and services are already pulled automatically — add anything extra: policies, hours, special notes, promotions, what to say or avoid.</p>
+                </div>
+                <div class="ai-field">
+                  <label for="aiClientEn" data-i18n="admin.ai.englishLabel">English</label>
+                  <textarea id="aiClientEn" rows="7" data-i18n-placeholder="admin.ai.client.ph" placeholder="e.g. We are fully insured. Service hours are Mon–Sat 8am–6pm. We bring all supplies. We do not clean exterior windows above the 2nd floor…"></textarea>
+                </div>
+                <div class="ai-field">
+                  <label for="aiClientFr" data-i18n="admin.ai.frenchLabel">Français</label>
+                  <textarea id="aiClientFr" rows="7" data-i18n-placeholder="admin.ai.client.ph" placeholder="ex. Nous sommes entièrement assurés. Heures de service : lun–sam 8h–18h. Nous fournissons le matériel…"></textarea>
+                </div>
+                <div class="ai-actions">
+                  <button type="button" class="btn" id="aiClientSave" data-i18n="admin.ai.save">Save</button>
+                  <p class="form-note" id="aiClientNote"></p>
+                </div>
+              </div>
+
+              <div class="dash-card">
+                <div class="dash-card-head">
+                  <h3 data-i18n="admin.ai.owner.title">My private assistant</h3>
+                  <p class="dash-card-sub" data-i18n="admin.ai.owner.sub">Private to you — clients never see this. Ask it anything: marketing, draft an email or post, pricing math, planning, ideas. Unrelated to the client site.</p>
+                </div>
+                <div class="ai-chat-log" id="aiOwnerLog"></div>
+                <form id="aiOwnerForm" class="ai-chat-form">
+                  <textarea id="aiOwnerInput" rows="2" data-i18n-placeholder="admin.ai.owner.ph" placeholder="Ask your assistant anything…"></textarea>
+                  <button type="submit" class="btn" id="aiOwnerSend" data-i18n="admin.ai.send">Send</button>
+                </form>
+                <details class="ai-notes">
+                  <summary data-i18n="admin.ai.owner.notesTitle">My notes &amp; standing instructions for this assistant</summary>
+                  <textarea id="aiOwnerNotes" rows="5" data-i18n-placeholder="admin.ai.owner.notesPh" placeholder="e.g. My name is… My goals this quarter are… Always answer in French. My tone is friendly and direct…"></textarea>
+                  <div class="ai-actions">
+                    <button type="button" class="btn btn-outline" id="aiOwnerNotesSave" data-i18n="admin.ai.saveNotes">Save notes</button>
+                    <p class="form-note" id="aiOwnerNotesNote"></p>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </section>
 
           <!-- 1. OVERVIEW -->
           <section class="dash-section active" id="dashSection-overview">

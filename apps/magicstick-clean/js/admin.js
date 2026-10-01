@@ -609,6 +609,98 @@
     await loadCategories();
     loadServices();
     loadAddons();
+    initAi();
+  }
+
+  // ---------- AI assistant section ----------
+  let aiInited = false;
+  const aiOwnerMessages = [];
+  function initAi() {
+    if (aiInited) return;
+    aiInited = true;
+    const clientEn = document.getElementById('aiClientEn');
+    const clientFr = document.getElementById('aiClientFr');
+    const ownerNotes = document.getElementById('aiOwnerNotes');
+    if (!clientEn) return;
+
+    // Load saved knowledge
+    (async () => {
+      const { data } = await supabase.from('ai_knowledge').select('id, content, content_fr');
+      (data || []).forEach((row) => {
+        if (row.id === 'client') { clientEn.value = row.content || ''; clientFr.value = row.content_fr || ''; }
+        if (row.id === 'owner' && ownerNotes) { ownerNotes.value = row.content || ''; }
+      });
+    })();
+
+    async function saveRow(id, content, content_fr, noteEl, btn) {
+      const original = btn.textContent;
+      btn.disabled = true; noteEl.style.color = ''; noteEl.textContent = t('admin.ai.saving');
+      const payload = { content: content || '' };
+      if (content_fr !== null) payload.content_fr = content_fr || '';
+      payload.updated_at = new Date().toISOString();
+      const { error } = await supabase.from('ai_knowledge').update(payload).eq('id', id);
+      btn.disabled = false; btn.textContent = original;
+      if (error) { noteEl.style.color = '#c0392b'; noteEl.textContent = t('admin.ai.saveError'); return; }
+      noteEl.style.color = 'var(--teal, #2E8BE6)'; noteEl.textContent = t('admin.ai.saved');
+      setTimeout(() => { noteEl.textContent = ''; }, 2500);
+    }
+
+    document.getElementById('aiClientSave').addEventListener('click', () => {
+      saveRow('client', clientEn.value, clientFr.value, document.getElementById('aiClientNote'), document.getElementById('aiClientSave'));
+    });
+    const notesSave = document.getElementById('aiOwnerNotesSave');
+    if (notesSave) notesSave.addEventListener('click', () => {
+      saveRow('owner', ownerNotes.value, null, document.getElementById('aiOwnerNotesNote'), notesSave);
+    });
+
+    // Owner private chat
+    const log = document.getElementById('aiOwnerLog');
+    const form = document.getElementById('aiOwnerForm');
+    const input = document.getElementById('aiOwnerInput');
+    const sendBtn = document.getElementById('aiOwnerSend');
+
+    function bubble(role, text) {
+      const el = document.createElement('div');
+      el.className = 'ai-msg ai-msg-' + role;
+      el.textContent = text;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      bubble('user', text);
+      aiOwnerMessages.push({ role: 'user', content: text });
+      sendBtn.disabled = true;
+      const thinking = bubble('assistant', t('admin.ai.thinking'));
+      thinking.classList.add('ai-msg-thinking');
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token ?? '';
+        const res = await fetch(`${backend.config.FUNCTIONS_URL}/owner-assistant`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ messages: aiOwnerMessages.slice(-24), lang: lang() }),
+        });
+        const result = await res.json();
+        thinking.remove();
+        if (!res.ok || !result.reply) {
+          bubble('assistant', t('admin.ai.error'));
+        } else {
+          bubble('assistant', result.reply);
+          aiOwnerMessages.push({ role: 'assistant', content: result.reply });
+        }
+      } catch (err) {
+        thinking.remove();
+        bubble('assistant', t('admin.ai.error'));
+      }
+      sendBtn.disabled = false;
+      input.focus();
+    });
   }
 
   async function checkAccess() {

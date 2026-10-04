@@ -1868,3 +1868,30 @@
   .auth-form .issue-send-row input{width:auto;margin:0;flex:none;}
   .gift-issue-btn{padding:6px 12px;font-size:13px;white-space:nowrap;}
   .gift-void-btn{background:none;border:none;padding:0;font:inherit;font-size:12.5px;color:#B42318;cursor:pointer;}
+
+/* ---------- Instant quote estimator (homepage) ---------- */
+#estimator .sec-head{ margin-bottom:28px; }
+.est-card{ display:grid; gap:0; max-width:820px; margin:0 auto; border:1px solid var(--line); border-radius:20px; overflow:hidden; background:#fff; box-shadow:0 18px 48px rgba(23,21,31,.08); }
+@media(min-width:760px){ .est-card{ grid-template-columns:1.2fr 1fr; } }
+.est-fields{ padding:26px 24px; display:flex; flex-direction:column; gap:20px; }
+.est-field{ display:flex; flex-direction:column; gap:8px; }
+.est-label{ font-size:13px; font-weight:700; letter-spacing:.01em; color:var(--ink); }
+.est-select{ width:100%; padding:12px 13px; border:1px solid var(--line); border-radius:11px; font:inherit; font-size:15px; background:#fff; color:var(--ink); }
+.est-select:focus{ outline:none; border-color:var(--brand-violet,#8B4DE6); box-shadow:0 0 0 3px rgba(139,77,230,.15); }
+.est-stepper{ display:inline-flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:999px; padding:4px; align-self:flex-start; }
+.est-step{ width:38px; height:38px; border:none; border-radius:999px; background:var(--cream,#F5F3EC); font-size:20px; cursor:pointer; color:var(--ink); line-height:1; }
+.est-step:hover{ background:var(--teal-tint,#F1ECFC); }
+.est-hours{ min-width:40px; text-align:center; font-size:19px; font-weight:800; }
+.est-hint{ font-size:12px; color:var(--gray); }
+.est-freq{ display:inline-flex; gap:8px; flex-wrap:wrap; }
+.est-pill{ padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:#fff; font:inherit; font-size:14px; font-weight:600; cursor:pointer; color:var(--ink); }
+.est-pill.is-on{ background:var(--brand-grad,linear-gradient(120deg,#2E8BE6,#8B4DE6)); color:#fff; border-color:transparent; }
+.est-pill:disabled{ opacity:.4; cursor:not-allowed; }
+.est-result{ padding:26px 24px; background:var(--brand-grad,linear-gradient(120deg,#2E8BE6,#8B4DE6)); color:#fff; display:flex; flex-direction:column; justify-content:center; gap:4px; }
+.est-result-label{ font-size:13px; font-weight:700; opacity:.9; text-transform:uppercase; letter-spacing:.06em; }
+.est-amount{ font-family:'Instrument Serif','Fraunces',Georgia,serif; font-size:52px; line-height:1; }
+.est-breakdown{ font-size:14px; opacity:.95; }
+.est-disclaimer{ font-size:12px; opacity:.85; margin-top:8px; line-height:1.4; }
+.est-ctas{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.est-result .btn{ background:#fff; color:var(--ink); }
+.est-result .btn.btn-outline{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,.6); }

@@ -266,9 +266,10 @@
   }
 
   /* ---------- ACTIVE FOAM (splash side bands, js/foam-hero.js) ----------
-     #splashShaderBg becomes .foam-root. Inside it, .foam-bands holds three
-     depth planes of canvas-drawn foam; .foam-bubbles (a sibling above the
-     scrim) carries a few drifting micro-bubbles and the cursor glow. Both
+     #splashShaderBg becomes .foam-root. Inside it, .foam-bands holds two
+     depth planes of a real foam photo (assets/images/foam/foam-band.jpg);
+     .foam-bubbles (a sibling above the scrim) carries a few glassy secondary
+     bubbles and the cursor glow. Both
      are masked to the two side bands so the foam never crosses the fridge
      photo, and both are purely decorative (aria-hidden / pointer-events:none)
      so clicks, links, the language toggle and the Enter button are never
@@ -286,17 +287,17 @@
     position:absolute;inset:-9%;              /* overscan so parallax never bares an edge */
     background-position:center;background-size:cover;background-repeat:no-repeat;
   }
+  /* Back = the foam photo as-is; front = a mirrored, zoomed, softened copy
+     that reads as nearer foam (glossy sheen via screen blend) rather than a
+     visible duplicate. */
   .foam-back{opacity:1;}
-  .foam-mid{opacity:.85;filter:blur(.4px);}
-  .foam-front{opacity:.6;filter:blur(1px);mix-blend-mode:screen;}
+  .foam-front{opacity:.42;filter:blur(1.4px);mix-blend-mode:screen;transform:scaleX(-1) scale(1.16);}
 
   /* Ambient drift — slow, organic, desynced per plane (transform only). */
-  .foam-bands>.foam-amb:nth-child(1){animation:foamDriftA 11s ease-in-out infinite;}
-  .foam-bands>.foam-amb:nth-child(2){animation:foamDriftB 14s ease-in-out infinite;animation-delay:-4s;}
-  .foam-bands>.foam-amb:nth-child(3){animation:foamDriftC 9s ease-in-out infinite;animation-delay:-6s;}
-  @keyframes foamDriftA{0%,100%{transform:translate3d(0,0,0) scale(1);}34%{transform:translate3d(9px,-7px,0) scale(1.012);}67%{transform:translate3d(-7px,6px,0) scale(1.006);}}
-  @keyframes foamDriftB{0%,100%{transform:translate3d(0,0,0) scale(1);}30%{transform:translate3d(-12px,8px,0) scale(1.018);}70%{transform:translate3d(10px,-9px,0) scale(1.008);}}
-  @keyframes foamDriftC{0%,100%{transform:translate3d(0,0,0) scale(1.004);}40%{transform:translate3d(14px,10px,0) scale(1.024);}72%{transform:translate3d(-11px,-8px,0) scale(1.01);}}
+  .foam-bands>.foam-amb:nth-child(1){animation:foamDriftA 12s ease-in-out infinite;}
+  .foam-bands>.foam-amb:nth-child(2){animation:foamDriftB 15s ease-in-out infinite;animation-delay:-5s;}
+  @keyframes foamDriftA{0%,100%{transform:translate3d(0,0,0) scale(1);}34%{transform:translate3d(8px,-6px,0) scale(1.01);}67%{transform:translate3d(-6px,5px,0) scale(1.004);}}
+  @keyframes foamDriftB{0%,100%{transform:translate3d(0,0,0) scale(1);}30%{transform:translate3d(-11px,7px,0) scale(1.016);}70%{transform:translate3d(9px,-8px,0) scale(1.006);}}
 
   /* Secondary micro-bubbles + cursor glow (above scrim, below content). */
   .foam-bubbles{
@@ -307,10 +308,13 @@
   .foam-bubble{position:absolute;will-change:transform,opacity;animation:foamBubble var(--dur,9s) ease-in-out infinite;}
   .foam-bubble .bub{
     width:100%;height:100%;border-radius:50%;will-change:transform;
-    background:radial-gradient(circle at 32% 28%,
-      rgba(255,255,255,.92) 0%,rgba(214,196,252,.5) 20%,
-      rgba(139,77,230,.3) 52%,rgba(46,139,230,.16) 80%,transparent 100%);
-    box-shadow:inset 0 1px 6px rgba(255,255,255,.35),inset 0 -2px 8px rgba(62,29,140,.4);
+    /* Translucent glassy soap bubble: bright crescent highlight, iridescent
+       violet/blue body, soft inner shadow — sits on top of the real foam. */
+    background:radial-gradient(circle at 34% 29%,
+      rgba(255,255,255,.9) 0%,rgba(255,255,255,.14) 13%,
+      rgba(214,196,252,.16) 38%,rgba(120,90,230,.12) 68%,rgba(46,139,230,.07) 100%);
+    box-shadow:inset 0 0 14px rgba(255,255,255,.22),inset 5px 7px 14px rgba(62,29,140,.28);
+    border:1px solid rgba(255,255,255,.16);
   }
   @keyframes foamBubble{0%,100%{transform:translate3d(0,0,0);opacity:.5;}50%{transform:translate3d(4px,-15px,0);opacity:.82;}}
   .foam-glow{

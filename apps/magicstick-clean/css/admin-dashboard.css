@@ -325,3 +325,36 @@
 :root[data-theme="dark"] #dashSection-ai textarea{ background:#1c1b22; border-color:#34323c; color:#ece9f2; }
 :root[data-theme="dark"] .ai-chat-log{ background:#17161c; border-color:#34323c; }
 :root[data-theme="dark"] .ai-msg-assistant{ background:#211f28; border-color:#34323c; color:#ece9f2; }
+
+/* Permanent-delete button in the bookings table (admin). Soft-delete via the
+   status dropdown stays the default; this is the explicit hard delete. */
+.booking-del-btn {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  color: #b42318;
+  background: #fff;
+  border: 1px solid #f0c2bc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.booking-del-btn:hover { background: #b42318; border-color: #b42318; color: #fff; }
+.booking-del-btn:disabled { opacity: .5; cursor: default; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .booking-del-btn {
+    color: #ff9b8f; background: transparent; border-color: #7a2e27;
+  }
+  :root:not([data-theme="light"]) .booking-del-btn:hover {
+    background: #b42318; border-color: #b42318; color: #fff;
+  }
+}
+:root[data-theme="dark"] .booking-del-btn {
+  color: #ff9b8f; background: transparent; border-color: #7a2e27;
+}
+:root[data-theme="dark"] .booking-del-btn:hover {
+  background: #b42318; border-color: #b42318; color: #fff;
+}

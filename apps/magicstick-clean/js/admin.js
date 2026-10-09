@@ -170,11 +170,32 @@
         <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}${b.gift_card_applied_cents ? `<br><span class="fine">${esc(t('admin.gift.bookingLine', { amount: (b.gift_card_applied_cents / 100).toFixed(2) }))}</span>` : ''}</td>
         <td class="status-cell"></td>
       `;
-      tr.querySelector('.status-cell').appendChild(
+      const statusCell = tr.querySelector('.status-cell');
+      statusCell.appendChild(
         statusSelect(b.status, BOOKING_STATUSES, async (value) => {
           await supabase.from('bookings').update({ status: value }).eq('id', b.id);
         })
       );
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'booking-del-btn';
+      delBtn.textContent = t('admin.booking.delete');
+      delBtn.title = t('admin.booking.delete');
+      delBtn.addEventListener('click', async () => {
+        if (!window.confirm(t('admin.booking.deleteConfirm', { name: b.guest_name }))) return;
+        delBtn.disabled = true;
+        const { error } = await supabase.from('bookings').delete().eq('id', b.id);
+        if (error) {
+          delBtn.disabled = false;
+          window.alert(t('admin.booking.deleteError'));
+          return;
+        }
+        if (Array.isArray(lastBookings)) {
+          lastBookings = lastBookings.filter((x) => x.id !== b.id);
+        }
+        tr.remove();
+      });
+      statusCell.appendChild(delBtn);
       tbody.appendChild(tr);
     });
   }

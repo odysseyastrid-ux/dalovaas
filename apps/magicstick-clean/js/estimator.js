@@ -11,19 +11,19 @@
   const lang = () => (I18N ? I18N.getLang() : 'en');
   const esc = (v) => (I18N ? I18N.escapeHtml(v) : String(v == null ? '' : v));
 
-  // Hourly rate in dollars, 3-hour minimum. recurring = eligible for the 9% plan.
+  // Hourly rate in dollars, 3-hour minimum. recurring = eligible for the 10% plan.
   const SERVICES = [
-    { id: 'standard', rate: 33, recurring: true,  en: 'Standard Cleaning',          fr: 'Nettoyage standard' },
+    { id: 'standard', rate: 30, recurring: true,  en: 'Standard Cleaning',          fr: 'Nettoyage standard' },
     { id: 'deep',     rate: 43, recurring: false, en: 'Deep Cleaning',              fr: 'Nettoyage en profondeur' },
-    { id: 'airbnb',   rate: 33, recurring: true,  en: 'Airbnb / Short-term rental', fr: 'Airbnb / court terme' },
-    { id: 'commercial', rate: 33, recurring: true, en: 'Commercial Cleaning',       fr: 'Nettoyage commercial' },
-    { id: 'windows',  rate: 28.05, recurring: false, en: 'Window & Glass (15% off)', fr: 'Fenêtres et vitres (15% de rabais)' },
+    { id: 'airbnb',   rate: 30, recurring: true,  en: 'Airbnb / Short-term rental', fr: 'Airbnb / court terme' },
+    { id: 'commercial', rate: 30, recurring: true, en: 'Commercial Cleaning',       fr: 'Nettoyage commercial' },
+    { id: 'windows',  rate: 25.5, recurring: false, en: 'Window & Glass (15% off)', fr: 'Fenêtres et vitres (15% de rabais)' },
     { id: 'post-construction', rate: 50, recurring: false, en: 'Post-Construction',  fr: 'Post-construction' },
     { id: 'move-in-out', rate: 50, recurring: false, en: 'Move-In / Move-Out',       fr: 'Déménagement (entrée/sortie)' },
   ];
   const MIN_HOURS = 3;
   const MAX_HOURS = 12;
-  const RECURRING_OFF = 0.09; // 9%
+  const RECURRING_OFF = 0.10; // 10%
 
   let serviceId = 'standard';
   let hours = MIN_HOURS;

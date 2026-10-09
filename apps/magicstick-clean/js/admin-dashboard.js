@@ -102,7 +102,7 @@
       ],
       smmQueue: [
         { date: offsetDate(1), platform: 'Instagram', copy: 'Before/after: hardwood floor reset in Rockland ✨' },
-        { date: offsetDate(3), platform: 'Facebook', copy: 'Recurring plan: every clean just $30/h (9% off) — book weekly, biweekly or monthly' },
+        { date: offsetDate(3), platform: 'Facebook', copy: 'Recurring plan: every clean just $27/h (10% off) — book weekly, biweekly or monthly' },
       ],
       ads: [
         { name: 'First-time client special (hero tag)', page: 'Homepage hero', on: true, text: 'First-time client special', link: 'quote.html' },

@@ -65,7 +65,7 @@ async function buildContext(supabase: any, lang: "en" | "fr"): Promise<string> {
     "BUSINESS SNAPSHOT (live data, for your reference):",
     `- Business: Magicstick Clean, residential & commercial cleaning, serving Clarence-Rockland, Ottawa, Gatineau.`,
     `- Owner contact: (343) 843-7761, magicstickclean@gmail.com, magicstickclean.ca`,
-    `- Pricing model: $33/h standard (Deep $43/h, Post-construction & Move-in/out $50/h), 3-hour minimum; recurring plans $30/h (9% off); Window & glass + outdoor/seasonal 15% off.`,
+    `- Pricing model: $30/h standard (Deep $43/h, Post-construction & Move-in/out $50/h), 3-hour minimum; recurring plans $27/h (10% off); Window & glass + outdoor/seasonal 15% off.`,
     "- Active services:",
     svc || "  (none)",
     `- Bookings created this month: ${bookingsMonth?.count ?? 0}`,

@@ -35,22 +35,22 @@ business is, what the site does, and the current live state — so any assistant
 ## Services & pricing (CURRENT — updated this session)
 
 All bookings have a **3-hour minimum**. Prices below are hourly; the site shows the
-3-hour starting total (e.g. Standard = $33/h → $99 to start).
+3-hour starting total (e.g. Standard = $30/h → $90 to start).
 
 | Service | Rate | 3h start | Notes |
 |---|---|---|---|
-| Standard Cleaning | **$33/h** | $99 | recurring-eligible |
+| Standard Cleaning | **$30/h** | $90 | recurring-eligible |
 | Deep Cleaning | **$43/h** | $129 | — |
-| Airbnb / short-term turnover | **$33/h** | $99 | recurring-eligible |
-| Commercial / office / retail | **$33/h** | $99 | recurring-eligible |
-| Window & Glass | **$33/h → $28.05/h** | $84.15 | **permanent 15% off** |
+| Airbnb / short-term turnover | **$30/h** | $90 | recurring-eligible |
+| Commercial / office / retail | **$30/h** | $90 | recurring-eligible |
+| Window & Glass | **$30/h → $25.50/h** | $76.50 | **permanent 15% off** |
 | Post-construction | **$50/h** | $150 | — |
 | Move-in / Move-out | **$50/h** | $150 | — |
 | Outdoor & seasonal — lawn/yard clearing | **$50/h** | — | **15% off, quote-only** |
 | Outdoor & seasonal — snow removal | **$50/h** | — | **15% off, quote-only** |
 
 - **Recurring plans** (weekly / biweekly / monthly) on eligible services drop to
-  **$30/h = 9% off**, for as long as the plan is kept.
+  **$27/h = 10% off**, for as long as the plan is kept.
 - There is **NO first-booking / first-time discount** anymore (it was removed — do
   not reintroduce it in copy or math).
 - A **refundable deposit** is collected online to book; the balance is paid at the
@@ -68,7 +68,7 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 2. **Book online** (`booking.html`) — pick service + date/time, pay a small
    refundable deposit via Stripe, rest paid at the appointment.
 3. **Instant estimator** (homepage) — live price for service × hours × frequency
-   (3h min, recurring 9%), with CTAs into booking (service preselected) and quote.
+   (3h min, recurring 10%), with CTAs into booking (service preselected) and quote.
 4. **Customer accounts** (`account.html`) — sign up / log in, see own bookings.
 5. **Owner/admin dashboard** (`admin.html`) — view/manage quotes & bookings,
    edit AI knowledge, and chat with a private business co-pilot (see AI below).
@@ -139,13 +139,13 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 
 - **Who to reach:** homeowners, renters, landlords/property managers, Airbnb/STR
   hosts, and small office/retail operators in Clarence-Rockland, Ottawa, Gatineau.
-- **Core promises to lead with:** same cleaner every time · transparent $33/h
+- **Core promises to lead with:** same cleaner every time · transparent $30/h
   pricing · same-day reply · book online with a small deposit.
 - **Proof on hand:** real before/after photography already in `assets/images/`
   (hardwood, bathroom, fridge before/after pairs; dishwashing, baseboards, office,
   post-construction, move-in/out, Airbnb turnover, retail, pet-hair; a hero family
   photo and a hero proof video). Use these — do not invent new "proof."
-- **Honest levers available:** recurring plan savings (9% off → $30/h), the permanent
+- **Honest levers available:** recurring plan savings (10% off → $27/h), the permanent
   15% off on windows & outdoor/seasonal, gift cards (`gift-cards.html`), bilingual
   service, local/hyper-local SEO (dedicated Ottawa / Gatineau / Clarence-Rockland
   location pages already exist).

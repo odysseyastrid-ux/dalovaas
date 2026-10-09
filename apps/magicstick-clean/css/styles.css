@@ -183,17 +183,27 @@
     transition:opacity .5s ease;
   }
   .splash-gate.splash-hide{opacity:0;pointer-events:none;}
-  /* The animated teal/gold shader fills the letterboxed space left by
-     .splash-photo's object-fit:contain below (so the mismatch between the
-     photo's aspect ratio and the screen's never shows an empty bar), and
-     the photo's own edges fade into it via a mask, instead of sitting on
-     top as a hard-edged rectangle. */
+  /* Active detergent foam (js/foam-hero.js) fills the letterboxed space left
+     by .splash-photo's object-fit:contain below, replacing the old WebGL warp
+     shader. The foam lives in #splashShaderBg (.foam-root), is masked to the
+     two side bands, drifts on its own and reacts to the cursor. The photo's
+     left/right edges fade horizontally into the foam via the mask below, so
+     the two meet with an organic wet seam instead of a hard rectangle; the
+     vertical before/after seam at the centre stays crisp. */
   .splash-shader-bg{position:absolute;inset:0;overflow:hidden;}
   .splash-shader-bg canvas{display:block;width:100%;height:100%;}
   .splash-photo{
     position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
-    -webkit-mask-image:radial-gradient(ellipse 85% 85% at center,#000 65%,transparent 100%);
-    mask-image:radial-gradient(ellipse 85% 85% at center,#000 65%,transparent 100%);
+    /* Horizontal fade (≈13% each side) ∩ soft vignette: the outer edges melt
+       into the foam, the centre (and the before/after seam) stays sharp. */
+    -webkit-mask-image:
+      linear-gradient(90deg,transparent 0%,#000 13%,#000 87%,transparent 100%),
+      radial-gradient(ellipse 94% 90% at center,#000 68%,transparent 100%);
+    -webkit-mask-composite:source-in;
+    mask-image:
+      linear-gradient(90deg,transparent 0%,#000 13%,#000 87%,transparent 100%),
+      radial-gradient(ellipse 94% 90% at center,#000 68%,transparent 100%);
+    mask-composite:intersect;
   }
   .splash-scrim{
     position:absolute;inset:0;
@@ -205,9 +215,9 @@
   }
   .splash-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
   .splash-brand svg{animation:splashLogoPop .8s cubic-bezier(.34,1.56,.64,1) both;}
-  .splash-brand span{font-family:'Fraunces',serif;font-weight:700;font-size:24px;color:#fff;}
+  .splash-brand span{font-family:'Fraunces',serif;font-weight:700;font-size:24px;color:#fff;text-shadow:0 1px 12px rgba(23,19,45,.6);}
   @keyframes splashLogoPop{from{transform:scale(.3) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
-  .splash-tagline{font-size:17px;color:#F0EEE7;margin:0 0 26px;max-width:36ch;}
+  .splash-tagline{font-size:17px;color:#F0EEE7;margin:0 0 26px;max-width:36ch;text-shadow:0 1px 10px rgba(23,19,45,.6);}
   .splash-enter{font-family:inherit;}
 
   /* Promo banner pinned to the top of the splash — a shimmering gold bar
@@ -253,6 +263,82 @@
     .splash-brand svg{animation:none;}
     .splash-promo{animation:none;}
     .splash-promo-spark{animation:none;}
+  }
+
+  /* ---------- ACTIVE FOAM (splash side bands, js/foam-hero.js) ----------
+     #splashShaderBg becomes .foam-root. Inside it, .foam-bands holds three
+     depth planes of canvas-drawn foam; .foam-bubbles (a sibling above the
+     scrim) carries a few drifting micro-bubbles and the cursor glow. Both
+     are masked to the two side bands so the foam never crosses the fridge
+     photo, and both are purely decorative (aria-hidden / pointer-events:none)
+     so clicks, links, the language toggle and the Enter button are never
+     blocked. Ambient motion is CSS here; the cursor reaction is a JS spring. */
+  .foam-root{background:#191233;}
+  .foam-bands{
+    position:absolute;inset:0;
+    /* Two side bands: full at the L/R edges, gone across the middle third. */
+    -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 17%,transparent 41%,transparent 59%,#000 83%,#000 100%);
+    mask-image:linear-gradient(90deg,#000 0%,#000 17%,transparent 41%,transparent 59%,#000 83%,#000 100%);
+  }
+  .foam-amb{position:absolute;inset:0;will-change:transform;}
+  .foam-ptr{position:absolute;inset:0;will-change:transform;}
+  .foam-depth{
+    position:absolute;inset:-9%;              /* overscan so parallax never bares an edge */
+    background-position:center;background-size:cover;background-repeat:no-repeat;
+  }
+  .foam-back{opacity:1;}
+  .foam-mid{opacity:.85;filter:blur(.4px);}
+  .foam-front{opacity:.6;filter:blur(1px);mix-blend-mode:screen;}
+
+  /* Ambient drift — slow, organic, desynced per plane (transform only). */
+  .foam-bands>.foam-amb:nth-child(1){animation:foamDriftA 11s ease-in-out infinite;}
+  .foam-bands>.foam-amb:nth-child(2){animation:foamDriftB 14s ease-in-out infinite;animation-delay:-4s;}
+  .foam-bands>.foam-amb:nth-child(3){animation:foamDriftC 9s ease-in-out infinite;animation-delay:-6s;}
+  @keyframes foamDriftA{0%,100%{transform:translate3d(0,0,0) scale(1);}34%{transform:translate3d(9px,-7px,0) scale(1.012);}67%{transform:translate3d(-7px,6px,0) scale(1.006);}}
+  @keyframes foamDriftB{0%,100%{transform:translate3d(0,0,0) scale(1);}30%{transform:translate3d(-12px,8px,0) scale(1.018);}70%{transform:translate3d(10px,-9px,0) scale(1.008);}}
+  @keyframes foamDriftC{0%,100%{transform:translate3d(0,0,0) scale(1.004);}40%{transform:translate3d(14px,10px,0) scale(1.024);}72%{transform:translate3d(-11px,-8px,0) scale(1.01);}}
+
+  /* Secondary micro-bubbles + cursor glow (above scrim, below content). */
+  .foam-bubbles{
+    position:absolute;inset:0;pointer-events:none;overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 19%,transparent 40%,transparent 60%,#000 81%,#000 100%);
+    mask-image:linear-gradient(90deg,#000 0%,#000 19%,transparent 40%,transparent 60%,#000 81%,#000 100%);
+  }
+  .foam-bubble{position:absolute;will-change:transform,opacity;animation:foamBubble var(--dur,9s) ease-in-out infinite;}
+  .foam-bubble .bub{
+    width:100%;height:100%;border-radius:50%;will-change:transform;
+    background:radial-gradient(circle at 32% 28%,
+      rgba(255,255,255,.92) 0%,rgba(214,196,252,.5) 20%,
+      rgba(139,77,230,.3) 52%,rgba(46,139,230,.16) 80%,transparent 100%);
+    box-shadow:inset 0 1px 6px rgba(255,255,255,.35),inset 0 -2px 8px rgba(62,29,140,.4);
+  }
+  @keyframes foamBubble{0%,100%{transform:translate3d(0,0,0);opacity:.5;}50%{transform:translate3d(4px,-15px,0);opacity:.82;}}
+  .foam-glow{
+    position:absolute;top:0;left:0;width:320px;height:320px;border-radius:50%;
+    opacity:0;transition:opacity .35s ease;will-change:transform,opacity;
+    background:radial-gradient(circle,rgba(176,148,246,.5) 0%,rgba(46,139,230,.28) 42%,transparent 72%);
+  }
+
+  /* Reduced motion → static foam, no drift, no glow. */
+  .foam-static .foam-amb,
+  .foam-static.foam-bubbles .foam-bubble{animation:none;}
+  .foam-static .foam-glow{display:none;}
+
+  @media (max-width:640px){
+    /* Pull the foam to the bottom + right edges so it stays clear of the
+       splash text/CTA stacked at the bottom-centre. */
+    .foam-bands,
+    .foam-bubbles{
+      -webkit-mask-image:linear-gradient(0deg,#000 0%,#000 13%,transparent 42%),linear-gradient(270deg,#000 0%,#000 16%,transparent 46%);
+      -webkit-mask-composite:source-over;
+      mask-image:linear-gradient(0deg,#000 0%,#000 13%,transparent 42%),linear-gradient(270deg,#000 0%,#000 16%,transparent 46%);
+      mask-composite:add;
+    }
+    .foam-glow{width:230px;height:230px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .foam-amb,.foam-bubble{animation:none !important;}
+    .foam-glow{display:none;}
   }
 
   /* ---------- HERO ---------- */

@@ -36,11 +36,12 @@
   the whole site repaints from one place; every page's own <head> carries
   the Fraunces+Inter Google Fonts link.
 
-  FINISH: Palette tokens, hardcoded literal colors, and both shader color
-  arrays (js/splash-shader.js, js/contact-band-shader.js) reverted from
+  FINISH: Palette tokens, hardcoded literal colors, and the contact-band
+  shader color array (js/contact-band-shader.js) reverted from
   terracotta/ink to teal/gold and brightened; typography, component
   shapes, quote-form icons, security fixes, and content changes from
-  later passes are untouched.
+  later passes are untouched. The splash hero no longer uses a WebGL
+  shader — it runs interactive detergent foam (js/foam-hero.js).
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -442,7 +443,7 @@
 
 <script src="js/script.js"></script>
 <script src="js/vendor/paper-shaders-warp.min.js"></script>
-<script src="js/splash-shader.js"></script>
+<script src="js/foam-hero.js"></script>
 
 <script src="js/estimator.js"></script>
 <script src="js/site-enhancements.js"></script>

@@ -1153,7 +1153,7 @@
   .book-service-card-price{font-size:12.5px;color:var(--gray);}
 
   /* ---------- BOOKING FORM ---------- */
-  .booking-form{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:32px;max-width:640px;}
+  .booking-form{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:32px;max-width:960px;margin-left:auto;margin-right:auto;}
   .booking-form .field{margin-bottom:18px;display:flex;flex-direction:column;}
   .booking-form label{font-size:13.5px;font-weight:600;margin-bottom:6px;}
   .booking-form input,.booking-form select,.booking-form textarea{
@@ -1228,16 +1228,32 @@
   /* ---------- EMBEDDED STRIPE PAYMENT STEP ---------- */
   .payment-band{padding:60px 0;}
   .payment-wrap{display:flex;justify-content:center;}
-  .payment-card{max-width:440px;margin:0;text-align:left;}
+  .payment-card{max-width:720px;width:100%;margin:0;text-align:left;}
   .payment-summary{
-    background:var(--teal-tint);border-radius:10px;padding:16px 18px;margin-bottom:22px;
+    background:var(--teal-tint);border-radius:10px;padding:18px 20px;margin-bottom:22px;color:var(--charcoal);
   }
-  .payment-summary-service{font-weight:700;font-size:16px;margin:0 0 4px;font-family:'Fraunces',serif;}
-  .payment-summary-discount{color:var(--teal);font-weight:600;font-size:13px;margin:0 0 8px;}
-  .payment-summary-total{font-weight:700;font-size:15px;margin:8px 0 2px;}
-  .payment-summary-line{font-size:13px;color:var(--gray);margin:2px 0;}
+  .payment-summary-service{font-weight:700;font-size:18px;margin:0 0 4px;color:var(--charcoal);font-family:'Fraunces',serif;}
+  .payment-summary-discount{color:var(--teal);font-weight:700;font-size:14px;margin:0 0 8px;}
+  .payment-summary-total{font-weight:800;font-size:17px;margin:10px 0 2px;color:var(--charcoal);}
+  .payment-summary-line{font-size:14.5px;color:var(--charcoal);font-weight:500;margin:3px 0;}
   #paymentElement{margin-bottom:18px;}
   .payment-card .btn-outline{width:100%;text-align:center;margin-top:8px;background:transparent;}
+
+  /* Wider, larger booking + payment on desktop (easier to read, fills the screen) */
+  @media (min-width:900px){
+    .booking-form{padding:40px 48px;}
+    .booking-form label{font-size:15px;}
+    .booking-form input,.booking-form select,.booking-form textarea{font-size:16.5px;padding:13px 15px;}
+    .service-option{padding:16px 18px;}
+    .service-option-name{font-size:17px;}
+    .service-option-desc,.service-option-price{font-size:15px;}
+    .deposit-summary{font-size:16px;padding:16px 18px;}
+    .addon-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+    .payment-card{padding:40px 44px;}
+    .payment-summary-service{font-size:19px;}
+    .payment-summary-line{font-size:15.5px;}
+    .payment-summary-total{font-size:18px;}
+  }
 
   /* ---------- ADMIN TABLES ---------- */
   .admin-panel{margin-top:24px;}

@@ -358,3 +358,18 @@
 :root[data-theme="dark"] .booking-del-btn:hover {
   background: #b42318; border-color: #b42318; color: #fff;
 }
+
+/* "Review ✍" button in the bookings table: copies a ready-to-send Google review request */
+.booking-review-btn{
+  display:inline-block; margin-left:8px; padding:5px 10px; font-size:12px; font-weight:600; line-height:1;
+  color:#2E8BE6; background:#fff; border:1px solid #bcdcf7; border-radius:8px; cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.booking-review-btn:hover{ background:#2E8BE6; border-color:#2E8BE6; color:#fff; }
+.booking-review-btn.is-copied{ background:#1f9d57; border-color:#1f9d57; color:#fff; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .booking-review-btn{ color:#8fc4f5; background:transparent; border-color:#275274; }
+  :root:not([data-theme="light"]) .booking-review-btn:hover{ background:#2E8BE6; border-color:#2E8BE6; color:#fff; }
+}
+:root[data-theme="dark"] .booking-review-btn{ color:#8fc4f5; background:transparent; border-color:#275274; }
+:root[data-theme="dark"] .booking-review-btn:hover{ background:#2E8BE6; border-color:#2E8BE6; color:#fff; }

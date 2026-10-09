@@ -144,6 +144,20 @@
     });
   }
 
+  // Google review request helper: copy a ready-to-send message for a client.
+  const REVIEW_LINK = 'https://search.google.com/local/writereview?placeid=ChIJZ0Q2gs5rzkwRRPWMo_2n6ZU';
+  const firstNameOf = (name) => String(name || '').trim().split(/\s+/)[0] || '';
+  const reviewRequestText = (b) => t('admin.booking.reviewSms', { name: firstNameOf(b.guest_name), link: REVIEW_LINK });
+  async function copyToClipboard(txt) {
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(txt); return true; } } catch (e) {}
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy'); ta.remove(); return ok;
+    } catch (e) { return false; }
+  }
+
   function renderBookings() {
     const tbody = document.querySelector('#bookingsTable tbody');
     tbody.innerHTML = '';
@@ -171,11 +185,25 @@
         <td class="status-cell"></td>
       `;
       const statusCell = tr.querySelector('.status-cell');
+      const revBtn = document.createElement('button');
+      revBtn.type = 'button';
+      revBtn.className = 'booking-review-btn';
+      revBtn.textContent = t('admin.booking.review');
+      revBtn.title = t('admin.booking.reviewTitle');
+      const flashCopied = (ok) => {
+        if (!ok) { window.prompt(t('admin.booking.reviewTitle'), reviewRequestText(b)); return; }
+        revBtn.textContent = t('admin.booking.reviewCopied');
+        revBtn.classList.add('is-copied');
+        setTimeout(() => { revBtn.textContent = t('admin.booking.review'); revBtn.classList.remove('is-copied'); }, 2000);
+      };
+      revBtn.addEventListener('click', async () => { flashCopied(await copyToClipboard(reviewRequestText(b))); });
       statusCell.appendChild(
         statusSelect(b.status, BOOKING_STATUSES, async (value) => {
           await supabase.from('bookings').update({ status: value }).eq('id', b.id);
+          if (value === 'completed') { flashCopied(await copyToClipboard(reviewRequestText(b))); }
         })
       );
+      statusCell.appendChild(revBtn);
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'booking-del-btn';

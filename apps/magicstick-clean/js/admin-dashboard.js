@@ -75,11 +75,11 @@
         { date: offsetDate(12), time: '09:30', hours: 2, name: 'Jean P.', location: 'Ottawa — Orléans', service: 'Standard Cleaning' },
       ],
       localListings: [
-        { name: 'Google Business Profile', status: 'good', note: 'Verified, 4.9★ (38 reviews)' },
-        { name: 'Bing Places', status: 'good', note: 'Verified' },
-        { name: 'Yelp', status: 'warn', note: 'Claimed, missing photos' },
-        { name: 'Yellow Pages', status: 'warn', note: 'Listing outdated (old phone number)' },
-        { name: 'Facebook Business', status: 'good', note: 'Active, posts weekly' },
+        { name: 'Google Business Profile', status: 'warn', note: 'Not set up yet — top priority to create & verify' },
+        { name: 'Bing Places', status: 'warn', note: 'Not set up yet' },
+        { name: 'Yelp', status: 'warn', note: 'Not set up yet' },
+        { name: 'Yellow Pages', status: 'warn', note: 'Not set up yet' },
+        { name: 'Facebook Business', status: 'warn', note: 'Not set up yet' },
       ],
       keywords: [
         { term: 'cleaning service ottawa', pos: 4, delta: 2, volume: '2.4K' },
@@ -233,8 +233,8 @@
         </div>
         <div class="dash-kpi">
           <div class="dash-kpi-label">${esc(t('admin.dash.kpi.rating'))}</div>
-          <div class="dash-kpi-value">4.9★</div>
-          <div class="dash-kpi-delta up">38 ${esc(t('admin.dash.reviews'))}</div>
+          <div class="dash-kpi-value">—</div>
+          <div class="dash-kpi-delta">0 ${esc(t('admin.dash.reviews'))}</div>
         </div>
       `;
     }

@@ -496,11 +496,11 @@
     display:grid;grid-template-columns:1fr 1.6fr auto;gap:28px;align-items:baseline;
     font-family:'Inter',Arial,sans-serif;
   }
-  .service-row h3{font-size:24px;font-family:'Fraunces',Georgia,serif;font-weight:700;margin:0;}
-  .service-row p{color:var(--gray);margin:0;font-size:15.5px;}
-  .service-price{font-family:'Fraunces',serif;font-weight:700;font-size:19px;white-space:nowrap;}
+  .service-row h3{font-size:25px;font-family:'Fraunces',Georgia,serif;font-weight:700;margin:0;}
+  .service-row p{color:var(--charcoal);margin:0;font-size:16.5px;line-height:1.55;}
+  .service-price{font-family:'Fraunces',serif;font-weight:700;font-size:20px;white-space:nowrap;}
   .service-detail{margin-top:22px;}
-  .service-detail p{color:var(--gray);font-size:15px;margin:0;max-width:75ch;}
+  .service-detail p{color:var(--charcoal);font-size:16.5px;line-height:1.75;margin:0;max-width:72ch;}
   .service-detail-inner{display:flex;gap:24px;align-items:flex-start;}
   .service-detail-inner p{margin:0;}
   .service-detail-img{
@@ -511,7 +511,7 @@
     .service-detail-inner{flex-direction:column;}
     .service-detail-img{width:100%;height:160px;}
   }
-  .service-detail-learnmore{margin:10px 0 0;font-size:13.5px;}
+  .service-detail-learnmore{margin:12px 0 0;font-size:15px;}
   .service-detail-learnmore a{color:var(--teal);font-weight:600;}
   .service-detail-learnmore a:hover{text-decoration:underline;}
   .cat-label{
@@ -521,6 +521,16 @@
   .cat-label-2{margin-top:8px;}
   @media (max-width:700px){
     .service-row{grid-template-columns:1fr;gap:6px;}
+  }
+  /* Larger, more comfortable reading on desktop for the services list */
+  @media (min-width:900px){
+    .service-item{padding:34px 0;}
+    .service-row h3{font-size:28px;}
+    .service-row p{font-size:17.5px;}
+    .service-price{font-size:22px;}
+    .service-detail p{font-size:18px;line-height:1.8;}
+    .service-detail-img{width:220px;height:160px;}
+    .service-detail-learnmore{font-size:16px;}
   }
 
   /* ---------- BREADCRUMBS (services/locations hub + child pages) ---------- */

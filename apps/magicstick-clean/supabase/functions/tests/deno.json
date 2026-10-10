@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "npm:@supabase/supabase-js@2": "./fake_supabase.ts",
+    "https://esm.sh/stripe@14.21.0?target=deno": "./fake_stripe.ts"
+  }
+}

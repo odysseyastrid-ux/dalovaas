@@ -89,9 +89,38 @@ so there's nothing new to configure:
 supabase functions deploy submit-form --no-verify-jwt
 ```
 
-It protects itself with a honeypot field, length limits, and a per-IP rate
-limit (8 submissions/hour, IPs stored hashed). If the function can't be
-reached, the forms fall back to opening the visitor's email app.
+It protects itself with a honeypot field, length limits, and an atomic
+per-visitor and site-wide rate limit (8 submissions/hour per visitor, IPs
+stored hashed — migration 0013). If the limit counter can't be reached it
+refuses the request instead of sending mail unprotected. If the function can't
+be reached, the forms fall back to opening the visitor's email app.
+
+### Quote form (`submit-quote`) — photos, videos and the request itself
+
+Since the security audit, visitors no longer write to `quote_requests` or to
+the `quote-uploads` bucket directly. `quote.html` calls `submit-quote`, which
+validates every field, rate-limits (per visitor, per contact address and
+site-wide), gives out one short-lived signed upload URL per photo/video, forces
+the status to `new`, and then saves the quote (which fires the email webhook
+above). **Deploy it before applying migration 0014**, which removes the old
+anonymous insert policies — see `SECURITY.md` for the exact order:
+
+```bash
+supabase functions deploy submit-quote --no-verify-jwt
+```
+
+Uploads that never get a quote (visitor closed the tab) are removed by a daily
+call to the function's housekeeping action — schedule it in the Supabase
+dashboard (**Integrations → Cron**, an HTTP request, daily) with the service
+role key as the bearer token:
+
+```bash
+curl -X POST "$SUPABASE_URL/functions/v1/submit-quote" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" -d '{"action":"purge_orphans"}'
+```
+
+There is no CAPTCHA on these forms yet — see `SECURITY.md` ("Not done").
 
 ## 4. Set up deposit payments (Stripe)
 

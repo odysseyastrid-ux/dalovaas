@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/vendor/supabase-js-2.117.3.umd.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
 <script src="js/i18n-content.js"></script>
@@ -155,18 +155,18 @@
       <div class="form-row">
         <div class="field">
           <label for="qName" data-i18n="form.name">Name</label>
-          <input type="text" id="qName" name="name" required>
+          <input type="text" id="qName" name="name" maxlength="120" required>
           <span class="err" data-i18n="form.nameErr">Please enter your name.</span>
         </div>
         <div class="field">
           <label for="qContact" data-i18n="form.contact">Phone or email</label>
-          <input type="text" id="qContact" name="contact" required>
+          <input type="text" id="qContact" name="contact" maxlength="200" required>
           <span class="err" data-i18n="form.contactErr">Please enter a phone number or email.</span>
         </div>
       </div>
       <div class="field">
         <label for="qAddress"><span data-i18n="form.address">Address</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <input type="text" id="qAddress" name="address" autocomplete="street-address" data-i18n-placeholder="form.address.placeholder" placeholder="Street, city, postal code">
+        <input type="text" id="qAddress" name="address" maxlength="300" autocomplete="street-address" data-i18n-placeholder="form.address.placeholder" placeholder="Street, city, postal code">
       </div>
       <div class="field">
         <label for="qService" data-i18n="form.service">What do you need?</label>
@@ -295,7 +295,7 @@
       </div>
       <div class="field">
         <label for="qMsg" data-i18n="form.message">Anything else we should know? (optional)</label>
-        <textarea id="qMsg" name="message" rows="3" placeholder="Preferred days, access instructions, pets..." data-i18n-placeholder="form.messagePlaceholder"></textarea>
+        <textarea id="qMsg" name="message" rows="3" maxlength="3800" placeholder="Preferred days, access instructions, pets..." data-i18n-placeholder="form.messagePlaceholder"></textarea>
       </div>
       <div id="quoteFormGuard"></div>
       <p class="form-reassurance" data-i18n="form.sameDayReminder">⏱ We typically reply within the same day.</p>

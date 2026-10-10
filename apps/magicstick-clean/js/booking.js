@@ -3,6 +3,32 @@
   const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
   const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
 
+  // One random key per checkout attempt. If the same request is sent twice
+  // (a network retry), the server answers with the same booking instead of
+  // creating a second booking and PaymentIntent. A new key is made whenever
+  // the visitor changes something or an attempt fails.
+  const newCheckoutKey = () => {
+    if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+    return 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+  };
+  let checkoutKey = newCheckoutKey();
+
+  // Server error code -> message key, for the ones a visitor can act on.
+  const CHECKOUT_ERROR_MESSAGES = {
+    rate_limited: 'booking.form.note.tooMany',
+    temporarily_unavailable: 'booking.form.note.tooMany',
+    invalid_date: 'booking.form.note.badDate',
+    date_in_past: 'booking.form.note.badDate',
+    date_too_far: 'booking.form.note.badDate',
+    invalid_name: 'booking.form.note.badInput',
+    invalid_contact: 'booking.form.note.badInput',
+    invalid_notes: 'booking.form.note.badInput',
+    notes_too_long: 'booking.form.note.badInput',
+    invalid_zone: 'booking.form.note.badInput',
+    invalid_time_window: 'booking.form.note.badInput',
+    checkout_unavailable: 'booking.form.note.expired',
+  };
+
   const backend = window.MagicstickBackend;
   const backendNotice = document.getElementById('backendNotice');
   const statusBanner = document.getElementById('statusBanner');
@@ -409,6 +435,9 @@
   }
 
   document.getElementById('paymentBackBtn').addEventListener('click', () => {
+    // The visitor may change the details: the next payment step is a new
+    // attempt, not a retry of the one already created.
+    checkoutKey = newCheckoutKey();
     paymentStep.hidden = true;
     form.hidden = false;
     document.getElementById('paymentNote').textContent = '';
@@ -499,10 +528,12 @@
           half_bathrooms: sizeCount.half_bathrooms,
           addons: selectedAddonsPayload(),
           gift_card_code: appliedGift ? appliedGift.code : giftInput.value.trim(),
+          idempotency_key: checkoutKey,
         }),
       });
       const result = await res.json();
       if (result.error === 'invalid_gift_card') {
+        checkoutKey = newCheckoutKey();
         appliedGift = null;
         giftStatus.className = 'gift-code-status error';
         giftStatus.textContent = t('booking.gift.invalid');
@@ -518,6 +549,15 @@
         return;
       }
       if (!res.ok || !result.client_secret) {
+        // The server answers with short codes; show something useful for the
+        // ones a visitor can act on, and start a fresh attempt next time.
+        checkoutKey = newCheckoutKey();
+        const messageKey = CHECKOUT_ERROR_MESSAGES[result.error];
+        if (messageKey) {
+          note.textContent = t(messageKey);
+          submitBtn.disabled = false;
+          return;
+        }
         throw new Error(result.error || 'Could not start payment.');
       }
       const service = services.find((s) => s.id === selectedServiceId);

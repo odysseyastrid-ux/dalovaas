@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/vendor/supabase-js-2.117.3.umd.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
@@ -122,11 +122,11 @@
       <div class="form-row">
         <div class="field">
           <label for="bName" data-i18n="booking.form.name">Name</label>
-          <input type="text" id="bName" name="name" required>
+          <input type="text" id="bName" name="name" maxlength="120" required>
         </div>
         <div class="field">
           <label for="bContact" data-i18n="booking.form.contact">Phone or email</label>
-          <input type="text" id="bContact" name="contact" required>
+          <input type="text" id="bContact" name="contact" maxlength="200" required>
         </div>
       </div>
 
@@ -178,7 +178,7 @@
 
       <div class="field">
         <label for="bNotes" data-i18n="booking.form.notes">Anything we should know? (optional)</label>
-        <textarea id="bNotes" name="notes" rows="3" placeholder="Home size, access instructions, pets..." data-i18n-placeholder="booking.form.notesPlaceholder"></textarea>
+        <textarea id="bNotes" name="notes" rows="3" maxlength="1800" placeholder="Home size, access instructions, pets..." data-i18n-placeholder="booking.form.notesPlaceholder"></textarea>
       </div>
 
       <div class="field">

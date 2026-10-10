@@ -296,21 +296,90 @@ function makeId() {
   });
 }
 
-async function uploadQuoteFiles(supabase, quoteId) {
-  const photoPaths = [];
-  let videoPath = null;
-  for (let i = 0; i < selectedPhotos.length; i++) {
-    const file = selectedPhotos[i];
-    const path = `${quoteId}/photo-${i}-${file.name}`;
-    const { error } = await supabase.storage.from('quote-uploads').upload(path, file);
-    if (!error) photoPaths.push(path);
+// Everything this form sends to the backend goes through the `submit-quote`
+// edge function — the browser no longer writes to the database or the storage
+// bucket directly. The function validates the data, rate-limits, and hands
+// out short-lived signed upload URLs for server-chosen file paths.
+const SUPPORTED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+const SUPPORTED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/3gpp'];
+const EXT_TO_MIME = {
+  jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', heic: 'image/heic', heif: 'image/heif',
+  mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm', '3gp': 'video/3gpp',
+};
+
+// The file's MIME type; some browsers leave it empty for HEIC/MOV, so fall
+// back to the extension.
+function fileMime(file) {
+  const declared = (file.type || '').toLowerCase();
+  if (declared) return declared === 'image/jpg' ? 'image/jpeg' : declared;
+  const ext = ((file.name || '').split('.').pop() || '').toLowerCase();
+  return EXT_TO_MIME[ext] || '';
+}
+
+async function callSubmitQuote(supabase, payload) {
+  const backend = window.MagicstickBackend;
+  let accessToken = null;
+  try {
+    const { data } = await supabase.auth.getSession();
+    accessToken = data && data.session ? data.session.access_token : null;
+  } catch (e) { /* guest */ }
+  const res = await fetch(`${backend.config.FUNCTIONS_URL}/submit-quote`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  let data = {};
+  try { data = await res.json(); } catch (e) { /* non-JSON error page */ }
+  return { ok: res.ok && data.ok === true, status: res.status, data };
+}
+
+// Asks the server for upload permissions, then uploads each file to its own
+// signed URL. Returns the paths that made it, and whether anything was
+// skipped or failed (the quote is still sent, with a warning).
+async function uploadQuoteFiles(supabase) {
+  const photos = [];
+  let video = null;
+  let skipped = 0;
+  for (const file of selectedPhotos) {
+    const type = fileMime(file);
+    if (SUPPORTED_PHOTO_TYPES.includes(type)) photos.push({ file, type }); else skipped++;
   }
   if (selectedVideo) {
-    const path = `${quoteId}/video-${selectedVideo.name}`;
-    const { error } = await supabase.storage.from('quote-uploads').upload(path, selectedVideo);
-    if (!error) videoPath = path;
+    const type = fileMime(selectedVideo);
+    if (SUPPORTED_VIDEO_TYPES.includes(type)) video = { file: selectedVideo, type }; else skipped++;
   }
-  return { photoPaths, videoPath };
+  const result = { quoteId: null, photoPaths: [], videoPath: null, failed: skipped > 0, blockedStatus: null };
+  if (!photos.length && !video) return result;
+
+  const prepared = await callSubmitQuote(supabase, {
+    action: 'prepare',
+    files: {
+      photos: photos.map((p) => ({ type: p.type, size: p.file.size })),
+      video: video ? { type: video.type, size: video.file.size } : null,
+    },
+  });
+  if (!prepared.ok) {
+    result.failed = true;
+    result.blockedStatus = prepared.status;
+    return result;
+  }
+  result.quoteId = prepared.data.quote_id;
+  // The server answers in the order declared: photos first, then the video.
+  const slots = prepared.data.uploads || [];
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i];
+    const item = slot.kind === 'video' ? video : photos[i];
+    if (!item) { result.failed = true; continue; }
+    const { error } = await supabase.storage
+      .from('quote-uploads')
+      .uploadToSignedUrl(slot.path, slot.token, item.file, { contentType: item.type });
+    if (error) { result.failed = true; continue; }
+    if (slot.kind === 'video') result.videoPath = slot.path; else result.photoPaths.push(slot.path);
+  }
+  return result;
 }
 
 // No login on this page: logging in or creating a profile only happens on
@@ -469,48 +538,63 @@ form.addEventListener('submit', async (e) => {
   const backend = window.MagicstickBackend;
   if (backend && backend.isBackendConfigured()) {
     const supabase = backend.getSupabaseClient();
-    const quoteId = makeId();
+    let quoteId = null;
     let uploadsFailed = false;
     let photoPaths = [];
     let videoPath = null;
 
-    if (selectedPhotos.length || selectedVideo) {
-      setSubmitLoading(true, t('form.note.uploading'));
-      const attemptedPhotos = selectedPhotos.length;
-      const attemptedVideo = Boolean(selectedVideo);
-      const result = await uploadQuoteFiles(supabase, quoteId);
-      photoPaths = result.photoPaths;
-      videoPath = result.videoPath;
-      if (photoPaths.length < attemptedPhotos || (attemptedVideo && !videoPath)) uploadsFailed = true;
-    }
-
-    setSubmitLoading(true, t('form.note.sending'));
-    const { error } = await supabase.from('quote_requests').insert({
-      id: quoteId,
-      customer_id: quoteCustomerId,
-      name,
-      contact,
-      address: address || null,
-      service,
-      frequency,
-      zone: selectedZone || null,
-      message: messageWithUtm,
-      first_time_offer_claimed: discountClaimed,
-      bedrooms: selectedBedrooms || null,
-      bathrooms: selectedBathrooms || null,
-      home_type: selectedHomeType || null,
-      preferred_date: preferredDate || null,
-      pets: selectedPets || null,
-      photo_paths: photoPaths,
-      video_path: videoPath,
-    });
-    if (!error) {
-      resetQuoteFormFields();
+    // Too many requests from this connection, or the protection is briefly
+    // unavailable: say so (and how to reach us) instead of silently opening
+    // the email app.
+    const showTryLater = () => {
+      note.textContent = t('form.note.tooMany');
+      note.classList.add('error');
+      note.hidden = false;
       setSubmitLoading(false);
-      showQuoteSuccess(quoteId, uploadsFailed);
-      return;
+    };
+
+    try {
+      if (selectedPhotos.length || selectedVideo) {
+        setSubmitLoading(true, t('form.note.uploading'));
+        const uploaded = await uploadQuoteFiles(supabase);
+        if (uploaded.blockedStatus === 429 || uploaded.blockedStatus === 503) { showTryLater(); return; }
+        quoteId = uploaded.quoteId;
+        photoPaths = uploaded.photoPaths;
+        videoPath = uploaded.videoPath;
+        uploadsFailed = uploaded.failed;
+      }
+
+      setSubmitLoading(true, t('form.note.sending'));
+      const sent = await callSubmitQuote(supabase, {
+        action: 'submit',
+        quote_id: quoteId,
+        name,
+        contact,
+        address: address || null,
+        service,
+        frequency,
+        zone: selectedZone || null,
+        message: messageWithUtm,
+        first_time_offer_claimed: discountClaimed,
+        bedrooms: selectedBedrooms || null,
+        bathrooms: selectedBathrooms || null,
+        home_type: selectedHomeType || null,
+        preferred_date: preferredDate || null,
+        pets: selectedPets || null,
+        photo_paths: photoPaths,
+        video_path: videoPath,
+      });
+      if (sent.ok) {
+        resetQuoteFormFields();
+        setSubmitLoading(false);
+        showQuoteSuccess(sent.data.quote_id || makeId(), uploadsFailed || Number(sent.data.uploads_missing) > 0);
+        return;
+      }
+      if (sent.status === 429 || sent.status === 503) { showTryLater(); return; }
+      console.error('Quote request failed, falling back to email:', sent.status, sent.data && sent.data.error);
+    } catch (err) {
+      console.error('Quote request failed, falling back to email:', err);
     }
-    console.error('Quote request insert failed, falling back to email:', error);
   }
 
   const homeParts = [selectedBedrooms && `${selectedBedrooms} ${t('bed.suffix')}`, selectedBathrooms && `${selectedBathrooms} ${t('bath.suffix')}`].filter(Boolean);

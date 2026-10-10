@@ -5,9 +5,14 @@
 // Required secrets: SUPABASE_URL, SUPABASE_ANON_KEY (auto), GROQ_API_KEY.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { checkLimits, readLimitedBody } from "./guard.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+// Service-role client used ONLY for the abuse counters (rate_limit_hit is
+// not callable by anon/authenticated); page data is still read as anon.
+const limiterDb = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+const MAX_BODY_BYTES = 20_000;
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const MODEL = "openai/gpt-oss-120b";
 
@@ -141,12 +146,44 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: CORS_HEADERS });
   }
 
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "method_not_allowed" }), {
+      status: 405, headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    });
+  }
+
+  const fail = (status: number, code: string) =>
+    new Response(JSON.stringify({ error: code }), {
+      status, headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    });
+
   try {
     if (!GROQ_API_KEY) {
       throw new Error("GROQ_API_KEY is not configured on the server.");
     }
 
-    const body = await req.json();
+    // Each request costs a call to the model provider, so cap how many a
+    // visitor — and the whole site — can make. Fails CLOSED if the counter
+    // is unreachable. (The 16-message / 1200-character / 400-token caps below
+    // only bound a single reply, not how many requests arrive.)
+    const limited = await checkLimits(limiterDb, req, "chat", [
+      { scope: "ip", windowSeconds: 600, max: 25 },
+      { scope: "ip", windowSeconds: 86400, max: 150 },
+      { scope: "global", windowSeconds: 3600, max: 800 },
+    ]);
+    if (limited === "limited") return fail(429, "rate_limited");
+    if (limited === "error") return fail(503, "temporarily_unavailable");
+
+    const text = await readLimitedBody(req, MAX_BODY_BYTES);
+    if (text === null) return fail(413, "payload_too_large");
+    let body: Record<string, unknown>;
+    try {
+      const parsed = JSON.parse(text);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return fail(400, "invalid_body");
+      body = parsed as Record<string, unknown>;
+    } catch {
+      return fail(400, "invalid_json");
+    }
     const lang = body.lang === "fr" ? "fr" : "en";
     const rawMessages = Array.isArray(body.messages) ? body.messages : [];
 
@@ -176,8 +213,9 @@ Deno.serve(async (req) => {
 
     const data = await groqRes.json();
     if (!groqRes.ok) {
+      // Provider detail stays in the server log only.
       console.error("Groq error:", groqRes.status, data);
-      throw new Error(data?.error?.message ?? "The assistant is temporarily unavailable.");
+      return fail(502, "assistant_unavailable");
     }
 
     const reply = (data.choices?.[0]?.message?.content ?? "").trim();
@@ -186,9 +224,6 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: String((err as Error).message ?? err) }), {
-      status: 500,
-      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
-    });
+    return fail(500, "server_error");
   }
 });

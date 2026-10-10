@@ -6,6 +6,19 @@
 // "confirmed" later, by the stripe-webhook function, once Stripe confirms
 // the payment actually went through.
 //
+// Hardening (security audit S01/S04/S05/S06):
+//  - rate limited per visitor and globally, failing CLOSED (guard.ts);
+//  - strict input validation (validate.ts): real future date, allowed time
+//    window, length limits, body size cap; public errors are generic codes;
+//  - gift cards: the amount a card can cover is taken (held) from its CURRENT
+//    balance inside one SQL transaction (reserve_booking_deposit). The booking
+//    is confirmed here only if the deposit is truly covered; otherwise the
+//    PaymentIntent is created for what is really still due;
+//  - retries with the same idempotency_key return the same booking instead of
+//    creating another one, and abandoned pending bookings are cancelled after
+//    2 hours (their PaymentIntent is cancelled and the held gift-card amount is
+//    given back).
+//
 // The first-booking discount (regular $43.50/h vs $37/h, ~15% off) is
 // decided here, server-side, from the booking history on file — never
 // trusted from the client.
@@ -15,11 +28,6 @@
 // and ADD to the booking total. The online deposit stays the service's fixed
 // deposit — extras are collected at the appointment along with the rest.
 //
-// Gift cards: an optional code is checked here and the amount it will cover
-// is *planned* on the booking. Nothing is deducted until the booking is
-// confirmed — by stripe-webhook after payment, or right here when the card
-// covers the whole deposit and there's nothing left to charge online.
-//
 // Required secrets (supabase secrets set ...):
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (auto-provided on Supabase)
 //   STRIPE_SECRET_KEY                          (Stripe secret key, sk_...)
@@ -27,6 +35,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
+import { checkLimits, readLimitedBody } from "./guard.ts";
+import { isEmail, MAX_BODY_BYTES, validateBooking } from "./validate.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -47,6 +57,9 @@ const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "onboarding@resend.dev";
 // Stripe won't charge less than $0.50 CAD — a smaller leftover deposit is
 // simply moved to the balance due at the appointment instead.
 const STRIPE_MIN_CHARGE_CENTS = 50;
+// A booking that never got paid is cancelled after this long.
+const ABANDONED_AFTER = "2 hours";
+const ABANDONED_AFTER_MS = 2 * 60 * 60 * 1000;
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -61,12 +74,8 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function isEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
 function normalizeGiftCode(raw: unknown): string | null {
-  let s = String(raw ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  let s = String(raw ?? "").slice(0, 40).toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (!s) return null;
   if (s.startsWith("MSC")) s = s.slice(3);
   if (!/^[A-Z0-9]{12}$/.test(s)) return "invalid";
@@ -92,12 +101,13 @@ async function computeAddons(raw: unknown): Promise<{ list: AddonLine[]; cents: 
   for (const a of raw.slice(0, 30)) {
     const id = a && typeof a === "object" && typeof (a as Record<string, unknown>).id === "string"
       ? (a as Record<string, unknown>).id as string : null;
-    if (id) wanted.set(id, (a as Record<string, unknown>).qty);
+    if (id) wanted.set(id.slice(0, 64), (a as Record<string, unknown>).qty);
   }
   if (wanted.size === 0) return { list: [], cents: 0 };
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("service_addons").select("*").eq("active", true).in("id", [...wanted.keys()]);
+  if (error) throw new Error(`addons lookup failed: ${error.message}`);
   const list: AddonLine[] = [];
   let cents = 0;
   for (const addon of (data ?? [])) {
@@ -159,37 +169,125 @@ function addonsEmailLines(list: AddonLine[]): string[] {
   });
 }
 
+// Cancels bookings that were never paid (the visitor closed the tab): the
+// PaymentIntent is cancelled first, then the booking, and any gift-card amount
+// it was holding goes back to the card. A booking whose payment is succeeding
+// or processing right now is left alone — the webhook will confirm it.
+async function expireAbandoned() {
+  try {
+    const cutoff = new Date(Date.now() - ABANDONED_AFTER_MS).toISOString();
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("id, stripe_payment_intent_id")
+      .eq("status", "pending_payment")
+      .lt("created_at", cutoff)
+      .order("created_at", { ascending: true })
+      .limit(10);
+    if (error) throw new Error(error.message);
+    for (const b of data ?? []) {
+      try {
+        if (b.stripe_payment_intent_id && stripe) {
+          try {
+            await stripe.paymentIntents.cancel(b.stripe_payment_intent_id);
+          } catch (err) {
+            const pi = await stripe.paymentIntents.retrieve(b.stripe_payment_intent_id);
+            if (pi.status === "succeeded" || pi.status === "processing") continue;
+            if (pi.status !== "canceled") throw err;
+          }
+        }
+        await supabase.rpc("expire_pending_booking", { p_booking: b.id, p_older_than: ABANDONED_AFTER });
+      } catch (err) {
+        console.error("could not expire booking", b.id, err);
+      }
+    }
+  } catch (err) {
+    console.error("expireAbandoned failed:", err);
+  }
+}
+
+// Gives a half-created booking back (hold released, booking cancelled).
+async function abandonNow(bookingId: string) {
+  const { error } = await supabase.rpc("expire_pending_booking", { p_booking: bookingId, p_older_than: "0 seconds" });
+  if (error) console.error("could not release booking", bookingId, error);
+}
+
+// Answers a retried request (same idempotency_key) from the booking that
+// already exists instead of creating a second booking and PaymentIntent.
+// deno-lint-ignore no-explicit-any
+async function replay(existing: any): Promise<Response> {
+  const common = {
+    booking_id: existing.id,
+    amount_cents: existing.amount_cents,
+    addons_cents: existing.addons_cents ?? 0,
+    first_booking_discount_applied: existing.first_booking_discount_applied,
+  };
+  if (existing.status === "confirmed") {
+    return json({ confirmed: true, ...common, deposit_cents: 0, gift_card_applied_cents: existing.gift_card_applied_cents ?? 0 });
+  }
+  if (existing.status === "pending_payment" && existing.stripe_payment_intent_id && stripe) {
+    const pi = await stripe.paymentIntents.retrieve(existing.stripe_payment_intent_id);
+    if (["requires_payment_method", "requires_confirmation", "requires_action"].includes(pi.status)) {
+      return json({
+        client_secret: pi.client_secret, ...common,
+        deposit_cents: existing.deposit_cents,
+        gift_card_planned_cents: existing.gift_card_planned_cents ?? 0,
+      });
+    }
+  }
+  return json({ error: "checkout_unavailable" }, 409);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
   }
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
+  let createdBookingId: string | null = null;
   try {
-    const body = await req.json();
-    const {
-      service_id,
-      requested_date,
-      time_window,
-      guest_name,
-      guest_contact,
-      zone,
-      notes,
-    } = body;
+    // 1. Abuse protection first — before parsing, pricing or any write.
+    const limited = await checkLimits(supabase, req, "pay", [
+      { scope: "ip", windowSeconds: 3600, max: 12 },
+      { scope: "global", windowSeconds: 3600, max: 300 },
+    ]);
+    if (limited === "limited") return json({ error: "rate_limited" }, 429);
+    if (limited === "error") return json({ error: "temporarily_unavailable" }, 503);
 
-    if (!service_id || !requested_date || !time_window || !guest_name || !guest_contact) {
-      return json({ error: "Missing required fields." }, 400);
+    // 2. Bounded, strictly validated input.
+    const text = await readLimitedBody(req, MAX_BODY_BYTES);
+    if (text === null) return json({ error: "payload_too_large" }, 413);
+    let body: Record<string, unknown>;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      return json({ error: "invalid_json" }, 400);
+    }
+    const validated = validateBooking(body);
+    if (!validated.ok) return json({ error: validated.error }, 400);
+    const input = validated.value;
+
+    // Housekeeping for earlier abandoned checkouts, off the request's path.
+    // deno-lint-ignore no-explicit-any
+    const waitUntil = (globalThis as any).EdgeRuntime?.waitUntil;
+    if (typeof waitUntil === "function") waitUntil.call((globalThis as any).EdgeRuntime, expireAbandoned());
+    else await expireAbandoned();
+
+    // 3. A retry of the same checkout returns the same booking.
+    if (input.idempotency_key) {
+      const { data: existing, error: lookupError } = await supabase
+        .from("bookings").select("*").eq("idempotency_key", input.idempotency_key).maybeSingle();
+      if (lookupError) throw new Error(lookupError.message);
+      if (existing) return await replay(existing);
     }
 
     const { data: service, error: serviceError } = await supabase
       .from("services")
       .select("*")
-      .eq("id", service_id)
+      .eq("id", input.service_id)
       .eq("active", true)
-      .single();
-
-    if (serviceError || !service) {
-      return json({ error: "Unknown service." }, 400);
-    }
+      .maybeSingle();
+    if (serviceError) throw new Error(serviceError.message);
+    if (!service) return json({ error: "invalid_service" }, 400);
 
     const customerId = await getCustomerId(req);
     const firstBooking = await isFirstBooking(customerId);
@@ -213,33 +311,36 @@ Deno.serve(async (req) => {
     const giftCode = normalizeGiftCode(body.gift_card_code);
     if (giftCode === "invalid") return json({ error: "invalid_gift_card" }, 400);
     if (giftCode) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("gift_cards").select("id, code, balance_cents, status").eq("code", giftCode).maybeSingle();
+      if (error) throw new Error(error.message);
       if (!data || data.status !== "active" || data.balance_cents <= 0) {
         return json({ error: "invalid_gift_card" }, 400);
       }
       giftCard = data;
     }
 
+    // What the card is *expected* to cover — only a hint for the up-front
+    // Stripe check. The real figures come from reserve_booking_deposit below.
     const giftPlanned = giftCard ? Math.min(giftCard.balance_cents, totalCents) : 0;
-    let onlineDue = Math.max(0, service.deposit_cents - giftPlanned);
-    if (onlineDue > 0 && onlineDue < STRIPE_MIN_CHARGE_CENTS) onlineDue = 0;
-
-    if (onlineDue > 0 && !stripe) {
-      throw new Error("STRIPE_SECRET_KEY is not configured on the server.");
+    if (!stripe && service.deposit_cents - giftPlanned >= STRIPE_MIN_CHARGE_CENTS) {
+      console.error("STRIPE_SECRET_KEY is not configured on the server.");
+      return json({ error: "payments_unavailable" }, 503);
     }
 
+    // 4. Create the booking holding the FULL required deposit, then settle it
+    //    atomically against the gift card's real, locked balance.
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
       .insert({
         customer_id: customerId,
-        guest_name,
-        guest_contact,
+        guest_name: input.guest_name,
+        guest_contact: input.guest_contact,
         service_id: service.id,
-        requested_date,
-        time_window,
-        zone: zone || null,
-        notes: notes || "",
+        requested_date: input.requested_date,
+        time_window: input.time_window,
+        zone: input.zone,
+        notes: input.notes,
         status: "pending_payment",
         amount_cents: serviceCents,
         addons_cents: addonsCents,
@@ -247,57 +348,65 @@ Deno.serve(async (req) => {
         bedrooms,
         bathrooms,
         half_bathrooms: halfBathrooms,
-        deposit_cents: onlineDue,
+        deposit_cents: service.deposit_cents,
         first_booking_discount_applied: firstBooking,
         gift_card_id: giftCard?.id ?? null,
         gift_card_planned_cents: giftPlanned,
+        idempotency_key: input.idempotency_key,
       })
       .select()
       .single();
 
     if (bookingError || !booking) {
+      // Two simultaneous requests with the same key: the loser replays the winner.
+      if (bookingError?.code === "23505" && input.idempotency_key) {
+        const { data: winner } = await supabase
+          .from("bookings").select("*").eq("idempotency_key", input.idempotency_key).maybeSingle();
+        if (winner) return await replay(winner);
+      }
       throw new Error(bookingError?.message ?? "Could not create booking.");
     }
+    createdBookingId = booking.id;
 
-    // Gift card covers everything due today: deduct it and confirm now.
-    if (onlineDue === 0) {
-      let applied = 0;
-      if (giftCard) {
-        const { data: redeemed, error: redeemError } = await supabase.rpc("redeem_gift_card", {
-          p_card: giftCard.id, p_booking: booking.id, p_max: giftPlanned,
-        });
-        if (redeemError) throw new Error(redeemError.message);
-        applied = redeemed ?? 0;
-      }
-      await supabase.from("bookings").update({
-        status: "confirmed",
-        paid_at: new Date().toISOString(),
-        gift_card_applied_cents: applied,
-      }).eq("id", booking.id);
+    const { data: reservedRows, error: reserveError } = await supabase.rpc("reserve_booking_deposit", {
+      p_booking: booking.id,
+      p_card: giftCard?.id ?? null,
+      p_planned: giftPlanned,
+      p_deposit: service.deposit_cents,
+      p_min_charge: STRIPE_MIN_CHARGE_CENTS,
+    });
+    const reserved = Array.isArray(reservedRows) ? reservedRows[0] : null;
+    if (reserveError || !reserved) throw new Error(reserveError?.message ?? "Could not reserve the deposit.");
+    const applied: number = reserved.applied_cents;
+    const onlineDue: number = reserved.online_due_cents;
 
+    // 5a. The gift card really covers everything due today: confirmed already
+    //     (done inside the same transaction), just notify.
+    if (reserved.confirmed) {
+      createdBookingId = null;
       const remaining = ((totalCents - applied) / 100).toFixed(2);
       await sendEmail(
         OWNER_EMAIL,
-        `Booking confirmed (gift card): ${guest_name}`,
+        `Booking confirmed (gift card): ${input.guest_name}`,
         [
-          `Booking confirmed for ${guest_name}`,
+          `Booking confirmed for ${input.guest_name}`,
           `Service: ${service.name}`,
-          `Date: ${requested_date} (${time_window})`,
-          `Area: ${zone || "Not specified"}`,
+          `Date: ${input.requested_date} (${input.time_window})`,
+          `Area: ${input.zone || "Not specified"}`,
           `Home: ${sizeLine(bedrooms, bathrooms, halfBathrooms)}`,
           ...(addons.length ? ["Extras:", ...addonsEmailLines(addons)] : []),
           `Total price: $${(totalCents / 100).toFixed(2)} CAD`,
           `Gift card ${giftCard?.code ?? ""}: -$${(applied / 100).toFixed(2)} CAD`,
           `Due at appointment: $${remaining} CAD`,
-          `Contact: ${guest_contact}`,
-          `Notes: ${notes || "(none)"}`,
+          `Contact: ${input.guest_contact}`,
+          `Notes: ${input.notes || "(none)"}`,
         ].join("\n"),
       );
-      if (isEmail(guest_contact)) {
+      if (isEmail(input.guest_contact)) {
         await sendEmail(
-          guest_contact,
+          input.guest_contact,
           "Your Magicstick Clean booking is confirmed",
-          `Hi ${guest_name},\n\nYour booking is confirmed for ${requested_date} (${time_window}). Your gift card covered $${(applied / 100).toFixed(2)}${Number(remaining) > 0 ? ` — the remaining $${remaining} is due at the appointment` : " — nothing more is due"}.\n\nQuestions? Call or text 343-843-7761.\n\n— The Magicstick Clean team`,
+          `Hi ${input.guest_name},\n\nYour booking is confirmed for ${input.requested_date} (${input.time_window}). Your gift card covered $${(applied / 100).toFixed(2)}${Number(remaining) > 0 ? ` — the remaining $${remaining} is due at the appointment` : " — nothing more is due"}.\n\nQuestions? Call or text 343-843-7761.\n\n— The Magicstick Clean team`,
         );
       }
 
@@ -312,19 +421,26 @@ Deno.serve(async (req) => {
       });
     }
 
-    const paymentIntent = await stripe!.paymentIntents.create({
+    // 5b. Something is still due online (the card covers none, part, or no
+    //     longer enough): charge exactly that.
+    if (!stripe) throw new Error("STRIPE_SECRET_KEY is not configured on the server.");
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: onlineDue,
       currency: "cad",
       automatic_payment_methods: { enabled: true },
-      description: `${service.name} — booking deposit (${requested_date}, ${time_window})`,
+      description: `${service.name} — booking deposit (${input.requested_date}, ${input.time_window})`,
       metadata: { kind: "booking", booking_id: booking.id },
-      receipt_email: isEmail(guest_contact) ? guest_contact : undefined,
-    });
+      receipt_email: isEmail(input.guest_contact) ? input.guest_contact : undefined,
+    }, { idempotencyKey: `booking-${booking.id}` });
 
-    await supabase
+    const { error: linkError } = await supabase
       .from("bookings")
       .update({ stripe_payment_intent_id: paymentIntent.id })
       .eq("id", booking.id);
+    // The webhook finds the booking through the PaymentIntent's metadata, so a
+    // failed link is logged, not fatal.
+    if (linkError) console.error("could not store the PaymentIntent id:", booking.id, linkError);
+    createdBookingId = null;
 
     return json({
       client_secret: paymentIntent.client_secret,
@@ -332,11 +448,13 @@ Deno.serve(async (req) => {
       amount_cents: serviceCents,
       addons_cents: addonsCents,
       deposit_cents: onlineDue,
-      gift_card_planned_cents: giftPlanned,
+      gift_card_planned_cents: applied,
       first_booking_discount_applied: firstBooking,
     });
   } catch (err) {
+    // Full detail stays in the server log; the visitor gets a generic code.
     console.error(err);
-    return json({ error: String((err as Error).message ?? err) }, 500);
+    if (createdBookingId) await abandonNow(createdBookingId);
+    return json({ error: "server_error" }, 500);
   }
 });

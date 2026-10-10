@@ -18,6 +18,9 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
+import { checkLimits, readLimitedBody } from "./guard.ts";
+
+const MAX_BODY_BYTES = 20_000;
 
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, SERVICE_ROLE_KEY);
@@ -92,24 +95,18 @@ async function sendEmail(to: string, subject: string, text: string) {
   if (!res.ok) console.error("Resend error:", res.status, await res.text());
 }
 
-async function hashIp(req: Request): Promise<string> {
-  const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`magicstick:${ip}`));
-  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function isRateLimited(req: Request, form: string, max: number): Promise<boolean> {
-  const ipHash = await hashIp(req);
-  const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-  const { count } = await supabase
-    .from("form_submission_log")
-    .select("id", { count: "exact", head: true })
-    .eq("ip_hash", ipHash)
-    .eq("form", form)
-    .gte("created_at", since);
-  if ((count ?? 0) >= max) return true;
-  await supabase.from("form_submission_log").insert({ ip_hash: ipHash, form });
-  return false;
+// Atomic per-visitor + global hourly limit (guard.ts -> rate_limit_hit in
+// Postgres). Fails CLOSED: if the counter can't be read, the request is
+// refused with a temporary error instead of running unprotected.
+// Returns the response to send when the request must stop, else null.
+async function limitGuard(req: Request, form: string, perIpPerHour: number, globalPerHour: number): Promise<Response | null> {
+  const result = await checkLimits(supabase, req, form, [
+    { scope: "ip", windowSeconds: 3600, max: perIpPerHour },
+    { scope: "global", windowSeconds: 3600, max: globalPerHour },
+  ]);
+  if (result === "limited") return json({ ok: false, error: "rate_limited" }, 429);
+  if (result === "error") return json({ ok: false, error: "temporarily_unavailable" }, 503);
+  return null;
 }
 
 async function requireAdmin(req: Request): Promise<boolean> {
@@ -194,7 +191,8 @@ function readCardFields(body: Record<string, unknown>) {
 }
 
 async function handleCheck(req: Request, body: Record<string, unknown>) {
-  if (await isRateLimited(req, "gift_check", 20)) return json({ ok: false, error: "rate_limited" }, 429);
+  const blocked = await limitGuard(req, "gift_check", 20, 600);
+  if (blocked) return blocked;
   const code = normalizeCode(body.code);
   if (!code) return json({ ok: true, valid: false });
   const { data } = await supabase
@@ -206,7 +204,8 @@ async function handleCheck(req: Request, body: Record<string, unknown>) {
 async function handlePurchase(req: Request, body: Record<string, unknown>) {
   if (!stripe) return json({ ok: false, error: "stripe_not_configured" }, 503);
   if (clean(body.company, 200)) return json({ ok: false, error: "rejected" }, 400);
-  if (await isRateLimited(req, "gift_purchase", 8)) return json({ ok: false, error: "rate_limited" }, 429);
+  const blocked = await limitGuard(req, "gift_purchase", 8, 120);
+  if (blocked) return blocked;
 
   const amount = Number(body.amount_cents);
   if (!Number.isInteger(amount) || amount < 2500 || amount > 100000 || amount % 100 !== 0) {
@@ -294,7 +293,12 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS_HEADERS });
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
   try {
-    const body = await req.json() as Record<string, unknown>;
+    const text = await readLimitedBody(req, MAX_BODY_BYTES);
+    if (text === null) return json({ ok: false, error: "payload_too_large" }, 413);
+    let parsed: unknown;
+    try { parsed = JSON.parse(text); } catch { return json({ ok: false, error: "invalid_json" }, 400); }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return json({ ok: false, error: "invalid_body" }, 400);
+    const body = parsed as Record<string, unknown>;
     switch (body.action) {
       case "check": return await handleCheck(req, body);
       case "purchase": return await handlePurchase(req, body);

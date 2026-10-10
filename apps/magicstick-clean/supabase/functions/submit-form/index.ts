@@ -12,6 +12,9 @@
 //   RESEND_API_KEY, OWNER_EMAIL, OWNER_NOTIFY_FROM
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { checkLimits, readLimitedBody } from "./guard.ts";
+
+const MAX_BODY_BYTES = 20_000;
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -22,6 +25,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "magicstickclean@gmail.com";
 const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "onboarding@resend.dev";
 const MAX_SUBMISSIONS_PER_HOUR = 8;
+const MAX_SUBMISSIONS_GLOBAL_PER_HOUR = 200;
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -60,23 +64,18 @@ async function sendEmail(to: string, subject: string, text: string) {
   if (!res.ok) console.error("Resend error:", res.status, await res.text());
 }
 
-async function hashIp(req: Request): Promise<string> {
-  const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
-  const data = new TextEncoder().encode(`magicstick:${ip}`);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function isRateLimited(ipHash: string, form: string): Promise<boolean> {
-  const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-  const { count } = await supabase
-    .from("form_submission_log")
-    .select("id", { count: "exact", head: true })
-    .eq("ip_hash", ipHash)
-    .gte("created_at", since);
-  if ((count ?? 0) >= MAX_SUBMISSIONS_PER_HOUR) return true;
-  await supabase.from("form_submission_log").insert({ ip_hash: ipHash, form });
-  return false;
+// Atomic per-visitor + global hourly limit (guard.ts -> rate_limit_hit in
+// Postgres), shared by every instance. Fails CLOSED: if the counter can't be
+// read the request is refused with a temporary error instead of sending mail
+// unprotected. Returns the response to send when the request must stop.
+async function limitGuard(req: Request): Promise<Response | null> {
+  const result = await checkLimits(supabase, req, "form", [
+    { scope: "ip", windowSeconds: 3600, max: MAX_SUBMISSIONS_PER_HOUR },
+    { scope: "global", windowSeconds: 3600, max: MAX_SUBMISSIONS_GLOBAL_PER_HOUR },
+  ]);
+  if (result === "limited") return json({ ok: false, error: "rate_limited" }, 429);
+  if (result === "error") return json({ ok: false, error: "temporarily_unavailable" }, 503);
+  return null;
 }
 
 async function handleNewsletter(body: Record<string, unknown>, fr: boolean) {
@@ -186,7 +185,12 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
 
   try {
-    const body = await req.json() as Record<string, unknown>;
+    const text = await readLimitedBody(req, MAX_BODY_BYTES);
+    if (text === null) return json({ ok: false, error: "payload_too_large" }, 413);
+    let parsed: unknown;
+    try { parsed = JSON.parse(text); } catch { return json({ ok: false, error: "invalid_json" }, 400); }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return json({ ok: false, error: "invalid_body" }, 400);
+    const body = parsed as Record<string, unknown>;
     const form = clean(body.form, 40);
     const fr = body.lang === "fr";
 
@@ -197,9 +201,8 @@ Deno.serve(async (req) => {
       return json({ ok: false, error: "unknown_form" }, 400);
     }
 
-    if (await isRateLimited(await hashIp(req), form)) {
-      return json({ ok: false, error: "rate_limited" }, 429);
-    }
+    const blocked = await limitGuard(req);
+    if (blocked) return blocked;
 
     if (form === "newsletter") return await handleNewsletter(body, fr);
     if (form === "gift_card") return await handleGiftCard(body, fr);

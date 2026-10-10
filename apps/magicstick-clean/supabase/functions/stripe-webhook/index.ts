@@ -94,6 +94,10 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
       }
 
+      // Only a booking that is still waiting for its payment is confirmed. A
+      // retried event finds it already confirmed and changes nothing, so the
+      // emails below go out once. A database error is thrown (HTTP 500) so
+      // Stripe retries, instead of acknowledging a payment we failed to record.
       const { data: booking, error } = await supabase
         .from("bookings")
         .update({
@@ -101,23 +105,53 @@ Deno.serve(async (req) => {
           paid_at: new Date().toISOString(),
         })
         .eq("id", bookingId)
+        .eq("status", "pending_payment")
         .select("*, services(name)")
-        .single();
+        .maybeSingle();
 
-      if (error || !booking) {
-        console.error("Failed to update booking:", error);
+      if (error) throw new Error(`Failed to confirm booking ${bookingId}: ${error.message}`);
+
+      if (!booking) {
+        const { data: current, error: currentError } = await supabase
+          .from("bookings").select("status, guest_name, guest_contact, requested_date").eq("id", bookingId).maybeSingle();
+        if (currentError) throw new Error(`Failed to read booking ${bookingId}: ${currentError.message}`);
+        if (current?.status === "cancelled") {
+          // Paid after the booking was cancelled (abandoned-checkout expiry):
+          // the owner must refund it or re-book the customer.
+          console.error("payment received for a cancelled booking", bookingId);
+          await sendEmail(
+            OWNER_EMAIL,
+            `ACTION NEEDED: payment received for a cancelled booking (${current.guest_name})`,
+            [
+              `A payment succeeded for booking ${bookingId}, but that booking had already been cancelled as abandoned.`,
+              `Customer: ${current.guest_name} — ${current.guest_contact}`,
+              `Requested date: ${current.requested_date}`,
+              `PaymentIntent: ${intent.id}`,
+              "Refund it in Stripe or re-create the booking by hand.",
+            ].join("\n"),
+          );
+        } else if (!current) {
+          console.error("payment received for an unknown booking", bookingId);
+        }
+        // already confirmed (retried delivery): nothing more to do
       } else {
-        // Deduct the gift card now that the booking is actually paid for.
+        // Gift card: the amount is normally already taken (held) when the
+        // booking was created (reserve_booking_deposit). Bookings created
+        // before that change only *planned* it — settle those here.
         // Idempotent per booking, so a retried webhook never deducts twice.
-        let giftApplied = 0;
+        let giftApplied = booking.gift_card_applied_cents ?? 0;
         let giftCode = "";
-        if (booking.gift_card_id && booking.gift_card_planned_cents > 0) {
+        if (booking.gift_card_id && booking.gift_card_planned_cents > giftApplied) {
           const { data: redeemed, error: redeemError } = await supabase.rpc("redeem_gift_card", {
             p_card: booking.gift_card_id, p_booking: booking.id, p_max: booking.gift_card_planned_cents,
           });
           if (redeemError) console.error("Gift card redemption failed:", redeemError);
           giftApplied = redeemed ?? 0;
-          await supabase.from("bookings").update({ gift_card_applied_cents: giftApplied }).eq("id", booking.id);
+          const { error: appliedError } = await supabase
+            .from("bookings").update({ gift_card_applied_cents: giftApplied }).eq("id", booking.id);
+          if (appliedError) console.error("Could not store the gift card amount:", booking.id, appliedError);
+        }
+        if (booking.gift_card_id) {
           const { data: card } = await supabase.from("gift_cards").select("code").eq("id", booking.gift_card_id).single();
           giftCode = card?.code ?? "";
         }

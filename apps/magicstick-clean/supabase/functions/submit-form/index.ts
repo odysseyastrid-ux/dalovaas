@@ -12,7 +12,7 @@
 //   RESEND_API_KEY, OWNER_EMAIL, OWNER_NOTIFY_FROM
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { checkLimits, readLimitedBody } from "./guard.ts";
+import { checkLimits, readLimitedBody, type Rule } from "./guard.ts";
 
 const MAX_BODY_BYTES = 20_000;
 
@@ -24,8 +24,9 @@ const supabase = createClient(
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "magicstickclean@gmail.com";
 const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "onboarding@resend.dev";
-const MAX_SUBMISSIONS_PER_HOUR = 8;
-const MAX_SUBMISSIONS_GLOBAL_PER_HOUR = 200;
+const MAX_SUBMISSIONS_PER_HOUR = 8;            // per visitor, all forms together
+const MAX_PER_FORM_GLOBAL_PER_HOUR = 1000;    // per form, whole site: a cost circuit-breaker, not a usage limit
+const MAX_MAILS_PER_ADDRESS_PER_DAY = 2;      // to any one recipient address, whoever asks
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -64,18 +65,41 @@ async function sendEmail(to: string, subject: string, text: string) {
   if (!res.ok) console.error("Resend error:", res.status, await res.text());
 }
 
-// Atomic per-visitor + global hourly limit (guard.ts -> rate_limit_hit in
-// Postgres), shared by every instance. Fails CLOSED: if the counter can't be
-// read the request is refused with a temporary error instead of sending mail
+// Abuse limits (guard.ts -> rate_limit_hit in Postgres, atomic and shared by
+// every instance). All of them FAIL CLOSED: if a counter can't be read the
+// request is refused with a temporary error instead of sending mail
 // unprotected. Returns the response to send when the request must stop.
-async function limitGuard(req: Request): Promise<Response | null> {
-  const result = await checkLimits(supabase, req, "form", [
+//
+//  - per visitor: 8 submissions an hour across all forms;
+//  - per recipient address: 2 messages a day to any one address, whatever
+//    network asks — this is what stops the function being used to flood
+//    someone else's inbox with the confirmation emails;
+//  - per form, site-wide: a generous ceiling that only guards the Resend bill.
+//    It is per form so that flooding one form can't lock visitors out of the
+//    others.
+async function limitGuard(req: Request, form: string, recipient: string | null): Promise<Response | null> {
+  const rules: Rule[] = [
     { scope: "ip", windowSeconds: 3600, max: MAX_SUBMISSIONS_PER_HOUR },
-    { scope: "global", windowSeconds: 3600, max: MAX_SUBMISSIONS_GLOBAL_PER_HOUR },
-  ]);
+  ];
+  if (recipient) {
+    rules.push({ scope: "key", id: recipient, windowSeconds: 86400, max: MAX_MAILS_PER_ADDRESS_PER_DAY });
+  }
+  const perVisitor = await checkLimits(supabase, req, "form", rules);
+  const result = perVisitor !== "ok"
+    ? perVisitor
+    : await checkLimits(supabase, req, `form_${form}`, [
+      { scope: "global", windowSeconds: 3600, max: MAX_PER_FORM_GLOBAL_PER_HOUR },
+    ]);
   if (result === "limited") return json({ ok: false, error: "rate_limited" }, 429);
   if (result === "error") return json({ ok: false, error: "temporarily_unavailable" }, 503);
   return null;
+}
+
+// The address a submission will send mail to, when there is one: the
+// newsletter's `email`, or the `contact` of the other forms if it is an email.
+function mailRecipient(form: string, body: Record<string, unknown>): string | null {
+  const raw = clean(form === "newsletter" ? body.email : body.contact, 254).toLowerCase();
+  return isEmail(raw) ? raw : null;
 }
 
 async function handleNewsletter(body: Record<string, unknown>, fr: boolean) {
@@ -201,7 +225,7 @@ Deno.serve(async (req) => {
       return json({ ok: false, error: "unknown_form" }, 400);
     }
 
-    const blocked = await limitGuard(req);
+    const blocked = await limitGuard(req, form, mailRecipient(form, body));
     if (blocked) return blocked;
 
     if (form === "newsletter") return await handleNewsletter(body, fr);

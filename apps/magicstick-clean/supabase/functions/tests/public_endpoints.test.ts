@@ -91,6 +91,56 @@ Deno.test("S05: the visitor's address comes from cf-connecting-ip — a forged x
   assert.deepEqual(out.slice(8), [429, 429]);
 });
 
+Deno.test("submit-form: one address can't be mailed more than twice a day, even from different networks", async () => {
+  resetAll();
+  const out: number[] = [];
+  for (let i = 0; i < 4; i++) {
+    out.push((await call(submitForm, { form: "newsletter", email: "victim@example.com", lang: "en" },
+      { "cf-connecting-ip": `198.51.100.${i + 1}` })).status);
+  }
+  // 2nd and later attempts for an already-subscribed address still count: the
+  // limit is about mail sent to that address, not about the row.
+  assert.equal(out[0], 200);
+  assert.deepEqual(out.slice(2), [429, 429]);
+  assert.ok(fetchCalls.filter((c) => c.url.includes("resend") && c.body.to === "victim@example.com").length <= 2);
+});
+
+Deno.test("submit-form: the recipient limit also covers the other forms (contact that is an email)", async () => {
+  resetAll();
+  const body = { form: "job_application", name: "Ana", contact: "victim@example.com", lang: "en" };
+  const out: number[] = [];
+  for (let i = 0; i < 3; i++) out.push((await call(submitForm, body, { "cf-connecting-ip": `198.51.100.${i + 10}` })).status);
+  assert.deepEqual(out, [200, 200, 429]);
+});
+
+Deno.test("submit-form: a phone number as contact sends no mail, so it is not subject to the recipient limit", async () => {
+  resetAll();
+  const out: number[] = [];
+  for (let i = 0; i < 4; i++) {
+    out.push((await call(submitForm, { form: "job_application", name: "Ana", contact: "343-843-7761", lang: "en" },
+      { "cf-connecting-ip": `198.51.100.${i + 20}` })).status);
+  }
+  assert.deepEqual(out, [200, 200, 200, 200]);
+});
+
+Deno.test("submit-form: flooding one form's site-wide ceiling does not lock visitors out of the other forms", async () => {
+  resetAll();
+  state.rpcHandlers.rate_limit_hit = (a: any) => ({ data: !String(a.p_key).startsWith("form_newsletter:global"), error: null });
+  assert.equal((await call(submitForm, { form: "newsletter", email: "a@example.com", lang: "en" })).status, 429);
+  assert.equal((await call(submitForm, { form: "job_application", name: "Ana", contact: "343-843-7761", lang: "en" })).status, 200);
+  assert.equal((await call(submitForm, { form: "gift_card", name: "Ana", contact: "343-843-7761", amount: "50" })).status, 200);
+});
+
+Deno.test("submit-form: the site-wide ceiling is generous (a real busy hour is never blocked)", async () => {
+  resetAll();
+  const seen: { key: string; max: number }[] = [];
+  state.rpcHandlers.rate_limit_hit = (a: any) => { seen.push({ key: a.p_key, max: a.p_max }); return { data: true, error: null }; };
+  await call(submitForm, { form: "newsletter", email: "a@example.com", lang: "en" });
+  const global = seen.find((r) => r.key.includes(":global:"));
+  assert.equal(global?.max, 1000);
+  assert.equal(seen.find((r) => r.key.includes(":key:"))?.max, 2);
+});
+
 // ------------------------------------------------------------------- ai-chat
 const chat = (extra: Record<string, unknown> = {}) => ({ lang: "en", messages: [{ role: "user", content: "Hi" }], ...extra });
 

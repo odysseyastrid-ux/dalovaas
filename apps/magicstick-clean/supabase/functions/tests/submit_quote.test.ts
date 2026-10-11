@@ -180,4 +180,9 @@ Deno.test("purge_orphans: needs the service key, removes old unowned uploads onl
   const r = await call({ action: "purge_orphans" }, { Authorization: "Bearer service-role-key" });
   assert.equal(r.status, 200);
   assert.deepEqual(state.removed, [`${OLD_ORPHAN}/photo-0.jpg`]);
+
+  // The scheduled job authenticates with the vault secret (purge_secret_ok).
+  state.rpcHandlers["purge_secret_ok"] = ({ p_secret }) => ({ data: p_secret === "cron-secret", error: null });
+  assert.equal((await call({ action: "purge_orphans" }, { "x-purge-secret": "nope" })).status, 401);
+  assert.equal((await call({ action: "purge_orphans" }, { "x-purge-secret": "cron-secret" })).status, 200);
 });

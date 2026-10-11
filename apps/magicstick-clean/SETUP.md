@@ -110,9 +110,14 @@ supabase functions deploy submit-quote --no-verify-jwt
 ```
 
 Uploads that never get a quote (visitor closed the tab) are removed by a daily
-call to the function's housekeeping action — schedule it in the Supabase
-dashboard (**Integrations → Cron**, an HTTP request, daily) with the service
-role key as the bearer token:
+job (`pg_cron`, 03:17 UTC, migration `0016_purge_schedule.sql`). It authenticates
+with a random secret stored in Supabase Vault (`purge_secret`), created once with:
+
+```sql
+select vault.create_secret(encode(extensions.gen_random_bytes(32),'hex'), 'purge_secret');
+```
+
+To run the purge by hand, call the function with the service role key:
 
 ```bash
 curl -X POST "$SUPABASE_URL/functions/v1/submit-quote" \

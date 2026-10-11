@@ -20,9 +20,10 @@ Deployment-checklist items from the audit:
 
 - **`ai_knowledge`** — checked live: RLS on, the public key reads only the `client` row, never `owner`. The table and rules were not in any migration; now recorded in `migrations/0015` (safe to re-run).
 - **Retired function `create-checkout-session`** — production still had this older endpoint: public, no rate limit, no validation, creating bookings and live Stripe Checkout sessions. The site does not use it (bookings go through `create-payment-intent`). It was replaced by a stub that answers `410` (and requires a JWT). `notify-quote-request` and `sync-to-twenty` were reviewed: both refuse calls without the shared webhook secret.
+- **Migration 0016 applied**: `pg_cron` runs `purge_orphans` daily (secret in Vault, checked by `purge_secret_ok()`); tested end to end (HTTP 200) and a wrong/missing secret gets 401. **Migration 0015 is a record only** — production already had those exact `ai_knowledge` rules, so it was not re-run.
 - **Migration 0014 applied** (October 2026): anonymous insert policies on `quote_requests` and `quote-uploads` removed, bucket limited to 50 MB and photo/video types, length constraints added. Verified with the public key: a direct insert is refused (RLS 42501), a direct upload is refused, and `submit-quote` still issues signed uploads.
 - **Floating CDN version** — `supabase-js@2` is now served from `js/vendor/supabase-js-2.117.3.umd.js` (the exact version `@2` resolved to). Chart.js (admin) has an integrity hash.
-- **Security headers / CSP** — `vercel.json`: `nosniff`, `X-Frame-Options: DENY`, referrer and permissions policies, and an *enforced* minimal CSP (`frame-ancestors 'none'; base-uri 'self'; object-src 'none'`). The full policy (Stripe, Supabase, Google Fonts/Maps) is sent as **`Content-Security-Policy-Report-Only`**: it produced zero violations on all 26 pages when enforced locally, but the real Stripe payment form could not be observed here, so it is staged (see "Promote the CSP").
+- **Security headers / CSP** — `vercel.json`: `nosniff`, `X-Frame-Options: DENY`, referrer and permissions policies. The full Content-Security-Policy (self, Stripe, Supabase, Google Fonts/Maps, Cloudflare) is now **enforced on every page except `booking.html` and `gift-cards.html`** (zero violations on all 26 pages locally). Those two pages, which load the Stripe payment form, keep the minimal enforced policy (`frame-ancestors 'none'; base-uri 'self'; object-src 'none'`) plus the full policy as `Content-Security-Policy-Report-Only` until a real test payment has been observed (see "Promote the CSP").
 - **Files served by the public site** — the live site was serving `CLAUDE.md`, `MARKETING.md`, `SETUP.md`, `server/`, `supabase/` (migrations and function source). `.vercelignore` now keeps them out. Check after deploying (below).
 
 ## Putting it live — in this order
@@ -34,7 +35,7 @@ Nothing below has been applied to production yet.
 3. **Deploy the site** (Vercel) — new `quote.js` / `booking.js`, vendored supabase-js, `vercel.json`, `.vercelignore`.
 4. **Check the quote form once on the live site**, with a photo (a real submission appears in the admin dashboard, with its photo link working).
 5. **Only then apply migration 0014.** It removes the old anonymous insert policies; applying it before steps 2–3 would break the live quote form (the old page inserts directly).
-6. Schedule the daily `purge_orphans` call (see `SETUP.md`).
+6. The daily `purge_orphans` job is scheduled by `migrations/0016_purge_schedule.sql` (pg_cron + a vault secret; see `SETUP.md`). Done in production.
 
 Rolling back 0014 is two `create policy` statements (they are in `0001_init.sql` and `0005`).
 
@@ -50,7 +51,7 @@ If a file still answers 200, `.vercelignore` is not applied to Git deployments o
 
 ### Promote the CSP
 
-Browse the live site (home, quote, booking **through a real test payment**, gift cards, account, admin) with the browser console open. If there are no `[Report Only] Refused to ...` lines, change the header name in `vercel.json` from `Content-Security-Policy-Report-Only` to `Content-Security-Policy` and merge the two policies.
+Open `booking.html` and `gift-cards.html` on the live site and go through a real payment with the browser console open. If there are no `[Report Only] Refused to ...` lines, in `vercel.json` merge the last rule into the previous one (use `"source": "/(.*)"` for the enforced full policy and delete the report-only header).
 
 ## Things only you can do (dashboard)
 

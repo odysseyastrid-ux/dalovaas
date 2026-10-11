@@ -185,10 +185,20 @@ async function handleSubmit(req: Request, body: Record<string, unknown>) {
   return json({ ok: true, quote_id: id, uploads_missing: uploadsMissing });
 }
 
-// Housekeeping, callable only with the service-role key (schedule it daily).
+// Housekeeping, callable only with the service-role key or the
+// `x-purge-secret` header (the daily database job uses the latter; the secret is
+// kept in Supabase Vault and checked by purge_secret_ok(), see migration 0016).
 async function handlePurge(req: Request) {
   const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "");
-  if (!token || token !== SERVICE_ROLE_KEY) return json({ ok: false, error: "unauthorized" }, 401);
+  let allowed = !!token && token === SERVICE_ROLE_KEY;
+  if (!allowed) {
+    const secret = req.headers.get("x-purge-secret");
+    if (secret) {
+      const { data } = await supabase.rpc("purge_secret_ok", { p_secret: secret });
+      allowed = data === true;
+    }
+  }
+  if (!allowed) return json({ ok: false, error: "unauthorized" }, 401);
 
   const cutoff = Date.now() - 24 * 60 * 60 * 1000;
   const { data: folders, error } = await supabase.storage.from(BUCKET).list("", { limit: 1000 });

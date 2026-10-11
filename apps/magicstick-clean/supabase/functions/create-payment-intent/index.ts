@@ -19,9 +19,7 @@
 //    2 hours (their PaymentIntent is cancelled and the held gift-card amount is
 //    given back).
 //
-// The first-booking discount (regular $43.50/h vs $37/h, ~15% off) is
-// decided here, server-side, from the booking history on file — never
-// trusted from the client.
+// Prices are always decided here, server-side — never trusted from the client.
 //
 // Optional add-ons ("extras") and home size: the extras and their quantities
 // are re-priced here from the service_addons table (never from the browser)
@@ -143,15 +141,6 @@ async function getCustomerId(req: Request): Promise<string | null> {
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) return null;
   return data.user.id;
-}
-
-async function isFirstBooking(customerId: string | null): Promise<boolean> {
-  if (!customerId) return true;
-  const { count } = await supabase
-    .from("bookings")
-    .select("id", { count: "exact", head: true })
-    .eq("customer_id", customerId);
-  return (count ?? 0) === 0;
 }
 
 function sizeLine(bedrooms: number | null, bathrooms: number | null, half: number | null): string {
@@ -290,15 +279,16 @@ Deno.serve(async (req) => {
     if (!service) return json({ error: "invalid_service" }, 400);
 
     const customerId = await getCustomerId(req);
-    const firstBooking = await isFirstBooking(customerId);
     // A service whose first_booking_price is lower than base carries a standing
     // discount (e.g. Window & Glass Cleaning, 15% off) that applies to everyone,
-    // every time — not just a first booking. Charge the lower of the two.
+    // every time — there is no separate first-booking discount any more.
+    // Charge the lower of the two.
     const discPrice = service.first_booking_price_cents;
     const serviceCents: number =
       (discPrice && discPrice > 0 && discPrice < service.base_price_cents)
         ? discPrice
         : service.base_price_cents;
+    const standingDiscount = serviceCents < service.base_price_cents;
 
     const { list: addons, cents: addonsCents } = await computeAddons(body.addons);
     const totalCents = serviceCents + addonsCents;
@@ -349,7 +339,7 @@ Deno.serve(async (req) => {
         bathrooms,
         half_bathrooms: halfBathrooms,
         deposit_cents: service.deposit_cents,
-        first_booking_discount_applied: firstBooking,
+        first_booking_discount_applied: standingDiscount,
         gift_card_id: giftCard?.id ?? null,
         gift_card_planned_cents: giftPlanned,
         idempotency_key: input.idempotency_key,
@@ -417,7 +407,7 @@ Deno.serve(async (req) => {
         addons_cents: addonsCents,
         deposit_cents: 0,
         gift_card_applied_cents: applied,
-        first_booking_discount_applied: firstBooking,
+        first_booking_discount_applied: standingDiscount,
       });
     }
 
@@ -449,7 +439,7 @@ Deno.serve(async (req) => {
       addons_cents: addonsCents,
       deposit_cents: onlineDue,
       gift_card_planned_cents: applied,
-      first_booking_discount_applied: firstBooking,
+      first_booking_discount_applied: standingDiscount,
     });
   } catch (err) {
     // Full detail stays in the server log; the visitor gets a generic code.

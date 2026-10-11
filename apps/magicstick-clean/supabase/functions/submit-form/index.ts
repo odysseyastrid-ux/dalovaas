@@ -121,8 +121,8 @@ async function handleNewsletter(body: Record<string, unknown>, fr: boolean) {
     email,
     fr ? "Bienvenue dans l’infolettre Magicstick Clean" : "Welcome to the Magicstick Clean newsletter",
     fr
-      ? `Bonjour,\n\nMerci de t’être inscrit à l’infolettre Magicstick Clean! Tu recevras à l’occasion des conseils de ménage et nos offres saisonnières — jamais de spam.\n\nNouveau client? Ton premier ménage est à 37 $/h (15% de rabais). Réserve sur https://magicstickclean.ca/booking.html ou demande un devis gratuit sur https://magicstickclean.ca/quote.html.\n\nTu ne veux plus recevoir nos courriels? Réponds simplement « désabonner » à ce message.\n\n${SIGNATURE_FR}`
-      : `Hi,\n\nThanks for subscribing to the Magicstick Clean newsletter! You'll get occasional cleaning tips and seasonal offers — never spam.\n\nNew client? Your first clean is $37/h (15% off). Book at https://magicstickclean.ca/booking.html or get a free quote at https://magicstickclean.ca/quote.html.\n\nDon't want these emails anymore? Just reply "unsubscribe" to this message.\n\n${SIGNATURE_EN}`,
+      ? `Bonjour,\n\nMerci de t’être inscrit à l’infolettre Magicstick Clean! Tu recevras à l’occasion des conseils de ménage et nos offres saisonnières — jamais de spam.\n\nMénage résidentiel dès 30 $/h (27 $/h avec un forfait récurrent). Réserve sur https://magicstickclean.ca/booking.html ou demande un devis gratuit sur https://magicstickclean.ca/quote.html.\n\nTu ne veux plus recevoir nos courriels? Réponds simplement « désabonner » à ce message.\n\n${SIGNATURE_FR}`
+      : `Hi,\n\nThanks for subscribing to the Magicstick Clean newsletter! You'll get occasional cleaning tips and seasonal offers — never spam.\n\nHome cleaning from $30/h ($27/h on a recurring plan). Book at https://magicstickclean.ca/booking.html or get a free quote at https://magicstickclean.ca/quote.html.\n\nDon't want these emails anymore? Just reply "unsubscribe" to this message.\n\n${SIGNATURE_EN}`,
   );
   return json({ ok: true });
 }

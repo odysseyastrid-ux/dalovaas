@@ -1336,6 +1336,15 @@
   .payment-summary-discount{color:var(--teal);font-weight:700;font-size:14px;margin:0 0 8px;}
   .payment-summary-total{font-weight:800;font-size:17px;margin:10px 0 2px;color:var(--charcoal);}
   .payment-summary-line{font-size:14.5px;color:var(--charcoal);font-weight:500;margin:3px 0;}
+  /* The summary sits inside .contact-band, whose `p` rule (pale lavender text with
+     a dark shadow, 30px bottom margin) made the order lines unreadable on the
+     light summary box. Restore dark, plain text here (booking + gift card pay). */
+  .contact-band .payment-summary p{color:var(--charcoal);text-shadow:none;margin:3px 0;}
+  .contact-band .payment-summary .payment-summary-service{margin:0 0 4px;}
+  .contact-band .payment-summary .payment-summary-total{margin:10px 0 2px;}
+  .contact-band .payment-summary .payment-summary-extras{color:var(--gold-deep,#6B3FE6);}
+  .contact-band .payment-summary .payment-summary-gift,
+  .contact-band .payment-summary .payment-summary-discount{color:var(--teal);}
   #paymentElement{margin-bottom:18px;}
   .payment-card .btn-outline{width:100%;text-align:center;margin-top:8px;background:transparent;}
 

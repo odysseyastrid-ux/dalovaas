@@ -1347,6 +1347,12 @@
   .contact-band .payment-summary .payment-summary-discount{color:var(--teal);}
   #paymentElement{margin-bottom:18px;}
   .payment-card .btn-outline{width:100%;text-align:center;margin-top:8px;background:transparent;}
+  /* On the white payment card the band's white `.btn` was white-on-white, and
+     the bare `.btn-outline` had no padding/radius: restore both (booking + gift cards). */
+  .contact-band .payment-card .btn{background:var(--brand-grad);color:#fff;width:100%;box-shadow:0 6px 20px -6px rgba(107,63,230,.5);}
+  .contact-band .payment-card .btn:hover{background:var(--brand-grad-strong);color:#fff;box-shadow:0 10px 26px -8px rgba(107,63,230,.6);}
+  .contact-band .payment-card .btn:disabled{opacity:.6;cursor:wait;transform:none;}
+  .payment-card .btn-outline{padding:13px 26px;border-radius:100px;font-size:15px;font-weight:600;cursor:pointer;border:1px solid var(--charcoal);color:var(--charcoal);}
 
   /* Wider, larger booking + payment on desktop (easier to read, fills the screen) */
   @media (min-width:900px){

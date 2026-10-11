@@ -162,8 +162,8 @@ Deno.serve(async (req) => {
         const totalDollars = (totalCents / 100).toFixed(2);
         const remainingDollars = ((totalCents - booking.deposit_cents - giftApplied) / 100).toFixed(2);
         const discountLine = booking.first_booking_discount_applied
-          ? "First-booking discount: applied ($37/h)"
-          : "First-booking discount: not applied";
+          ? "Standing discount (recurring plan / windows / outdoor): applied"
+          : "Standing discount: not applied";
         const addonLines = Array.isArray(booking.addons) && booking.addons.length
           ? [
             "Extras:",

@@ -14,7 +14,7 @@ contenu public en français d'abord, puis anglais.
 - **Zéro avis Google** : c'est la faiblesse n° 1 face aux concurrents locaux. Tout le
   plan est construit pour corriger ça en premier.
 - **Déjà créés** (dossier de travail, à récupérer) : 3 visuels d'annonce (cuisine/frigo,
-  salle de bain, « même nettoyeur ») en format carré et vertical, une carte pour demander
+  salle de bain, « prix clairs ») en format carré et vertical, une carte pour demander
   un avis et un code QR d'avis. Le QR d'avis ne marchera qu'avec **votre vrai lien d'avis
   Google** (voir semaine 1) : donnez-le-moi et je régénère la carte et le QR.
 - **Saison :** automne → hiver. Atouts honnêtes du moment : ménage avant les fêtes
@@ -63,7 +63,7 @@ Temps estimé : 6 à 8 h.
 5. **Vendredi : commander l'autocollant de véhicule** (nom, 30 $/h, site, QR du site —
    le fichier `qr-magicstickclean-print.png` est prêt) et imprimer 200 à 300 cartes
    ou affichettes de porte (même contenu, en français d'abord).
-6. **Week-end : publications n° 2 et n° 4** (« même nettoyeur », « de Rockland, pour Rockland »).
+6. **Week-end : publications n° 2 et n° 4** (« réponse le jour même », « de Rockland, pour Rockland »).
 
 **Fin de semaine 1 :** fiche Google soumise, pages sociales actives, 3 publications, 3 à 5
 nettoyages réservés.
@@ -73,7 +73,7 @@ nettoyages réservés.
 Temps estimé : 5 à 7 h + 105 $ d'annonces.
 
 1. **Lancer l'annonce 1 (notoriété)** : 15 $/jour, rayon de 20 km autour de Rockland
-   (voir le ciblage dans `MARKETING.md`, section 4), visuel « même nettoyeur » ou la
+   (voir le ciblage dans `MARKETING.md`, section 4), visuel « prix clairs » ou la
    cuisine. Français et anglais en annonces séparées si possible.
 2. **Après chaque nettoyage : demander l'avis** avec les scripts de `MARKETING.md`,
    section 6 (texte dans l'heure, avec le lien Google d'un seul clic). Ne rien offrir en

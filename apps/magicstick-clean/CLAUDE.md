@@ -24,7 +24,9 @@ business is, what the site does, and the current live state — so any assistant
   are English-only (known gap).
 
 ### Positioning / what makes it different
-- **Same cleaner every visit** — not a rotating agency crew.
+- **Prices and answers, up front** — no call center, no rotating script.
+  (**Do NOT promise "the same cleaner every visit"**: the owner intends to grow into a
+  larger company with a team, so that promise was removed from the site and marketing.)
 - **Transparent pricing** shown before any commitment.
 - **Same-day reply** promise (a real operating commitment).
 - **Personal & direct** (phone/text/email answered by the operator), vs. corporate
@@ -139,8 +141,8 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 
 - **Who to reach:** homeowners, renters, landlords/property managers, Airbnb/STR
   hosts, and small office/retail operators in Clarence-Rockland, Ottawa, Gatineau.
-- **Core promises to lead with:** same cleaner every time · transparent $30/h
-  pricing · same-day reply · book online with a small deposit.
+- **Core promises to lead with:** transparent $30/h
+  pricing · same-day reply · local & bilingual · book online with a small deposit.
 - **Proof on hand:** real before/after photography already in `assets/images/`
   (hardwood, bathroom, fridge before/after pairs; dishwashing, baseboards, office,
   post-construction, move-in/out, Airbnb turnover, retail, pet-hair; a hero family

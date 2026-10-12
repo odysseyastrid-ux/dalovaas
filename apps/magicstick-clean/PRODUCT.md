@@ -20,7 +20,7 @@ Get a homeowner or business from "I need this cleaned" to a confirmed quote or b
 
 ## Positioning
 
-Same cleaner every visit (not a rotating crew), transparent pricing shown before commitment, a same-day response promise, and a first-time-client discount. Differentiates from larger cleaning agencies/franchises on personal consistency and directness (phone/text/email answered by the person actually doing the work).
+Transparent pricing shown before commitment, a same-day response promise, online booking, and bilingual service. Differentiates from larger cleaning agencies/franchises on directness and speed (phone/text/email answered the same day). The business is meant to grow into a larger company, so it does NOT promise "the same cleaner every visit".
 
 ## Operating Context
 
@@ -57,7 +57,7 @@ Same cleaner every visit (not a rotating crew), transparent pricing shown before
 2. Every interactive contact point (call, email, quote, book) must resolve to a real action (`tel:`/`mailto:`/real form submit), never a dead link or a mechanism the visitor has to guess at.
 3. Bilingual parity matters on the core funnel (home, quote, booking, account) even where newer SEO pages haven't caught up yet.
 4. The business's actual constraints (three named service areas, real contact info, real photos, no fabricated reviews/pricing) are load-bearing content, not decoration — a visual redesign must preserve them exactly, not just their general shape.
-5. Consistency and personal service (same cleaner, transparent price, fast reply) is the whole competitive story — the design should reinforce trustworthy/personal, not generic-corporate, whatever visual world is chosen.
+5. Directness and service (transparent price, fast reply, local and bilingual) is the whole competitive story — the design should reinforce trustworthy/personal, not generic-corporate, whatever visual world is chosen.
 
 ## Accessibility & Inclusion
 

@@ -32,17 +32,17 @@ par semaine. Le plus important reste Google : c'est là que se décide la recher
 | Logo / photo de profil | `icone-magicstick-4k.png` (rond violet, coche blanche) |
 
 **Description courte (182 caractères)** — pour les annuaires :
-> Magicstick Clean — ménage résidentiel et commercial à Rockland, Ottawa et Gatineau. Le même nettoyeur à chaque visite, prix clairs dès 30 $/h, réservation en ligne, service bilingue.
+> Magicstick Clean — ménage résidentiel et commercial à Rockland, Ottawa et Gatineau. Prix clairs dès 30 $/h, réservation en ligne, réponse le jour même, service bilingue.
 
 **Description complète pour Google (≤ 750 caractères, 627 utilisés) :**
-> Magicstick Clean offre le ménage résidentiel et commercial à Clarence-Rockland, Ottawa et Gatineau. C'est la même personne qui nettoie chez vous à chaque visite, pas une équipe différente chaque semaine. Prix affichés d'avance : standard 30 $/h, en profondeur 43 $/h, forfait récurrent 27 $/h (minimum 3 h). Estimation en ligne, réservation avec un petit dépôt remboursable. Soumission gratuite, réponse le jour même, en français ou en anglais.
+> Magicstick Clean offre le ménage résidentiel et commercial à Clarence-Rockland, Ottawa et Gatineau. Nous répondons le jour même et chaque visite correspond à ce qui était convenu. Prix affichés d'avance : standard 30 $/h, en profondeur 43 $/h, forfait récurrent 27 $/h (minimum 3 h). Estimation en ligne, réservation avec un petit dépôt remboursable. Soumission gratuite, réponse le jour même, en français ou en anglais.
 >
-> Residential and commercial cleaning in Clarence-Rockland, Ottawa and Gatineau. The same person cleans your home every visit. Clear prices from $30/h, online booking, same-day reply.
+> Residential and commercial cleaning in Clarence-Rockland, Ottawa and Gatineau. Same-day reply, a real person on the line. Clear prices from $30/h, online booking, same-day reply.
 
 **Bios de réseaux (comptées) :**
-- Instagram (139/150) : `Ménage résidentiel et commercial à Rockland, Ottawa et Gatineau ✨ Même nettoyeur à chaque visite · dès 30 $/h · FR/EN 👇 Soumission gratuite`
-- Facebook, introduction (86/101) : `Ménage à Rockland, Ottawa et Gatineau · Le même nettoyeur à chaque visite · dès 30 $/h`
-- TikTok (55/80) : `Ménage à Rockland · Même nettoyeur · dès 30 $/h · FR/EN`
+- Instagram (121/150) : `Ménage résidentiel et commercial à Rockland, Ottawa et Gatineau ✨ Prix clairs dès 30 $/h · Réponse le jour même · FR/EN 👇`
+- Facebook, introduction (87/101) : `Ménage à Rockland, Ottawa et Gatineau · Prix clairs · Réponse le jour même · dès 30 $/h`
+- TikTok (62/80) : `Ménage à Rockland · Prix clairs · Réponse le jour même · FR/EN`
 
 Lien à mettre dans chaque bio : `https://magicstickclean.ca/?utm_source=<plateforme>&utm_medium=profil`
 (remplacez `<plateforme>` par `instagram`, `facebook`, `google`, etc. : le site gardera la source).
@@ -92,7 +92,7 @@ Lien à mettre dans chaque bio : `https://magicstickclean.ca/?utm_source=<platef
 3. **Même nom, même téléphone, même site partout.** Si un annuaire a une ancienne version,
    corrigez-la.
 4. **Ne pas copier les textes ni les photos d'un concurrent.** Vos atouts sont à vous :
-   même nettoyeur, prix affichés, réponse le jour même, bilingue, réservation en ligne.
+   prix affichés, réponse le jour même, bilingue, réservation en ligne.
 5. **N'affichez que ce qui est vrai** (assurance, certifications, ancienneté) : tant que
    vous ne l'avez pas, ne l'écrivez pas.
 6. Répondez à **chaque** avis, bon ou mauvais, poliment et dans la même langue.

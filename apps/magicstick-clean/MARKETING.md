@@ -21,8 +21,7 @@ than mass advertising. Being *genuinely local + bilingual* is a weapon.
 - **Molly Maid** (Ottawa-Orléans franchise, serves Rockland from a distance) —
   "the big reassuring brand." Strengths: national brand, insured image, long hours,
   systematized. **Weaknesses to exploit:** not local to Rockland (Ottawa number/
-  office), English-only website in a French town, **rotating teams (never the same
-  cleaner)**, no prices shown (quote-gated), corporate/cold.
+  office), English-only website in a French town, **no prices shown (quote-gated)**, slower replies, no online booking, corporate/cold.
 - **Splendid Cleaning / Double Green Maids / Marissa Cleans** (local Rockland) —
   "the good little local you get referred to." Strengths: truly local, bilingual,
   good ratings (Splendid 5.0★). **Weaknesses:** barely known (Splendid ~10 reviews),
@@ -42,7 +41,9 @@ Nobody owns the intersection. Magicstick plants its flag here:
 ### How to beat them
 1. **Own the word "Rockland."** *"De Rockland, pour Rockland" / "Your Rockland
    neighbour, not an Ottawa franchise."* (kills Molly Maid's #1 weakness)
-2. **Own "the same cleaner every time."** Molly Maid structurally can't promise it.
+2. **Own speed and ease.** Same-day reply, a human who answers, book online in 2 minutes.
+   (We do NOT promise "the same cleaner every time": the business is built to grow into
+   a team, so never write that promise anywhere.)
 3. **Own transparency.** They hide prices; we show **$30/h, from $90, instant
    estimate** on the site.
 4. **Own French.** Their page is English-only in a Francophone town. Lead in French.
@@ -108,10 +109,10 @@ Use only real photos already in `assets/images/`. CTA link: magicstickclean.ca
 - **EN:** Before → after, with zero effort on your end. We handle it all while you get your evening back. Cleaning from $30/h in Rockland. Free quote, same-day reply. 👉 magicstickclean.ca
 - **Visuel:** avant/après cuisine (slider ou 2 photos côte à côte).
 
-### Post 2 — Same cleaner every time (anti-franchise wedge)
-- **Hook FR:** « Chez nous, c'est toujours la même personne qui nettoie chez toi. » · **EN:** "With us, it's always the same person cleaning your home."
-- **FR:** Pas une équipe différente chaque semaine. La même personne de confiance, qui finit par connaître ta maison par cœur. C'est ça, la différence d'un vrai local. 🏠
-- **EN:** Not a different crew every week. The same trusted person who ends up knowing your home by heart. That's the local difference. 🏠
+### Post 2 — Same-day reply, a real person (anti-franchise wedge)
+- **Hook FR:** « Tu écris le matin, tu as ta réponse le jour même. » · **EN:** "Message us in the morning, get your answer the same day."
+- **FR:** Pas de centre d'appels, pas d'attente de plusieurs jours : tu écris ou tu appelles, une vraie personne te répond le jour même. Soumission gratuite, ou réservation en ligne en 2 minutes. C'est ça, la différence d'un vrai local. 🏠
+- **EN:** No call center, no waiting days: message or call us and a real person answers the same day. Free quote, or book online in 2 minutes. That's the local difference. 🏠
 - **Visuel:** photo de toi au travail (baseboard/detail) ou la photo « famille + chien ».
 
 ### Post 3 — Transparent price (anti-quote-gating)
@@ -181,12 +182,12 @@ Pricing reminder: standard **$30/h (from $90 / 3h)**; recurring **$27/h (−10%)
 
 ### Ad 1 — Awareness / local wedge (cold)
 - **Objective:** Engagement or Traffic. **CTA:** Learn more / En savoir plus.
-- **FR:** Nouvelle à Rockland 👋 Magicstick Clean, c'est le ménage fait par la **MÊME
-  personne à chaque visite** — pas une équipe différente chaque semaine. Locale,
-  bilingue, réponse le jour même. Ménage résidentiel dès **30 $/h** (min. 3 h).
+- **FR:** Nouvelle à Rockland 👋 Magicstick Clean, c'est des **prix clairs affichés
+  d'avance**, une réservation en ligne en 2 minutes et une **réponse le jour même**.
+  Locale, bilingue. Ménage résidentiel dès **30 $/h** (min. 3 h).
   Soumission gratuite en 2 minutes. 👉 magicstickclean.ca
-- **EN:** New in Rockland 👋 Magicstick Clean is cleaning done by the **SAME person
-  every visit** — not a different crew each week. Local, bilingual, same-day reply.
+- **EN:** New in Rockland 👋 Magicstick Clean means **clear prices shown up front**, online booking in 2
+  minutes and a **same-day reply**. Local, bilingual.
   Home cleaning from **$30/h** (3h min). Free quote in 2 minutes. 👉 magicstickclean.ca
 - **Headline:** Le ménage local de Rockland / Rockland's own local cleaner
 - **Visual:** before/after kitchen video (10–20s).
@@ -237,10 +238,9 @@ service it beats almost everything else. Do this first.
 - [ ] **Attributes** (only if TRUE): online appointments, on-site services,
       identifies as… (if you wish), languages: French & English.
 - [ ] **Description (bilingual, keyword-rich):** e.g. "Magicstick Clean — ménage
-      résidentiel et commercial à Rockland, Ottawa et Gatineau. Le même nettoyeur à
-      chaque visite, prix clairs dès 30 $/h, réservation en ligne, service bilingue.
-      Residential & commercial cleaning, same cleaner every visit, transparent pricing,
-      online booking, bilingual."
+      résidentiel et commercial à Rockland, Ottawa et Gatineau. Prix clairs dès 30 $/h, réservation en ligne, service bilingue.
+      Residential & commercial cleaning, transparent pricing, online booking,
+      same-day reply, bilingual."
 - [ ] Seed 3–5 **Q&A** yourself (prices? areas? bilingual? book online? deposit?).
 - [ ] Post a **Google Post** weekly (reuse the social posts above).
 
@@ -285,7 +285,7 @@ Rhythm: post 2–3×/week, ask every happy client for a review, track leads dail
 
 **Week 1 — Foundations (no ad spend yet)**
 - Set up & verify Google Business Profile (Batch #3). Create/brand FB + IG.
-- Post #1, #2, #4 (kitchen, same-cleaner, local pride).
+- Post #1, #2, #4 (kitchen, same-day reply, local pride).
 - Order a **vehicle decal** (rolling billboard). Print simple flyers/door hangers.
 - Tell your whole network you're open; book your first 2–3 jobs (even discounted/
   friends) — you need real jobs to generate real reviews.

@@ -23,6 +23,8 @@ contenu public en français d'abord, puis anglais.
 
 > **Où être présent (plateformes, textes prêts à copier) :** voir `PRESENCE-EN-LIGNE.md`.
 
+> **Les 10 publications (FR + EN, visuels, dates, liens suivis) :** voir `PUBLICATIONS-PRETES.md`.
+
 ## Les 4 chiffres à suivre chaque dimanche (5 minutes)
 
 | Mesure | Où la lire | Objectif à la fin des 30 jours |

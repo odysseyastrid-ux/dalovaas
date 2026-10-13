@@ -34,6 +34,8 @@
     'common.notSpecified': { en: 'Not specified', fr: 'Non précisé' },
     'common.none': { en: '(none)', fr: '(aucune)' },
     'a11y.skipToContent': { en: 'Skip to content', fr: 'Passer au contenu' },
+    'nav.backHome': { en: 'Home', fr: 'Accueil' },
+    'nav.backHomeAria': { en: 'Back to the home page', fr: 'Retour à la page d’accueil' },
     'a11y.backToTop': { en: 'Back to top', fr: 'Retour en haut' },
     'a11y.toggleDarkMode': { en: 'Toggle dark mode', fr: 'Activer le mode sombre' },
     'a11y.copy': { en: 'Copy', fr: 'Copier' },

@@ -73,6 +73,63 @@
     });
   }
 
+  // ---------- Back-to-home button (every page but the homepage) ----------
+  // Sits left of the logo in the header (or top-left on header-less pages like
+  // account.html). If the visitor came from the homepage, it uses the browser's
+  // own "back" so the homepage reopens where they left it; otherwise it goes
+  // straight to the homepage. A short slide-right exit gives the
+  // "previous page" feel.
+  function isHomePath(pathname) {
+    return /^\/(index(\.html)?)?$/.test(pathname);
+  }
+  function initPageBack() {
+    if (isHomePath(location.pathname) || document.querySelector('.page-back')) return;
+    const brand = document.querySelector('header .nav > .brand');
+    const portal = document.body.classList.contains('portal-body');
+    if (!brand && !portal) return;
+
+    const link = document.createElement('a');
+    link.href = 'index.html';
+    link.className = 'page-back' + (brand ? '' : ' page-back--floating');
+    link.setAttribute('data-i18n-aria-label', 'nav.backHomeAria');
+    link.setAttribute('aria-label', t('nav.backHomeAria'));
+    link.innerHTML = `
+      <span class="page-back-badge" aria-hidden="true">
+        <svg class="page-back-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+        <svg class="page-back-arrow page-back-arrow--next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+      </span>
+      <span class="page-back-label" data-i18n="nav.backHome">${esc(t('nav.backHome'))}</span>
+    `;
+
+    if (brand) {
+      const start = document.createElement('div');
+      start.className = 'nav-start';
+      brand.parentNode.insertBefore(start, brand);
+      start.appendChild(link);
+      start.appendChild(brand);
+    } else {
+      document.body.appendChild(link);
+    }
+
+    link.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      let fromHome = false;
+      try {
+        const ref = document.referrer ? new URL(document.referrer) : null;
+        fromHome = !!ref && ref.origin === location.origin && isHomePath(ref.pathname) && history.length > 1;
+      } catch (err) { /* ignore a malformed referrer */ }
+      const go = () => { if (fromHome) history.back(); else location.href = link.href; };
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) { go(); return; }
+      document.documentElement.classList.add('page-leaving-back');
+      setTimeout(go, 230);
+    });
+    // Coming back here via the browser's forward button restores the page
+    // from cache mid-animation; undo the exit state.
+    window.addEventListener('pageshow', () => document.documentElement.classList.remove('page-leaving-back'));
+  }
+
   // ---------- Sitewide back-to-top (skipped where a page already has one, e.g. terms.html) ----------
   function initBackToTop() {
     if (document.getElementById('backToTop')) return;
@@ -485,6 +542,7 @@
     initSkipLink();
     initScrollProgress();
     initFloatingContact();
+    initPageBack();
     initBackToTop();
     initThemeToggle();
     initCookieBanner();

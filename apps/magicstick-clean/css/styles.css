@@ -73,7 +73,7 @@
   header.header-on-photo:not(.scrolled) .lang-btn.active{background:#fff;color:var(--charcoal);}
   header.header-on-photo:not(.scrolled) .burger span{background:#fff;}
   header.header-on-photo.scrolled{background:var(--cream);border-bottom-color:var(--line);}
-  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px;}
   .brand{display:flex;align-items:center;gap:10px;}
   .brand span{font-family:'Instrument Serif','Fraunces',serif;font-weight:700;font-size:19px;}
   /* Horizontal brand lockup: gradient badge mark + wordmark (with the
@@ -625,7 +625,7 @@
 
   /* ---------- BREADCRUMBS (services/locations hub + child pages) ---------- */
   .breadcrumbs{
-    font-size:13px;color:var(--gray);padding:16px 0 0;
+    font-size:13px;color:var(--gray);padding-top:16px;
     display:flex;flex-wrap:wrap;align-items:center;gap:0;
   }
   .breadcrumbs a{color:var(--teal);}
@@ -2026,3 +2026,64 @@
 .est-ctas{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
 .est-result .btn{ background:#fff; color:var(--ink); }
 .est-result .btn.btn-outline{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,.6); }
+
+/* ---------- Back-to-home button (added by js/site-enhancements.js) ----------
+   Pill left of the logo: spinning brand badge (same family as the contact
+   badges) + "Home". Hover rewinds the arrow (one slides out left, the next
+   slides in from the right); click slides the page out to the right, like
+   returning to the previous page. */
+.nav-start{ display:flex; align-items:center; gap:14px; min-width:0; }
+.page-back{
+  display:inline-flex; align-items:center; gap:9px; flex:none;
+  height:40px; padding:0 16px 0 4px; border-radius:100px;
+  background:var(--paper,#fff); color:var(--charcoal);
+  border:1px solid var(--line);
+  font-family:'Inter',Arial,sans-serif; font-size:14px; font-weight:600; line-height:1; text-decoration:none;
+  box-shadow:0 4px 14px -8px rgba(23,21,31,.35);
+  transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease, color .2s ease;
+}
+.page-back:hover{ border-color:#8B4DE6; color:#6B3FE6; box-shadow:0 8px 22px -8px rgba(107,63,230,.55); transform:translateX(-2px); }
+.page-back:active{ transform:translateX(-3px) scale(.97); }
+.page-back:focus-visible{ outline:2px solid #6B3FE6; outline-offset:3px; }
+.page-back-badge{
+  position:relative; width:32px; height:32px; flex:none; border-radius:100%; overflow:hidden;
+  display:inline-flex; align-items:center; justify-content:center; color:#fff;
+}
+.page-back-badge::before{
+  content:""; position:absolute; inset:-40%; border-radius:inherit;
+  background:conic-gradient(from 0deg,var(--gold),var(--teal),var(--gold),var(--teal),var(--gold));
+  animation:ctaSpin 3.5s linear infinite;
+}
+.page-back-arrow{
+  position:absolute; z-index:1; width:16px; height:16px;
+  transition:transform .38s cubic-bezier(.77,0,.175,1), opacity .38s ease;
+}
+.page-back-arrow--next{ transform:translateX(150%); opacity:0; }
+.page-back:hover .page-back-arrow:not(.page-back-arrow--next){ transform:translateX(-150%); opacity:0; }
+.page-back:hover .page-back-arrow--next{ transform:translateX(0); opacity:1; }
+.page-back-label{ white-space:nowrap; }
+
+/* Homepage-style header floating over a photo (kept for parity, not used on index). */
+header.header-on-photo:not(.scrolled) .page-back{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.4); color:#fff; backdrop-filter:blur(6px); }
+
+/* Header-less pages (account.html): fixed top-left, mirroring the language toggle. */
+.page-back--floating{ position:fixed; top:16px; left:16px; z-index:5; }
+
+/* Phones: icon-only round button so the logo keeps its room. */
+@media (max-width:640px){
+  .nav-start{ gap:10px; }
+  .page-back{ width:40px; padding:0; justify-content:center; gap:0; }
+  .page-back-label{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+}
+
+/* "Previous page" exit: content slides right and fades before navigating. */
+html.page-leaving-back body{
+  transition:transform .23s cubic-bezier(.4,0,1,1), opacity .23s ease;
+  transform:translateX(56px); opacity:0;
+}
+@media (prefers-reduced-motion:reduce){
+  .page-back-badge::before{ animation:none; }
+  .page-back-arrow, .page-back{ transition:none; }
+  .page-back:hover .page-back-arrow:not(.page-back-arrow--next){ transform:none; opacity:1; }
+  .page-back:hover .page-back-arrow--next{ opacity:0; }
+}

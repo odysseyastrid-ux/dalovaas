@@ -173,12 +173,12 @@ Give a clean home to someone you love: a Magicstick Clean gift card, with a uniq
 **FR :**
 Merci à nos premiers clients de Rockland. 🙏
 On démarre, et chaque client compte énormément. Si on a bien nettoyé chez toi, un avis Google aide un voisin à nous faire confiance : 30 secondes, un seul clic ⭐
-https://maps.app.goo.gl/uoKevdokSXRezaAeA
+https://g.page/r/CXlL7jiMiQp2EBI/review
 
 **EN:**
 Thank you to our first Rockland clients. 🙏
 We're just starting out, and every client means a lot. If we did right by you, a Google review helps a neighbour trust us: 30 seconds, one tap ⭐
-https://maps.app.goo.gl/uoKevdokSXRezaAeA
+https://g.page/r/CXlL7jiMiQp2EBI/review
 
 *(Aucune récompense en échange d'un avis : c'est interdit par Google. Ne publiez pas de faux avis.)*
 

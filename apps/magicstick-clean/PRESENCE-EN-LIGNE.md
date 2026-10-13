@@ -50,13 +50,9 @@ Lien à mettre dans chaque bio : `https://magicstickclean.ca/?utm_source=<platef
 
 ## 1 bis. Votre lien d'avis Google
 
-Lien fourni par vous : `https://maps.app.goo.gl/uoKevdokSXRezaAeA` (il ouvre la fiche Google
-« Magicstickclean »). Le code QR et la carte d'avis (`assets/images/marketing/qr-avis-google.png`
-et `carte-avis.png`) pointent vers ce lien.
-
-À faire : testez-le avec votre téléphone (scannez le QR ou ouvrez le lien) et vérifiez qu'il
-ouvre la fenêtre « Écrire un avis ». Sinon : Google Business → « Demander des avis » → copiez
-le lien proposé et donnez-le-moi pour que je régénère le QR.
+Lien d'avis direct : `https://g.page/r/CXlL7jiMiQp2EBI/review` (vérifié : il ouvre la fenêtre
+« Écrire un avis » de votre fiche). Le code QR et les cartes d'avis (`assets/images/marketing/qr-avis-google.png`,
+`carte-avis.png`, `review-card-en.png`) pointent vers ce lien.
 
 **Nom de la fiche :** elle s'appelle « Magicstickclean » (sans espace). Pour que le nom soit
 identique partout, changez-le en **Magicstick Clean** dans Google Business → « Modifier le profil ».

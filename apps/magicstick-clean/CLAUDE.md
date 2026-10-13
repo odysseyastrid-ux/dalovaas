@@ -162,8 +162,10 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 ## Hard rules (do not break)
 
 - **Never fabricate** reviews, ratings, testimonials, insurance claims, certifications,
-  or pricing beyond what's written here / on the site. There are no real testimonials
-  yet — placeholders are marked as such.
+  or pricing beyond what's written here / on the site. Real Google reviews live in
+  `js/reviews.js` (quoted word for word, `summary` mirrors Google's rating/count); as of
+  2026-10-13 the listing has **1 review, 5.0** (Luffy M.). Shown on `index.html#avis` and
+  `learn-more.html#testimonials`. To add one, copy it exactly from Google into that file.
 - **Never commit secrets.** Only the Stripe *publishable* key (`pk_`) belongs in the
   repo (`js/config.js`). Secret keys (`sk_`, `whsec_`, service-role, Resend, Groq)
   are set by the owner in the Supabase/Stripe dashboards — never write them to files

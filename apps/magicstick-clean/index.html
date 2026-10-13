@@ -344,7 +344,6 @@
     </div>
     <div class="tabs-nav" role="tablist">
       <button type="button" class="tab-btn active" id="tab-btn-gallery" data-tab="gallery" role="tab" aria-selected="true" aria-controls="tab-gallery" data-i18n="home.highlights.tabGallery">Gallery</button>
-      <button type="button" class="tab-btn" id="tab-btn-testimonials" data-tab="testimonials" role="tab" aria-selected="false" aria-controls="tab-testimonials" data-i18n="home.highlights.tabTestimonials">Testimonials</button>
     </div>
     <div class="tabs-panels">
       <div class="tab-panel active" id="tab-gallery" role="tabpanel" aria-labelledby="tab-btn-gallery">
@@ -375,22 +374,22 @@
           <a href="quote.html" class="cta-arrow"><span class="cta-arrow-text" data-i18n="home.gallery.cta">Want your home to look like this?</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></a>
         </div>
       </div>
-      <div class="tab-panel" id="tab-testimonials" role="tabpanel" aria-labelledby="tab-btn-testimonials" hidden>
-        <div class="testimonial-grid">
-          <div class="testimonial-card">
-            <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
-            <p class="testimonial-quote" data-i18n="home.testimonials.empty">We just opened our doors in the Rockland area, so there are no reviews to show yet &mdash; and we won&rsquo;t invent any. Book a cleaning and tell us honestly how we did; your words could be the first a neighbour reads about us.</p>
-            <p class="testimonial-author" data-i18n="home.testimonials.emptyAuthor">&mdash; The Magicstick Clean team</p>
-          </div>
-        </div>
-        <p class="testimonial-cta-line">
-          <span data-i18n="home.testimonials.cta">Had a cleaning already? We’d be grateful for a few words.</span>
-          <a href="quote.html" data-i18n="home.testimonials.ctaLink">Share your experience</a>
-        </p>
-      </div>
     </div>
   </div>
 </section>
+
+<section id="avis" class="reviews-section">
+  <div class="wrap">
+    <div class="sec-head" style="text-align:center;">
+      <h2 data-i18n="home.testimonials.title">What our clients say</h2>
+      <p data-i18n="home.testimonials.subtitle">Real reviews from our Google listing, quoted word for word.</p>
+    </div>
+    <div class="google-reviews" data-google-reviews>
+      <p class="greviews-fallback"><a href="https://www.google.com/maps?cid=8505762081586170745" target="_blank" rel="noopener" data-i18n="reviews.readAll">See our reviews on Google</a></p>
+    </div>
+  </div>
+</section>
+
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close photo viewer">&times;</button>
@@ -460,6 +459,7 @@
   </div>
 </footer>
 
+<script src="js/reviews.js"></script>
 <script src="js/script.js"></script>
 <script src="js/vendor/paper-shaders-warp.min.js"></script>
 <script src="js/foam-hero.js"></script>

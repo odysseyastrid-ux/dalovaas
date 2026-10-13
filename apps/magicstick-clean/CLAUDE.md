@@ -104,6 +104,28 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 
 ---
 
+## Google review requests (owner dashboard)
+
+- **Direct review link:** https://g.page/r/CXlL7jiMiQp2EBI/review
+- **Where:** `admin.html` → "Quotes, bookings & services" → Bookings tab. Each booking
+  (and each quote marked *booked*) has an **Ask for review / Demander un avis** button; a
+  purple box above the table lists completed cleanings whose client hasn't been asked.
+  Setting a booking to *Completed* opens the window automatically.
+- **The window:** FR/EN message prefilled with the client's first name and the link
+  (editable), then one tap: **Text (SMS)** / **WhatsApp** (phone found in the contact),
+  **Email** (email found), or **Copy**. Sending stamps `review_requested_at` (migration
+  `0017_review_requests.sql`, on `bookings` and `quote_requests`) so nobody is asked twice;
+  "Mark as not asked" clears it. Code: `js/admin.js` (`REVIEW_TEMPLATES`).
+- **AI co-pilot:** `owner-assistant` gets the link, both templates and the live list of
+  completed cleanings not yet asked (first name, service, date, channel), so the owner can
+  ask "à qui dois-je demander un avis ?" and get ready messages.
+- **For an external agent** (Claude/Cowork with Supabase access): clients due are
+  `select guest_name, guest_contact, requested_date from bookings where status = 'completed'
+  and review_requested_at is null order by requested_date desc;` — draft with the template in
+  `js/admin.js`, and after the owner sends, set `review_requested_at = now()`.
+- **Rules:** only after a real completed job; never offer anything in exchange (Google
+  policy); one polite reminder at most; never write or suggest fake reviews.
+
 ## The two AI assistants (already built & deployed)
 
 1. **Louis — public chat widget** (`ai-chat` edge function, Groq model

@@ -328,6 +328,13 @@
             </div>
 
             <div id="bookingsPanel" class="admin-panel" hidden>
+              <div id="reviewTodo" class="review-todo" hidden>
+                <div class="review-todo-head">
+                  <strong data-i18n="admin.review.todoTitle">Ask for a Google review</strong>
+                  <span class="fine" id="reviewTodoCount"></span>
+                </div>
+                <div class="review-todo-list" id="reviewTodoList"></div>
+              </div>
               <div class="table-scroll">
                 <table class="admin-table" id="bookingsTable">
                   <thead>
@@ -783,6 +790,31 @@
 
   </div>
 </section>
+
+<dialog id="reviewDialog" class="review-dialog" aria-labelledby="reviewDialogTitle">
+  <form method="dialog" class="review-dialog-inner">
+    <div class="review-dialog-head">
+      <h2 id="reviewDialogTitle" data-i18n="admin.review.dialogTitle">Ask for a Google review</h2>
+      <button type="submit" class="review-dialog-close" value="close" data-i18n-aria-label="admin.review.close" aria-label="Close">×</button>
+    </div>
+    <p class="review-dialog-client" id="reviewDialogClient"></p>
+    <div class="review-lang" role="group" data-i18n-aria-label="admin.review.langLabel" aria-label="Message language">
+      <button type="button" data-review-lang="fr">Français</button>
+      <button type="button" data-review-lang="en">English</button>
+    </div>
+    <label for="reviewMessage" class="fine" data-i18n="admin.review.messageLabel">Message (you can edit it before sending)</label>
+    <textarea id="reviewMessage" rows="6"></textarea>
+    <div class="review-actions">
+      <a class="review-action" id="reviewSms" href="#" data-i18n="admin.review.sms">Text (SMS)</a>
+      <a class="review-action" id="reviewWhatsapp" href="#" target="_blank" rel="noopener" data-i18n="admin.review.whatsapp">WhatsApp</a>
+      <a class="review-action" id="reviewEmail" href="#" data-i18n="admin.review.email">Email</a>
+      <button type="button" class="review-action" id="reviewCopy" data-i18n="admin.review.copy">Copy</button>
+    </div>
+    <p class="fine review-dialog-status" id="reviewDialogStatus" aria-live="polite"></p>
+    <p class="fine review-dialog-rule" data-i18n="admin.review.rule">Never offer anything in exchange for a review (Google rule). One polite reminder at most.</p>
+    <button type="button" class="review-reset" id="reviewReset" hidden data-i18n="admin.review.reset">Mark as not asked</button>
+  </form>
+</dialog>
 
 <script src="js/admin.js"></script>
 <script src="js/admin-dashboard.js"></script>

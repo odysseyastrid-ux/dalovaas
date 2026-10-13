@@ -135,19 +135,50 @@
         <td class="status-cell"></td>
       `;
       tr.querySelector('.files-cell').appendChild(filesCell(q));
-      tr.querySelector('.status-cell').appendChild(
+      const qStatusCell = tr.querySelector('.status-cell');
+      qStatusCell.appendChild(
         statusSelect(q.status, QUOTE_STATUSES, async (value) => {
-          await supabase.from('quote_requests').update({ status: value }).eq('id', q.id);
+          const { error } = await supabase.from('quote_requests').update({ status: value }).eq('id', q.id);
+          if (error) return;
+          q.status = value;
+          renderQuotes();
         })
       );
+      // Quotes booked off-site (phone/text) can get the same review request.
+      if (q.status === 'booked') {
+        qStatusCell.appendChild(reviewButton({ table: 'quote_requests', row: q, name: q.name, contact: q.contact, onChange: renderQuotes }));
+      }
       tbody.appendChild(tr);
     });
   }
 
-  // Google review request helper: copy a ready-to-send message for a client.
-  const REVIEW_LINK = 'https://search.google.com/local/writereview?placeid=ChIJZ0Q2gs5rzkwRRPWMo_2n6ZU';
+  // ---------- Google review requests ----------
+  // One window to send a ready-made review request by text, WhatsApp, email or
+  // copy. Sending stamps review_requested_at so nobody is asked twice; the owner
+  // co-pilot (owner-assistant) reads the same column to list who is due.
+  // Never attach an incentive to a review request (Google policy).
+  const REVIEW_LINK = 'https://g.page/r/CXlL7jiMiQp2EBI/review';
+  const REVIEW_TEMPLATES = {
+    fr: {
+      subject: 'Votre avis sur Magicstick Clean',
+      body: (name) => `Bonjour${name ? ' ' + name : ''} ! Merci de nous avoir fait confiance 😊 Votre opinion sur Magicstick Clean nous intéresse : si vous êtes satisfait·e, pourriez-vous publier un avis sur notre fiche Google ? Ça prend 30 secondes : ${REVIEW_LINK}\nMerci ! L’équipe Magicstick Clean · (343) 843-7761`,
+    },
+    en: {
+      subject: 'Your feedback on Magicstick Clean',
+      body: (name) => `Hi${name ? ' ' + name : ''}! Thank you for trusting us 😊 Your opinion of Magicstick Clean matters to us: if you’re happy with the result, could you post a review on our Google listing? It takes 30 seconds: ${REVIEW_LINK}\nThank you! The Magicstick Clean team · (343) 843-7761`,
+    },
+  };
   const firstNameOf = (name) => String(name || '').trim().split(/\s+/)[0] || '';
-  const reviewRequestText = (b) => t('admin.booking.reviewSms', { name: firstNameOf(b.guest_name), link: REVIEW_LINK });
+  const emailOf = (contact) => (String(contact || '').match(/[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+/) || [''])[0];
+  function phoneOf(contact) {
+    const raw = String(contact || '').replace(/[^\s@,;<>]+@[^\s@,;<>]+/g, '');
+    const digits = raw.replace(/\D/g, '');
+    if (digits.length === 10) return '1' + digits;
+    if (digits.length === 11 && digits[0] === '1') return digits;
+    return '';
+  }
+  const fmtDate = (iso) => new Date(iso).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA', { day: 'numeric', month: 'long', year: 'numeric' });
+
   async function copyToClipboard(txt) {
     try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(txt); return true; } } catch (e) {}
     try {
@@ -156,6 +187,120 @@
       document.body.appendChild(ta); ta.select();
       const ok = document.execCommand('copy'); ta.remove(); return ok;
     } catch (e) { return false; }
+  }
+
+  const reviewDialog = document.getElementById('reviewDialog');
+  const reviewMessage = document.getElementById('reviewMessage');
+  const reviewSms = document.getElementById('reviewSms');
+  const reviewWhatsapp = document.getElementById('reviewWhatsapp');
+  const reviewEmail = document.getElementById('reviewEmail');
+  const reviewCopy = document.getElementById('reviewCopy');
+  const reviewStatus = document.getElementById('reviewDialogStatus');
+  const reviewReset = document.getElementById('reviewReset');
+  let reviewTarget = null; // { table, row, name, contact, onChange }
+  let reviewLang = 'fr';
+
+  function setReviewLang(l) {
+    reviewLang = l === 'en' ? 'en' : 'fr';
+    reviewDialog.querySelectorAll('[data-review-lang]').forEach((b) => {
+      b.classList.toggle('active', b.dataset.reviewLang === reviewLang);
+      b.setAttribute('aria-pressed', b.dataset.reviewLang === reviewLang ? 'true' : 'false');
+    });
+    reviewMessage.value = REVIEW_TEMPLATES[reviewLang].body(firstNameOf(reviewTarget && reviewTarget.name));
+    refreshReviewLinks();
+  }
+
+  function refreshReviewLinks() {
+    if (!reviewTarget) return;
+    const text = reviewMessage.value;
+    const phone = phoneOf(reviewTarget.contact);
+    const email = emailOf(reviewTarget.contact);
+    reviewSms.hidden = !phone;
+    reviewWhatsapp.hidden = !phone;
+    reviewEmail.hidden = !email;
+    // "?&body=" is understood by both iOS and Android messaging apps.
+    reviewSms.href = phone ? `sms:+${phone}?&body=${encodeURIComponent(text)}` : '#';
+    reviewWhatsapp.href = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : '#';
+    reviewEmail.href = email
+      ? `mailto:${email}?subject=${encodeURIComponent(REVIEW_TEMPLATES[reviewLang].subject)}&body=${encodeURIComponent(text)}`
+      : '#';
+  }
+
+  function showReviewStamp() {
+    const at = reviewTarget && reviewTarget.row.review_requested_at;
+    reviewStatus.textContent = at ? t('admin.review.askedOn', { date: fmtDate(at) }) : '';
+    reviewReset.hidden = !at;
+  }
+
+  async function stampReview(value) {
+    if (!reviewTarget) return;
+    const { table, row } = reviewTarget;
+    const stamp = value === null ? null : new Date().toISOString();
+    const { error } = await supabase.from(table).update({ review_requested_at: stamp }).eq('id', row.id);
+    if (error) { reviewStatus.textContent = t('admin.review.saveError'); return; }
+    row.review_requested_at = stamp;
+    showReviewStamp();
+    if (reviewTarget.onChange) reviewTarget.onChange();
+  }
+
+  function openReviewDialog(target) {
+    reviewTarget = target;
+    const contact = String(target.contact || '');
+    document.getElementById('reviewDialogClient').textContent = `${target.name || '—'} · ${contact || '—'}`;
+    setReviewLang(lang());
+    showReviewStamp();
+    if (!phoneOf(contact) && !emailOf(contact)) reviewStatus.textContent = t('admin.review.noContact');
+    if (typeof reviewDialog.showModal === 'function') reviewDialog.showModal();
+    else reviewDialog.setAttribute('open', '');
+  }
+
+  if (reviewDialog) {
+    reviewDialog.querySelectorAll('[data-review-lang]').forEach((b) => b.addEventListener('click', () => setReviewLang(b.dataset.reviewLang)));
+    reviewMessage.addEventListener('input', refreshReviewLinks);
+    [reviewSms, reviewWhatsapp, reviewEmail].forEach((a) => a.addEventListener('click', () => { stampReview(); }));
+    reviewCopy.addEventListener('click', async () => {
+      const ok = await copyToClipboard(reviewMessage.value);
+      if (!ok) { reviewMessage.select(); return; }
+      reviewCopy.textContent = t('admin.review.copied');
+      setTimeout(() => { reviewCopy.textContent = t('admin.review.copy'); }, 2000);
+      stampReview();
+    });
+    reviewReset.addEventListener('click', () => stampReview(null));
+    reviewDialog.addEventListener('close', () => { reviewTarget = null; });
+  }
+
+  function reviewButton(target) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'booking-review-btn' + (target.row.review_requested_at ? ' is-done' : '');
+    btn.textContent = target.row.review_requested_at ? t('admin.review.btnDone') : t('admin.booking.review');
+    btn.title = target.row.review_requested_at
+      ? t('admin.review.askedOn', { date: fmtDate(target.row.review_requested_at) })
+      : t('admin.booking.reviewTitle');
+    btn.addEventListener('click', () => openReviewDialog(target));
+    return btn;
+  }
+
+  const bookingReviewTarget = (b) => ({ table: 'bookings', row: b, name: b.guest_name, contact: b.guest_contact, onChange: renderBookings });
+
+  // Completed cleanings whose client hasn't been asked yet, newest first.
+  function renderReviewTodo() {
+    const box = document.getElementById('reviewTodo');
+    if (!box) return;
+    const due = (lastBookings || []).filter((b) => b.status === 'completed' && !b.review_requested_at);
+    box.hidden = due.length === 0;
+    if (!due.length) return;
+    document.getElementById('reviewTodoCount').textContent = t('admin.review.todoCount', { count: due.length });
+    const list = document.getElementById('reviewTodoList');
+    list.innerHTML = '';
+    due.slice(0, 8).forEach((b) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'review-todo-chip';
+      chip.innerHTML = `<span>${esc(b.guest_name || '—')}</span><span class="fine">${esc(b.requested_date || '')}</span>`;
+      chip.addEventListener('click', () => openReviewDialog(bookingReviewTarget(b)));
+      list.appendChild(chip);
+    });
   }
 
   function renderBookings() {
@@ -185,25 +330,17 @@
         <td class="status-cell"></td>
       `;
       const statusCell = tr.querySelector('.status-cell');
-      const revBtn = document.createElement('button');
-      revBtn.type = 'button';
-      revBtn.className = 'booking-review-btn';
-      revBtn.textContent = t('admin.booking.review');
-      revBtn.title = t('admin.booking.reviewTitle');
-      const flashCopied = (ok) => {
-        if (!ok) { window.prompt(t('admin.booking.reviewTitle'), reviewRequestText(b)); return; }
-        revBtn.textContent = t('admin.booking.reviewCopied');
-        revBtn.classList.add('is-copied');
-        setTimeout(() => { revBtn.textContent = t('admin.booking.review'); revBtn.classList.remove('is-copied'); }, 2000);
-      };
-      revBtn.addEventListener('click', async () => { flashCopied(await copyToClipboard(reviewRequestText(b))); });
       statusCell.appendChild(
         statusSelect(b.status, BOOKING_STATUSES, async (value) => {
-          await supabase.from('bookings').update({ status: value }).eq('id', b.id);
-          if (value === 'completed') { flashCopied(await copyToClipboard(reviewRequestText(b))); }
+          const { error } = await supabase.from('bookings').update({ status: value }).eq('id', b.id);
+          if (error) return;
+          b.status = value;
+          renderReviewTodo();
+          // Job done: open the review window right away (if not asked yet).
+          if (value === 'completed' && !b.review_requested_at) openReviewDialog(bookingReviewTarget(b));
         })
       );
-      statusCell.appendChild(revBtn);
+      statusCell.appendChild(reviewButton(bookingReviewTarget(b)));
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'booking-del-btn';
@@ -226,6 +363,7 @@
       statusCell.appendChild(delBtn);
       tbody.appendChild(tr);
     });
+    renderReviewTodo();
   }
 
   let currentAdminId = null;

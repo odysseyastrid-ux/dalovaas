@@ -785,6 +785,106 @@
     renderAddons();
     renderGiftCards();
     renderGiftRequests();
+    renderContest();
+  });
+
+  // ---------- Contest (concours.html): entries, CSV, draw ----------
+  const CONTEST_DRAW_AT = Date.parse('2027-01-05T17:00:00Z'); // Jan 5, 2027, 12 p.m. Eastern
+  const CONTEST_CLOSES_AT = Date.parse('2027-01-01T05:00:00Z');
+  const CONTEST_PRIZES = 50;
+  const CONTEST_STATUSES = ['entered', 'winner', 'disqualified'];
+  let lastContest = null;
+
+  async function loadContest() {
+    const { data, error } = await supabase
+      .from('contest_entries')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error || !data) return;
+    lastContest = data;
+    renderContest();
+  }
+
+  function renderContest() {
+    const tbody = document.querySelector('#contestTable tbody');
+    if (!tbody || !lastContest) return;
+    const q = (document.getElementById('contestSearch').value || '').trim().toLowerCase();
+    const rows = q
+      ? lastContest.filter((r) => [r.name, r.contact, r.address].some((v) => String(v || '').toLowerCase().includes(q)))
+      : lastContest;
+    document.getElementById('contestCount').textContent = String(lastContest.length);
+    document.getElementById('contestWinners').textContent = String(lastContest.filter((r) => r.status === 'winner').length);
+    const msLeft = CONTEST_CLOSES_AT - Date.now();
+    document.getElementById('contestDays').textContent = msLeft > 0 ? String(Math.ceil(msLeft / 86400000)) : '0';
+    tbody.innerHTML = '';
+    rows.forEach((r) => {
+      const tr = document.createElement('tr');
+      if (r.status === 'winner') tr.classList.add('contest-winner-row');
+      tr.innerHTML = `
+        <td>${esc(new Date(r.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
+        <td>${esc(r.name)}</td>
+        <td>${esc(r.contact)}</td>
+        <td>${esc(r.address)}</td>
+        <td>${esc(r.source) || '—'}</td>
+        <td class="status-cell"></td>
+      `;
+      tr.querySelector('.status-cell').appendChild(statusSelect(r.status, CONTEST_STATUSES, async (value) => {
+        const { error } = await supabase.from('contest_entries').update({ status: value }).eq('id', r.id);
+        if (error) return;
+        r.status = value;
+        renderContest();
+      }));
+      tbody.appendChild(tr);
+    });
+  }
+
+  const csvCell = (v) => {
+    let s = String(v ?? '');
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; // no spreadsheet formulas from visitor input
+    return `"${s.replace(/"/g, '""')}"`;
+  };
+  document.getElementById('contestSearch').addEventListener('input', renderContest);
+  document.getElementById('contestExport').addEventListener('click', () => {
+    if (!lastContest) return;
+    const head = ['date', 'name', 'contact', 'address', 'language', 'source', 'status'];
+    const lines = [head.join(',')].concat(lastContest.map((r) =>
+      [r.created_at, r.name, r.contact, r.address, r.lang, r.source, r.status].map(csvCell).join(',')));
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `concours-inscriptions-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  // Fair random draw: fills the remaining winner spots (50 minus current
+  // winners) from entries still "entered", using the browser's crypto RNG.
+  // Disqualify someone afterwards and click again to draw a replacement.
+  function randomIndex(n) {
+    const max = Math.floor(0x100000000 / n) * n;
+    const buf = new Uint32Array(1);
+    do { crypto.getRandomValues(buf); } while (buf[0] >= max);
+    return buf[0] % n;
+  }
+  document.getElementById('contestDraw').addEventListener('click', async () => {
+    const note = document.getElementById('contestNote');
+    if (!lastContest) return;
+    const winners = lastContest.filter((r) => r.status === 'winner').length;
+    const pool = lastContest.filter((r) => r.status === 'entered');
+    const toDraw = Math.min(CONTEST_PRIZES - winners, pool.length);
+    if (toDraw <= 0) { note.textContent = t('admin.contest.drawNothing'); return; }
+    const early = Date.now() < CONTEST_DRAW_AT;
+    if (!window.confirm(t(early ? 'admin.contest.drawEarly' : 'admin.contest.drawConfirm', { count: toDraw, pool: pool.length }))) return;
+    const picked = [];
+    const bag = pool.slice();
+    for (let i = 0; i < toDraw; i++) picked.push(bag.splice(randomIndex(bag.length), 1)[0]);
+    const ids = picked.map((r) => r.id);
+    const { error } = await supabase.from('contest_entries').update({ status: 'winner' }).in('id', ids);
+    if (error) { note.textContent = t('admin.contest.drawError'); return; }
+    picked.forEach((r) => { r.status = 'winner'; });
+    await logActivity('contest_draw', { drawn: ids.length, pool: pool.length });
+    note.textContent = t('admin.contest.drawDone', { count: ids.length });
+    renderContest();
   });
 
   async function showDashboard() {
@@ -793,6 +893,7 @@
     loadBookings();
     loadGiftCards();
     loadGiftRequests();
+    loadContest();
     await loadCategories();
     loadServices();
     loadAddons();

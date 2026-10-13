@@ -44,5 +44,29 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/concours",
+      "destination": "/concours.html",
+      "permanent": false
+    },
+    {
+      "source": "/contest",
+      "destination": "/concours.html",
+      "permanent": false
+    },
+    {
+      "source": "/quote.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "utm_campaign",
+          "value": "tirage-50"
+        }
+      ],
+      "destination": "/concours.html",
+      "permanent": false
+    }
   ]
 }

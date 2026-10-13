@@ -1,7 +1,7 @@
 // Public endpoint for the site's simple forms — newsletter signup, gift card
-// requests, and job applications. Saves the submission, emails the owner,
-// and sends the visitor a confirmation (in their language) through the same
-// Resend account as the other notification functions.
+// requests, job applications and contest entries (concours.html). Saves the
+// submission, emails the owner, and sends the visitor a confirmation (in their
+// language) through the same Resend account as the other notification functions.
 //
 // Deployed with --no-verify-jwt (anonymous visitors submit these forms), so
 // it protects itself: honeypot field, strict length checks, and a per-IP
@@ -33,6 +33,11 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+// "50 cleanings to win" contest. Entries close Dec 31, 2026 at 23:59:59
+// Eastern (= Jan 1, 2027 04:59:59 UTC). Rules: https://magicstickclean.ca/concours.html#reglement
+const CONTEST_ID = "tirage-50-2026";
+const CONTEST_CLOSES_AT = Date.parse("2027-01-01T05:00:00Z");
 
 const SIGNATURE_EN = "— The Magicstick Clean team\n343-843-7761 · magicstickclean@gmail.com\nhttps://magicstickclean.ca";
 const SIGNATURE_FR = "— L’équipe Magicstick Clean\n343-843-7761 · magicstickclean@gmail.com\nhttps://magicstickclean.ca";
@@ -165,6 +170,62 @@ async function handleGiftCard(body: Record<string, unknown>, fr: boolean) {
   return json({ ok: true });
 }
 
+// Normalized identity used for "one entry per person": a lower-cased email,
+// or the 10 digits of a North American phone number. Null when neither.
+function contactKey(contact: string): string | null {
+  const lower = contact.trim().toLowerCase();
+  if (isEmail(lower)) return lower;
+  let digits = contact.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  return digits.length === 10 ? digits : null;
+}
+
+async function handleContest(body: Record<string, unknown>, fr: boolean) {
+  if (Date.now() >= CONTEST_CLOSES_AT) return json({ ok: false, error: "contest_closed" }, 410);
+  const name = clean(body.name, 120);
+  const contact = clean(body.contact, 200);
+  const address = clean(body.address, 300);
+  const source = clean(body.source, 200);
+  if (!name || !contact || address.length < 3) return json({ ok: false, error: "missing_fields" }, 400);
+  if (body.eligible !== true || body.rules !== true) return json({ ok: false, error: "not_eligible" }, 400);
+  const key = contactKey(contact);
+  if (!key) return json({ ok: false, error: "invalid_contact" }, 400);
+
+  const { error } = await supabase.from("contest_entries").insert({
+    contest: CONTEST_ID, name, contact, contact_key: key, address,
+    lang: fr ? "fr" : "en", source: source || null,
+  });
+  if (error) {
+    if (error.code === "23505") return json({ ok: true, already: true });
+    throw new Error(error.message);
+  }
+
+  await sendEmail(
+    OWNER_EMAIL,
+    `Concours — nouvelle inscription : ${name}`,
+    [
+      `Nouvelle inscription au concours « 50 ménages à gagner »`,
+      `Nom : ${name}`,
+      `Contact : ${contact}`,
+      `Adresse : ${address}`,
+      `Langue : ${fr ? "français" : "anglais"}`,
+      `Source : ${source || "(directe)"}`,
+      "",
+      "Toutes les inscriptions : tableau de bord > Concours.",
+    ].join("\n"),
+  );
+  if (isEmail(contact)) {
+    await sendEmail(
+      contact,
+      fr ? "Ton inscription au concours Magicstick Clean est confirmée" : "Your Magicstick Clean contest entry is confirmed",
+      fr
+        ? `Bonjour ${name},\n\nC’est noté : tu participes au concours « 50 ménages à gagner » de Magicstick Clean.\n\nPrix : un ménage standard de 3 h (valeur de 90 $), 50 gagnants.\nInscriptions jusqu’au 31 décembre 2026, tirage le 5 janvier 2027. Les gagnants seront contactés par téléphone ou courriel, et devront répondre à une question d’habileté mathématique.\n\nRèglement complet : https://magicstickclean.ca/concours.html#reglement\n\nBonne chance !\n\n${SIGNATURE_FR}`
+        : `Hi ${name},\n\nYou're in: you are entered in Magicstick Clean's "50 cleanings to win" contest.\n\nPrize: one 3-hour standard cleaning (value $90), 50 winners.\nEntries close December 31, 2026; the draw is on January 5, 2027. Winners will be contacted by phone or email and must answer a skill-testing question.\n\nFull rules: https://magicstickclean.ca/concours.html#reglement\n\nGood luck!\n\n${SIGNATURE_EN}`,
+    );
+  }
+  return json({ ok: true });
+}
+
 async function handleJobApplication(body: Record<string, unknown>, fr: boolean) {
   const name = clean(body.name, 120);
   const contact = clean(body.contact, 200);
@@ -221,7 +282,7 @@ Deno.serve(async (req) => {
     // Honeypot filled in: a bot. Report success so it learns nothing.
     if (clean(body.company, 200)) return json({ ok: true });
 
-    if (!["newsletter", "gift_card", "job_application"].includes(form)) {
+    if (!["newsletter", "gift_card", "job_application", "contest"].includes(form)) {
       return json({ ok: false, error: "unknown_form" }, 400);
     }
 
@@ -230,6 +291,7 @@ Deno.serve(async (req) => {
 
     if (form === "newsletter") return await handleNewsletter(body, fr);
     if (form === "gift_card") return await handleGiftCard(body, fr);
+    if (form === "contest") return await handleContest(body, fr);
     return await handleJobApplication(body, fr);
   } catch (err) {
     console.error(err);

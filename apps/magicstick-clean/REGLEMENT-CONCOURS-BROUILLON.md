@@ -1,5 +1,12 @@
 # Règlement du concours « 50 ménages à gagner » — BROUILLON À FAIRE VÉRIFIER
 
+> **Mise à jour :** la version publiée est sur https://magicstickclean.ca/concours.html#reglement
+> (texte dans `js/i18n.js`, clés `contest.rules.*`). Les éléments entre crochets ci-dessous y ont
+> été fixés ainsi, à confirmer par le propriétaire : début le 13 octobre 2026; organisateur
+> « Magicstick Clean, Clarence-Rockland »; exclusion des employés et de leur famille immédiate;
+> prix utilisable jusqu’au **30 juin 2027**; tirage à 12 h à Clarence-Rockland;
+> gagnants contactés sous 7 jours; 10 jours pour répondre.
+
 > Brouillon préparé pour Magicstick Clean. Ce n'est pas un avis juridique : faites-le relire
 > (avocat, ou au minimum vérification des règles fédérales sur les concours) avant de lancer
 > la campagne. Les éléments entre [crochets] sont à confirmer.

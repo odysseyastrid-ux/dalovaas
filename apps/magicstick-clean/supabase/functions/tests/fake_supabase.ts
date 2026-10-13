@@ -78,7 +78,8 @@ class Query implements PromiseLike<any> {
     if (this.op === "insert") {
       const row: Row = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...this.payload };
       const key = row.idempotency_key;
-      if ((key && rows.some((r) => r.idempotency_key === key)) || (this.payload.id && rows.some((r) => r.id === this.payload.id))) {
+      const dupContest = row.contact_key && rows.some((r) => r.contest === row.contest && r.contact_key === row.contact_key);
+      if ((key && rows.some((r) => r.idempotency_key === key)) || (this.payload.id && rows.some((r) => r.id === this.payload.id)) || dupContest) {
         return { data: null, error: { code: "23505", message: "duplicate key" } };
       }
       rows.push(row);

@@ -183,3 +183,62 @@ Deno.test("ai-chat: oversized bodies and malformed input are refused cleanly", a
   assert.equal((await call(aiChat, [1])).json.error, "invalid_body");
   assert.equal((await call(aiChat, { lang: "en", messages: [] })).status, 400);
 });
+
+// ------------------------------------------------------------ contest entries
+const contestEntry = (over: Record<string, unknown> = {}) => ({
+  form: "contest", name: "Marie Tremblay", contact: "613-555-0142", address: "123 rue Laurier, Rockland",
+  eligible: true, rules: true, lang: "fr", source: "banner/social/tirage-50", ...over,
+});
+
+Deno.test("contest: a valid entry is stored with a normalized contact key", async () => {
+  resetAll();
+  const r = await call(submitForm, contestEntry());
+  assert.equal(r.status, 200);
+  const rows = state.table("contest_entries");
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].contact_key, "6135550142");
+  assert.equal(rows[0].contest, "tirage-50-2026");
+  assert.equal(rows[0].lang, "fr");
+});
+
+Deno.test("contest: one entry per person — the same phone written differently is a duplicate, not an error", async () => {
+  resetAll();
+  await call(submitForm, contestEntry());
+  const again = await call(submitForm, contestEntry({ contact: "+1 (613) 555 0142" }), { "cf-connecting-ip": "198.51.100.77" });
+  assert.equal(again.status, 200);
+  assert.equal(again.json.already, true);
+  assert.equal(state.table("contest_entries").length, 1);
+});
+
+Deno.test("contest: eligibility and rules must both be accepted, and a reachable contact is required", async () => {
+  resetAll();
+  assert.equal((await call(submitForm, contestEntry({ eligible: false }))).status, 400);
+  assert.equal((await call(submitForm, contestEntry({ rules: "true" }))).status, 400);
+  assert.equal((await call(submitForm, contestEntry({ contact: "call me" }))).status, 400);
+  assert.equal((await call(submitForm, contestEntry({ address: "" }))).status, 400);
+  assert.equal(state.table("contest_entries").length, 0);
+});
+
+Deno.test("contest: entries are refused after Dec 31, 2026 23:59:59 Eastern", async () => {
+  resetAll();
+  const realNow = Date.now;
+  Date.now = () => Date.parse("2027-01-01T05:00:01Z");
+  try {
+    const r = await call(submitForm, contestEntry());
+    assert.equal(r.status, 410);
+    assert.equal(r.json.error, "contest_closed");
+  } finally {
+    Date.now = realNow;
+  }
+  assert.equal(state.table("contest_entries").length, 0);
+});
+
+Deno.test("contest: an email entrant gets a confirmation; a phone entrant gets none", async () => {
+  resetAll();
+  await call(submitForm, contestEntry({ contact: "Marie@Example.com" }));
+  assert.equal(state.table("contest_entries")[0].contact_key, "marie@example.com");
+  assert.equal(fetchCalls.filter((c) => c.url.includes("resend") && c.body.to === "Marie@Example.com").length, 1);
+  resetAll();
+  await call(submitForm, contestEntry());
+  assert.equal(fetchCalls.filter((c) => c.url.includes("resend") && c.body.to !== "owner@example.com").length, 0);
+});

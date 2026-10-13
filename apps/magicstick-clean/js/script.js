@@ -158,3 +158,14 @@ mobileMenu.querySelectorAll('a').forEach(a => {
     burger.setAttribute('aria-expanded', 'false');
   });
 });
+
+// Homepage contest promo: show the banner in the visitor's language.
+const homeContestImg = document.getElementById('homeContestImg');
+if (homeContestImg) {
+  const setContestImg = () => {
+    const l = window.MagicstickI18N && window.MagicstickI18N.getLang() === 'fr' ? 'fr' : 'en';
+    homeContestImg.src = `assets/images/marketing/concours/concours-web-carre-${l}.webp`;
+  };
+  setContestImg();
+  document.addEventListener('magicstick:langchange', setContestImg);
+}

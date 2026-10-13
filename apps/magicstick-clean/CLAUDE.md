@@ -104,6 +104,24 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 
 ---
 
+## Contest "50 free cleanings to win" (tirage-50-2026) — LIVE
+
+- **Page:** `concours.html` (FR/EN, short URLs `/concours` and `/contest`), entry form +
+  official rules (`#reglement`). Home promo band `#concours` on `index.html`; link in every
+  mobile menu and in the footers. The 4K banners' QR codes point to
+  `concours.html?utm_source=banner&utm_medium=social&utm_campaign=tirage-50`; the older QR
+  (`quote.html?utm_campaign=tirage-50`) is redirected there by `vercel.json`.
+- **Terms:** 50 prizes, each a standard 3-hour cleaning (value $90, $4,500 total), free entry,
+  Clarence-Rockland residents 18+, one entry per person/address, entries Oct 13 → Dec 31, 2026
+  23:59 ET, random draw Jan 5, 2027 12 p.m. ET, skill-testing question, prize usable until
+  June 30, 2027. Never change these on the site without updating the rules section too.
+- **Backend:** `submit-form` form `contest` → table `contest_entries` (migration
+  `0018_contest_entries.sql`; unique per normalized phone/email; refuses after the deadline
+  with 410). Owner gets an email per entry; email entrants get a confirmation.
+- **Dashboard:** `admin.html` → "Contest / Concours": count, search, CSV export, statuses
+  (entered / winner / disqualified) and a "Draw the winners" button (crypto-random, fills up to
+  50; disqualify someone and click again to draw a replacement).
+
 ## Google review requests (owner dashboard)
 
 - **Direct review link:** https://g.page/r/CXlL7jiMiQp2EBI/review

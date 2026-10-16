@@ -1,0 +1,8 @@
+# Not part of the public website — keep them out of what Vercel serves.
+# (Internal notes and strategy, the separate admin API, database migrations
+#  and the edge-function source all live in this repo, but visitors have no
+#  business reading them; they also describe how the protections work.)
+/server
+/supabase
+/twenty-crm
+/*.md

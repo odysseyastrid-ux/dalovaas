@@ -1,0 +1,234 @@
+(function () {
+  const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
+  const lang = () => (window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en');
+  // bookings/quote_requests accept public inserts — never trust their
+  // contents as HTML before it goes into innerHTML.
+  const esc = (v) => (window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(v) : String(v ?? ''));
+
+  const backend = window.MagicstickBackend;
+  const backendNotice = document.getElementById('backendNotice');
+
+  if (!backend || !backend.isBackendConfigured()) {
+    backendNotice.hidden = false;
+    return;
+  }
+
+  const supabase = backend.getSupabaseClient();
+  const authPanel = document.getElementById('authPanel');
+  const dashboardPanel = document.getElementById('dashboardPanel');
+
+  let lastBookings = null;
+  let lastQuoteRequests = null;
+  let activeServices = null;
+
+  function serviceCardsHtml() {
+    if (!activeServices || !activeServices.length) return '';
+    const cards = activeServices.map((s) => {
+      const name = (lang() === 'fr' && s.name_fr) ? s.name_fr : s.name;
+      const price = (s.base_price_cents / 100).toFixed(2);
+      return `
+        <a class="book-service-card" href="booking.html?service=${encodeURIComponent(s.id)}">
+          <span class="book-service-card-name">${esc(name)}</span>
+          <span class="book-service-card-price">${esc(t('account.bookNudge.priceFrom', { price }))}</span>
+        </a>
+      `;
+    }).join('');
+    return `
+      <div class="book-nudge">
+        <p class="book-nudge-title">${t('account.bookNudge.title')}</p>
+        <div class="book-service-cards">${cards}</div>
+      </div>
+    `;
+  }
+
+  async function loadActiveServices() {
+    const { data } = await supabase
+      .from('services')
+      .select('id, name, name_fr, base_price_cents')
+      .eq('active', true)
+      .order('sort_order');
+    activeServices = data ?? [];
+    renderBookings();
+  }
+
+  function renderBookings() {
+    const list = document.getElementById('bookingsList');
+    if (!lastBookings) return;
+    if (!lastBookings.length) {
+      list.innerHTML = `<p class="fine">${t('account.bookings.empty')}</p>${serviceCardsHtml()}`;
+      return;
+    }
+    list.innerHTML = lastBookings.map((b) => {
+      const serviceName = (lang() === 'fr' && b.services?.name_fr) ? b.services.name_fr : (b.services?.name ?? b.service_id);
+      return `
+        <div class="booking-card">
+          <div>
+            <div class="booking-card-service">${esc(serviceName)}</div>
+            <div class="fine">${esc(b.requested_date)} · ${esc(b.time_window)}</div>
+          </div>
+          <span class="status-pill status-${esc(b.status)}">${esc(t('status.' + b.status))}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderQuoteRequests() {
+    const list = document.getElementById('quoteRequestsList');
+    if (!list || !lastQuoteRequests) return;
+    if (!lastQuoteRequests.length) {
+      list.innerHTML = `<p class="fine">${t('account.quoteRequests.empty')}</p>`;
+      return;
+    }
+    list.innerHTML = lastQuoteRequests.map((q) => `
+      <div class="booking-card">
+        <div>
+          <div class="booking-card-service">${esc(q.service)}</div>
+          <div class="fine">${esc(new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</div>
+        </div>
+        <span class="status-pill status-${esc(q.status)}">${esc(t('status.' + q.status))}</span>
+      </div>
+    `).join('');
+  }
+
+  async function loadBookings() {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('requested_date', { ascending: false });
+    const list = document.getElementById('bookingsList');
+    if (error) {
+      list.textContent = t('account.bookings.loadError');
+      return;
+    }
+    // Fetched separately from services (rather than a nested select) to
+    // sidestep a PostgREST embed that intermittently 401s on this project.
+    const serviceIds = [...new Set(data.map((b) => b.service_id))];
+    let servicesById = {};
+    if (serviceIds.length) {
+      const { data: services } = await supabase
+        .from('services')
+        .select('id, name, name_fr')
+        .in('id', serviceIds);
+      servicesById = Object.fromEntries((services ?? []).map((s) => [s.id, s]));
+    }
+    lastBookings = data.map((b) => ({ ...b, services: servicesById[b.service_id] }));
+    renderBookings();
+  }
+
+  async function loadQuoteRequests() {
+    const list = document.getElementById('quoteRequestsList');
+    if (!list) return;
+    const { data, error } = await supabase
+      .from('quote_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      list.textContent = t('account.quoteRequests.loadError');
+      return;
+    }
+    lastQuoteRequests = data;
+    renderQuoteRequests();
+  }
+
+  document.addEventListener('magicstick:langchange', () => {
+    renderBookings();
+    renderQuoteRequests();
+  });
+
+  async function showDashboard(user) {
+    authPanel.hidden = true;
+    dashboardPanel.hidden = false;
+    document.getElementById('accountEmail').textContent = user.email;
+    loadBookings();
+    loadQuoteRequests();
+    loadActiveServices();
+  }
+
+  const resetPasswordPanel = document.getElementById('resetPasswordPanel');
+  const resetPasswordForm = document.getElementById('resetPasswordForm');
+  const resetPasswordNote = document.getElementById('resetPasswordNote');
+
+  function showResetPassword() {
+    authPanel.hidden = true;
+    dashboardPanel.hidden = true;
+    resetPasswordPanel.hidden = false;
+  }
+
+  // Clicking the link in the password-reset email brings the visitor back
+  // here with a #type=recovery fragment; the Supabase client parses it into
+  // a real (but reset-only-intended) session and fires this event.
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') showResetPassword();
+  });
+
+  resetPasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newPassword = document.getElementById('resetPassword1').value;
+    const confirmPassword = document.getElementById('resetPassword2').value;
+    if (newPassword !== confirmPassword) {
+      resetPasswordNote.textContent = t('account.resetPassword.note.mismatch');
+      return;
+    }
+    resetPasswordNote.textContent = t('account.resetPassword.note.saving');
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      resetPasswordNote.textContent = window.MagicstickAuthWidget.translateAuthError(t, error.message);
+      return;
+    }
+    resetPasswordPanel.hidden = true;
+    showDashboard(data.user);
+  });
+
+  async function checkSession() {
+    if (window.location.hash.includes('type=recovery')) {
+      showResetPassword();
+      return;
+    }
+    const { data } = await supabase.auth.getSession();
+    if (data?.session?.user) {
+      showDashboard(data.session.user);
+    } else {
+      authPanel.hidden = false;
+    }
+  }
+  checkSession();
+
+  window.MagicstickAuthWidget.initAuthWidget(document, {
+    tabs: '.portal-tab',
+    loginForm: '#loginForm',
+    loginEmail: '#loginEmail',
+    loginPassword: '#loginPassword',
+    loginNote: '#loginNote',
+    forgotBtn: '#forgotPasswordBtn',
+    signupForm: '#signupForm',
+    signupName: '#signupName',
+    signupEmail: '#signupEmail',
+    signupPassword: '#signupPassword',
+    signupNote: '#signupNote',
+    googleBtn: '#googleOAuthBtn',
+    appleBtn: '#appleOAuthBtn',
+    otpSection: '#otpSection',
+    otpToggleBtn: '#otpToggleBtn',
+    otpRequestForm: '#otpRequestForm',
+    otpEmail: '#otpEmail',
+    otpRequestNote: '#otpRequestNote',
+    otpVerifyForm: '#otpVerifyForm',
+    otpCode: '#otpCode',
+    otpVerifyNote: '#otpVerifyNote',
+  }, supabase, showDashboard);
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  });
+
+  // Dashboard sidebar: which tab (bookings / quotes / account) is shown.
+  document.querySelectorAll('.dash-nav-btn[data-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.dash-nav-btn[data-tab]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.dash-tab').forEach((tab) => { tab.hidden = true; });
+      document.getElementById('dashTab' + btn.dataset.tab[0].toUpperCase() + btn.dataset.tab.slice(1)).hidden = false;
+    });
+  });
+})();

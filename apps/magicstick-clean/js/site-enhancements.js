@@ -73,6 +73,20 @@
     });
   }
 
+  // ---------- Header scroll edge ----------
+  // The translucent header only shows its separation once content actually
+  // slides under it (CSS: header.is-scrolled).
+  function initHeaderScrollEdge() {
+    const header = document.querySelector('header');
+    if (!header) return;
+    let ticking = false;
+    const update = () => { header.classList.toggle('is-scrolled', window.scrollY > 4); ticking = false; };
+    update();
+    window.addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+  }
+
   // ---------- Back-to-home button (every page but the homepage) ----------
   // Sits left of the logo in the header (or top-left on header-less pages like
   // account.html). If the visitor came from the homepage, it uses the browser's
@@ -543,6 +557,7 @@
     initScrollProgress();
     initFloatingContact();
     initPageBack();
+    initHeaderScrollEdge();
     initBackToTop();
     initThemeToggle();
     initCookieBanner();

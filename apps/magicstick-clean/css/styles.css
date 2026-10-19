@@ -388,7 +388,7 @@
     border-radius:100px;
     margin-bottom:22px;
   }
-  .hero h1{font-size:56px;letter-spacing:-0.5px;}
+  .hero h1{font-size:56px;letter-spacing:-0.025em;line-height:1.04;}
   @media (max-width:640px){ .hero h1{font-size:38px;} }
   .hero h1 .accent-word{background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
   .hero h1 .flag{
@@ -2250,3 +2250,138 @@ html.page-leaving-back body{
 .greviews-actions a{ display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; border-radius:100px; font-weight:600; }
 .greviews-actions .btn-outline{ border:1px solid var(--charcoal); color:var(--charcoal); background:transparent; }
 .greviews-actions .btn-outline:hover{ border-color:#6B3FE6; color:#6B3FE6; }
+
+/* =====================================================================
+   FLUID LAYER — Apple design principles for the web
+   (WWDC "Designing Fluid Interfaces", "The Details of UI Typography").
+   One shared vocabulary for every interactive element:
+   - Response: instant feedback on press (pointer-down), no tap delay.
+   - Behaviour over animation: spring curves, interruptible (CSS
+     transitions always restart from the on-screen value).
+   - Materials: translucent chrome, content scrolls underneath.
+   - Accessibility: reduced motion / transparency / more contrast.
+   ===================================================================== */
+:root{
+  /* Fallbacks for browsers without linear(): close to a critically damped spring. */
+  --ease-spring: cubic-bezier(.22,.9,.3,1);
+  --ease-bounce: cubic-bezier(.3,1.25,.5,1);
+  --dur-spring: .5s;   /* damping 1.0, response 0.35 s */
+  --dur-bounce: .6s;   /* damping 0.8, response 0.35 s: only after a flick/throw */
+  --press-scale: .97;
+}
+@supports (transition-timing-function: linear(0, 1)){
+  :root{
+    --ease-spring: linear(0, 0.042, 0.136, 0.25, 0.367, 0.476, 0.573, 0.656, 0.726, 0.783, 0.83, 0.867, 0.897, 0.92, 0.938, 0.953, 0.964, 0.972, 0.979, 0.984, 0.988, 0.991, 0.993, 0.995, 0.996, 0.997, 0.998, 0.998, 1);
+    --ease-bounce: linear(0, 0.06, 0.195, 0.356, 0.513, 0.651, 0.764, 0.851, 0.914, 0.957, 0.985, 1.002, 1.011, 1.015, 1.015, 1.014, 1.011, 1.009, 1.007, 1.005, 1.003, 1.002, 1.001, 1, 1, 1, 1, 1, 1);
+  }
+}
+
+/* ---- 1. Response: kill the tap delay, give our own feedback instead of the grey flash ---- */
+a, button, input, select, textarea, label, summary, [role="button"]{
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+}
+/* Release springs back; the press itself is immediate (100 ms ease-out). */
+.btn, .btn-outline, .btn-outline-light, .cta-arrow, .subscribe-submit, .floating-contact-link,
+.greviews-actions a, .review-action, .contest-facts li{
+  transition-property:transform, box-shadow, background, background-color, color, border-color, filter, opacity;
+  transition-duration:var(--dur-spring);
+  transition-timing-function:var(--ease-spring);
+}
+.btn:active:not(:disabled), .btn-outline:active, .btn-outline-light:active, .cta-arrow:active,
+.subscribe-submit:active, .floating-contact-link:active, .greviews-actions a:active, .review-action:active,
+.page-back:active, .lang-btn:active, .tab-btn:active, .pill-btn:active, .theme-toggle:active, .burger:active{
+  transform:scale(var(--press-scale));
+  transition-duration:.1s; transition-timing-function:ease-out;
+}
+.floating-contact-toggle{ transition:transform var(--dur-spring) var(--ease-spring), box-shadow .3s ease; }
+.floating-contact-toggle:active{ transform:scale(.92); transition-duration:.1s; }
+.ba-pair button.photo-btn{ transition:transform var(--dur-spring) var(--ease-spring); }
+.ba-pair button.photo-btn:active{ transform:scale(.985); transition-duration:.1s; }
+.lightbox-close:active{ transform:scale(.92); }
+.lightbox-prev:active, .lightbox-next:active{ transform:translateY(-50%) scale(.92); }
+/* Touch screens have no hover: never leave a hover lift/shift "stuck" after a tap. */
+@media (hover:none){
+  .btn:hover, .cta-arrow:hover, .mm-contact-btn:hover, .floating-contact-toggle:hover, .page-back:hover{ transform:none; }
+  .mobile-menu a:hover{ transform:none; }
+  .cta-arrow:hover .cta-arrow-text{ animation:none; }
+}
+
+/* ---- 2. Spatial consistency: things emerge from (and return to) their trigger ---- */
+.floating-contact-menu{ transition:opacity .2s ease, transform var(--dur-spring) var(--ease-spring); }
+.mobile-menu{ transition:max-height var(--dur-spring) var(--ease-spring); }
+.mobile-menu a{ transition:background-color .25s ease, color .2s ease, transform var(--dur-spring) var(--ease-spring); }
+
+/* ---- 3. Materials: translucent header, content scrolls underneath ---- */
+header{ transition:background-color .3s ease, box-shadow .3s ease, border-color .3s ease; }
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  header:not(.header-on-photo), header.header-on-photo.scrolled{
+    background:color-mix(in srgb, var(--cream) 80%, transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    backdrop-filter:saturate(180%) blur(20px);
+  }
+  /* Scroll-edge effect instead of a permanent hairline: the separation only
+     appears once content actually slides under the bar. */
+  header:not(.header-on-photo){ border-bottom-color:transparent; }
+  header.is-scrolled:not(.header-on-photo){
+    box-shadow:0 1px 0 color-mix(in srgb, var(--line) 85%, transparent), 0 12px 28px -22px rgba(23,21,31,.45);
+  }
+  /* The open mobile menu is a solid sheet: never stack light glass on glass. */
+  .mobile-menu.open{ background:var(--cream); }
+}
+/* Photo viewer: the backdrop materialises (blur + dim) instead of a flat fade. */
+.lightbox{ transition:opacity .25s ease, -webkit-backdrop-filter .35s ease, backdrop-filter .35s ease; }
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .lightbox{ background:rgba(20,22,28,.78); }
+  .lightbox.show{ -webkit-backdrop-filter:blur(14px) saturate(120%); backdrop-filter:blur(14px) saturate(120%); }
+}
+/* The photo grows out of the thumbnail that was tapped (origin set by script.js). */
+.lightbox-fig{
+  transform-origin:var(--lb-ox, 50%) var(--lb-oy, 50%);
+  transform:scale(.9); opacity:0;
+  transition:transform var(--dur-spring) var(--ease-spring), opacity .2s ease;
+}
+.lightbox.show .lightbox-fig{ transform:none; opacity:1; }
+.lightbox-fig img{ touch-action:none; -webkit-user-drag:none; user-select:none; cursor:grab; will-change:transform; }
+.lightbox-fig img.is-dragging{ cursor:grabbing; }
+
+/* ---- 4. Typography: size-specific tracking & leading, wrap with care ---- */
+body{ font-size:1.0625rem; }  /* 17px by default, but follows the visitor's text-size setting */
+h1{ letter-spacing:-0.025em; line-height:1.04; }
+h2{ letter-spacing:-0.018em; line-height:1.08; }
+h3{ letter-spacing:-0.008em; line-height:1.2; }
+h1, h2, h3{ text-wrap:balance; }
+p, li, blockquote, figcaption{ text-wrap:pretty; }
+.fine, .form-note, .greviews-fine, .testimonial-meta{ letter-spacing:.01em; }
+.service-price, .est-result, .contest-facts strong, .greviews-score, .contest-admin-stats strong{ font-variant-numeric:tabular-nums; }
+
+/* Light <-> dark: ease the brightness change instead of a hard flash. */
+body{ transition:background-color .35s ease, color .35s ease; }
+
+/* ---- 5. Accessibility: motion, transparency, contrast ---- */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  /* Reduced motion is not "no feedback": colour/opacity cross-fades stay,
+     movement (slides, springs, scaling, loops) goes. */
+  *, *::before, *::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important; animation-delay:0s !important;
+    transition-property:opacity, color, background-color, border-color, box-shadow, filter !important;
+    transition-duration:.18s !important; transition-delay:0s !important;
+  }
+  .lightbox-fig{ transform:none; }
+}
+@media (prefers-reduced-transparency: reduce){
+  header, header.header-on-photo.scrolled, .lightbox, .page-back{
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+  header:not(.header-on-photo), header.header-on-photo.scrolled{ background:var(--cream) !important; }
+  .lightbox{ background:rgba(16,18,22,.96) !important; }
+}
+@media (prefers-contrast: more){
+  :root{ --gray:#3d3d45; --line:#8a8698; }
+  header:not(.header-on-photo), header.header-on-photo.scrolled{
+    background:var(--cream) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+    border-bottom:1px solid var(--charcoal) !important;
+  }
+  .btn-outline, .greviews-actions .btn-outline{ border-width:2px; }
+  .field input, .field select, .field textarea{ border:1px solid var(--charcoal); }
+}

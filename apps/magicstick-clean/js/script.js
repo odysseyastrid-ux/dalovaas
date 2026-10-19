@@ -102,9 +102,16 @@ const lightbox = document.getElementById('lightbox');
 if (lightbox) {
   const lightboxImg = document.getElementById('lightboxImg');
   const lightboxCaption = document.getElementById('lightboxCaption');
+  const lightboxFig = lightbox.querySelector('.lightbox-fig');
   let lightboxIndex = 0;
+  const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Same curves as the CSS (styles.css "FLUID LAYER"): a critically damped
+  // spring by default, a little bounce only after a flick carried momentum.
+  const SPRING = 'transform var(--dur-spring) var(--ease-spring), opacity .2s ease';
+  const BOUNCE = 'transform var(--dur-bounce) var(--ease-bounce), opacity .2s ease';
+  let navTimer = null;
 
-  function showPhoto(index){
+  function setPhoto(index){
     lightboxIndex = (index + photoButtons.length) % photoButtons.length;
     const btn = photoButtons[lightboxIndex];
     const img = btn.querySelector('img');
@@ -113,29 +120,149 @@ if (lightbox) {
     lightboxCaption.textContent = btn.dataset.captionKey ? t(btn.dataset.captionKey) : img.alt;
   }
 
+  function resetImg(){
+    lightboxImg.style.transition = '';
+    lightboxImg.style.transform = '';
+    lightboxImg.style.opacity = '';
+  }
+
+  // Next leaves to the left and the new photo arrives from the right (and the
+  // reverse for previous): enter and exit along the same path.
+  function showPhoto(index, dir = 0, fromFlick = false){
+    clearTimeout(navTimer);
+    if (!dir || reduceMotion()) { resetImg(); setPhoto(index); return; }
+    const dist = Math.min(window.innerWidth * 0.5, 480);
+    lightboxImg.style.transition = 'transform .18s cubic-bezier(.4,0,1,1), opacity .18s ease-in';
+    lightboxImg.style.transform = `translateX(${-dir * dist}px)`;
+    lightboxImg.style.opacity = '0';
+    navTimer = setTimeout(() => {
+      setPhoto(index);
+      lightboxImg.style.transition = 'none';
+      lightboxImg.style.transform = `translateX(${dir * dist}px)`;
+      void lightboxImg.offsetWidth;
+      lightboxImg.style.transition = fromFlick ? BOUNCE : SPRING;
+      lightboxImg.style.transform = 'translateX(0)';
+      lightboxImg.style.opacity = '1';
+    }, 180);
+  }
+
+  // The photo grows out of the thumbnail that was tapped, and shrinks back into it.
   function openLightbox(index){
-    showPhoto(index);
+    resetImg();
+    setPhoto(index);
+    const r = photoButtons[index].getBoundingClientRect();
+    lightboxFig.style.setProperty('--lb-ox', `${r.left + r.width / 2 - lightboxFig.offsetLeft}px`);
+    lightboxFig.style.setProperty('--lb-oy', `${r.top + r.height / 2 - lightboxFig.offsetTop}px`);
     lightbox.classList.add('show');
   }
 
   function closeLightbox(){
+    clearTimeout(navTimer);
     lightbox.classList.remove('show');
+    setTimeout(resetImg, 300);
   }
 
   photoButtons.forEach((btn, index) => {
     btn.addEventListener('click', () => openLightbox(index));
   });
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
-  document.getElementById('lightboxPrev').addEventListener('click', () => showPhoto(lightboxIndex - 1));
-  document.getElementById('lightboxNext').addEventListener('click', () => showPhoto(lightboxIndex + 1));
+  document.getElementById('lightboxPrev').addEventListener('click', () => showPhoto(lightboxIndex - 1, -1));
+  document.getElementById('lightboxNext').addEventListener('click', () => showPhoto(lightboxIndex + 1, 1));
+
+  // ---- Direct manipulation: swipe sideways to change photo, down to close ----
+  // 1:1 tracking from where the photo was grabbed, a 10px dead zone before
+  // committing to an axis, momentum projection at release, rubber-banding
+  // past the edges, and grabbing a photo mid-animation starts from where it
+  // is on screen (never jumps).
+  const project = (v, d = 0.998) => (v / 1000) * d / (1 - d);
+  const rubberband = (over, dim, c = 0.55) => (over * dim * c) / (dim + c * Math.abs(over));
+  let drag = null;
+  let suppressClick = false;
+
+  lightboxImg.addEventListener('dragstart', (e) => e.preventDefault());
+  lightboxImg.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || !lightbox.classList.contains('show')) return;
+    clearTimeout(navTimer);
+    const m = new DOMMatrixReadOnly(getComputedStyle(lightboxImg).transform);
+    const opacity = parseFloat(getComputedStyle(lightboxImg).opacity) || 1;
+    lightboxImg.setPointerCapture(e.pointerId);
+    drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, bx: m.m41, by: m.m42, x: m.m41, y: m.m42, axis: null, hist: [{ x: e.clientX, y: e.clientY, t: e.timeStamp }] };
+    lightboxImg.style.transition = 'none';
+    lightboxImg.style.transform = `translate(${m.m41}px, ${m.m42}px)`;
+    lightboxImg.style.opacity = String(opacity);
+    lightboxImg.classList.add('is-dragging');
+  });
+
+  lightboxImg.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.sx;
+    const dy = e.clientY - drag.sy;
+    if (!drag.axis) {
+      if (Math.hypot(dx, dy) < 10) return;
+      drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }
+    drag.hist.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+    if (drag.hist.length > 8) drag.hist.shift();
+    if (drag.axis === 'x') {
+      let x = drag.bx + dx;
+      if (photoButtons.length < 2) x = rubberband(x, window.innerWidth);
+      drag.x = x; drag.y = 0;
+      lightboxImg.style.transform = `translateX(${x}px)`;
+    } else {
+      let y = drag.by + dy;
+      if (y < 0) y = rubberband(y, window.innerHeight);
+      drag.x = 0; drag.y = y;
+      lightboxImg.style.transform = `translateY(${y}px)`;
+      lightboxImg.style.opacity = String(1 - Math.min(Math.max(y, 0) / 500, 0.45));
+    }
+  });
+
+  function endDrag(e){
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag;
+    drag = null;
+    lightboxImg.classList.remove('is-dragging');
+    if (!d.axis) { resetImg(); return; }
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 0);
+    // Release velocity from the last ~100 ms of movement (px/s).
+    const last = d.hist[d.hist.length - 1];
+    const first = d.hist.find((p) => last.t - p.t <= 100) || d.hist[0];
+    const dt = Math.max(last.t - first.t, 1);
+    const vx = ((last.x - first.x) / dt) * 1000;
+    const vy = ((last.y - first.y) / dt) * 1000;
+
+    if (d.axis === 'x' && photoButtons.length > 1) {
+      // Snap to the target nearest the *projected* resting point, not the release point.
+      const projected = d.x + project(vx);
+      const w = window.innerWidth;
+      const flick = Math.abs(vx) > 400;
+      if (projected < -w / 3) return showPhoto(lightboxIndex + 1, 1, flick);
+      if (projected > w / 3) return showPhoto(lightboxIndex - 1, -1, flick);
+    }
+    if (d.axis === 'y' && d.y + project(vy) > 180) {
+      lightboxImg.style.transition = 'transform .22s cubic-bezier(.2,.7,.4,1), opacity .22s ease';
+      lightboxImg.style.transform = `translateY(${Math.min(window.innerHeight * 0.6, 520)}px)`;
+      lightboxImg.style.opacity = '0';
+      return closeLightbox();
+    }
+    // Not far enough: spring back home from where it is (interruptible).
+    lightboxImg.style.transition = SPRING;
+    lightboxImg.style.transform = 'translate(0, 0)';
+    lightboxImg.style.opacity = '1';
+  }
+  lightboxImg.addEventListener('pointerup', endDrag);
+  lightboxImg.addEventListener('pointercancel', endDrag);
+
   lightbox.addEventListener('click', (e) => {
+    if (suppressClick) return;
     if (e.target === lightbox) closeLightbox();
   });
   document.addEventListener('keydown', (e) => {
     if (!lightbox.classList.contains('show')) return;
     if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') showPhoto(lightboxIndex - 1);
-    if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1);
+    if (e.key === 'ArrowLeft') showPhoto(lightboxIndex - 1, -1);
+    if (e.key === 'ArrowRight') showPhoto(lightboxIndex + 1, 1);
   });
 }
 

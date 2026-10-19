@@ -96,6 +96,16 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
   webhook secret live in Supabase secrets. Stripe uses the Deno build
   (`esm.sh/stripe@14.21.0?target=deno`) + `Stripe.createFetchHttpClient()`.
 
+### Interaction & motion system ("fluid layer", end of `css/styles.css`)
+Apple's fluid-interface principles applied site-wide; reuse these instead of ad-hoc values:
+`--ease-spring`/`--dur-spring` (critically damped spring, default for everything) and
+`--ease-bounce`/`--dur-bounce` (slight overshoot, only after a flick); press feedback on
+`:active` (`--press-scale` .97, 100 ms); translucent header (`backdrop-filter`) with a
+scroll-edge shadow (`header.is-scrolled`, set in `site-enhancements.js`); photo viewer
+(`script.js`) with 1:1 swipe, momentum projection, rubber-banding, swipe-down to close and
+grow-from-thumbnail; `prefers-reduced-motion` / `-transparency` / `prefers-contrast` handled
+globally; size-specific heading tracking, `text-wrap: balance`, body size in `rem`.
+
 ### Backend status (as of this session)
 - Supabase is **provisioned and live**; services/pricing above are seeded in the DB.
 - Stripe keys are verified working. **The one remaining blocker for live payments

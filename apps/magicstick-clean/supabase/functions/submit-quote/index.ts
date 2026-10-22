@@ -26,7 +26,7 @@
 // Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { checkLimits, readLimitedBody } from "./guard.ts";
+import { checkLimits, readLimitedBody, withCors } from "./guard.ts";
 import {
   BUCKET, isUuid, MAX_BODY_BYTES, MAX_PHOTO_BYTES, MAX_VIDEO_BYTES,
   photoPath, validateFileDeclarations, validateQuote, videoPath,
@@ -221,7 +221,9 @@ async function handlePurge(req: Request) {
   return json({ ok: true, removed_folders: removedFolders, removed_files: removedFiles });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async (req) => withCors(req, await handle(req)));
+
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS_HEADERS });
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
   try {
@@ -241,4 +243,4 @@ Deno.serve(async (req) => {
     console.error(err);
     return json({ ok: false, error: "server_error" }, 500);
   }
-});
+}

@@ -19,6 +19,18 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// CORS: only the site itself may call this from a browser — same rule as
+// guard.ts in the public functions (no Vercel preview URLs).
+const ALLOWED_ORIGINS = new Set(["https://magicstickclean.ca", "https://www.magicstickclean.ca"]);
+function withCors(req: Request, res: Response): Response {
+  const headers = new Headers(res.headers);
+  const origin = req.headers.get("origin");
+  if (origin && ALLOWED_ORIGINS.has(origin)) headers.set("Access-Control-Allow-Origin", origin);
+  else headers.delete("Access-Control-Allow-Origin");
+  headers.append("Vary", "Origin");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
+
 const MAX_MESSAGES = 24;
 const MAX_MESSAGE_LENGTH = 4000;
 
@@ -103,7 +115,9 @@ async function buildContext(supabase: any, lang: "en" | "fr"): Promise<string> {
   ].join("\n");
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async (req) => withCors(req, await handle(req)));
+
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS_HEADERS });
 
   try {
@@ -144,7 +158,7 @@ Deno.serve(async (req) => {
 
     const data = await groqRes.json();
     if (!groqRes.ok) {
-      console.error("Groq error:", groqRes.status, data);
+      console.error("Groq error:", groqRes.status, data?.error?.type ?? data?.error?.code ?? "unknown");
       throw new Error(data?.error?.message ?? "The assistant is temporarily unavailable.");
     }
     const reply = (data.choices?.[0]?.message?.content ?? "").trim();
@@ -153,4 +167,4 @@ Deno.serve(async (req) => {
     console.error(err);
     return json({ error: String((err as Error).message ?? err) }, 500);
   }
-});
+}

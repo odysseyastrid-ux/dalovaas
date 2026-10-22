@@ -80,3 +80,31 @@ export async function readLimitedBody(req: Request, maxBytes: number): Promise<s
   const text = await req.text();
   return new TextEncoder().encode(text).length > maxBytes ? null : text;
 }
+
+// CORS: only the site itself may call these endpoints from a browser.
+// (www.magicstickclean.ca and http:// both redirect to this origin.) Vercel
+// preview URLs are deliberately not allowed: their hostname pattern can be
+// imitated by another Vercel account's project name. Requests without an
+// Origin header (server-to-server) get no CORS header at all.
+const ALLOWED_ORIGINS = new Set(["https://magicstickclean.ca", "https://www.magicstickclean.ca"]);
+
+export function isAllowedOrigin(origin: string | null): boolean {
+  return !!origin && ALLOWED_ORIGINS.has(origin);
+}
+
+// Rewrites the response's Access-Control-Allow-Origin for this request.
+export function withCors(req: Request, res: Response): Response {
+  const headers = new Headers(res.headers);
+  const origin = req.headers.get("origin");
+  if (isAllowedOrigin(origin)) headers.set("Access-Control-Allow-Origin", origin!);
+  else headers.delete("Access-Control-Allow-Origin");
+  headers.append("Vary", "Origin");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+}
+
+// Logs a failed Resend call without its body (which can echo the recipient's
+// address): status and error name only.
+export async function logResendError(res: Response): Promise<void> {
+  const body = await res.json().catch(() => ({})) as { name?: string };
+  console.error("Resend error:", res.status, body?.name ?? "unknown");
+}

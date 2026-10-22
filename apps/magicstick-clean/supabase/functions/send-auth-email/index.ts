@@ -120,7 +120,10 @@ Deno.serve(async (req) => {
     });
 
     if (!res.ok) {
-      throw new Error(`Resend error: ${res.status} ${await res.text()}`);
+      // Status and error name only: Resend's body can echo the recipient's
+      // address, and this message is logged and returned to Supabase Auth.
+      const body = await res.json().catch(() => ({})) as { name?: string };
+      throw new Error(`Resend error: ${res.status} ${body?.name ?? "unknown"}`);
     }
   } catch (err) {
     console.error(err);

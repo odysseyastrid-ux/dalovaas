@@ -1,0 +1,45 @@
+# Automatic security review of every pull request touching the Magicstick
+# Clean site, by anthropics/claude-code-security-review (Claude reads the diff
+# and comments on real vulnerabilities: injection, auth, secrets, XSS, CORS...).
+#
+# One-time setup (repository owner): GitHub repo -> Settings -> Secrets and
+# variables -> Actions -> New repository secret, name CLAUDE_API_KEY, value an
+# Anthropic API key (console.anthropic.com). Until it exists, the review step
+# is skipped instead of failing.
+#
+# The action is pinned to a commit (not @main) so a change upstream can't run
+# unreviewed code here. It is not hardened against prompt injection: keep
+# "Require approval for all external contributors" on for forked PRs.
+name: Security Review
+
+permissions:
+  pull-requests: write  # leave review comments on the PR
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - "apps/magicstick-clean/**"
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    env:
+      HAS_CLAUDE_KEY: ${{ secrets.CLAUDE_API_KEY != '' }}
+    steps:
+      - name: Explain skip (no API key yet)
+        if: env.HAS_CLAUDE_KEY != 'true'
+        run: echo "CLAUDE_API_KEY secret not set; skipping the Claude security review."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_CLAUDE_KEY == 'true'
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+
+      - uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda
+        if: env.HAS_CLAUDE_KEY == 'true'
+        with:
+          comment-pr: true
+          claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+          exclude-directories: apps/web,apps/magicstick-clean/server/node_modules

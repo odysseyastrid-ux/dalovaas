@@ -106,6 +106,16 @@ scroll-edge shadow (`header.is-scrolled`, set in `site-enhancements.js`); photo 
 grow-from-thumbnail; `prefers-reduced-motion` / `-transparency` / `prefers-contrast` handled
 globally; size-specific heading tracking, `text-wrap: balance`, body size in `rem`.
 
+### Security & SEO conventions (checklists of 22 Oct 2026, see `SECURITY.md`)
+- **CORS allow-list:** public functions answer browsers only from `https://magicstickclean.ca`
+  and `https://www.magicstickclean.ca` (`withCors()` in each `guard.ts`, all 5 copies identical).
+  Vercel previews cannot call the functions — test against production or locally.
+- **Logs:** never log a provider's response body (Resend/Groq); status + error name only.
+- **Session:** Supabase auth lives in `sessionStorage`, not localStorage.
+- **SEO:** every page keeps its own `<title>` (also in the i18n `title` keys), description,
+  canonical, og/twitter tags and exactly one `<h1>` (sub-sections use `h2`); new pages go in
+  `sitemap.xml`; `<img>` tags carry `width`/`height`. Backlink plan: `STRATEGIE-BACKLINKS.md`.
+
 ### Backend status (as of this session)
 - Supabase is **provisioned and live**; services/pricing above are seeded in the DB.
 - Stripe keys are verified working. **The one remaining blocker for live payments

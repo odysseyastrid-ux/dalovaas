@@ -45,7 +45,9 @@ async function sendEmail(to: string, subject: string, text: string) {
     body: JSON.stringify({ from: FROM_EMAIL, to, subject, text }),
   });
   if (!res.ok) {
-    console.error("Resend error:", res.status, await res.text());
+    // Status and error name only: Resend's body can echo the recipient's address.
+    const body = await res.json().catch(() => ({})) as { name?: string };
+    console.error("Resend error:", res.status, body?.name ?? "unknown");
   }
 }
 

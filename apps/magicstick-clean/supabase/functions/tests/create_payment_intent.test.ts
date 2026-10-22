@@ -207,9 +207,23 @@ Deno.test("only GET-less methods are served: GET -> 405, OPTIONS -> CORS preflig
   fresh();
   const get = await handler(new Request("https://functions.test/fn", { method: "GET" }));
   assert.equal(get.status, 405);
-  const opt = await handler(new Request("https://functions.test/fn", { method: "OPTIONS" }));
+  const opt = await handler(new Request("https://functions.test/fn", { method: "OPTIONS", headers: { origin: "https://magicstickclean.ca" } }));
   assert.equal(opt.status, 200);
-  assert.ok(opt.headers.get("Access-Control-Allow-Origin"));
+  assert.equal(opt.headers.get("Access-Control-Allow-Origin"), "https://magicstickclean.ca");
+});
+
+Deno.test("CORS: only the site itself may call from a browser", async () => {
+  fresh();
+  const pre = (origin: string) => handler(new Request("https://functions.test/fn", { method: "OPTIONS", headers: { origin } }));
+  assert.equal((await pre("https://magicstickclean.ca")).headers.get("Access-Control-Allow-Origin"), "https://magicstickclean.ca");
+  assert.equal((await pre("https://www.magicstickclean.ca")).headers.get("Access-Control-Allow-Origin"), "https://www.magicstickclean.ca");
+  for (const bad of ["https://evil.example", "https://magicstickclean-evil.vercel.app", "https://magicstickclean-abc123-odysseyastrid-2841s-projects.vercel.app", "http://magicstickclean.ca", "https://magicstickclean.ca.evil.example", "null"]) {
+    assert.equal((await pre(bad)).headers.get("Access-Control-Allow-Origin"), null, bad);
+  }
+  // Server-to-server calls (no Origin) still work, just without a CORS header.
+  const res = await handler(post(bookingBody()));
+  assert.equal(res.headers.get("Access-Control-Allow-Origin"), null);
+  assert.ok(res.status < 500);
 });
 
 Deno.test("far-future and malformed dates are refused", async () => {

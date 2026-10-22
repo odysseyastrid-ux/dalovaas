@@ -14,7 +14,20 @@
   function getSupabaseClient() {
     if (!isBackendConfigured()) return null;
     if (!client) {
-      client = window.supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+      // Login tokens live in sessionStorage, not localStorage: they never
+      // outlive the browser tab/session on the device. (Same-tab navigation
+      // keeps you signed in; a new browser session asks to log in again.)
+      let storage;
+      try { storage = window.sessionStorage; } catch (err) { storage = undefined; }
+      client = window.supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
+        auth: { storage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      });
+      // Remove any token an older version of the site left in localStorage.
+      try {
+        Object.keys(window.localStorage)
+          .filter((k) => /^sb-.*-auth-token/.test(k))
+          .forEach((k) => window.localStorage.removeItem(k));
+      } catch (err) { /* storage blocked: nothing to clean */ }
     }
     return client;
   }

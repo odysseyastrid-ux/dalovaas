@@ -7,7 +7,7 @@
   const STRINGS = {
     // Homepage <title>. Kept in the primary dict (not only the content
     // fallback) so t() always resolves it and crawlers never see the key.
-    'title.index': { en: 'The most affordable & professional cleaning service in Ontario | Magicstick Clean', fr: 'Le service de ménage le plus abordable et professionnel en Ontario | Magicstick Clean' },
+    'title.index': { en: 'House Cleaning in Rockland, Ottawa, Gatineau | Magicstick Clean', fr: 'Ménage à Rockland, Ottawa et Gatineau | Magicstick Clean' },
     // ---------- shared nav / footer ----------
     'nav.home': { en: 'Home', fr: 'Accueil' },
     'nav.beforeAfter': { en: 'Before & After', fr: 'Avant/Après' },
@@ -378,7 +378,7 @@
 
     // ---------- careers.html ----------
     'careers.hero.tag': { en: 'We’re hiring', fr: 'On embauche' },
-    'title.contest': { en: 'Contest: 50 Free Cleanings to Win in Rockland | Magicstick Clean', fr: 'Concours : 50 ménages gratuits à gagner à Rockland | Magicstick Clean' },
+    'title.contest': { en: 'Contest: 50 Free Cleanings to Win in Rockland | Magicstick Clean', fr: 'Concours : 50 ménages gratuits à Rockland | Magicstick Clean' },
     'footer.contest': { en: 'Contest: 50 free cleanings', fr: 'Concours : 50 ménages gratuits' },
     'nav.contest': { en: 'Contest: 50 free cleanings', fr: 'Concours : 50 ménages gratuits' },
     'contest.crumb': { en: 'Contest', fr: 'Concours' },
@@ -663,7 +663,7 @@
     'outdoor.snow.rateReg': { en: '$50/h', fr: '50 $/h' },
     'outdoor.cta.title': { en: 'Ready to book?', fr: 'Prêt à réserver?' },
     'outdoor.cta.desc': { en: 'Book window cleaning online, or request a free quote for lawn and snow.', fr: 'Réserve le nettoyage de fenêtres en ligne, ou demande un devis gratuit pour la pelouse et le déneigement.' },
-    'title.outdoor': { en: 'Outdoor & Seasonal Services (Windows, Lawn, Snow) | Magicstick Clean', fr: 'Services extérieurs et saisonniers (fenêtres, pelouse, déneigement) | Magicstick Clean' },
+    'title.outdoor': { en: 'Windows, Lawn & Snow Removal | Magicstick Clean', fr: 'Fenêtres, terrain et déneigement | Magicstick Clean' },
     'quote.auth.notYou': { en: 'Not you?', fr: 'Pas toi?' },
     'status.pending_payment': { en: 'Awaiting payment', fr: 'En attente de paiement' },
     'status.confirmed': { en: 'Confirmed', fr: 'Confirmée' },

@@ -1531,7 +1531,7 @@
   }
 
   /* ---------- DIGITAL GIFT CARD (gift-cards.html) ---------- */
-  .pass-area{display:flex;flex-direction:column;align-items:center;padding:12px 0 8px;}
+  .pass-area{display:flex;flex-direction:column;align-items:center;padding-top:12px;padding-bottom:8px;}
   .pass-card{perspective:1400px;width:320px;max-width:100%;cursor:pointer;}
   .pass-flip{
     position:relative;width:100%;height:190px;
@@ -1976,8 +1976,8 @@
   .balance-form .btn{white-space:nowrap;}
   .balance-card .balance-result{grid-column:1/-1;margin:0;min-height:1.2em;}
   @media (max-width:760px){
-    .balance-card{grid-template-columns:1fr;padding:22px;}
-    .balance-form input{width:auto;flex:1;}
+    .balance-card{grid-template-columns:minmax(0,1fr);padding:22px;}
+    .balance-form input{width:auto;flex:1 1 0;}
   }
 
   .gift-custom-amount{display:flex;align-items:center;gap:8px;margin-top:10px;max-width:220px;font-weight:600;}
@@ -2385,3 +2385,19 @@ body{ transition:background-color .35s ease, color .35s ease; }
   .btn-outline, .greviews-actions .btn-outline{ border-width:2px; }
   .field input, .field select, .field textarea{ border:1px solid var(--charcoal); }
 }
+
+/* Heading levels fixed for SEO (locations: h3->h2, quote: h3->h2) — same look as before. */
+.hub-card-body h2, .zone-modal h2, .quote-success h2{ line-height:1.2; letter-spacing:-0.008em; }
+.hub-card-body h2{font-size:19px;margin:0 0 8px;}
+.zone-modal h2{font-size:28px;margin-bottom:10px;}
+.quote-success h2{font-size:23px;margin:0 0 10px;}
+
+/* width/height on <img> let the browser reserve the right space before the
+   photo loads (no layout jump, better CLS). Zero-specificity :where() keeps
+   every existing sizing rule in charge, so nothing changes visually. */
+:where(img[width][height]){ width:auto; height:auto; }
+/* The success card sits inside .contact-band, whose h2 rule (white, 36px, shadow)
+   must not reach the card's title. */
+.contact-band .quote-success h2{ color:var(--charcoal); font-size:23px; margin:0 0 10px; max-width:none; text-shadow:none; }
+/* Careers "offer" list is forced to 3 columns inline; stack it on phones (it overflowed at 360px). */
+@media (max-width:600px){ .offer .why-list{ grid-template-columns:1fr !important; } }

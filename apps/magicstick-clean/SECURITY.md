@@ -27,6 +27,18 @@ Deployment-checklist items from the audit:
 - **Security headers / CSP** — `vercel.json`: `nosniff`, `X-Frame-Options: DENY`, referrer and permissions policies. The full Content-Security-Policy (self, Stripe, Supabase, Google Fonts/Maps, Cloudflare) is now **enforced on every page except `booking.html` and `gift-cards.html`** (zero violations on all 26 pages locally). Those two pages, which load the Stripe payment form, keep the minimal enforced policy (`frame-ancestors 'none'; base-uri 'self'; object-src 'none'`) plus the full policy as `Content-Security-Policy-Report-Only` until a real test payment has been observed (see "Promote the CSP").
 - **Files served by the public site** — the live site was serving `CLAUDE.md`, `MARKETING.md`, `SETUP.md`, `server/`, `supabase/` (migrations and function source). `.vercelignore` now keeps them out. Check after deploying (below).
 
+## Second pass — 19-point checklist (22 Oct 2026, deployed)
+
+| Point | Result |
+|---|---|
+| CORS | Was `*` on every function. Now only `https://magicstickclean.ca` and `https://www.magicstickclean.ca` get an `Access-Control-Allow-Origin` (`withCors()` in `guard.ts`, inline copy in `owner-assistant`). Vercel preview URLs are **not** allowed on purpose (another Vercel account can imitate the hostname pattern), so previews can't call the functions. Server-to-server calls (no `Origin`) are unaffected. Test: `create_payment_intent.test.ts`. |
+| Sensitive data in logs | Resend errors used to log the response body (it can echo the recipient's address); Groq errors logged the provider message. Both now log the status and an error name/code only (`logResendError()`, every function). |
+| Tokens in localStorage | The Supabase session now lives in `sessionStorage` (`js/supabaseClient.js`); any old `sb-*-auth-token` key in localStorage is removed. Trade-off: closing the browser signs you out. |
+| Extension in `public` schema | `pg_net` moved to the `extensions` schema (`migrations/0019`); the daily purge job was re-tested (HTTP 200). |
+| Dependencies | `uuid` advisory fixed with an `overrides` entry (`server/package.json`); `npm audit` reports 0. |
+| Automated review | `.github/workflows/security-review.yml` runs `anthropics/claude-code-security-review` (pinned by SHA) on pull requests touching this app. It needs the `CLAUDE_API_KEY` repository secret; without it the job only prints a notice. |
+| Already in place (verified) | RLS on every table, parameterized queries only (no SQL built from strings), email confirmation required (`mailer_autoconfirm` false), `.env` git-ignored and none committed, server-side validation of every form, admin routes checked server-side (`admin_users`), no debug output in production, API secrets only in Supabase secrets, atomic rate limits, upload type/size checks, passwords hashed by Supabase Auth, Stripe webhook signature verified, permissions enforced in the database (RLS) and functions, XSS: DB strings escaped before `innerHTML` + enforced CSP. |
+
 ## Putting it live — in this order
 
 Nothing below has been applied to production yet.
@@ -66,7 +78,7 @@ Open `booking.html` and `gift-cards.html` on the live site and go through a real
 - **No CAPTCHA.** The page's arithmetic question and honeypot are still only checked in the browser; the server now enforces rate limits, validation and a honeypot, which stops casual abuse and bounds the damage, but a determined script can still submit up to the limits. Recommended next step: Cloudflare Turnstile (free). It needs your Cloudflare account and a widget on the forms plus a server check — not included because it could not be tested here, and a half-wired CAPTCHA would block real customers.
 - **Your local copy:** the audit read a working copy that contained `0012_webhook_idempotency.sql` and edits to the Stripe webhook. **Those are not in this repository, nor in production** (production has migrations up to 0011 plus the booking-delete policy). `stripe-webhook/index.ts` was changed here (conditional confirmation); merge it with your local edit rather than overwriting. Migration numbers 0013–0015 were chosen to leave 0012 free for yours. 0012 and `reserve_booking_deposit` do not depend on each other; the webhook's "already confirmed" check overlaps with idempotency work you may have done.
 - **Stale price text** — fixed: the Stripe webhook owner email no longer mentions a "first-booking discount ($37/h)" (now "Standing discount": recurring / windows / outdoor), and the newsletter email in `submit-form` was corrected earlier.
-- **`uuid` advisory** in the secondary server (see S07) remains reported by `npm audit`.
+- **`uuid` advisory** in the secondary server (see S07): fixed on 22 Oct 2026 with an npm `overrides` entry (`uuid` ^11.1.1); `npm audit` reports 0.
 
 ## Running the tests
 

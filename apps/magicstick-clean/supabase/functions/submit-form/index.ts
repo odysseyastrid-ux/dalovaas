@@ -12,7 +12,7 @@
 //   RESEND_API_KEY, OWNER_EMAIL, OWNER_NOTIFY_FROM
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { checkLimits, readLimitedBody, type Rule } from "./guard.ts";
+import { checkLimits, readLimitedBody, type Rule, withCors, logResendError } from "./guard.ts";
 
 const MAX_BODY_BYTES = 20_000;
 
@@ -67,7 +67,7 @@ async function sendEmail(to: string, subject: string, text: string) {
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: FROM_EMAIL, to, reply_to: OWNER_EMAIL, subject, text }),
   });
-  if (!res.ok) console.error("Resend error:", res.status, await res.text());
+  if (!res.ok) await logResendError(res);
 }
 
 // Abuse limits (guard.ts -> rate_limit_hit in Postgres, atomic and shared by
@@ -265,7 +265,9 @@ async function handleJobApplication(body: Record<string, unknown>, fr: boolean) 
   return json({ ok: true });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async (req) => withCors(req, await handle(req)));
+
+async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS_HEADERS });
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
 
@@ -297,4 +299,4 @@ Deno.serve(async (req) => {
     console.error(err);
     return json({ ok: false, error: "server_error" }, 500);
   }
-});
+}

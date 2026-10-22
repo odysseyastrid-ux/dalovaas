@@ -92,6 +92,20 @@ export function isAllowedOrigin(origin: string | null): boolean {
   return !!origin && ALLOWED_ORIGINS.has(origin);
 }
 
+// A browser on another site is refused before any work is done. Leaving out
+// the CORS header only stops that site from READING the answer: a "simple"
+// request (e.g. a text/plain POST) skips the preflight and would still run
+// (a model call, an email, a hit on the visitor's rate limit). Calls with no
+// Origin header (server-to-server) are not affected.
+export function rejectForeignOrigin(req: Request): Response | null {
+  const origin = req.headers.get("origin");
+  if (origin === null || isAllowedOrigin(origin)) return null;
+  return new Response(JSON.stringify({ error: "forbidden_origin" }), {
+    status: 403,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 // Rewrites the response's Access-Control-Allow-Origin for this request.
 export function withCors(req: Request, res: Response): Response {
   const headers = new Headers(res.headers);

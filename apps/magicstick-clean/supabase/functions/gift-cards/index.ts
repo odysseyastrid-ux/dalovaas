@@ -18,7 +18,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { checkLimits, readLimitedBody, withCors, logResendError } from "./guard.ts";
+import { checkLimits, readLimitedBody, withCors, rejectForeignOrigin, logResendError } from "./guard.ts";
 
 const MAX_BODY_BYTES = 20_000;
 
@@ -289,7 +289,7 @@ async function handleDeliver(req: Request, body: Record<string, unknown>) {
   return json({ ok: true, code: card.code, already: !justActivated });
 }
 
-Deno.serve(async (req) => withCors(req, await handle(req)));
+Deno.serve(async (req) => withCors(req, rejectForeignOrigin(req) ?? await handle(req)));
 
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS_HEADERS });

@@ -108,10 +108,17 @@ globally; size-specific heading tracking, `text-wrap: balance`, body size in `re
 
 ### Security & SEO conventions (checklists of 22 Oct 2026, see `SECURITY.md`)
 - **CORS allow-list:** public functions answer browsers only from `https://magicstickclean.ca`
-  and `https://www.magicstickclean.ca` (`withCors()` in each `guard.ts`, all 5 copies identical).
+  and `https://www.magicstickclean.ca` (`withCors()` in each `guard.ts`, all 5 copies identical);
+  a browser on any other site gets **403 before any work** (`rejectForeignOrigin()`).
   Vercel previews cannot call the functions — test against production or locally.
 - **Logs:** never log a provider's response body (Resend/Groq); status + error name only.
-- **Session:** Supabase auth lives in `sessionStorage`, not localStorage.
+- **Session:** Supabase auth lives in `sessionStorage`, not localStorage, with an idle
+  sign-out (30 min admin, 60 min elsewhere) in `js/supabaseClient.js`.
+- **CSP:** no `'unsafe-inline'` for scripts. The two inline scripts (theme snippet, home splash
+  gate) are allowed by hash in `vercel.json`; editing one changes its hash —
+  `supabase/functions/tests/csp.test.ts` fails and prints the new value. No `onclick=` attributes.
+- **Vercel:** previews and deployment URLs need a Vercel login (Standard Protection);
+  `magicstickclean.vercel.app` redirects to `magicstickclean.ca`.
 - **SEO:** every page keeps its own `<title>` (also in the i18n `title` keys), description,
   canonical, og/twitter tags and exactly one `<h1>` (sub-sections use `h2`); new pages go in
   `sitemap.xml`; `<img>` tags carry `width`/`height`. Backlink plan: `STRATEGIE-BACKLINKS.md`.
@@ -186,6 +193,9 @@ globally; size-specific heading tracking, `text-wrap: balance`, body size in `re
   `js/reviews.js` (quoted word for word, `summary` mirrors Google's rating/count); as of
   2026-10-13 the listing has **1 review, 5.0** (Luffy M.). Shown on `index.html#avis` and
   `learn-more.html#testimonials`. To add one, copy it exactly from Google into that file.
+- **Kept on purpose (owner's decision, 22 Oct 2026) — do not revert:** logins are not kept
+  after the browser closes (sessionStorage), and Vercel preview URLs are not allowed to call
+  the functions (CORS allow-list). Both trade convenience for security; only strengthen them.
 - **Never commit secrets.** Only the Stripe *publishable* key (`pk_`) belongs in the
   repo (`js/config.js`). Secret keys (`sk_`, `whsec_`, service-role, Resend, Groq)
   are set by the owner in the Supabase/Stripe dashboards — never write them to files

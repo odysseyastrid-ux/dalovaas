@@ -31,6 +31,16 @@ function withCors(req: Request, res: Response): Response {
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
+// Another site's browser is refused outright (see rejectForeignOrigin in guard.ts).
+function rejectForeignOrigin(req: Request): Response | null {
+  const origin = req.headers.get("origin");
+  if (origin === null || ALLOWED_ORIGINS.has(origin)) return null;
+  return new Response(JSON.stringify({ error: "forbidden_origin" }), {
+    status: 403,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 const MAX_MESSAGES = 24;
 const MAX_MESSAGE_LENGTH = 4000;
 
@@ -115,7 +125,7 @@ async function buildContext(supabase: any, lang: "en" | "fr"): Promise<string> {
   ].join("\n");
 }
 
-Deno.serve(async (req) => withCors(req, await handle(req)));
+Deno.serve(async (req) => withCors(req, rejectForeignOrigin(req) ?? await handle(req)));
 
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS_HEADERS });

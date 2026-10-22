@@ -996,6 +996,9 @@
     const user = sessionData?.session?.user;
     if (!user) {
       loginForm.hidden = false;
+      if (backend.consumeIdleNotice && backend.consumeIdleNotice()) {
+        document.getElementById('adminLoginNote').textContent = t('auth.idleSignedOut');
+      }
       return;
     }
     const { data: adminRow } = await supabase.from('admin_users').select('id').eq('id', user.id).maybeSingle();

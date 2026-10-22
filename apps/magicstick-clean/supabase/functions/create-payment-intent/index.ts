@@ -33,7 +33,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { checkLimits, readLimitedBody, withCors, logResendError } from "./guard.ts";
+import { checkLimits, readLimitedBody, withCors, rejectForeignOrigin, logResendError } from "./guard.ts";
 import { isEmail, MAX_BODY_BYTES, validateBooking } from "./validate.ts";
 
 const supabase = createClient(
@@ -226,7 +226,7 @@ async function replay(existing: any): Promise<Response> {
   return json({ error: "checkout_unavailable" }, 409);
 }
 
-Deno.serve(async (req) => withCors(req, await handle(req)));
+Deno.serve(async (req) => withCors(req, rejectForeignOrigin(req) ?? await handle(req)));
 
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {

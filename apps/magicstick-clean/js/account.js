@@ -189,6 +189,9 @@
       showDashboard(data.session.user);
     } else {
       authPanel.hidden = false;
+      if (backend.consumeIdleNotice && backend.consumeIdleNotice()) {
+        document.getElementById('loginNote').textContent = t('auth.idleSignedOut');
+      }
     }
   }
   checkSession();

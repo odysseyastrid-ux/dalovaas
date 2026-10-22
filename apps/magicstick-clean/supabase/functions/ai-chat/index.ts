@@ -5,7 +5,7 @@
 // Required secrets: SUPABASE_URL, SUPABASE_ANON_KEY (auto), GROQ_API_KEY.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { checkLimits, readLimitedBody, withCors } from "./guard.ts";
+import { checkLimits, readLimitedBody, withCors, rejectForeignOrigin } from "./guard.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -141,7 +141,7 @@ Strict rules:
 - Never claim to be a human: you're Louis, the site's virtual assistant.`;
 }
 
-Deno.serve(async (req) => withCors(req, await handle(req)));
+Deno.serve(async (req) => withCors(req, rejectForeignOrigin(req) ?? await handle(req)));
 
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {

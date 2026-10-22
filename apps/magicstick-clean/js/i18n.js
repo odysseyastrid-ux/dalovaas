@@ -611,6 +611,7 @@
     'account.signup.note.creating': { en: 'Creating your account...', fr: 'Création de ton compte...' },
     'account.signup.note.checkEmail': { en: 'Account created! Check your email to confirm, then log in.', fr: 'Compte créé! Vérifie tes courriels pour confirmer, puis connecte-toi.' },
     'account.login.note.signingIn': { en: 'Signing in...', fr: 'Connexion en cours...' },
+    'auth.idleSignedOut': { en: 'For your security, you were signed out after a period of inactivity.', fr: 'Par sécurité, la session a été fermée après une période d’inactivité.' },
     'account.signedInAs': { en: 'Signed in as', fr: 'Connecté en tant que' },
     'account.logout': { en: 'Log out', fr: 'Se déconnecter' },
     'account.nav.bookings': { en: 'My bookings', fr: 'Mes réservations' },

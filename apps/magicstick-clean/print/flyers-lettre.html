@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Flyers lettre — Magicstick Clean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Libre+Baskerville:wght@700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Letter portrait, one flyer per page. Print at 100 % ("actual size"). Everything important stays 0.35 in from the edge. */
+  @page { size: 8.5in 11in; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #14143a; --ink: #1d1d3a; --muted: #5a5b74; --blue: #2f7ff0; --violet: #8a3ff0;
+    --grad: linear-gradient(100deg, #2f7ff0 0%, #5b5cf0 50%, #8a3ff0 100%); --line: #e3e3f0; }
+  body { font-family: Inter, system-ui, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 8.5in; height: 11in; padding: 0.42in 0.45in 0.36in; display: flex; flex-direction: column; position: relative; overflow: hidden; page-break-after: always;
+    background: radial-gradient(120% 60% at 50% 0%, #f1efff 0%, #ffffff 55%) ; }
+  .page:last-child { page-break-after: auto; }
+
+  /* Logo, like the base flyer: big gradient check + sparkle, MAGICSTICK serif, Clean gradient. */
+  .logo { display: flex; align-items: center; justify-content: center; gap: 0.16in; }
+  .logo svg { width: 1.05in; height: 0.9in; flex: none; }
+  .logo .words { line-height: .9; }
+  .logo .m { font-family: "Libre Baskerville", Georgia, serif; font-weight: 700; font-size: 29pt; color: var(--navy); letter-spacing: .01em; }
+  .logo .c { font-family: Inter, sans-serif; font-weight: 900; font-size: 46pt; letter-spacing: -0.03em; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; margin-top: -2px; }
+  .tagline { text-align: center; font-size: 10pt; letter-spacing: .3em; color: var(--navy); margin-top: 6px; font-weight: 500; }
+
+  .cats { display: flex; justify-content: center; margin-top: 0.14in; }
+  .cats span { font-weight: 800; font-size: 10.5pt; color: var(--navy); text-transform: uppercase; text-align: center; padding: 0 0.16in; line-height: 1.15; display: flex; align-items: center; }
+  .cats span + span { border-left: 2px solid #4a5be8; }
+
+  .badge { margin: 0.15in auto 0; background: var(--grad); color: #fff; border-radius: 26px; padding: 0.06in 0.42in 0.1in; text-align: center; box-shadow: 0 10px 28px rgba(91,92,240,.28); }
+  .badge .big { font-family: Anton, Impact, sans-serif; font-size: 78pt; line-height: 1; letter-spacing: .01em; }
+  .badge .big small { font-size: 34pt; }
+  .badge .sub { font-weight: 700; font-size: 12.5pt; margin-top: -2px; }
+
+  .claim { text-align: center; margin-top: 0.12in; font-family: Anton, Impact, sans-serif; font-size: 22pt; line-height: 1.08; color: var(--navy); text-transform: uppercase; letter-spacing: .01em; }
+  .claim .g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .claim-en { text-align: center; font-size: 10.5pt; color: var(--muted); margin-top: 3px; font-weight: 500; }
+
+  .grid { display: grid; grid-template-columns: 1.08fr 1fr; gap: 0.2in; margin-top: 0.15in; }
+  .prices { border: 1.5px solid var(--line); border-radius: 18px; padding: 0.14in 0.18in; background: #fff; }
+  .prices h3 { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 15pt; letter-spacing: .02em; text-transform: uppercase; color: var(--navy); }
+  .prices ul { list-style: none; margin-top: 5px; }
+  .prices li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: 10.5pt; }
+  .prices li:last-child { border-bottom: 0; }
+  .prices li b { font-weight: 800; white-space: nowrap; font-size: 12pt; }
+  .prices li em { font-style: normal; color: var(--muted); font-size: 8.5pt; display: block; }
+  .prices .tag { font-size: 8pt; font-weight: 800; color: #fff; background: var(--violet); border-radius: 999px; padding: 1px 6px; margin-left: 4px; vertical-align: 1px; }
+  .prices .note { font-size: 8.2pt; color: var(--muted); margin-top: 5px; line-height: 1.35; }
+
+  .photos { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1.2in 1.2in; gap: 6px; }
+  .photos figure { position: relative; border-radius: 12px; overflow: hidden; }
+  .photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photos figcaption { position: absolute; left: 6px; top: 6px; font-size: 7.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: rgba(20,20,58,.85); color: #fff; padding: 2px 7px; border-radius: 999px; }
+  .photos-note { font-size: 7.6pt; color: var(--muted); margin-top: 4px; text-align: right; }
+
+  .foot { margin-top: auto; padding-top: 0.12in; }
+  .areas { display: flex; align-items: center; justify-content: center; gap: 0.16in; font-family: Anton, Impact, sans-serif; font-size: 22pt; color: var(--navy); letter-spacing: .02em; text-transform: uppercase; }
+  .areas svg { width: 0.3in; height: 0.4in; }
+  .areas i { width: 2px; height: 0.32in; background: #4a5be8; display: inline-block; }
+  .contact { display: flex; align-items: center; gap: 0.22in; margin-top: 0.14in; padding: 0.12in 0.2in; border-radius: 18px; background: #f6f5ff; }
+  .contact img { width: 1.25in; height: 1.25in; flex: none; background: #fff; border-radius: 10px; padding: 3px; }
+  .contact .cta { font-weight: 800; font-size: 12.5pt; color: var(--navy); line-height: 1.25; }
+  .contact .cta small { display: block; font-weight: 500; font-size: 9.5pt; color: var(--muted); }
+  .contact .phone { font-family: Anton, Impact, sans-serif; font-size: 30pt; color: var(--navy); line-height: 1.1; margin-top: 4px; letter-spacing: .01em; }
+  .contact .site { font-family: Anton, Impact, sans-serif; font-size: 17pt; letter-spacing: .03em; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .fine { font-size: 7pt; color: var(--muted); line-height: 1.35; margin-top: 0.08in; text-align: center; }
+
+  /* Promotion page */
+  .promo-badge { margin: 0.14in auto 0; background: var(--grad); color: #fff; border-radius: 28px; padding: 0.12in 0.4in 0.16in; text-align: center; box-shadow: 0 10px 28px rgba(91,92,240,.28); }
+  .promo-badge .kicker { font-weight: 800; font-size: 12pt; letter-spacing: .22em; text-transform: uppercase; opacity: .95; }
+  .promo-badge .big { font-family: Anton, Impact, sans-serif; font-size: 74pt; line-height: .95; }
+  .promo-badge .big2 { font-family: Anton, Impact, sans-serif; font-size: 40pt; line-height: 1; text-transform: uppercase; }
+  .promo-badge .big2 em { font-style: normal; color: #ffe08a; }
+  .promo-badge .sub { font-weight: 700; font-size: 13pt; margin-top: 6px; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.14in; margin-top: 0.14in; }
+  .steps div { border: 1.5px solid var(--line); border-radius: 16px; padding: 0.12in 0.14in; background: #fff; }
+  .steps b { font-family: Anton, Impact, sans-serif; font-size: 22pt; font-weight: 400; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1; }
+  .steps p { font-size: 10pt; font-weight: 700; color: var(--navy); margin-top: 3px; line-height: 1.3; }
+  .steps p small { display: block; font-weight: 500; color: var(--muted); font-size: 8.5pt; margin-top: 2px; }
+  .after { display: grid; grid-template-columns: 1fr 1.25fr; gap: 0.18in; margin-top: 0.14in; align-items: stretch; }
+  .after .photos { grid-template-rows: 1.3in; }
+  .after .why { border: 1.5px solid var(--line); border-radius: 16px; padding: 0.12in 0.16in; background: #fff; }
+  .after .why h3 { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 15pt; text-transform: uppercase; color: var(--navy); }
+  .after .why ul { list-style: none; margin-top: 4px; display: grid; gap: 3px; }
+  .after .why li { font-size: 10pt; padding-left: 16px; position: relative; line-height: 1.3; }
+  .after .why li::before { content: "✓"; position: absolute; left: 0; font-weight: 900; color: var(--blue); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2f7ff0"/><stop offset="1" stop-color="#8a3ff0"/></linearGradient>
+    <symbol id="mark" viewBox="0 0 130 110">
+      <path d="M14 62 L44 92 L104 26" fill="none" stroke="url(#g)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M108 2 L112.5 15.5 L126 20 L112.5 24.5 L108 38 L103.5 24.5 L90 20 L103.5 15.5 Z" fill="#8a3ff0"/>
+    </symbol>
+    <symbol id="pin" viewBox="0 0 24 32"><path d="M12 0C5.4 0 0 5.3 0 11.9 0 20.8 12 32 12 32s12-11.2 12-20.1C24 5.3 18.6 0 12 0zm0 16.5a4.6 4.6 0 1 1 0-9.2 4.6 4.6 0 0 1 0 9.2z" fill="url(#g)"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1. SERVICES & PRIX ============ -->
+<section class="page">
+  <div class="logo"><svg><use href="#mark"/></svg><div class="words"><div class="m">MAGICSTICK</div><div class="c">Clean</div></div></div>
+  <p class="tagline">MÉNAGE LOCAL · LOCAL HOME CLEANING · ONTARIO</p>
+
+  <div class="cats"><span>Résidentiel</span><span>Commercial</span><span>Ménage en<br>profondeur</span><span>Entrée /<br>sortie</span></div>
+
+  <div class="badge">
+    <div class="big">30$<small>/H</small></div>
+    <div class="sub">Minimum 3 h · dès 90 $ la visite · from $90 per visit</div>
+  </div>
+
+  <p class="claim">Prix clairs, affichés d’avance.<br><span class="g">Réponse le jour même.</span></p>
+  <p class="claim-en">Clear prices, shown up front. Same-day reply. · Service en français et en anglais</p>
+
+  <div class="grid">
+    <div class="prices">
+      <h3>Nos prix · Our prices</h3>
+      <ul>
+        <li><span>Ménage standard <em>Standard cleaning</em></span><b>30 $/h</b></li>
+        <li><span>Ménage en profondeur <em>Deep cleaning</em></span><b>43 $/h</b></li>
+        <li><span>Entrée / sortie, après rénovation <em>Move-in/out, post-renovation</em></span><b>50 $/h</b></li>
+        <li><span>Forfait récurrent <span class="tag">−10 %</span><em>Weekly, biweekly or monthly plan</em></span><b>27 $/h</b></li>
+        <li><span>Fenêtres et vitres <span class="tag">−15 %</span><em>Windows &amp; glass</em></span><b>25,50 $/h</b></li>
+      </ul>
+      <p class="note">Minimum 3 heures par visite. Airbnb et bureaux : 30 $/h. Pelouse et déneigement : sur soumission, 15 % de rabais. Soumission gratuite.</p>
+    </div>
+    <div>
+      <div class="photos">
+        <figure><img src="../assets/images/before-fridge.jpg" alt=""><figcaption>Avant</figcaption></figure>
+        <figure><img src="../assets/images/after-fridge.jpg" alt=""><figcaption>Après</figcaption></figure>
+        <figure><img src="../assets/images/before-bathroom.jpg" alt=""><figcaption>Avant</figcaption></figure>
+        <figure><img src="../assets/images/after-bathroom.jpg" alt=""><figcaption>Après</figcaption></figure>
+      </div>
+      <p class="photos-note">Vraies photos de nos ménages · Real photos of our work</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="areas"><svg><use href="#pin"/></svg>Rockland<i></i>Ottawa<i></i>Gatineau</div>
+    <div class="contact">
+      <img src="qr-prix.svg" alt="QR">
+      <div>
+        <p class="cta">Scannez pour une soumission gratuite<small>Scan for a free quote · ou réservez en ligne · or book online</small></p>
+        <p class="phone">(343) 843-7761</p>
+        <p class="site">MAGICSTICKCLEAN.CA</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. PROMOTION : CONCOURS ============ -->
+<section class="page">
+  <div class="logo"><svg><use href="#mark"/></svg><div class="words"><div class="m">MAGICSTICK</div><div class="c">Clean</div></div></div>
+  <p class="tagline">CONCOURS · CONTEST · CLARENCE-ROCKLAND</p>
+
+  <div class="promo-badge">
+    <div class="kicker">À gagner · To win</div>
+    <div class="big">50</div>
+    <div class="big2">ménages <em>gratuits</em></div>
+    <div class="sub">Un ménage standard de 3 h, valeur de 90 $ chacun · 50 free 3-hour cleanings ($90 value)</div>
+  </div>
+
+  <p class="claim">Gratuit. Sans achat.<br><span class="g">Inscription en 1 minute.</span></p>
+  <p class="claim-en">Free. No purchase. Enter in 1 minute. · Résidents de Clarence-Rockland, 18 ans et plus</p>
+
+  <div class="steps">
+    <div><b>1</b><p>Scannez le code QR<small>Scan the QR code</small></p></div>
+    <div><b>2</b><p>Inscrivez-vous avant le 31 décembre<small>Enter before December 31</small></p></div>
+    <div><b>3</b><p>Tirage le 5 janvier 2027<small>Draw on January 5, 2027</small></p></div>
+  </div>
+
+  <div class="after">
+    <div>
+      <div class="photos">
+        <figure><img src="../assets/images/before-hardwood-floor.jpg" alt=""><figcaption>Avant</figcaption></figure>
+        <figure><img src="../assets/images/after-hardwood-floor.jpg" alt=""><figcaption>Après</figcaption></figure>
+      </div>
+      <p class="photos-note">Vraies photos · Real photos</p>
+    </div>
+    <div class="why">
+      <h3>Pas envie d’attendre le tirage&nbsp;?</h3>
+      <ul>
+        <li>Ménage dès 30 $/h (minimum 3 h)</li>
+        <li>Forfait récurrent : 27 $/h (10 % de rabais)</li>
+        <li>Soumission gratuite, réponse le jour même</li>
+        <li>Entreprise d’ici · français et anglais</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="contact">
+      <img src="qr-concours-lettre.svg" alt="QR">
+      <div>
+        <p class="cta">Scannez pour vous inscrire<small>Scan to enter · ou magicstickclean.ca/concours</small></p>
+        <p class="phone">(343) 843-7761</p>
+        <p class="site">MAGICSTICKCLEAN.CA/CONCOURS</p>
+      </div>
+    </div>
+    <p class="fine">Aucun achat requis. Ouvert aux résidents de Clarence-Rockland de 18 ans et plus. Une inscription par personne et par adresse. Inscriptions jusqu’au 31 décembre 2026 à 23 h 59 (HE). Tirage au hasard le 5 janvier 2027 parmi les inscriptions admissibles ; question d’habileté mathématique requise. 50 prix d’une valeur de 90 $ chacun (4 500 $ au total), utilisables jusqu’au 30 juin 2027. Règlement complet : magicstickclean.ca/concours · No purchase necessary. Full rules at magicstickclean.ca/contest.</p>
+  </div>
+</section>
+
+</body>
+</html>

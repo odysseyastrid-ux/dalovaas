@@ -41,7 +41,7 @@ const CONTEST_CLOSES_AT = Date.parse("2027-01-01T05:00:00Z");
 // Wording of the optional "send me your offers" box on concours.html
 // (contest.form.marketing in js/i18n.js). Change the version when the wording
 // changes, so each recorded consent points to the text that was shown.
-const CONTEST_CONSENT_VERSION = "contest-optin-v1";
+const CONTEST_CONSENT_VERSION = "contest-optin-v2";
 
 const SIGNATURE_EN = "— The Magicstick Clean team\n343-843-7761 · magicstickclean@gmail.com\nhttps://magicstickclean.ca";
 const SIGNATURE_FR = "— L’équipe Magicstick Clean\n343-843-7761 · magicstickclean@gmail.com\nhttps://magicstickclean.ca";

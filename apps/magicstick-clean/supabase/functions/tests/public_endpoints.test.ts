@@ -220,7 +220,7 @@ Deno.test("contest: marketing consent is recorded only when the optional box is 
   assert.equal(rows[0].marketing_consent_at, undefined);
   assert.equal(rows[1].marketing_consent_at, undefined, "only a real true counts");
   assert.ok(rows[2].marketing_consent_at);
-  assert.equal(rows[2].marketing_consent_version, "contest-optin-v1");
+  assert.equal(rows[2].marketing_consent_version, "contest-optin-v2");
 });
 
 Deno.test("contest: an entrant who comes back and ticks the box gives consent; leaving it unticked never removes it", async () => {

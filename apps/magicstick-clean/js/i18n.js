@@ -1179,11 +1179,22 @@
     }
   }
 
+  // A link can name the language (?lang=fr — e.g. the QR code on the printed
+  // French flyer). It beats the browser's language but not a saved choice.
+  function urlLang() {
+    try {
+      const l = new URLSearchParams(window.location.search).get('lang');
+      return l === 'fr' || l === 'en' ? l : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   function getLang() {
     try {
-      return localStorage.getItem('magicstick_lang') || detectBrowserLang();
+      return localStorage.getItem('magicstick_lang') || urlLang() || detectBrowserLang();
     } catch (e) {
-      return detectBrowserLang();
+      return urlLang() || detectBrowserLang();
     }
   }
 

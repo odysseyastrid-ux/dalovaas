@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Dépliant concours — Magicstick Clean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Two half-letter flyers (5.5 x 8.5 in) per landscape letter sheet: print at 100 %, cut down the middle. */
+  @page { size: 11in 8.5in; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --ink: #141428; --muted: #55566e; --blue: #3b82e6; --violet: #7c4ddf; --gold: #f4c95d; --line: #e4e4ef; }
+  body { font-family: Inter, system-ui, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet { width: 11in; height: 8.5in; display: flex; page-break-after: always; position: relative; }
+  .sheet:last-child { page-break-after: auto; }
+  .sheet::after { content: ""; position: absolute; left: 50%; top: 0.15in; bottom: 0.15in; border-left: 1px dashed #b9b9c9; }
+  .flyer { width: 5.5in; height: 8.5in; padding: 0.32in 0.38in 0.3in; display: flex; flex-direction: column; }
+
+  .band { border-radius: 16px; padding: 0.22in 0.26in 0.26in; color: #fff;
+    background: linear-gradient(135deg, #3f8be8 0%, #5b6ee6 48%, #7c4ddf 100%); }
+  .brand { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo img { width: 0.36in; height: 0.36in; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255,255,255,.9); }
+  .logo span { font-family: "Instrument Serif", Georgia, serif; font-size: 17pt; line-height: 1; }
+  .logo b { font-family: Inter, sans-serif; font-weight: 800; font-size: 13pt; letter-spacing: -0.01em; }
+  .pill { font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,.55); border-radius: 999px; padding: 3px 10px; }
+  h1 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 43pt; line-height: .92; margin-top: 0.12in; letter-spacing: -0.01em; }
+  h1 em { color: var(--gold); }
+  .lead { font-size: 11.5pt; font-weight: 600; margin-top: 0.12in; }
+  .prize { font-size: 10pt; opacity: .92; margin-top: 2px; }
+
+  .scan { display: flex; align-items: center; gap: 0.2in; margin-top: 0.15in; padding: 0.14in 0.18in;
+    border: 1.5px solid var(--line); border-radius: 16px; }
+  .scan img { width: 1.45in; height: 1.45in; flex: none; }
+  .scan h2 { font-size: 15pt; font-weight: 800; line-height: 1.15; }
+  .scan p { font-size: 9.5pt; color: var(--muted); margin-top: 5px; line-height: 1.35; }
+  .scan .url { font-weight: 700; color: var(--violet); font-size: 10pt; margin-top: 7px; }
+  .deadline { display: inline-block; margin-top: 8px; font-size: 9pt; font-weight: 700; background: #f1edfd; color: #5a34b8; padding: 3px 8px; border-radius: 6px; }
+
+  .now { margin-top: 0.13in; }
+  .now h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 19pt; line-height: 1.05; }
+  .now ul { list-style: none; margin-top: 6px; display: grid; gap: 4px; }
+  .now li { font-size: 9.6pt; padding-left: 16px; position: relative; line-height: 1.3; }
+  .now li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); font-weight: 800; }
+
+  .proof { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 0.1in; }
+  .proof figure { position: relative; height: 0.92in; border-radius: 10px; overflow: hidden; }
+  .proof img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .proof figcaption { position: absolute; left: 6px; top: 6px; font-size: 7.5pt; font-weight: 800; letter-spacing: .08em;
+    text-transform: uppercase; background: rgba(20,20,40,.82); color: #fff; padding: 2px 7px; border-radius: 999px; }
+  .proof-note { font-size: 7.5pt; color: var(--muted); margin: 3px 0 7px; }
+
+  .contact { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 1.5px solid var(--ink); padding-top: 8px; }
+  .phone { font-size: 17pt; font-weight: 800; letter-spacing: -0.01em; }
+  .site { font-size: 10.5pt; font-weight: 700; color: var(--violet); }
+  .fine { font-size: 6.6pt; color: var(--muted); line-height: 1.35; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<template id="fr">
+  <section class="flyer" lang="fr">
+    <div class="band">
+      <div class="brand"><span class="logo"><img src="../assets/images/favicon.svg" alt=""><span>Magicstick <b>Clean</b></span></span><span class="pill">Concours · Rockland</span></div>
+      <h1>50 ménages <em>gratuits</em> à gagner</h1>
+      <p class="lead">Inscription gratuite, sans achat, en 1 minute.</p>
+      <p class="prize">Prix : un ménage standard de 3 h (valeur 90 $)</p>
+    </div>
+    <div class="scan">
+      <img src="qr-concours-flyer-fr.svg" alt="Code QR vers magicstickclean.ca/concours">
+      <div>
+        <h2>Scanne avec ton téléphone pour t’inscrire</h2>
+        <p>Ou va sur</p>
+        <p class="url">magicstickclean.ca/concours</p>
+        <span class="deadline">Inscriptions jusqu’au 31 décembre 2026</span>
+      </div>
+    </div>
+    <div class="now">
+      <h3>Pas envie d’attendre le tirage&nbsp;?</h3>
+      <ul>
+        <li>Ménage résidentiel dès 30 $/h (minimum 3 h)</li>
+        <li>Forfait récurrent : 27 $/h (10 % de rabais)</li>
+        <li>Soumission gratuite, réponse le jour même</li>
+        <li>Clarence-Rockland, Ottawa et Gatineau · français et anglais</li>
+      </ul>
+    </div>
+    <div class="proof">
+      <figure><img src="../assets/images/before-fridge.jpg" alt=""><figcaption>Avant</figcaption></figure>
+      <figure><img src="../assets/images/after-fridge.jpg" alt=""><figcaption>Après</figcaption></figure>
+    </div>
+    <p class="proof-note">Photos réelles d’un de nos ménages.</p>
+    <div class="contact"><span class="phone">(343) 843-7761</span><span class="site">magicstickclean.ca</span></div>
+    <p class="fine">Aucun achat requis. 18 ans et plus, résidents de Clarence-Rockland. Une inscription par personne et par adresse. Tirage au hasard le 5 janvier 2027 parmi les inscriptions admissibles ; question d’habileté mathématique requise. 50 prix d’une valeur de 90 $ chacun (4 500 $ au total), utilisables jusqu’au 30 juin 2027. Règlement complet : magicstickclean.ca/concours</p>
+  </section>
+</template>
+
+<template id="en">
+  <section class="flyer" lang="en">
+    <div class="band">
+      <div class="brand"><span class="logo"><img src="../assets/images/favicon.svg" alt=""><span>Magicstick <b>Clean</b></span></span><span class="pill">Contest · Rockland</span></div>
+      <h1>50 <em>free</em> cleanings to win</h1>
+      <p class="lead">Free to enter, no purchase, takes 1 minute.</p>
+      <p class="prize">Prize: one 3-hour standard cleaning (value $90)</p>
+    </div>
+    <div class="scan">
+      <img src="qr-concours-flyer-en.svg" alt="QR code to magicstickclean.ca/contest">
+      <div>
+        <h2>Scan with your phone to enter</h2>
+        <p>Or go to</p>
+        <p class="url">magicstickclean.ca/contest</p>
+        <span class="deadline">Entries close December 31, 2026</span>
+      </div>
+    </div>
+    <div class="now">
+      <h3>Don’t want to wait for the draw?</h3>
+      <ul>
+        <li>Home cleaning from $30/h (3-hour minimum)</li>
+        <li>Recurring plan: $27/h (10% off)</li>
+        <li>Free quote, same-day reply</li>
+        <li>Clarence-Rockland, Ottawa and Gatineau · English and French</li>
+      </ul>
+    </div>
+    <div class="proof">
+      <figure><img src="../assets/images/before-fridge.jpg" alt=""><figcaption>Before</figcaption></figure>
+      <figure><img src="../assets/images/after-fridge.jpg" alt=""><figcaption>After</figcaption></figure>
+    </div>
+    <p class="proof-note">Real photos from one of our cleanings.</p>
+    <div class="contact"><span class="phone">(343) 843-7761</span><span class="site">magicstickclean.ca</span></div>
+    <p class="fine">No purchase necessary. Open to Clarence-Rockland residents 18 and over. One entry per person and per address. Random draw on January 5, 2027 among eligible entries; skill-testing question required. 50 prizes worth $90 each ($4,500 total), usable until June 30, 2027. Full rules: magicstickclean.ca/contest</p>
+  </section>
+</template>
+
+<div class="sheet" data-lang="fr"></div>
+<div class="sheet" data-lang="en"></div>
+<script>
+  document.querySelectorAll('.sheet').forEach((sheet) => {
+    const tpl = document.getElementById(sheet.dataset.lang);
+    sheet.append(tpl.content.cloneNode(true), tpl.content.cloneNode(true));
+  });
+</script>
+</body>
+</html>

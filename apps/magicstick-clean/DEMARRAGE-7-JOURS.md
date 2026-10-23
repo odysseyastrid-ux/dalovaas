@@ -115,9 +115,56 @@ Annonce dans **Facebook Marketplace (Services)** et **Kijiji (Services > Ménage
 > 27 $/h (10 % de rabais). Soumission gratuite, réponse le jour même.
 > Photos : vrais avant/après de nos ménages.
 > 📞 (343) 843-7761 · magicstickclean.ca
-> 🎉 En ce moment : 50 ménages gratuits à gagner → magicstickclean.ca/concours
+> 🎉 Résidents de Clarence-Rockland : 50 ménages gratuits à gagner → magicstickclean.ca/concours
 
 Photos : les avant/après du frigo et de la salle de bain.
+
+### Nextdoor (30 min, puis 5 min par jour)
+
+Sur Nextdoor, les voisins demandent eux-mêmes un ménage : c'est la source de clients la plus
+directe. Le secret, c'est de **répondre vite** (moins d'une heure si possible).
+
+1. **Page Entreprise gratuite** : menu ☰ → « Entreprises » → créer une page. Nom
+   **Magicstick Clean**, catégorie « Services de ménage », 6 à 8 vraies photos avant/après,
+   (343) 843-7761, magicstickclean.ca. Publiez les annonces depuis cette page, pas depuis votre
+   profil personnel : Nextdoor retire souvent la publicité faite par un profil.
+2. **Alertes** : activez les notifications et cherchez chaque jour « ménage », « cleaning »,
+   « cleaner », « femme de ménage », « déménagement », « move out ».
+3. **Demandez à vos voisins et clients de vous « recommander »** sur votre page (bouton
+   Recommander). Comme pour Google : jamais rien en échange.
+4. **Le concours** : publiez le texte A de `FACEBOOK-GROUPES.md` depuis votre page, seulement
+   pour les voisinages de **Clarence-Rockland**.
+
+**Réponse prête — quelqu'un cherche un ménage :**
+> **FR :** Bonjour [prénom] ! Je suis Louis, de Magicstick Clean, une entreprise de ménage de
+> Rockland. Ménage standard 30 $/h, en profondeur 43 $/h (minimum 3 h), forfait récurrent
+> 27 $/h. Je peux vous faire une soumission gratuite aujourd'hui : (343) 843-7761 ou
+> magicstickclean.ca/quote. Au plaisir !
+>
+> **EN:** Hi [name]! I'm Louis from Magicstick Clean, a local cleaning business based in
+> Rockland. Standard cleaning $30/h, deep cleaning $43/h (3-hour minimum), recurring plans
+> $27/h. Happy to give you a free quote today: (343) 843-7761 or magicstickclean.ca/quote. Thanks!
+
+**Réponse prête — un déménagement :**
+> **FR :** Bonjour [prénom] ! Pour un ménage d'entrée ou de sortie, c'est 50 $/h (minimum 3 h),
+> logement vide, du haut en bas. Envoyez-moi quelques photos et la grandeur du logement, je
+> vous donne un prix le jour même : (343) 843-7761. — Louis, Magicstick Clean
+>
+> **EN:** Hi [name]! Move-in/move-out cleaning is $50/h (3-hour minimum), empty home, top to
+> bottom. Send me a few photos and the size of the place and I'll get you a price the same day:
+> (343) 843-7761. — Louis, Magicstick Clean
+
+**Quand ce n'est pas votre métier** (foyer au gaz, fournaise, électricité, toiture…) : ne
+proposez pas vos services. Le gaz, par exemple, exige en Ontario un technicien gazier
+licencié (entreprise enregistrée auprès de la TSSA). Une réponse utile vous fait quand même
+connaître :
+> Hi [name]! For that you'll want a licensed [gas technician / electrician…], it's required in
+> Ontario. If you'd like the area cleaned afterwards, that's something I do — Louis,
+> Magicstick Clean.
+
+**Ne faites pas :** répondre à chaque publication avec la même pub, publier le concours dans
+les voisinages hors de Clarence-Rockland, envoyer des messages privés à des gens qui n'ont
+rien demandé.
 
 ## Jour 5 — Agents immobiliers (45 min)
 

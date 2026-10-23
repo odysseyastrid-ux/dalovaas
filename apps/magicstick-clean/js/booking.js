@@ -474,6 +474,29 @@
     }
   });
 
+  // A phone number (7 to 15 digits) or an email, like the server checks.
+  function isReachable(value) {
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return true;
+    if (!/^[0-9+()\-.\s]+$/.test(value)) return false;
+    const digits = value.replace(/\D/g, '').length;
+    return digits >= 7 && digits <= 15;
+  }
+
+  // As soon as a flagged field is filled in, its red outline and message go away.
+  function clearWhenFixed(el, isFixed) {
+    const update = () => {
+      const field = el.closest('.field');
+      if (field.classList.contains('invalid') && isFixed()) field.classList.remove('invalid');
+      if (!form.querySelector('.field.invalid')) document.getElementById('bookingNote').textContent = t('booking.form.note.default');
+    };
+    el.addEventListener('input', update);
+    el.addEventListener('change', update);
+  }
+  clearWhenFixed(document.getElementById('serviceOptions'), () => Boolean(selectedServiceId));
+  clearWhenFixed(document.getElementById('bDate'), () => Boolean(document.getElementById('bDate').value));
+  clearWhenFixed(document.getElementById('bName'), () => Boolean(document.getElementById('bName').value.trim()));
+  clearWhenFixed(document.getElementById('bContact'), () => isReachable(document.getElementById('bContact').value.trim()));
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const submitBtn = document.getElementById('bookingSubmit');
@@ -485,10 +508,25 @@
     const zone = document.getElementById('bZone').value;
     const notes = document.getElementById('bNotes').value.trim();
 
-    if (!name || !contact || !date || !selectedServiceId) {
+    // Missing or invalid fields: mark each one, then bring the visitor straight
+    // to the first one (on a phone it is usually off-screen above the button).
+    const problems = [
+      ['serviceOptions', !selectedServiceId],
+      ['bDateDisplay', !date],
+      ['bName', !name],
+      ['bContact', !isReachable(contact)],
+    ].filter(([, bad]) => bad).map(([id]) => document.getElementById(id));
+    form.querySelectorAll('.field.invalid').forEach((f) => f.classList.remove('invalid'));
+    if (problems.length) {
+      problems.forEach((el) => el.closest('.field').classList.add('invalid'));
       note.textContent = t('booking.form.note.invalid');
+      const first = problems[0];
+      first.closest('.field').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // The date field opens its calendar on focus; a text field gets the keyboard.
+      setTimeout(() => (first.id === 'serviceOptions' ? first.querySelector('input') : first)?.focus({ preventScroll: true }), 350);
       return;
     }
+    note.textContent = t('booking.form.note.default');
 
     if (window.MagicstickConfirm) {
       const confirmed = await window.MagicstickConfirm.ask({

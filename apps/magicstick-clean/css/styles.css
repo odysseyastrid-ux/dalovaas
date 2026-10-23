@@ -2134,6 +2134,8 @@ html.page-leaving-back body{
 .contest-check input{ width:20px; height:20px; flex:none; margin:1px 0 0; accent-color:#6B3FE6; }
 .contest-check a{ color:#6B3FE6; text-decoration:underline; }
 .contest-check.invalid span{ color:#C0392B; }
+.contest-check--optional{ font-size:13.5px; }
+.contest-check--optional span{ opacity:.82; }
 
 .contest-done{
   max-width:560px; margin:8px auto 0; padding:32px 28px; border-radius:20px; text-align:center;

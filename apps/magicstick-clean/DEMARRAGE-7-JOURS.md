@@ -156,9 +156,12 @@ jour même** : c'est votre promesse, et c'est ce qui fait signer.
 
 ## Règles importantes
 
-- **Les inscrits au concours ne sont pas des contacts publicitaires.** Le formulaire leur dit
-  que leurs coordonnées « servent uniquement au concours ». Ne leur envoyez pas d'offres par
-  texto ou courriel (loi canadienne anti-pourriel), sauf s'ils l'ont accepté.
+- **Seuls les inscrits qui ont coché « J'accepte de recevoir les offres » peuvent recevoir vos
+  offres** par texto ou courriel (loi canadienne anti-pourriel). Dans le tableau de bord,
+  onglet Concours, colonne « Offres » : « Oui » = vous pouvez leur écrire ; « Non » = concours
+  seulement. Si quelqu'un répond « désabonner », cliquez « Désabonner » sur sa ligne.
+  Chaque message d'offre doit dire qui vous êtes et comment se désabonner, par exemple
+  « Magicstick Clean, (343) 843-7761. Répondez STOP pour ne plus recevoir nos offres. »
 - **Jamais rien en échange d'un avis Google**, et jamais de faux avis.
 - Les publications de la semaine suivante sont prêtes dans `PUBLICATIONS-PRETES.md`, et les
   autres plateformes sont listées dans `PRESENCE-EN-LIGNE.md`.

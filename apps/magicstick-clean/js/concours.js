@@ -126,6 +126,7 @@ if (Date.now() >= CONTEST_CLOSES_AT) {
           address: addressEl.value.trim(),
           eligible: true,
           rules: true,
+          marketing: document.getElementById('cMarketing').checked,
           source: entrySource(),
         }),
       });

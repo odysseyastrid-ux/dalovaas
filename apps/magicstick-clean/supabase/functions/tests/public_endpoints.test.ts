@@ -210,6 +210,30 @@ Deno.test("contest: one entry per person — the same phone written differently 
   assert.equal(state.table("contest_entries").length, 1);
 });
 
+Deno.test("contest: marketing consent is recorded only when the optional box is ticked", async () => {
+  resetAll();
+  await call(submitForm, contestEntry());
+  await call(submitForm, contestEntry({ contact: "a@example.com", marketing: "yes" }), { "cf-connecting-ip": "198.51.100.10" });
+  await call(submitForm, contestEntry({ contact: "b@example.com", marketing: true }), { "cf-connecting-ip": "198.51.100.11" });
+  const rows = state.table("contest_entries");
+  assert.equal(rows.length, 3);
+  assert.equal(rows[0].marketing_consent_at, undefined);
+  assert.equal(rows[1].marketing_consent_at, undefined, "only a real true counts");
+  assert.ok(rows[2].marketing_consent_at);
+  assert.equal(rows[2].marketing_consent_version, "contest-optin-v1");
+});
+
+Deno.test("contest: an entrant who comes back and ticks the box gives consent; leaving it unticked never removes it", async () => {
+  resetAll();
+  await call(submitForm, contestEntry());
+  const again = await call(submitForm, contestEntry({ marketing: true }), { "cf-connecting-ip": "198.51.100.12" });
+  assert.equal(again.json.already, true);
+  const row = state.table("contest_entries")[0];
+  assert.ok(row.marketing_consent_at);
+  await call(submitForm, contestEntry(), { "cf-connecting-ip": "198.51.100.13" });
+  assert.ok(state.table("contest_entries")[0].marketing_consent_at);
+});
+
 Deno.test("contest: eligibility and rules must both be accepted, and a reachable contact is required", async () => {
   resetAll();
   assert.equal((await call(submitForm, contestEntry({ eligible: false }))).status, 400);

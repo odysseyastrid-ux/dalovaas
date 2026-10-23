@@ -38,6 +38,10 @@ const CORS_HEADERS = {
 // Eastern (= Jan 1, 2027 04:59:59 UTC). Rules: https://magicstickclean.ca/concours.html#reglement
 const CONTEST_ID = "tirage-50-2026";
 const CONTEST_CLOSES_AT = Date.parse("2027-01-01T05:00:00Z");
+// Wording of the optional "send me your offers" box on concours.html
+// (contest.form.marketing in js/i18n.js). Change the version when the wording
+// changes, so each recorded consent points to the text that was shown.
+const CONTEST_CONSENT_VERSION = "contest-optin-v1";
 
 const SIGNATURE_EN = "— The Magicstick Clean team\n343-843-7761 · magicstickclean@gmail.com\nhttps://magicstickclean.ca";
 const SIGNATURE_FR = "— L’équipe Magicstick Clean\n343-843-7761 · magicstickclean@gmail.com\nhttps://magicstickclean.ca";
@@ -190,13 +194,25 @@ async function handleContest(body: Record<string, unknown>, fr: boolean) {
   if (body.eligible !== true || body.rules !== true) return json({ ok: false, error: "not_eligible" }, 400);
   const key = contactKey(contact);
   if (!key) return json({ ok: false, error: "invalid_contact" }, 400);
+  // Optional and unticked by default: only an explicit `true` is consent.
+  const consent = body.marketing === true
+    ? { marketing_consent_at: new Date().toISOString(), marketing_consent_version: CONTEST_CONSENT_VERSION }
+    : {};
 
   const { error } = await supabase.from("contest_entries").insert({
     contest: CONTEST_ID, name, contact, contact_key: key, address,
-    lang: fr ? "fr" : "en", source: source || null,
+    lang: fr ? "fr" : "en", source: source || null, ...consent,
   });
   if (error) {
-    if (error.code === "23505") return json({ ok: true, already: true });
+    if (error.code === "23505") {
+      // Already entered: a second visit can still give consent (never removes it).
+      if (body.marketing === true) {
+        const { error: consentError } = await supabase.from("contest_entries")
+          .update(consent).eq("contest", CONTEST_ID).eq("contact_key", key);
+        if (consentError) console.error("could not record marketing consent:", consentError.message);
+      }
+      return json({ ok: true, already: true });
+    }
     throw new Error(error.message);
   }
 
@@ -210,6 +226,7 @@ async function handleContest(body: Record<string, unknown>, fr: boolean) {
       `Adresse : ${address}`,
       `Langue : ${fr ? "français" : "anglais"}`,
       `Source : ${source || "(directe)"}`,
+      `Accepte les offres : ${body.marketing === true ? "oui" : "non"}`,
       "",
       "Toutes les inscriptions : tableau de bord > Concours.",
     ].join("\n"),

@@ -145,6 +145,13 @@ globally; size-specific heading tracking, `text-wrap: balance`, body size in `re
 - **Backend:** `submit-form` form `contest` → table `contest_entries` (migration
   `0018_contest_entries.sql`; unique per normalized phone/email; refuses after the deadline
   with 410). Owner gets an email per entry; email entrants get a confirmation.
+- **Offers consent (CASL):** an optional, unticked box on the form ("j'accepte de recevoir les
+  offres…"). Ticked → `marketing_consent_at` + `marketing_consent_version` (migration
+  `0020_contest_marketing_consent.sql`). **Only those entrants may receive offers by email/text**;
+  the others gave their details for the contest only. The dashboard shows the "Offers" column,
+  the opt-in count, an "Unsubscribe" button (records a withdrawal) and the CSV column
+  `accepts_offers_since`. Changing the box's wording means bumping `CONTEST_CONSENT_VERSION`
+  in `submit-form`.
 - **Dashboard:** `admin.html` → "Contest / Concours": count, search, CSV export, statuses
   (entered / winner / disqualified) and a "Draw the winners" button (crypto-random, fills up to
   50; disqualify someone and click again to draw a replacement).

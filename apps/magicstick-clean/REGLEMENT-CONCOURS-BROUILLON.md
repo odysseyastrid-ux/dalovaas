@@ -28,8 +28,10 @@
 8. **Gagnants.** Contactés par téléphone ou courriel dans les [7] jours suivant le tirage. Avant
    d'obtenir le prix, la personne sélectionnée doit répondre correctement, sans aide, à une question
    d'habileté mathématique. Sans réponse dans les [10] jours, un autre nom est tiré.
-9. **Renseignements personnels.** Utilisés uniquement pour gérer le concours et contacter les gagnants,
-   selon la politique de confidentialité du site.
+9. **Renseignements personnels.** Utilisés pour gérer le concours et contacter les gagnants, selon la
+   politique de confidentialité du site. Les offres de Magicstick Clean ne sont envoyées qu'aux
+   personnes qui cochent la case facultative du formulaire (désabonnement en tout temps) ; cocher ou
+   non la case ne change rien à la participation.
 10. **Règlement.** Disponible sur demande au (343) 843-7761 ou à magicstickclean@gmail.com.
 
 **Pourquoi le concours est limité à Clarence-Rockland :** les concours ouverts aux résidents du Québec

@@ -814,6 +814,7 @@
       : lastContest;
     document.getElementById('contestCount').textContent = String(lastContest.length);
     document.getElementById('contestWinners').textContent = String(lastContest.filter((r) => r.status === 'winner').length);
+    document.getElementById('contestOptins').textContent = String(lastContest.filter((r) => r.marketing_consent_at).length);
     const msLeft = CONTEST_CLOSES_AT - Date.now();
     document.getElementById('contestDays').textContent = msLeft > 0 ? String(Math.ceil(msLeft / 86400000)) : '0';
     tbody.innerHTML = '';
@@ -826,8 +827,32 @@
         <td>${esc(r.contact)}</td>
         <td>${esc(r.address)}</td>
         <td>${esc(r.source) || '—'}</td>
+        <td class="consent-cell"></td>
         <td class="status-cell"></td>
       `;
+      // Offers may only be sent to people who ticked the optional box.
+      // "Unsubscribe" records a withdrawal (reply "unsubscribe" / phone call).
+      const consentCell = tr.querySelector('.consent-cell');
+      if (r.marketing_consent_at) {
+        const since = new Date(r.marketing_consent_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA');
+        consentCell.textContent = `${t('admin.contest.optedIn')} (${since}) `;
+        const off = document.createElement('button');
+        off.type = 'button';
+        off.className = 'portal-link gift-void-btn';
+        off.textContent = t('admin.contest.unsubscribe');
+        off.addEventListener('click', async () => {
+          if (!window.confirm(t('admin.contest.unsubscribeConfirm', { name: r.name }))) return;
+          const { error } = await supabase.from('contest_entries')
+            .update({ marketing_consent_at: null, marketing_consent_version: null }).eq('id', r.id);
+          if (error) return;
+          r.marketing_consent_at = null;
+          logActivity('contest_unsubscribe', r.id);
+          renderContest();
+        });
+        consentCell.appendChild(off);
+      } else {
+        consentCell.textContent = t('admin.contest.notOptedIn');
+      }
       tr.querySelector('.status-cell').appendChild(statusSelect(r.status, CONTEST_STATUSES, async (value) => {
         const { error } = await supabase.from('contest_entries').update({ status: value }).eq('id', r.id);
         if (error) return;
@@ -846,9 +871,9 @@
   document.getElementById('contestSearch').addEventListener('input', renderContest);
   document.getElementById('contestExport').addEventListener('click', () => {
     if (!lastContest) return;
-    const head = ['date', 'name', 'contact', 'address', 'language', 'source', 'status'];
+    const head = ['date', 'name', 'contact', 'address', 'language', 'source', 'status', 'accepts_offers_since'];
     const lines = [head.join(',')].concat(lastContest.map((r) =>
-      [r.created_at, r.name, r.contact, r.address, r.lang, r.source, r.status].map(csvCell).join(',')));
+      [r.created_at, r.name, r.contact, r.address, r.lang, r.source, r.status, r.marketing_consent_at || ''].map(csvCell).join(',')));
     const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

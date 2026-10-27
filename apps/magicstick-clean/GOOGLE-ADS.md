@@ -1,6 +1,6 @@
 # Magicstick Clean — Campagne Google Ads (prête à copier-coller)
 
-Préparé le 27 oct. 2026. Tous les textes respectent les limites de Google
+Préparé le 27 oct. 2026 (mis à jour : Ottawa ajouté, images au style du flyer). Tous les textes respectent les limites de Google
 (titres ≤ 30 caractères, descriptions ≤ 90). Les prix sont ceux du site : ne rien changer
 sans changer le site aussi.
 
@@ -14,9 +14,9 @@ sans changer le site aussi.
 |---|---|
 | Type de campagne | **Réseau de Recherche** (les gens qui tapent « ménage Rockland » sur Google) |
 | Objectif | Prospects (appels + demandes de soumission) |
-| Zone | **Clarence-Rockland** + **Orléans** (+ Cumberland). Option « Présence : personnes **dans** ces lieux » (pas « intéressées par ») |
+| Zone | **Clarence-Rockland** + **Ottawa** (toute la ville, Orléans compris). Gatineau en option. Option « Présence : personnes **dans** ces lieux » (pas « intéressées par ») |
 | Langues | Français **et** anglais : 2 groupes d'annonces séparés (un FR, un EN) |
-| Budget de départ (suggestion) | 10 à 15 $/jour pendant 2 à 3 semaines, puis on ajuste selon les appels reçus |
+| Budget de départ (suggestion) | 15 à 20 $/jour pendant 2 à 3 semaines (Ottawa est un grand marché, les clics y coûtent plus cher), puis on ajuste selon les appels reçus |
 | Enchères | « Maximiser les clics » au début, avec un **plafond de CPC** (ex. 3 $). Passer à « Maximiser les conversions » seulement après ~15 conversions suivies |
 | Réseau Display / partenaires | **Décocher** au début (sinon le budget part sur des sites peu utiles) |
 
@@ -40,6 +40,10 @@ sans changer le site aussi.
 "ménage fin de bail"
 "nettoyage maison rockland"
 "service de ménage clarence-rockland"
+"ménage ottawa"
+"femme de ménage ottawa"
+"entretien ménager ottawa"
+"grand ménage ottawa"
 ```
 
 **15 titres (≤ 30) :**
@@ -52,7 +56,7 @@ Prix clairs affichés d'avance
 Grand ménage dès 43 $/h
 Forfait récurrent : 27 $/h
 Ménage d'entrée et de sortie
-Ménage à Orléans et Ottawa
+Ménage à Ottawa dès 30 $/h
 Réservez votre ménage en ligne
 Magicstick Clean
 Ménage Airbnb dès 30 $/h
@@ -60,7 +64,7 @@ Vraies photos avant/après
 Appelez le 343-843-7761
 Minimum 3 h, dès 90 $
 ```
-Astuce : **épinglez** « Ménage à Rockland dès 30 $/h » en position 1.
+N'épinglez aucun titre : Google montre « Ottawa » aux gens d'Ottawa et « Rockland » aux gens de Rockland.
 
 **4 descriptions (≤ 90) :**
 ```
@@ -82,7 +86,10 @@ Réservez en ligne avec un petit dépôt remboursable, le reste au rendez-vous.
 "cleaning service rockland"
 "cleaning service orleans"
 "maid service orleans"
-"maid service ottawa east"
+"house cleaning ottawa"
+"cleaning service ottawa"
+"maid service ottawa"
+"deep cleaning ottawa"
 "deep cleaning orleans"
 "move out cleaning orleans"
 "airbnb cleaning ottawa"
@@ -91,7 +98,7 @@ Réservez en ligne avec un petit dépôt remboursable, le reste au rendez-vous.
 **15 titres :**
 ```
 House Cleaning from $30/h
-Rockland & Orléans Cleaning
+Rockland & Ottawa Cleaning
 Free Quote, Same-Day Reply
 Local, Bilingual Cleaners
 Deep Cleaning from $43/h
@@ -104,7 +111,7 @@ Airbnb Turnover Cleaning
 Real Before/After Photos
 Call 343-843-7761
 3-Hour Minimum, from $90
-Ottawa East House Cleaning
+Ottawa House Cleaning
 ```
 
 **4 descriptions :**
@@ -168,30 +175,42 @@ Ménage standard · Grand ménage · Entrée/sortie · Airbnb · Commercial · F
 
 ---
 
-## 6. Les « flyers » numériques (bannières)
+## 6. Les « flyers » numériques (bannières au style de votre flyer)
 
-Dans `ads/images/`, version FR et EN de chaque format (toutes < 150 Ko, la limite de Google) :
+Dans `ads/images/`, **6 formats**, chacun en français (`flyer-fr-…`) et en anglais (`flyer-en-…`).
+Même look que votre flyer (logo, services, gros prix 30 $/h, Rockland | Ottawa | Gatineau),
+avec de **vraies photos avant/après**. Toutes pèsent moins de 150 Ko (limite de Google).
 
 | Fichier | Où ça s'affiche |
 |---|---|
-| `banner-*-300x250.jpg` | Le format le plus courant (dans les articles, applis) |
-| `banner-*-728x90.jpg` | Bandeau en haut des sites sur ordinateur |
-| `banner-*-320x50.jpg` | Bandeau sur téléphone |
-| `banner-*-300x600.jpg` | Grande colonne sur le côté des sites |
+| `flyer-*-300x250.jpg` | Le format le plus courant (dans les articles, applis) |
+| `flyer-*-336x280.jpg` | Grand carré dans les articles |
+| `flyer-*-728x90.jpg` | Bandeau en haut des sites sur ordinateur |
+| `flyer-*-970x250.jpg` | Grand bandeau en haut des sites |
+| `flyer-*-300x600.jpg` | Grande colonne sur le côté des sites |
+| `flyer-*-160x600.jpg` | Colonne étroite sur le côté |
 
 Elles servent pour une **2e campagne « Display »** (bannières sur les sites), à lancer
 **après** la campagne de recherche si le budget le permet : type « Display », mêmes zones,
 « Annonces illustrées importées », même URL finale avec `utm_campaign=display`.
+Images françaises dans le groupe français, anglaises dans le groupe anglais.
+
+**Ce qui a changé par rapport à votre flyer, et pourquoi :**
+- « The cheapest and most efficient cleaning company in Canada » est retiré : impossible
+  à prouver, Google refuse ce genre de phrase et la Loi sur la concurrence l'interdit.
+  Remplacé par « Prix clairs, affichés d'avance. Réponse le jour même. »
+- L'équipe de 5 personnes en uniforme est remplacée par de vraies photos de vos ménages :
+  montrer une équipe qui n'existe pas encore tromperait les clients (et Google peut le refuser).
+- Le code QR est remplacé par un bouton : sur une annonce en ligne, on clique.
+- Fichier source : `ads/flyer-ads.html`, généré par `ads/gen-flyer-ads.py`.
 
 Les images Avant/Après (`pmax-*`) servent aussi pour **Performance Max** ou **Demand Gen**
 (YouTube, Gmail, Discover). Google y préfère des photos avec **peu de texte** : c'est voulu.
 
----
-
 ## 7. Règles à respecter
 
 - **Pas de concours** dans ces annonces : le concours est réservé aux résidents de
-  Clarence-Rockland, et ces annonces visent aussi Orléans.
+  Clarence-Rockland, et ces annonces visent aussi Ottawa.
 - **Aucune affirmation invérifiable** (« le moins cher », « le meilleur ») ni faux avis.
   Si on ajoute un jour la note Google, Google l'affiche lui-même quand il y a assez d'avis.
 - Ne pas promettre « la même personne à chaque visite ».

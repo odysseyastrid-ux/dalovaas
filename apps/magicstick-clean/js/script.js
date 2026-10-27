@@ -1,16 +1,15 @@
 const t = (key, vars) => (window.MagicstickI18N ? window.MagicstickI18N.t(key, vars) : key);
 
-// The homepage nav floats transparent over the hero's photo, then becomes
-// the site's normal solid cream bar once it's scrolled past the hero (or
-// as soon as the mobile menu opens under it, so a solid dropdown never
-// hangs beneath a see-through bar).
+// The homepage nav floats transparent over the hero's photo only while the
+// page sits at the very top; as soon as the visitor scrolls it becomes the
+// site's normal solid bar, so the hero's text never slides under see-through
+// links (or as soon as the mobile menu opens under it, so a solid dropdown
+// never hangs beneath a see-through bar).
 const siteHeader = document.getElementById('siteHeader');
 const headerFloatsOnPhoto = Boolean(siteHeader && siteHeader.classList.contains('header-on-photo'));
 function updateHeaderScrolled() {
   if (!headerFloatsOnPhoto) return;
-  const heroEl = document.querySelector('.hero');
-  const threshold = heroEl ? Math.max(heroEl.offsetHeight - 120, 60) : 60;
-  siteHeader.classList.toggle('scrolled', window.scrollY > threshold);
+  siteHeader.classList.toggle('scrolled', window.scrollY > 24);
 }
 if (headerFloatsOnPhoto) {
   updateHeaderScrolled();

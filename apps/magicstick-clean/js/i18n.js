@@ -101,7 +101,7 @@
 
     // ---------- index.html: hero ----------
     'home.hero.tag': { en: 'First-time client special', fr: 'Offre nouveaux clients' },
-    'home.hero.title': { en: 'We&rsquo;re the best, we&rsquo;re affordable and we&rsquo;re <span class="accent-word">Canada</span> <span class="flag" aria-hidden="true">🍁</span> based.', fr: 'On est les meilleurs, on n&rsquo;est pas chers et on est <span class="accent-word">canadiens</span> <span class="flag" aria-hidden="true">🍁</span>.' },
+    'home.hero.title': { en: 'We&rsquo;re the best, we&rsquo;re affordable and we&rsquo;re <span class="accent-word">Canada</span> <span class="flag" aria-hidden="true">🍁</span> made.', fr: 'On est les meilleurs, on n&rsquo;est pas chers et on est <span class="accent-word">canadiens</span> <span class="flag" aria-hidden="true">🍁</span>.' },
     'home.hero.lede': { en: 'Magicstick Clean is a locally owned cleaning service serving Clarence-Rockland, Ottawa, and Gatineau. Homes, rentals, and businesses alike, cleaned with care.', fr: 'Magicstick Clean est une entreprise de nettoyage locale desservant Clarence-Rockland, Ottawa et Gatineau. Maisons, locations et commerces, nettoyés avec soin.' },
     'home.hero.ctaQuote': { en: 'Get a free quote', fr: 'Devis gratuit' },
     'home.hero.ctaServices': { en: 'See services & pricing', fr: 'Voir services et prix' },

@@ -57,24 +57,27 @@
 
   /* On the homepage only: the nav floats transparent over the hero's photo
      (so the photo runs edge-to-edge behind it, like the reference site),
-     then turns into the site's normal solid cream bar once the visitor
-     scrolls past the hero (toggled by js/script.js). */
+     then turns into the site's normal solid cream bar as soon as the visitor
+     scrolls (toggled by js/script.js). */
   header.header-on-photo{
     position:fixed;top:0;left:0;right:0;z-index:200;
     background:transparent;border-bottom-color:transparent;
     transition:background .3s ease, border-color .3s ease;
   }
   header.header-on-photo:not(.scrolled) .brand span,
-  header.header-on-photo:not(.scrolled) .navlinks > a:not(.navcall),
+  header.header-on-photo:not(.scrolled) .navlinks > a:not(.navcall):not(.cta-arrow),
   header.header-on-photo:not(.scrolled) .navcall{color:#fff;}
   header.header-on-photo:not(.scrolled) .navlinks a::after{background:#fff;}
   header.header-on-photo:not(.scrolled) .lang-toggle{border-color:rgba(255,255,255,.4);}
   header.header-on-photo:not(.scrolled) .lang-btn{color:#fff;}
-  header.header-on-photo:not(.scrolled) .lang-btn.active{background:#fff;color:var(--charcoal);}
+  header.header-on-photo:not(.scrolled) .lang-btn.active{background:#fff;color:var(--ink);}
   header.header-on-photo:not(.scrolled) .burger span{background:#fff;}
   header.header-on-photo.scrolled{background:var(--cream);border-bottom-color:var(--line);}
-  .nav{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px;}
-  .brand{display:flex;align-items:center;gap:10px;}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:28px;padding-top:16px;padding-bottom:16px;}
+  /* The desktop nav needs more room than the page's text column: without it
+     the links squeezed the brand and its wordmark ran into "Services". */
+  header .nav.wrap{max-width:1440px;}
+  .brand{display:flex;align-items:center;gap:10px;flex:none;}
   .brand span{font-family:'Instrument Serif','Fraunces',serif;font-weight:700;font-size:19px;}
   /* Horizontal brand lockup: gradient badge mark + wordmark (with the
      gradient "Clean" echoing the logo). */
@@ -83,7 +86,12 @@
   .brand-clean{font-family:'Inter',Arial,sans-serif;font-weight:800;font-size:19px;letter-spacing:-0.01em;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
   header.header-on-photo:not(.scrolled) .brand-mark{filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));}
   @media (max-width:640px){ .brand-mark{width:32px;height:32px;} .brand-word{font-size:20px;} .brand-clean{font-size:17px;} }
-  .navlinks{display:flex;gap:10px;align-items:center;font-size:12.5px;}
+  .navlinks{display:flex;gap:14px;align-items:center;font-size:12.5px;}
+  /* Nav-sized quote button: the hero-sized one crowded the bar. */
+  .navlinks .cta-arrow{font-size:13.5px;padding:4px 4px 4px 16px;gap:10px;box-shadow:0 6px 16px rgba(0,0,0,.14);}
+  .navlinks .cta-arrow::after{content:none;}
+  .navlinks .cta-arrow-box{width:32px;height:32px;}
+  .navlinks .cta-arrow-icon{font-size:15px;}
   .navlinks a{position:relative;padding-bottom:3px;white-space:nowrap;}
   .navlinks a::after{
     content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--teal);
@@ -98,7 +106,7 @@
   .nav-icon-link{padding-bottom:0;}
   .nav-icon-link::after{content:none;}
   .navlinks .btn{padding:8px 14px;white-space:nowrap;}
-  @media (max-width:1300px){ .navlinks{display:none;} }
+  @media (max-width:1360px){ .navlinks{display:none;} }
 
   .burger{
     display:none;flex-direction:column;justify-content:center;gap:5px;
@@ -108,7 +116,7 @@
   .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
   .burger.open span:nth-child(2){opacity:0;}
   .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
-  @media (max-width:1300px){ .burger{display:flex;} }
+  @media (max-width:1360px){ .burger{display:flex;} }
 
   .mobile-menu{
     display:none;flex-direction:column;gap:2px;
@@ -125,7 +133,7 @@
      looking like it just runs into the hero content underneath. */
   header.header-on-photo .mobile-menu.open{box-shadow:0 16px 32px rgba(0,0,0,.25);}
   .mobile-menu.open{max-height:400px;overflow-y:auto;}
-  @media (max-width:1300px){ .mobile-menu{display:flex;} }
+  @media (max-width:1360px){ .mobile-menu{display:flex;} }
   .mobile-menu a{
     padding:14px 32px;border-bottom:1px solid var(--line);
     font-size:15.5px;font-weight:600;letter-spacing:.1px;color:var(--charcoal);
@@ -174,7 +182,7 @@
   }
   .btn-outline:hover{background:var(--ink);color:#fff;}
   .btn-outline-light{background:transparent;border:1.5px solid #fff;color:#fff;}
-  .btn-outline-light:hover{background:#fff;color:var(--charcoal);}
+  .btn-outline-light:hover{background:#fff;color:var(--ink);}
 
   /* ---------- SPLASH GATE (the family photo, shown once before the front page) ---------- */
   .splash-gate{
@@ -247,7 +255,7 @@
     background:rgba(0,0,0,.4);border-color:rgba(255,255,255,.35);
   }
   .splash-lang .lang-btn{color:#fff;}
-  .splash-lang .lang-btn.active{background:#fff;color:var(--charcoal);}
+  .splash-lang .lang-btn.active{background:#fff;color:var(--ink);}
 
   @media (max-width:640px){
     .splash-content{padding:0 20px 56px;}
@@ -454,7 +462,7 @@
   .hero-cover-img{width:100%;height:420px;object-fit:cover;border-radius:20px;border:1px solid var(--line);display:block;background:var(--charcoal);}
   .hero-cover-tag{
     position:absolute;left:20px;bottom:20px;right:20px;
-    background:#fff;color:var(--charcoal);font-weight:700;font-size:14px;
+    background:#fff;color:var(--ink);font-weight:700;font-size:14px;
     padding:11px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(31,41,55,.16);
     max-width:calc(100% - 40px);
   }
@@ -1715,7 +1723,7 @@
   .ai-chat-close:hover{background:rgba(255,255,255,.28);}
   .ai-chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--cream);}
   .ai-chat-msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap;}
-  .ai-chat-msg-bot{align-self:flex-start;background:#fff;border:1px solid var(--line);color:var(--charcoal);border-bottom-left-radius:4px;}
+  .ai-chat-msg-bot{align-self:flex-start;background:#fff;border:1px solid var(--line);color:var(--ink);border-bottom-left-radius:4px;}
   .ai-chat-msg-user{align-self:flex-end;background:var(--teal);color:#fff;border-bottom-right-radius:4px;}
   .ai-chat-typing{display:flex;gap:4px;align-items:center;padding:14px;}
   .ai-chat-typing span{width:6px;height:6px;border-radius:100%;background:var(--gray);animation:aiChatTyping 1.2s infinite ease-in-out;}
@@ -1777,6 +1785,12 @@
   :root[data-theme="dark"] header:not(.header-on-photo){background:var(--cream);border-color:var(--line);}
   :root[data-theme="dark"] .mobile-menu{background:var(--cream);}
   :root[data-theme="dark"] .cta-arrow{background:var(--paper);color:var(--charcoal);}
+  /* These use --ink (near-black), which dark mode doesn't redefine, so they
+     vanished on the dark background; outline buttons sitting on a white card
+     got light text on white. */
+  :root[data-theme="dark"] .brand-word,
+  :root[data-theme="dark"] .est-step{color:var(--charcoal);}
+  :root[data-theme="dark"] .btn-outline{background:var(--paper);}
   .theme-toggle{
     width:34px;height:34px;border-radius:100%;border:1.5px solid var(--line);
     background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
@@ -2317,7 +2331,7 @@ a, button, input, select, textarea, label, summary, [role="button"]{
 header{ transition:background-color .3s ease, box-shadow .3s ease, border-color .3s ease; }
 @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   header:not(.header-on-photo), header.header-on-photo.scrolled{
-    background:color-mix(in srgb, var(--cream) 80%, transparent);
+    background:color-mix(in srgb, var(--cream) 94%, transparent);
     -webkit-backdrop-filter:saturate(180%) blur(20px);
     backdrop-filter:saturate(180%) blur(20px);
   }

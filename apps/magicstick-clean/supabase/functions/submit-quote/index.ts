@@ -13,8 +13,8 @@
 //   action "submit"   { quote_id?, <form fields>, photo_paths, video_path }
 //       validates every field, checks the uploaded files really exist and obey
 //       the size/type rules, forces status 'new', rate-limits per visitor, per
-//       contact address and site-wide, then inserts the quote (which fires the
-//       owner notification webhook).
+//       contact address and site-wide, inserts the quote, then emails the
+//       owner (and the client, when they gave an email).
 //   action "purge_orphans"  (service-role bearer only; run it on a schedule)
 //       deletes uploads that never got a quote after 24 h.
 //
@@ -23,7 +23,12 @@
 // contact address, site-wide) that fail closed. NOTE: there is no CAPTCHA —
 // see SECURITY.md ("Not done") for the recommended next step.
 //
-// Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto).
+// After a quote is saved it emails the owner (and the client, when they gave
+// an email) through Resend — see notify.ts. This replaces the Database Webhook
+// to notify-quote-request, which was never configured on the project.
+//
+// Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto); RESEND_API_KEY,
+// OWNER_EMAIL, OWNER_NOTIFY_FROM (same as submit-form).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { checkLimits, readLimitedBody, withCors, rejectForeignOrigin } from "./guard.ts";
@@ -31,9 +36,38 @@ import {
   BUCKET, isUuid, MAX_BODY_BYTES, MAX_PHOTO_BYTES, MAX_VIDEO_BYTES,
   photoPath, validateFileDeclarations, validateQuote, videoPath,
 } from "./validate.ts";
+import { clientEmail, ownerEmail } from "./notify.ts";
 
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(Deno.env.get("SUPABASE_URL")!, SERVICE_ROLE_KEY);
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "magicstickclean@gmail.com";
+const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "onboarding@resend.dev";
+
+// True when Resend accepted the message. Logs status and error name only:
+// Resend's body can echo the recipient's address.
+async function sendEmail(to: string, subject: string, text: string, replyTo?: string): Promise<boolean> {
+  if (!RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set — email not sent.");
+    return false;
+  }
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: FROM_EMAIL, to, subject, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({})) as { name?: string };
+      console.error("Resend error:", res.status, body?.name ?? "unknown");
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Resend request failed:", (err as Error).name);
+    return false;
+  }
+}
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -155,10 +189,13 @@ async function handleSubmit(req: Request, body: Record<string, unknown>) {
 
   const hasFiles = quote.photo_paths.length > 0 || quote.video_path !== null;
 
-  // The same address can't be used to flood somebody's inbox: the customer
-  // confirmation goes to `contact` whenever it is an email.
+  // The same address can't be used to flood somebody's inbox.
   const stopContact = blocked(await checkLimits(supabase, req, "quote_contact", [
     { scope: "key", id: quote.contact.toLowerCase(), windowSeconds: 86400, max: 3 },
+    // The confirmation goes to `email`, which can differ from `contact`.
+    ...(quote.email && quote.email.toLowerCase() !== quote.contact.toLowerCase()
+      ? [{ scope: "key" as const, id: quote.email.toLowerCase(), windowSeconds: 86400, max: 3 }]
+      : []),
   ]));
   if (stopContact) return stopContact;
 
@@ -182,6 +219,19 @@ async function handleSubmit(req: Request, body: Record<string, unknown>) {
     if (error.code === "23505") return json({ ok: true, quote_id: id, uploads_missing: uploadsMissing });
     throw new Error(error.message);
   }
+
+  // The request is saved whatever happens next; the emails are best effort and
+  // `owner_notified_at` shows on the dashboard whether the owner's one went out.
+  const owner = ownerEmail(quote, uploadsMissing);
+  const notified = await sendEmail(OWNER_EMAIL, owner.subject, owner.text, quote.email ?? undefined);
+  if (notified) {
+    await supabase.from("quote_requests").update({ owner_notified_at: new Date().toISOString() }).eq("id", id);
+  }
+  if (quote.email) {
+    const client = clientEmail(quote);
+    await sendEmail(quote.email, client.subject, client.text, OWNER_EMAIL);
+  }
+  console.log("quote saved", quote.source, notified ? "owner notified" : "owner NOT notified");
   return json({ ok: true, quote_id: id, uploads_missing: uploadsMissing });
 }
 

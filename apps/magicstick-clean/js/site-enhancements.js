@@ -552,6 +552,32 @@
     });
   }
 
+  // The desktop nav switches to the menu button whenever its links don't fit
+  // beside the brand: French labels are longer, and inner pages add a "Home"
+  // button, so a fixed breakpoint alone let the wordmark run into the links.
+  function initNavFit() {
+    const header = document.querySelector('header');
+    const nav = header && header.querySelector('.nav');
+    const links = nav && nav.querySelector('.navlinks');
+    const brand = nav && nav.querySelector('.brand');
+    if (!links || !brand) return;
+    let frame = 0;
+    const fit = () => {
+      frame = 0;
+      header.classList.remove('nav-compact');
+      if (getComputedStyle(links).display === 'none') return;
+      const b = brand.getBoundingClientRect();
+      const l = links.getBoundingClientRect();
+      const n = nav.getBoundingClientRect();
+      if (l.left < b.right + 16 || l.right > n.right + 1) header.classList.add('nav-compact');
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(fit); };
+    fit();
+    window.addEventListener('resize', schedule);
+    document.addEventListener('magicstick:langchange', () => setTimeout(fit, 0));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  }
+
   function init() {
     initSkipLink();
     initScrollProgress();
@@ -566,6 +592,7 @@
     initPasswordToggles();
     initUtmCapture();
     initNewsletterForm();
+    initNavFit();
   }
 
   if (document.readyState === 'loading') {

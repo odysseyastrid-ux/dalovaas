@@ -27,90 +27,6 @@ if (quoteClose) {
   });
 }
 
-// Zone selector: which area, then a first-time-client discount message.
-// Landing on this page already signals intent (the visitor clicked "Get a
-// quote"), so the card shows automatically, once, shortly after arriving.
-let selectedZone = '';
-let discountClaimed = false;
-const zoneBackdrop = document.getElementById('zoneBackdrop');
-const zoneTag = document.getElementById('zoneTag');
-const zoneStep1 = document.getElementById('zoneStep1');
-const zoneStep2 = document.getElementById('zoneStep2');
-const zoneStep2Text = document.getElementById('zoneStep2Text');
-const zoneStep3 = document.getElementById('zoneStep3');
-
-function closeZoneModal(){
-  zoneBackdrop.classList.remove('show');
-}
-
-let zoneModalShown = false;
-function maybeShowZoneModal(){
-  if (zoneModalShown) return;
-  zoneModalShown = true;
-  setTimeout(() => zoneBackdrop.classList.add('show'), 300);
-}
-window.addEventListener('load', maybeShowZoneModal);
-// Inside the bundled single-file preview, pages are toggled in place rather
-// than fully reloaded, so window's "load" event never fires again — this
-// custom event (dispatched by that preview's router) covers that case.
-document.addEventListener('spa:pageshown', (e) => {
-  if (e.detail && e.detail.page === 'quote') maybeShowZoneModal();
-});
-
-function chooseZone(zone){
-  selectedZone = zone;
-  if (zone){
-    zoneTag.textContent = t('zone.tagPrefix', { zone });
-    zoneTag.classList.add('show');
-    zoneStep2Text.textContent = t('zone.desc2Zone', { zone });
-    zoneStep1.style.display = 'none';
-    zoneStep2.style.display = 'block';
-  } else {
-    closeZoneModal();
-  }
-}
-
-document.querySelectorAll('.zone-btn[data-zone]').forEach(btn => {
-  btn.addEventListener('click', () => chooseZone(btn.dataset.zone));
-});
-document.getElementById('zoneSkip').addEventListener('click', () => chooseZone(''));
-document.getElementById('zoneClose').addEventListener('click', closeZoneModal);
-document.getElementById('zoneDismiss').addEventListener('click', closeZoneModal);
-document.getElementById('zoneClaim').addEventListener('click', () => {
-  // Already signed in — their name/email were filled in at page load, so
-  // don't ask again.
-  if (quoteCustomerId) {
-    discountClaimed = true;
-    closeZoneModal();
-    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
-    return;
-  }
-  zoneStep2.style.display = 'none';
-  zoneStep3.style.display = 'block';
-});
-document.getElementById('zoneLeadForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const nameInput = document.getElementById('zName');
-  const contactInput = document.getElementById('zContact');
-  const nameField = nameInput.closest('.field');
-  const contactField = contactInput.closest('.field');
-  nameField.classList.toggle('invalid', nameInput.value.trim() === '');
-  contactField.classList.toggle('invalid', contactInput.value.trim() === '');
-  if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) return;
-
-  const name = nameInput.value.trim();
-  const contact = contactInput.value.trim();
-  discountClaimed = true;
-  document.getElementById('qName').value = name;
-  document.getElementById('qContact').value = contact;
-  closeZoneModal();
-
-  document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
-});
-zoneBackdrop.addEventListener('click', (e) => {
-  if (e.target === zoneBackdrop) closeZoneModal();
-});
-
 // Preferred day: custom calendar dropdown (see js/date-picker.js) instead of
 // the native <input type="date">, with every past day greyed out.
 const qDateDisplay = document.getElementById('qDateDisplay');
@@ -391,9 +307,9 @@ const backendForAuth = window.MagicstickBackend;
 
 function fillContactFromUser(user) {
   const nameInput = document.getElementById('qName');
-  const contactInput = document.getElementById('qContact');
+  const emailInput = document.getElementById('qEmail');
   if (!nameInput.value.trim()) nameInput.value = user.user_metadata?.full_name || '';
-  if (!contactInput.value.trim()) contactInput.value = user.email || '';
+  if (!emailInput.value.trim()) emailInput.value = user.email || '';
 }
 
 if (backendForAuth && backendForAuth.isBackendConfigured()) {
@@ -485,6 +401,27 @@ document.getElementById('quoteAnotherBtn').addEventListener('click', () => {
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
+// Phone or email: at least one, and whatever is typed must be valid.
+const qPhoneEl = document.getElementById('qPhone');
+const qEmailEl = document.getElementById('qEmail');
+const isPhoneValue = (v) => /^[0-9+()\-.\s]+$/.test(v) && v.replace(/\D/g, '').length >= 7 && v.replace(/\D/g, '').length <= 15;
+const isEmailValue = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+function quotePhoneOk() { const v = qPhoneEl.value.trim(); return v ? isPhoneValue(v) : Boolean(qEmailEl.value.trim()); }
+function quoteEmailOk() { const v = qEmailEl.value.trim(); return v ? isEmailValue(v) : Boolean(qPhoneEl.value.trim()); }
+// A flagged field loses its red outline as soon as it is fixed.
+[['qName', () => Boolean(document.getElementById('qName').value.trim())],
+ ['qAddress', () => Boolean(document.getElementById('qAddress').value.trim())],
+ ['qPhone', quotePhoneOk], ['qEmail', quoteEmailOk]].forEach(([id, ok]) => {
+  document.getElementById(id).addEventListener('input', () => {
+    const field = document.getElementById(id).closest('.field');
+    if (field.classList.contains('invalid') && ok()) field.classList.remove('invalid');
+    if (id === 'qPhone' || id === 'qEmail') {
+      if (quotePhoneOk()) qPhoneEl.closest('.field').classList.remove('invalid');
+      if (quoteEmailOk()) qEmailEl.closest('.field').classList.remove('invalid');
+    }
+  });
+});
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -497,22 +434,28 @@ form.addEventListener('submit', async (e) => {
     showQuoteSuccess(makeId(), false);
     return;
   }
-  if (guardResult === 'wrong-answer') {
-    note.textContent = t('form.security.error');
+  // Name, address or area, and a phone or an email (whatever is typed must be valid).
+  const problems = [
+    ['qName', !document.getElementById('qName').value.trim()],
+    ['qPhone', !quotePhoneOk()],
+    // Both empty: the phone field carries the "phone or email" message.
+    ['qEmail', qEmailEl.value.trim() !== '' && !isEmailValue(qEmailEl.value.trim())],
+    ['qAddress', !document.getElementById('qAddress').value.trim()],
+  ].filter(([, bad]) => bad).map(([id]) => document.getElementById(id));
+  form.querySelectorAll('.field.invalid').forEach((f) => f.classList.remove('invalid'));
+  if (problems.length) {
+    problems.forEach((el) => el.closest('.field').classList.add('invalid'));
+    note.textContent = t('form.note.invalid');
     note.classList.add('error');
     note.hidden = false;
+    problems[0].closest('.field').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => problems[0].focus({ preventScroll: true }), 350);
     return;
   }
-
-  let valid = true;
-  const nameField = document.getElementById('qName').closest('.field');
-  const contactField = document.getElementById('qContact').closest('.field');
-  nameField.classList.toggle('invalid', document.getElementById('qName').value.trim() === '');
-  contactField.classList.toggle('invalid', document.getElementById('qContact').value.trim() === '');
-  if (nameField.classList.contains('invalid') || contactField.classList.contains('invalid')) valid = false;
-
-  if (!valid){
-    note.textContent = t('form.note.invalid');
+  // The anti-spam question comes after the fields, so a missing name is
+  // reported as such rather than as a wrong answer.
+  if (guardResult === 'wrong-answer') {
+    note.textContent = t('form.security.error');
     note.classList.add('error');
     note.hidden = false;
     return;
@@ -521,8 +464,12 @@ form.addEventListener('submit', async (e) => {
   note.classList.remove('error');
 
   const name = document.getElementById('qName').value.trim();
-  const contact = document.getElementById('qContact').value.trim();
+  const phone = document.getElementById('qPhone').value.trim();
+  const email = document.getElementById('qEmail').value.trim();
+  const contact = [phone, email].filter(Boolean).join(' · ');
   const address = document.getElementById('qAddress').value.trim();
+  const selectedZone = document.getElementById('qZone').value;
+  const homeSize = document.getElementById('qSize').value;
   const service = document.getElementById('qService').value;
   const frequency = document.getElementById('qFrequency').value;
   const message = document.getElementById('qMsg').value.trim();
@@ -569,13 +516,16 @@ form.addEventListener('submit', async (e) => {
         action: 'submit',
         quote_id: quoteId,
         name,
-        contact,
+        phone: phone || null,
+        email: email || null,
         address: address || null,
+        home_size: homeSize || null,
+        source: 'quote',
+        lang: window.MagicstickI18N ? window.MagicstickI18N.getLang() : 'en',
         service,
         frequency,
         zone: selectedZone || null,
         message: messageWithUtm,
-        first_time_offer_claimed: discountClaimed,
         bedrooms: selectedBedrooms || null,
         bathrooms: selectedBathrooms || null,
         home_type: selectedHomeType || null,
@@ -608,6 +558,7 @@ form.addEventListener('submit', async (e) => {
     `${t('mail.label.name')}: ${name}\n` +
     `${t('mail.label.contact')}: ${contact}\n` +
     `${t('mail.label.address')}: ${address || t('common.notSpecified')}\n` +
+    `${t('form.homeSize')}: ${homeSize || t('common.notSpecified')}\n` +
     `${t('mail.label.area')}: ${selectedZone || t('common.notSpecified')}\n` +
     `${t('mail.label.frequency')}: ${frequency}\n` +
     `${t('mail.label.service')}: ${service}\n` +
@@ -615,28 +566,17 @@ form.addEventListener('submit', async (e) => {
     `${t('mail.label.preferredDay')}: ${preferredDate || t('common.notSpecified')}\n` +
     `${t('mail.label.pets')}: ${selectedPets || t('common.notSpecified')}\n` +
     `${t('mail.label.discount')}: ${discountLine}\n` +
-    `${t('mail.label.firstTimeOffer')}: ${discountClaimed ? t('mail.discount.claimed') : t('mail.discount.notClaimed')}\n` +
     `${t('mail.label.notes')}: ${messageWithUtm || t('common.none')}\n`;
 
+  // The request did NOT reach us: say so plainly and hand over two sure ways
+  // to send it (the email app, prefilled, or a call/text). Never show the
+  // "request received" panel here.
   const mailto = `mailto:magicstickclean@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const quoteId = makeId();
-  const hadFiles = selectedPhotos.length || Boolean(selectedVideo);
-  // A direct `window.location.href = mailto` navigates the current document,
-  // which some sandboxed/embedded contexts block outright (showing a
-  // browser interstitial instead of running the code after it) — a hidden
-  // link's click() hands off to the mail app as a background side effect
-  // without ever leaving this page, so the tracker panel below always shows.
-  try {
-    const mailtoLink = document.createElement('a');
-    mailtoLink.href = mailto;
-    mailtoLink.style.display = 'none';
-    document.body.appendChild(mailtoLink);
-    mailtoLink.click();
-    document.body.removeChild(mailtoLink);
-  } catch (err) {
-    console.error('Could not open the email app silently:', err);
-  }
-  resetQuoteFormFields();
   setSubmitLoading(false);
-  showQuoteSuccess(quoteId, hadFiles);
+  note.classList.add('error');
+  note.innerHTML = `${window.MagicstickI18N ? window.MagicstickI18N.escapeHtml(t('form.note.notSent')) : t('form.note.notSent')}`
+    + ` <a href="${mailto}" class="form-note-action">${t('form.note.notSentEmail')}</a>`
+    + ` <a href="tel:3438437761" class="form-note-action">${t('form.note.notSentCall')}</a>`;
+  note.hidden = false;
+  note.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });

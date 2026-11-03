@@ -61,7 +61,19 @@
     if (q.home_type) parts.push(q.home_type);
     if (q.bedrooms) parts.push(`${q.bedrooms} ${t('bed.suffix')}`);
     if (q.bathrooms) parts.push(`${q.bathrooms} ${t('bath.suffix')}`);
+    if (q.home_size) parts.push(q.home_size);
     return parts.length ? parts.join(', ') : '—';
+  }
+
+  // Phone and email are separate since the quote form v2; older rows only
+  // have `contact`. Each one is a tap-to-call / tap-to-email link.
+  function contactCell(q) {
+    const lines = [];
+    if (q.phone) lines.push(`<a href="tel:${esc(q.phone.replace(/[^0-9+]/g, ''))}">${esc(q.phone)}</a>`);
+    if (q.email) lines.push(`<a href="mailto:${esc(q.email)}">${esc(q.email)}</a>`);
+    if (!lines.length) lines.push(esc(q.contact));
+    if (q.address) lines.push(`<span class="fine">${esc(q.address)}</span>`);
+    return lines.join('<br>');
   }
 
   let lastQuotes = null;
@@ -122,13 +134,13 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${esc(new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
-        <td>${esc(q.name)}</td>
-        <td>${esc(q.contact)}${q.address ? `<br><span class="fine">${esc(q.address)}</span>` : ''}</td>
+        <td>${esc(q.name)}${q.source === 'booking' ? `<br><span class="fine">${esc(t('admin.quote.bookingRequest'))}</span>` : ''}</td>
+        <td>${contactCell(q)}</td>
         <td>${esc(q.service)}</td>
         <td>${esc(q.frequency)}</td>
         <td>${esc(q.zone) || '—'}</td>
         <td>${esc(formatHome(q))}</td>
-        <td>${esc(q.preferred_date) || '—'}</td>
+        <td>${esc(q.preferred_date) || '—'}${q.preferred_time ? `<br><span class="fine">${esc(q.preferred_time)}</span>` : ''}</td>
         <td>${esc(q.pets) || '—'}</td>
         <td class="files-cell"></td>
         <td>${esc(q.message) || '—'}</td>

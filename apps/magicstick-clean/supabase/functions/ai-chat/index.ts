@@ -31,7 +31,7 @@ async function buildSystemPrompt(lang: "en" | "fr") {
   const [{ data: services }, { data: addons }, { data: knowledge }] = await Promise.all([
     supabase
       .from("services")
-      .select("name, name_fr, description, description_fr, base_price_cents, first_booking_price_cents, deposit_cents")
+      .select("name, name_fr, description, description_fr, base_price_cents, first_booking_price_cents")
       .eq("active", true)
       .order("sort_order"),
     supabase
@@ -49,8 +49,8 @@ async function buildSystemPrompt(lang: "en" | "fr") {
       const disc = s.first_booking_price_cents;
       const eff = (disc && disc > 0 && disc < s.base_price_cents) ? disc : s.base_price_cents;
       const price = (eff / 100).toFixed(0);
-      const deposit = (s.deposit_cents / 100).toFixed(0);
-      return `- ${name}: ${desc} (from $${price} CAD for a 3-hour minimum visit, $${deposit} deposit to book online)`;
+      // Online payment is off (ONLINE_PAYMENTS in js/config.js): no deposit to quote.
+      return `- ${name}: ${desc} (from $${price} CAD for a 3-hour minimum visit)`;
     })
     .join("\n");
 
@@ -91,14 +91,14 @@ TARIFS (minimum 3 heures par réservation):
 SERVICES (prix de départ pour une visite minimum de 3 heures):
 ${serviceLines || "(liste de services indisponible pour le moment)"}
 
-EXTRAS OPTIONNELS (s'ajoutent au total, perçus au rendez-vous; le dépôt en ligne ne change pas):
+EXTRAS OPTIONNELS (s'ajoutent au total, payés au rendez-vous):
 ${addonLines || "(extras indisponibles pour le moment)"}
 
 COMMENT ÇA MARCHE:
 - Soumission gratuite: /quote.html — un formulaire, sans paiement, réponse le jour même.
-- Réservation en ligne: /booking.html — service, date, heure, petit dépôt remboursable, le reste payé au rendez-vous.
+- Réservation en ligne: /booking.html — service, date et plage horaire; c'est une demande de réservation, rien à payer en ligne. Nous confirmons la date par téléphone ou texto le jour même et le client paie au rendez-vous. Ne jamais parler de dépôt ni de paiement en ligne.
 - Extérieur et saisonnier: /service-outdoor-seasonal.html.
-- Cartes-cadeaux: gift-cards.html, code unique utilisable à la réservation.
+- Cartes-cadeaux: gift-cards.html (demande en ligne, payée par virement Interac); le code s'indique dans la demande de réservation ou de devis.
 
 CONTACT: téléphone/texto (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca${knowledgeBlock}
 
@@ -124,14 +124,14 @@ RATES (3-hour minimum per booking):
 SERVICES (starting price for a 3-hour minimum visit):
 ${serviceLines || "(service list temporarily unavailable)"}
 
-OPTIONAL EXTRAS (added to the total, collected at the appointment; the online deposit stays the same):
+OPTIONAL EXTRAS (added to the total, paid at the appointment):
 ${addonLines || "(extras temporarily unavailable)"}
 
 HOW IT WORKS:
 - Free quote: /quote.html — a short form, no payment, same-day reply.
-- Book online: /booking.html — pick service, date and time, confirm with a small refundable deposit, pay the rest at the appointment.
+- Book online: /booking.html — pick service, date and time window; it sends a booking request, nothing to pay online. We confirm the date by phone or text the same day and the client pays at the appointment. Never mention a deposit or online payment.
 - Outdoor & seasonal: /service-outdoor-seasonal.html.
-- Gift cards: gift-cards.html, a unique code redeemable at booking.
+- Gift cards: gift-cards.html (requested online, paid by e-transfer); the code goes in the booking or quote request.
 
 CONTACT: call or text (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca${knowledgeBlock}
 

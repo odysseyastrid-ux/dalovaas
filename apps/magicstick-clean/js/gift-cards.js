@@ -149,9 +149,10 @@ if (balanceForm) {
 }
 
 // ---------- Buy online (Stripe) — falls back to the request form ----------
-const giftStripe = (window.Stripe && giftCfg.STRIPE_PUBLISHABLE_KEY && giftFunctionsUrl)
-  ? window.Stripe(giftCfg.STRIPE_PUBLISHABLE_KEY)
-  : null;
+// Only when online payments are switched on in js/config.js; until then the
+// page shows the request form (gift card paid by e-transfer) and Stripe.js
+// isn't even downloaded.
+let giftStripe = null;
 const buyForm = document.getElementById('giftBuyForm');
 const buyHead = document.getElementById('giftBuyHead');
 const requestHead = document.getElementById('giftRequestHead');
@@ -200,7 +201,7 @@ function refreshBuySummary() {
     : t('giftcards.buy.submitNoAmount');
 }
 
-if (giftStripe) {
+function initBuyOnline() {
   document.querySelectorAll('#giftAmountGroup .pill-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#giftAmountGroup .pill-btn').forEach((b) => b.classList.remove('active'));
@@ -353,6 +354,17 @@ if (giftStripe) {
   document.addEventListener('magicstick:langchange', refreshBuySummary);
   showMode('buy');
   refreshBuySummary();
+}
+
+if (giftCfg.ONLINE_PAYMENTS === true && giftCfg.STRIPE_PUBLISHABLE_KEY && giftFunctionsUrl) {
+  const tag = document.createElement('script');
+  tag.src = 'https://js.stripe.com/v3/';
+  tag.onload = () => {
+    if (!window.Stripe) return;
+    giftStripe = window.Stripe(giftCfg.STRIPE_PUBLISHABLE_KEY);
+    initBuyOnline();
+  };
+  document.head.appendChild(tag);
 }
 
 if (new URLSearchParams(window.location.search).get('gift') === 'success') {

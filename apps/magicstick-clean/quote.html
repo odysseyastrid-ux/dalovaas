@@ -71,7 +71,6 @@
     <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
     <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
-    <a href="concours.html" class="mm-contest" data-i18n="nav.contest">Contest: 50 free cleanings</a>
     <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
     <a href="account.html" data-i18n="nav.myAccount">My account</a>
     <div class="mm-contact-row">
@@ -91,55 +90,12 @@
 </header>
 
 <!-- Zone card: a dismissible corner prompt, not a page-blocking modal -->
-<div class="zone-backdrop" id="zoneBackdrop">
-  <div class="zone-modal">
-    <button class="zone-modal-close" id="zoneDismiss" data-i18n-aria-label="zone.dismiss" aria-label="Dismiss">&times;</button>
-    <div id="zoneStep1">
-      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#FFFFFF" transform="translate(-8,0)"/></svg>
-      <h2 data-i18n="zone.title1">Which area are you in?</h2>
-      <p data-i18n="zone.desc1">So we can give you accurate scheduling and pricing.</p>
-      <div class="zone-buttons">
-        <button class="zone-btn" data-zone="Rockland-Orléans" data-i18n="zone.rockland">Rockland-Orléans</button>
-        <button class="zone-btn" data-zone="Ottawa-Gatineau" data-i18n="zone.ottawaGatineau">Ottawa-Gatineau</button>
-      </div>
-      <button class="zone-skip" id="zoneSkip" data-i18n="zone.skip">I'm not sure / somewhere else</button>
-    </div>
-    <div id="zoneStep2" style="display:none;">
-      <svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="url(#badgeGrad)"/><path d="M74,148 L112,190 L212,74" fill="none" stroke="#FFFFFF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/><path d="M213.07,34.74 L215.98,61.52 L239.26,75.07 L212.48,77.98 L198.93,101.26 L196.02,74.48 L172.74,60.93 L199.52,58.02 Z" fill="#FFFFFF" transform="translate(-8,0)"/></svg>
-      <h2 data-i18n="zone.title2">You're in luck.</h2>
-      <p id="zoneStep2Text" data-i18n="zone.desc2">We clean your area. Get your free quote in minutes.</p>
-      <div class="zone-buttons">
-        <button class="zone-btn zone-btn-claim" id="zoneClaim" data-i18n="zone.claim">Get my free quote</button>
-      </div>
-      <button class="zone-skip" id="zoneClose" data-i18n="zone.later">Maybe later</button>
-    </div>
-    <div id="zoneStep3" style="display:none;">
-      <h2 data-i18n="zone.step3.title">Almost done.</h2>
-      <p data-i18n="zone.step3.desc">Just your name and a way to reach you, you'll fill in the rest of the details next.</p>
-      <form id="zoneLeadForm" class="zone-lead-form" novalidate>
-        <div class="field">
-          <label for="zName" data-i18n="form.name">Name</label>
-          <input type="text" id="zName" name="name" required>
-          <span class="err" data-i18n="form.nameErr">Please enter your name.</span>
-        </div>
-        <div class="field">
-          <label for="zContact" data-i18n="form.contact">Phone or email</label>
-          <input type="text" id="zContact" name="contact" required>
-          <span class="err" data-i18n="form.contactErr">Please enter a phone number or email.</span>
-        </div>
-        <button type="submit" class="zone-btn zone-btn-claim" data-i18n="zone.step3.submit">Save</button>
-      </form>
-    </div>
-  </div>
-</div>
-
 <section class="contact-band contact-band-wide" id="contact">
   <div class="contact-band-shader-bg" aria-hidden="true"></div>
   <a href="index.html" class="quote-close" id="quoteClose" data-i18n-aria-label="quote.close" aria-label="Close and go back">&times;</a>
   <div class="wrap">
     <p class="contact-band-lede" data-i18n="home.contact.lede">Come home to a house that breathes.</p>
     <h1 data-i18n="home.contact.title">Ready for a spotless home?</h1>
-    <span class="tag zone-tag" id="zoneTag" style="background:rgba(255,255,255,.14);color:#fff;margin-bottom:12px;"></span>
     <p data-i18n="home.contact.subtitle">Fill this in and we’ll get back to you the same day.</p>
 
     <div class="quote-auth-wrap">
@@ -160,26 +116,55 @@
           <span class="err" data-i18n="form.nameErr">Please enter your name.</span>
         </div>
         <div class="field">
-          <label for="qContact" data-i18n="form.contact">Phone or email</label>
-          <input type="text" id="qContact" name="contact" maxlength="200" required>
-          <span class="err" data-i18n="form.contactErr">Please enter a phone number or email.</span>
+          <label for="qPhone" data-i18n="form.phone">Phone</label>
+          <input type="tel" id="qPhone" name="phone" maxlength="40" autocomplete="tel" inputmode="tel">
+          <span class="err" data-i18n="form.phoneOrEmailErr">Please enter a phone number or an email address.</span>
         </div>
       </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="qEmail" data-i18n="form.email">Email</label>
+          <input type="email" id="qEmail" name="email" maxlength="200" autocomplete="email">
+          <span class="err" data-i18n="form.emailErr">Please check this email address.</span>
+        </div>
+        <div class="field">
+          <label for="qZone" data-i18n="booking.form.area">Area</label>
+          <select id="qZone" name="zone">
+            <option value="Rockland-Orléans" data-i18n="zone.rockland">Rockland-Orléans</option>
+            <option value="Ottawa-Gatineau" data-i18n="zone.ottawaGatineau">Ottawa-Gatineau</option>
+            <option value="Other" data-i18n="booking.form.area.other">Other / not sure</option>
+          </select>
+        </div>
+      </div>
+      <p class="field-hint field-hint-row" data-i18n="form.phoneOrEmailHint">A phone number or an email is enough, both is best.</p>
       <div class="field">
-        <label for="qAddress"><span data-i18n="form.address">Address</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
-        <input type="text" id="qAddress" name="address" maxlength="300" autocomplete="street-address" data-i18n-placeholder="form.address.placeholder" placeholder="Street, city, postal code">
+        <label for="qAddress" data-i18n="form.addressOrArea">Address or area</label>
+        <input type="text" id="qAddress" name="address" maxlength="300" autocomplete="street-address" data-i18n-placeholder="form.addressOrArea.placeholder" placeholder="e.g. 123 Laurier St, Rockland, or just “Orléans”" required>
+        <span class="err" data-i18n="form.addressOrAreaErr">Please tell us your address or at least your area.</span>
       </div>
       <div class="field">
         <label for="qService" data-i18n="form.service">What do you need?</label>
         <select id="qService" name="service">
-          <option data-i18n="form.service.standard">Standard Cleaning</option>
-          <option data-i18n="form.service.deep">Deep Cleaning (first-time special)</option>
+          <option data-i18n="form.service.standard">Residential Cleaning (standard)</option>
           <option data-i18n="form.service.moveInOut">Move-In / Move-Out Cleaning</option>
+          <option data-i18n="form.service.deep">Deep Cleaning</option>
+          <option data-i18n="form.service.office">Commercial / Office Cleaning</option>
           <option data-i18n="form.service.airbnb">Airbnb / Rental Turnover</option>
-          <option data-i18n="form.service.office">Office Cleaning</option>
-          <option data-i18n="form.service.retail">Retail &amp; Store Cleaning</option>
           <option data-i18n="form.service.postConstruction">Post-Construction &amp; Event Cleanup</option>
+          <option data-i18n="form.service.retail">Retail &amp; Store Cleaning</option>
+          <option data-i18n="form.service.windows">Window &amp; Glass Cleaning</option>
           <option data-i18n="form.service.notSure">Not sure yet</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="qSize"><span data-i18n="form.homeSize">Approximate size</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
+        <select id="qSize" name="home_size">
+          <option value="" data-i18n="form.homeSize.notSure">Not sure</option>
+          <option value="Under 1,000 sq ft" data-i18n="form.homeSize.s1">Under 1,000 sq ft</option>
+          <option value="1,000–1,500 sq ft" data-i18n="form.homeSize.s2">1,000–1,500 sq ft</option>
+          <option value="1,500–2,000 sq ft" data-i18n="form.homeSize.s3">1,500–2,000 sq ft</option>
+          <option value="2,000–3,000 sq ft" data-i18n="form.homeSize.s4">2,000–3,000 sq ft</option>
+          <option value="Over 3,000 sq ft" data-i18n="form.homeSize.s5">Over 3,000 sq ft</option>
         </select>
       </div>
       <div class="form-row">
@@ -192,7 +177,7 @@
             <option value="Weekly" data-i18n="form.frequency.weekly">Weekly (10% off)</option>
           </select>
           <p class="freq-hint" id="qFrequencyHint" aria-live="polite"></p>
-          <a class="freq-hint-link" href="learn-more.html#pricing" target="_blank" rel="noopener" data-i18n="form.frequency.compareLink">Why these discounts?</a>
+          <a class="freq-hint-link" href="learn-more.html#pricing" target="_blank" rel="noopener" data-i18n="form.frequency.compareLink">Why the recurring rate?</a>
         </div>
         <div class="field">
           <label for="qDateDisplay"><span data-i18n="form.preferredDay">Preferred day</span> <span class="optional-tag" data-i18n="common.optional">(optional)</span></label>
@@ -301,7 +286,7 @@
       <div id="quoteFormGuard"></div>
       <p class="form-reassurance" data-i18n="form.sameDayReminder">⏱ We typically reply within the same day.</p>
       <button type="submit" class="cta-arrow quote-submit-cta" id="quoteSubmitBtn">
-        <span class="cta-arrow-text" id="quoteSubmitText" data-i18n="form.submit">Send quote request</span>
+        <span class="cta-arrow-text" id="quoteSubmitText" data-i18n="form.submit">Get my free quote</span>
         <span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span>
       </button>
       <p class="form-note" id="formNote" hidden></p>
@@ -311,7 +296,7 @@
       <div class="quote-success-badge" aria-hidden="true">&check;</div>
       <h2 data-i18n="form.success.title">Request received!</h2>
       <p class="quote-success-ref"><span data-i18n="form.success.ref">Reference</span> #<span id="quoteRefCode"></span></p>
-      <p id="quoteSuccessBody" data-i18n="form.success.body">We typically reply within the same day, at the phone number or email you gave us.</p>
+      <p id="quoteSuccessBody" data-i18n="form.success.body">We reply the same day, by phone or email. If you gave an email address, a confirmation is already on its way.</p>
       <p class="quote-success-warning" id="quoteSuccessWarning" hidden></p>
       <button type="button" class="btn btn-outline" id="quoteAnotherBtn" data-i18n="form.success.another">Submit another request</button>
     </div>
@@ -319,21 +304,21 @@
 
     <aside class="quote-promos quote-promos-left" aria-label="Current offers">
       <div class="promo-card promo-card-feature">
-        <p class="promo-title" data-i18n="promo.welcome.title">$30/h, 3-hour minimum</p>
+        <p class="promo-title" data-i18n="promo.welcome.title">$30/h CAD, 3-hour minimum</p>
         <p class="promo-text" data-i18n="promo.welcome.text">One clear rate with a 3-hour minimum, so we finish the job right instead of rushing a quick once-over.</p>
         <a class="promo-link" href="booking.html" data-i18n="promo.welcome.cta">Book online &rarr;</a>
       </div>
       <div class="promo-card">
         <p class="promo-title" data-i18n="promo.recurring.title">10% off every visit</p>
         <p class="promo-text" data-i18n="promo.recurring.text">$30/h one-time, or $27/h on any recurring plan (weekly, biweekly or monthly). The rate holds for as long as you keep it.</p>
-        <a class="promo-link" href="learn-more.html#pricing" data-i18n="promo.recurring.cta">How our discounts work &rarr;</a>
+        <a class="promo-link" href="learn-more.html#pricing" data-i18n="promo.recurring.cta">How our recurring rate works →</a>
       </div>
     </aside>
 
     <aside class="quote-promos quote-promos-right" aria-label="More from Magicstick Clean">
       <div class="promo-card">
         <p class="promo-title" data-i18n="promo.book.title">Book online in minutes</p>
-        <p class="promo-text" data-i18n="promo.book.text">Standard, deep or Airbnb cleaning: pick your day and pay a small deposit online. No quote needed.</p>
+        <p class="promo-text" data-i18n="promo.book.text">Standard, deep or Airbnb cleaning: pick your day online and we confirm it the same day. Nothing to pay online.</p>
         <a class="promo-link" href="booking.html" data-i18n="promo.book.cta">Book now &rarr;</a>
       </div>
       <div class="promo-card">
@@ -344,7 +329,7 @@
     </aside>
     </div>
 
-    <p class="contactline" data-i18n-html="common.callOrText">or <a href="tel:3438437761" class="contact-link"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>call/text 343-843-7761</a> <span class="contact-sep">&middot;</span> <a href="mailto:magicstickclean@gmail.com" class="contact-link"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></span>magicstickclean@gmail.com</a></p>
+    <p class="contactline" data-i18n-html="common.callOrText">or <a href="tel:3438437761" class="contact-link"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>call/text 343-843-7761</a> <span class="contact-sep">&middot;</span> <a href="mailto:magicstickclean@gmail.com" class="contact-link"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>magicstickclean@gmail.com</a></p>
   </div>
 </section>
 
@@ -363,7 +348,6 @@
         <a href="about.html" data-i18n="footer.about">About us</a>
         <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
         <a href="gift-cards.html" data-i18n="footer.giftCards">Gift cards</a>
-        <a href="concours.html" data-i18n="footer.contest">Contest: 50 free cleanings</a>
         <a href="services.html" data-i18n="footer.allServices">All services</a>
         <a href="locations.html" data-i18n="footer.serviceAreas">Service areas</a>
         <a href="learn-more.html#faq" data-i18n="nav.faq">FAQ</a>

@@ -34,10 +34,11 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// "50 cleanings to win" contest. Entries close Dec 31, 2026 at 23:59:59
-// Eastern (= Jan 1, 2027 04:59:59 UTC). Rules: https://magicstickclean.ca/concours.html#reglement
+// "50 cleanings to win" contest. Rules: https://magicstickclean.ca/concours.html#reglement
 const CONTEST_ID = "tirage-50-2026";
-const CONTEST_CLOSES_AT = Date.parse("2027-01-01T05:00:00Z");
+// Closed early by the owner on Nov 3, 2026 (was 2027-01-01T05:00:00Z). Entries
+// received before then stay valid; the dashboard still runs the draw.
+const CONTEST_CLOSES_AT = Date.parse("2026-11-03T05:00:00Z");
 // Wording of the optional "send me your offers" box on concours.html
 // (contest.form.marketing in js/i18n.js). Change the version when the wording
 // changes, so each recorded consent points to the text that was shown.
@@ -130,8 +131,8 @@ async function handleNewsletter(body: Record<string, unknown>, fr: boolean) {
     email,
     fr ? "Bienvenue dans l’infolettre Magicstick Clean" : "Welcome to the Magicstick Clean newsletter",
     fr
-      ? `Bonjour,\n\nMerci de t’être inscrit à l’infolettre Magicstick Clean! Tu recevras à l’occasion des conseils de ménage et nos offres saisonnières — jamais de spam.\n\nMénage résidentiel dès 30 $/h (27 $/h avec un forfait récurrent). Réserve sur https://magicstickclean.ca/booking.html ou demande un devis gratuit sur https://magicstickclean.ca/quote.html.\n\nTu ne veux plus recevoir nos courriels? Réponds simplement « désabonner » à ce message.\n\n${SIGNATURE_FR}`
-      : `Hi,\n\nThanks for subscribing to the Magicstick Clean newsletter! You'll get occasional cleaning tips and seasonal offers — never spam.\n\nHome cleaning from $30/h ($27/h on a recurring plan). Book at https://magicstickclean.ca/booking.html or get a free quote at https://magicstickclean.ca/quote.html.\n\nDon't want these emails anymore? Just reply "unsubscribe" to this message.\n\n${SIGNATURE_EN}`,
+      ? `Bonjour,\n\nMerci de vous être inscrit à l’infolettre Magicstick Clean ! Vous recevrez à l’occasion des conseils de ménage et nos offres saisonnières, jamais de pourriel.\n\nMénage résidentiel dès 30 $/h CAD (27 $/h avec un forfait récurrent). Réservez sur https://magicstickclean.ca/booking.html ou demandez un devis gratuit sur https://magicstickclean.ca/quote.html.\n\nVous ne voulez plus recevoir nos courriels ? Répondez simplement « désabonner » à ce message.\n\n${SIGNATURE_FR}`
+      : `Hi,\n\nThanks for subscribing to the Magicstick Clean newsletter! You'll get occasional cleaning tips and seasonal offers — never spam.\n\nHome cleaning from $30/h CAD ($27/h on a recurring plan). Book at https://magicstickclean.ca/booking.html or get a free quote at https://magicstickclean.ca/quote.html.\n\nDon't want these emails anymore? Just reply "unsubscribe" to this message.\n\n${SIGNATURE_EN}`,
   );
   return json({ ok: true });
 }
@@ -165,9 +166,9 @@ async function handleGiftCard(body: Record<string, unknown>, fr: boolean) {
   if (isEmail(contact)) {
     await sendEmail(
       contact,
-      fr ? "Nous avons reçu ta demande de carte-cadeau" : "We received your gift card request",
+      fr ? "Nous avons reçu votre demande de carte-cadeau" : "We received your gift card request",
       fr
-        ? `Bonjour ${name},\n\nMerci! Nous avons bien reçu ta demande de carte-cadeau Magicstick Clean de ${amount}${recipient ? ` pour ${recipient}` : ""}. Nous te contactons en moins d’une journée pour organiser le paiement et les détails.\n\n${SIGNATURE_FR}`
+        ? `Bonjour ${name},\n\nMerci ! Nous avons bien reçu votre demande de carte-cadeau Magicstick Clean de ${amount}${recipient ? ` pour ${recipient}` : ""}. Nous vous contactons en moins d’une journée pour organiser le paiement et les détails.\n\n${SIGNATURE_FR}`
         : `Hi ${name},\n\nThank you! We received your request for a ${amount} Magicstick Clean gift card${recipient ? ` for ${recipient}` : ""}. We'll reach out within a day to arrange payment and details.\n\n${SIGNATURE_EN}`,
     );
   }

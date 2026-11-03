@@ -65,10 +65,21 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 
 ## How visitors convert (the funnel)
 
-1. **Free quote** (`quote.html`) — short form, no payment, same-day reply. Falls
-   back to a prefilled `mailto:`/`tel:` if the backend is ever unreachable.
-2. **Book online** (`booking.html`) — pick service + date/time, pay a small
-   refundable deposit via Stripe, rest paid at the appointment.
+1. **Free quote** (`quote.html`) — name, phone and/or email, address or area, zone,
+   service, approximate size (sq ft range), preferred day, message (+ optional photos).
+   `submit-quote` saves it to `quote_requests` **and emails the owner itself** (French),
+   plus a confirmation to the client when they gave an email (sender
+   noreply@magicstickclean.ca). `owner_notified_at` records that the owner's email went
+   out. (The Database Webhook to `notify-quote-request` was never configured — that
+   function is unused.) If the backend can't be reached, the page says so plainly and
+   offers a prefilled email / a call: it never shows "received" when nothing arrived.
+2. **Book online** (`booking.html`) — pick service + date + time window. While
+   `ONLINE_PAYMENTS` is `false` in `js/config.js` (current state: no Stripe payment has
+   ever succeeded), it sends a **booking request, nothing to pay online** — saved with the
+   quotes (`source = 'booking'`), the owner confirms the date the same day, the client pays
+   at the appointment. Stripe.js isn't even loaded. Set the flag to `true` only after the
+   Stripe account is activated and one real payment has worked end to end; the deposit
+   flow (and online gift-card purchase) then come back as before.
 3. **Instant estimator** (homepage) — live price for service × hours × frequency
    (3h min, recurring 10%), with CTAs into booking (service preselected) and quote.
 4. **Customer accounts** (`account.html`) — sign up / log in, see own bookings.
@@ -125,13 +136,22 @@ globally; size-specific heading tracking, `text-wrap: balance`, body size in `re
 
 ### Backend status (as of this session)
 - Supabase is **provisioned and live**; services/pricing above are seeded in the DB.
-- Stripe keys are verified working. **The one remaining blocker for live payments
-  is the owner finishing Stripe account activation + enabling card payments (CAD)**
-  in the Stripe dashboard — code side is ready.
+- Online payments are **switched off** (`ONLINE_PAYMENTS: false`, Nov 3, 2026): no
+  booking or gift card was ever paid. Turn back on only after Stripe activation + a real
+  end-to-end test. Gift cards are ordered through the request form (e-transfer).
 
 ---
 
-## Contest "50 free cleanings to win" (tirage-50-2026) — LIVE
+## Contest "50 free cleanings to win" (tirage-50-2026) — CLOSED EARLY (Nov 3, 2026)
+
+**Owner's decision (Nov 3, 2026): the contest is removed from the site.** All promotion
+is gone (home band, menu and footer links, sitemap). `concours.html` now only says
+"entries are closed early on Nov 3, 2026; entries received before then remain valid" and
+keeps the rules (noindex; still reachable because printed flyers carry its QR code).
+`submit-form` refuses new entries (410, `CONTEST_CLOSES_AT` = 2026-11-03T05:00Z). The 3
+entries received stay valid: the rules have no cancellation clause, so the draw still
+has to be honoured (the dashboard's draw still works). Never promote the contest again.
+The notes below describe how it worked.
 
 - **Page:** `concours.html` (FR/EN, short URLs `/concours` and `/contest`), entry form +
   official rules (`#reglement`). Home promo band `#concours` on `index.html`; link in every

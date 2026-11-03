@@ -54,6 +54,28 @@
     return;
   }
 
+  // Online payment (Stripe deposit) only when the owner has switched it on in
+  // js/config.js, after checking a real payment end to end. Until then the
+  // page sends a booking *request* (no payment) through submit-quote, the
+  // owner confirms the date the same day and the client pays at the visit.
+  const paymentsOn = backend.config.ONLINE_PAYMENTS === true;
+
+  function setText(el, key) {
+    if (!el) return;
+    el.setAttribute('data-i18n', key);
+    el.textContent = t(key);
+  }
+  if (paymentsOn) {
+    setText(document.getElementById('bookingLede'), 'booking.hero.ledePay');
+    setText(document.getElementById('bookingSubmit'), 'booking.form.submit');
+    setText(document.getElementById('bookingNote'), 'booking.form.note.default');
+    document.getElementById('giftField').hidden = false;
+    const tag = document.createElement('script');
+    tag.src = 'https://js.stripe.com/v3/';
+    tag.async = true;
+    document.head.appendChild(tag);
+  }
+
   const supabase = backend.getSupabaseClient();
   const bDateDisplay = document.getElementById('bDateDisplay');
   const bDateHidden = document.getElementById('bDate');
@@ -78,8 +100,11 @@
     return lang() === 'fr' ? `${v}$` : `$${v}`;
   }
 
+  // "90" for whole dollars, "25.50" (English) or "25,50" (French) otherwise.
   function centsToDollars(cents) {
-    return (cents / 100).toFixed(2);
+    if (cents % 100 === 0) return String(cents / 100);
+    const v = (cents / 100).toFixed(2);
+    return lang() === 'fr' ? v.replace('.', ',') : v;
   }
 
   function addonName(addon) {
@@ -152,7 +177,7 @@
         <span class="service-option-body">
           <span class="service-option-name">${esc(serviceName(service))}</span>
           <span class="service-option-desc">${esc(serviceDescription(service))}</span>
-          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(effPrice(service)) }))}${hasStandingDiscount(service) ? ` <s>${esc(money(service.base_price_cents))}</s> <span class="service-option-off">${esc(t('booking.percentOff', { pct: discountPct(service) }))}</span>` : ''} · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}</span>
+          <span class="service-option-price">${esc(t('booking.priceFrom', { price: centsToDollars(effPrice(service)) }))}${hasStandingDiscount(service) ? ` <s>${esc(money(service.base_price_cents))}</s> <span class="service-option-off">${esc(t('booking.percentOff', { pct: discountPct(service) }))}</span>` : ''}${paymentsOn ? ` · ${esc(t('booking.depositToday', { deposit: centsToDollars(service.deposit_cents) }))}` : ''}</span>
         </span>
       `;
       container.appendChild(label);
@@ -268,6 +293,14 @@
     const summary = document.getElementById('depositSummary');
     const submitBtn = document.getElementById('bookingSubmit');
     if (!service) { summary.textContent = ''; return; }
+    if (!paymentsOn) {
+      const extras = addonsCents();
+      const lines = [esc(t('booking.request.summary', { total: centsToDollars(effPrice(service) + extras) }))];
+      if (extras > 0) lines.unshift(`<span class="deposit-summary-extras">${esc(t('booking.extras.summary', { amount: centsToDollars(extras) }))}</span>`);
+      lines.push(`<span class="deposit-summary-minhours">${esc(t('booking.minHours.note'))}</span>`);
+      summary.innerHTML = lines.join('<br>');
+      return;
+    }
     // An estimate — the server re-checks eligibility (no prior booking on
     // this account) and has the final say once "Continue to payment" runs.
     const split = estimateSplit(service);
@@ -474,20 +507,12 @@
     }
   });
 
-  // A phone number (7 to 15 digits) or an email, like the server checks.
-  function isReachable(value) {
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return true;
-    if (!/^[0-9+()\-.\s]+$/.test(value)) return false;
-    const digits = value.replace(/\D/g, '').length;
-    return digits >= 7 && digits <= 15;
-  }
-
   // As soon as a flagged field is filled in, its red outline and message go away.
   function clearWhenFixed(el, isFixed) {
     const update = () => {
       const field = el.closest('.field');
       if (field.classList.contains('invalid') && isFixed()) field.classList.remove('invalid');
-      if (!form.querySelector('.field.invalid')) document.getElementById('bookingNote').textContent = t('booking.form.note.default');
+      if (!form.querySelector('.field.invalid')) document.getElementById('bookingNote').textContent = t(paymentsOn ? 'booking.form.note.default' : 'booking.form.note.request');
     };
     el.addEventListener('input', update);
     el.addEventListener('change', update);
@@ -495,14 +520,98 @@
   clearWhenFixed(document.getElementById('serviceOptions'), () => Boolean(selectedServiceId));
   clearWhenFixed(document.getElementById('bDate'), () => Boolean(document.getElementById('bDate').value));
   clearWhenFixed(document.getElementById('bName'), () => Boolean(document.getElementById('bName').value.trim()));
-  clearWhenFixed(document.getElementById('bContact'), () => isReachable(document.getElementById('bContact').value.trim()));
+  const phoneEl = document.getElementById('bPhone');
+  const emailEl = document.getElementById('bEmail');
+  const isPhone = (v) => /^[0-9+()\-.\s]+$/.test(v) && v.replace(/\D/g, '').length >= 7 && v.replace(/\D/g, '').length <= 15;
+  const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  // Phone or email, at least one; whatever is typed must be valid.
+  const phoneOk = () => { const v = phoneEl.value.trim(); return v ? isPhone(v) : Boolean(emailEl.value.trim()); };
+  const emailOk = () => { const v = emailEl.value.trim(); return v ? isEmail(v) : Boolean(phoneEl.value.trim()); };
+  clearWhenFixed(phoneEl, phoneOk);
+  clearWhenFixed(emailEl, emailOk);
+  [phoneEl, emailEl].forEach((el) => el.addEventListener('input', () => {
+    if (phoneOk()) phoneEl.closest('.field').classList.remove('invalid');
+    if (emailOk()) emailEl.closest('.field').classList.remove('invalid');
+  }));
+
+  // Booking request without payment: saved with the quotes (source "booking"),
+  // the owner gets an email and confirms the date with the client.
+  const REQUEST_ERRORS = {
+    rate_limited: 'booking.form.note.tooMany',
+    temporarily_unavailable: 'booking.form.note.tooMany',
+    invalid_date: 'booking.form.note.badDate',
+    date_in_past: 'booking.form.note.badDate',
+    date_too_far: 'booking.form.note.badDate',
+  };
+  async function sendRequest(v) {
+    const submitBtn = document.getElementById('bookingSubmit');
+    const note = document.getElementById('bookingNote');
+    const service = services.find((s) => s.id === selectedServiceId);
+    const extras = addons.filter((a) => (addonQty.get(a.id) || 0) > 0)
+      .map((a) => `${addonName(a)}${a.unit === 'flat' ? '' : ` x${addonQty.get(a.id)}`}`);
+    const utm = window.MagicstickUtm ? window.MagicstickUtm.get() : null;
+    const message = [
+      v.notes,
+      extras.length ? `${t('booking.extras.label')}: ${extras.join(', ')}` : '',
+      utm ? `[${window.MagicstickUtm.describe()}]` : '',
+    ].filter(Boolean).join('\n\n');
+    const size = (n) => (n > 0 ? String(n) : null);
+    submitBtn.disabled = true;
+    note.textContent = t('booking.request.sending');
+    try {
+      const res = await fetch(`${backend.config.FUNCTIONS_URL}/submit-quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'submit',
+          source: 'booking',
+          lang: lang(),
+          name: v.name,
+          phone: v.phone || null,
+          email: v.email || null,
+          address: v.address || null,
+          zone: v.zone,
+          service: service ? service.name : 'Cleaning',
+          frequency: 'One-time',
+          preferred_date: v.date,
+          preferred_time: v.time,
+          bedrooms: size(sizeCount.bedrooms),
+          bathrooms: size(sizeCount.bathrooms + (sizeCount.half_bathrooms ? sizeCount.half_bathrooms * 0.5 : 0)),
+          message,
+          website: '',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        note.textContent = t(REQUEST_ERRORS[data.error] || 'booking.request.error');
+        submitBtn.disabled = false;
+        return;
+      }
+      form.hidden = true;
+      statusBanner.hidden = false;
+      statusBanner.classList.add('notice-success');
+      statusBanner.innerHTML = `<strong>${esc(t('booking.request.sentTitle'))}</strong><br>${esc(t('booking.request.sentBody', {
+        name: v.name, date: document.getElementById('bDateDisplay').value || v.date,
+      }))}`;
+      statusBanner.setAttribute('tabindex', '-1');
+      statusBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      statusBanner.focus({ preventScroll: true });
+    } catch (err) {
+      console.error(err);
+      note.textContent = t('booking.request.error');
+      submitBtn.disabled = false;
+    }
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const submitBtn = document.getElementById('bookingSubmit');
     const note = document.getElementById('bookingNote');
     const name = document.getElementById('bName').value.trim();
-    const contact = document.getElementById('bContact').value.trim();
+    const phone = phoneEl.value.trim();
+    const email = emailEl.value.trim();
+    const contact = phone || email;
+    const address = document.getElementById('bAddress').value.trim();
     const date = document.getElementById('bDate').value;
     const time = document.getElementById('bTime').value;
     const zone = document.getElementById('bZone').value;
@@ -514,7 +623,8 @@
       ['serviceOptions', !selectedServiceId],
       ['bDateDisplay', !date],
       ['bName', !name],
-      ['bContact', !isReachable(contact)],
+      ['bPhone', !phoneOk()],
+      ['bEmail', emailEl.value.trim() !== '' && !isEmail(emailEl.value.trim())],
     ].filter(([, bad]) => bad).map(([id]) => document.getElementById(id));
     form.querySelectorAll('.field.invalid').forEach((f) => f.classList.remove('invalid'));
     if (problems.length) {
@@ -526,7 +636,12 @@
       setTimeout(() => (first.id === 'serviceOptions' ? first.querySelector('input') : first)?.focus({ preventScroll: true }), 350);
       return;
     }
-    note.textContent = t('booking.form.note.default');
+    note.textContent = t(paymentsOn ? 'booking.form.note.default' : 'booking.form.note.request');
+
+    if (!paymentsOn) {
+      await sendRequest({ name, phone, email, address, date, time, zone, notes });
+      return;
+    }
 
     if (window.MagicstickConfirm) {
       const confirmed = await window.MagicstickConfirm.ask({
@@ -545,7 +660,8 @@
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
       const utm = window.MagicstickUtm ? window.MagicstickUtm.get() : null;
-      const notesWithUtm = utm ? `${notes}${notes ? '\n\n' : ''}[${window.MagicstickUtm.describe()}]` : notes;
+      const notesWithAddress = address ? `${notes}${notes ? '\n' : ''}${t('form.addressOrArea')}: ${address}` : notes;
+      const notesWithUtm = utm ? `${notesWithAddress}${notesWithAddress ? '\n\n' : ''}[${window.MagicstickUtm.describe()}]` : notesWithAddress;
 
       const res = await fetch(`${backend.config.FUNCTIONS_URL}/create-payment-intent`, {
         method: 'POST',

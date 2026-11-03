@@ -190,7 +190,17 @@ const contestEntry = (over: Record<string, unknown> = {}) => ({
   eligible: true, rules: true, lang: "fr", source: "banner/social/tirage-50", ...over,
 });
 
-Deno.test("contest: a valid entry is stored with a normalized contact key", async () => {
+// The contest closed early (Nov 3, 2026): the entry tests run at a moment
+// during the contest period.
+function contestTest(name: string, fn: () => Promise<void>) {
+  Deno.test(name, async () => {
+    const realNow = Date.now;
+    Date.now = () => Date.parse("2026-10-20T15:00:00Z");
+    try { await fn(); } finally { Date.now = realNow; }
+  });
+}
+
+contestTest("contest: a valid entry is stored with a normalized contact key", async () => {
   resetAll();
   const r = await call(submitForm, contestEntry());
   assert.equal(r.status, 200);
@@ -201,7 +211,7 @@ Deno.test("contest: a valid entry is stored with a normalized contact key", asyn
   assert.equal(rows[0].lang, "fr");
 });
 
-Deno.test("contest: one entry per person — the same phone written differently is a duplicate, not an error", async () => {
+contestTest("contest: one entry per person — the same phone written differently is a duplicate, not an error", async () => {
   resetAll();
   await call(submitForm, contestEntry());
   const again = await call(submitForm, contestEntry({ contact: "+1 (613) 555 0142" }), { "cf-connecting-ip": "198.51.100.77" });
@@ -210,7 +220,7 @@ Deno.test("contest: one entry per person — the same phone written differently 
   assert.equal(state.table("contest_entries").length, 1);
 });
 
-Deno.test("contest: marketing consent is recorded only when the optional box is ticked", async () => {
+contestTest("contest: marketing consent is recorded only when the optional box is ticked", async () => {
   resetAll();
   await call(submitForm, contestEntry());
   await call(submitForm, contestEntry({ contact: "a@example.com", marketing: "yes" }), { "cf-connecting-ip": "198.51.100.10" });
@@ -223,7 +233,7 @@ Deno.test("contest: marketing consent is recorded only when the optional box is 
   assert.equal(rows[2].marketing_consent_version, "contest-optin-v2");
 });
 
-Deno.test("contest: an entrant who comes back and ticks the box gives consent; leaving it unticked never removes it", async () => {
+contestTest("contest: an entrant who comes back and ticks the box gives consent; leaving it unticked never removes it", async () => {
   resetAll();
   await call(submitForm, contestEntry());
   const again = await call(submitForm, contestEntry({ marketing: true }), { "cf-connecting-ip": "198.51.100.12" });
@@ -234,7 +244,7 @@ Deno.test("contest: an entrant who comes back and ticks the box gives consent; l
   assert.ok(state.table("contest_entries")[0].marketing_consent_at);
 });
 
-Deno.test("contest: eligibility and rules must both be accepted, and a reachable contact is required", async () => {
+contestTest("contest: eligibility and rules must both be accepted, and a reachable contact is required", async () => {
   resetAll();
   assert.equal((await call(submitForm, contestEntry({ eligible: false }))).status, 400);
   assert.equal((await call(submitForm, contestEntry({ rules: "true" }))).status, 400);
@@ -243,10 +253,10 @@ Deno.test("contest: eligibility and rules must both be accepted, and a reachable
   assert.equal(state.table("contest_entries").length, 0);
 });
 
-Deno.test("contest: entries are refused after Dec 31, 2026 23:59:59 Eastern", async () => {
+Deno.test("contest: entries are refused once it closed (Nov 3, 2026, early closure)", async () => {
   resetAll();
   const realNow = Date.now;
-  Date.now = () => Date.parse("2027-01-01T05:00:01Z");
+  Date.now = () => Date.parse("2026-11-03T05:00:01Z");
   try {
     const r = await call(submitForm, contestEntry());
     assert.equal(r.status, 410);
@@ -257,7 +267,7 @@ Deno.test("contest: entries are refused after Dec 31, 2026 23:59:59 Eastern", as
   assert.equal(state.table("contest_entries").length, 0);
 });
 
-Deno.test("contest: an email entrant gets a confirmation; a phone entrant gets none", async () => {
+contestTest("contest: an email entrant gets a confirmation; a phone entrant gets none", async () => {
   resetAll();
   await call(submitForm, contestEntry({ contact: "Marie@Example.com" }));
   assert.equal(state.table("contest_entries")[0].contact_key, "marie@example.com");

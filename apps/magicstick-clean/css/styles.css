@@ -134,6 +134,10 @@
   header.header-on-photo .mobile-menu.open{box-shadow:0 16px 32px rgba(0,0,0,.25);}
   .mobile-menu.open{max-height:400px;overflow-y:auto;}
   @media (max-width:1360px){ .mobile-menu{display:flex;} }
+  /* Set by js/site-enhancements.js when the links don't fit beside the brand. */
+  header.nav-compact .navlinks{display:none;}
+  header.nav-compact .burger{display:flex;}
+  header.nav-compact .mobile-menu{display:flex;}
   .mobile-menu a{
     padding:14px 32px;border-bottom:1px solid var(--line);
     font-size:15.5px;font-weight:600;letter-spacing:.1px;color:var(--charcoal);
@@ -785,6 +789,8 @@
   }
   .contact-band h1,.contact-band h2{color:#fff;font-size:36px;max-width:20ch;margin:0 auto 16px;text-shadow:0 2px 14px rgba(0,0,0,.3);}
   .contact-band p{color:#E7E1FA;font-size:16px;margin-bottom:30px;text-shadow:0 1px 8px rgba(0,0,0,.25);}
+  /* Hints inside the white form card keep the form's own colours. */
+  .contact-band .quote-form .field-hint{color:var(--gray);font-size:12.5px;text-shadow:none;margin-bottom:16px;}
   .contact-band .btn{background:#fff;color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);}
   .contact-band .btn:hover{background:#F1ECFC;color:var(--ink);}
   .contact-band .contactline{margin-top:22px;font-size:15px;color:#E7E1FA;text-shadow:0 1px 6px rgba(0,0,0,.25);}
@@ -1292,6 +1298,12 @@
 
   /* ---------- HOME SIZE + EXTRAS (ADD-ONS) ---------- */
   .field-hint{font-size:12.5px;color:var(--gray);margin:2px 0 12px;line-height:1.45;}
+  .field-hint-row{margin:-6px 0 16px;}
+  /* Booking page: the free quote and a direct line, right under the title. */
+  .booking-alt{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:22px;}
+  .booking-alt .btn-outline{padding:12px 22px;border-radius:100px;font-weight:600;font-size:15px;}
+  .booking-alt-mail{font-size:14.5px;color:var(--gray);text-decoration:underline;text-underline-offset:3px;}
+  @media (max-width:640px){ .booking-alt .btn, .booking-alt .btn-outline{flex:1 1 100%;text-align:center;} }
   .size-steppers{display:flex;flex-wrap:wrap;gap:12px;}
   .size-stepper{
     flex:1 1 150px;display:flex;flex-direction:column;gap:8px;
@@ -2417,3 +2429,8 @@ body{ transition:background-color .35s ease, color .35s ease; }
 .contact-band .quote-success h2{ color:var(--charcoal); font-size:23px; margin:0 0 10px; max-width:none; text-shadow:none; }
 /* Careers "offer" list is forced to 3 columns inline; stack it on phones (it overflowed at 360px). */
 @media (max-width:600px){ .offer .why-list{ grid-template-columns:1fr !important; } }
+
+/* Phones: form fields at 16px so iOS Safari doesn't zoom the page when one is tapped. */
+@media (max-width:820px){
+  input:not([type=checkbox]):not([type=radio]), select, textarea{ font-size:16px !important; }
+}

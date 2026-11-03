@@ -92,6 +92,12 @@ export type QuoteInput = {
   pets: string | null;
   photo_paths: string[];
   video_path: string | null;
+  phone: string | null;
+  email: string | null;
+  home_size: string | null;
+  preferred_time: string | null;
+  source: "quote" | "booking";
+  lang: "en" | "fr";
 };
 export type QuoteValidated = { ok: true; value: QuoteInput } | { ok: false; error: string };
 
@@ -137,7 +143,17 @@ export function validateQuote(body: unknown, quoteId: string, now: Date = new Da
   const name = clean(b.name);
   if (!name || name.length > 120) return { ok: false, error: "invalid_name" };
 
-  const contact = clean(b.contact);
+  // Separate phone / email fields (at least one), or the older single
+  // "phone or email" field that cached pages may still send. `contact` keeps
+  // the one used to reach the client: the phone when there is one.
+  const phoneIn = shortOrNull(b.phone, 40);
+  const emailIn = shortOrNull(b.email, 200);
+  if (!phoneIn.ok || !emailIn.ok) return { ok: false, error: "invalid_contact" };
+  const phone = phoneIn.value;
+  const email = emailIn.value;
+  if (phone !== null && !isPhone(phone)) return { ok: false, error: "invalid_phone" };
+  if (email !== null && !isEmail(email)) return { ok: false, error: "invalid_email" };
+  const contact = phone ?? email ?? clean(b.contact);
   if (!contact || contact.length < 3 || contact.length > 200 || !(isEmail(contact) || isPhone(contact))) {
     return { ok: false, error: "invalid_contact" };
   }
@@ -172,7 +188,11 @@ export function validateQuote(body: unknown, quoteId: string, now: Date = new Da
   const bathrooms = shortOrNull(b.bathrooms, 40);
   const homeType = shortOrNull(b.home_type, 60);
   const pets = shortOrNull(b.pets, 60);
-  if (!bedrooms.ok || !bathrooms.ok || !homeType.ok || !pets.ok) return { ok: false, error: "invalid_details" };
+  const homeSize = shortOrNull(b.home_size, 60);
+  const preferredTime = shortOrNull(b.preferred_time, 40);
+  if (!bedrooms.ok || !bathrooms.ok || !homeType.ok || !pets.ok || !homeSize.ok || !preferredTime.ok) {
+    return { ok: false, error: "invalid_details" };
+  }
 
   let preferred: string | null = null;
   if (b.preferred_date !== undefined && b.preferred_date !== null && b.preferred_date !== "") {
@@ -206,6 +226,9 @@ export function validateQuote(body: unknown, quoteId: string, now: Date = new Da
       bedrooms: bedrooms.value, bathrooms: bathrooms.value, home_type: homeType.value,
       preferred_date: preferred, pets: pets.value,
       photo_paths: photoPaths, video_path: video,
+      phone, email, home_size: homeSize.value, preferred_time: preferredTime.value,
+      source: b.source === "booking" ? "booking" : "quote",
+      lang: b.lang === "fr" ? "fr" : "en",
     },
   };
 }

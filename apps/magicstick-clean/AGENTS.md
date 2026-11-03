@@ -131,6 +131,8 @@ apps/magicstick-clean/
 | `node tools/i18n-check.mjs` | Keys used but missing, missing FR, customer French in "tu". **All three must say "none"** |
 | `node tools/audit-crawl.mjs` | Playwright crawl of the live site: JS errors, failed requests, broken links, horizontal overflow (desktop + mobile). Expect 0 everywhere |
 
+If Playwright isn't installed in the folder, point to it: `PLAYWRIGHT=/path/to/playwright/index.js`. Optional: `CHROMIUM=/path/to/chrome`, `CHROMIUM_ARGS="--flag …"` (e.g. a proxy certificate). A clean run prints `No problems found.`
+
 ## 5. Edge functions (Supabase, Deno)
 
 | Function | Role | Status |

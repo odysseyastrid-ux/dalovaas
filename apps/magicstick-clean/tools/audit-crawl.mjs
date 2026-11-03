@@ -5,11 +5,17 @@
 //   node tools/audit-crawl.mjs                 (whole site)
 //   PAGES=index.html,quote.html node tools/audit-crawl.mjs
 import fs from 'fs'; import path from 'path'; import { fileURLToPath } from 'url';
-const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
+// PLAYWRIGHT=/path/to/playwright/index.js if it isn't installed in this folder.
+const pw = await import(process.env.PLAYWRIGHT || 'playwright');
+const chromium = pw.chromium || pw.default.chromium;
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = process.env.BASE || 'https://magicstickclean.ca';
 const pages = process.env.PAGES ? process.env.PAGES.split(',') : fs.readdirSync(root).filter((f) => f.endsWith('.html') && !f.startsWith('google')).sort();
-const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
+// CHROMIUM=/path/to/chrome and CHROMIUM_ARGS="--flag --flag" are optional (e.g. behind a proxy).
+const launch = {};
+if (process.env.CHROMIUM) launch.executablePath = process.env.CHROMIUM;
+if (process.env.CHROMIUM_ARGS) launch.args = process.env.CHROMIUM_ARGS.split(' ').filter(Boolean);
+const browser = await chromium.launch(launch);
 const problems = []; const links = new Map();
 for (const pg of pages) for (const w of [390, 820, 1366]) for (const lang of ['en', 'fr']) {
   const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, isMobile: w < 500, hasTouch: w < 900 });

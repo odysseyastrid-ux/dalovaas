@@ -5,6 +5,9 @@ working in `apps/magicstick-clean/`. It is the single source of truth for who th
 business is, what the site does, and the current live state — so any assistant
 (marketing help, copywriting, coding) starts fully informed. Keep it up to date.
 
+> **Maintenance agents:** also read `AGENTS.md` (how to change, test and deploy safely).
+> The owner's plain-French guide is `GUIDE-PROPRIETAIRE.md`.
+
 > Monorepo note: the repository root is a **different** project (Chez Sanji, in
 > `apps/web/`). Everything below is about **Magicstick Clean** only, which lives
 > entirely under `apps/magicstick-clean/`.
@@ -55,11 +58,13 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
   **$27/h = 10% off**, for as long as the plan is kept.
 - There is **NO first-booking / first-time discount** anymore (it was removed — do
   not reintroduce it in copy or math).
-- A **refundable deposit** is collected online to book; the balance is paid at the
-  appointment. Deposits: Standard/Commercial/Windows $30, Airbnb $25, Deep/Post/
-  Move $50.
+- **Nothing is paid online right now** (`ONLINE_PAYMENTS: false`): the client pays at
+  the appointment. The deposit amounts stay in the DB for when Stripe is switched on
+  (Standard/Commercial/Windows $30, Airbnb $25, Deep/Post/Move $50) but the site does
+  not mention or collect them.
+- All prices are shown in **CAD**.
 - Optional add-ons exist (`service_addons` table) and are collected at the
-  appointment, on top of the total — the online deposit doesn't change.
+  appointment, on top of the total.
 
 ---
 
@@ -100,11 +105,14 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 - **Backend:** Supabase (project `siqpcnhfpseorjuwfrop`) — Postgres + Auth +
   Storage, exposed through `window.MagicstickBackend`. Publishable key only in
   `js/config.js`.
-- **Edge functions (Deno):** create-payment-intent, stripe-webhook, gift-cards,
-  ai-chat, owner-assistant, notify-quote-request, submit-form, sync-to-twenty,
-  send-auth-email.
-- **Payments:** **Stripe LIVE mode**. `pk_live` is in `js/config.js`; `sk_live` +
-  webhook secret live in Supabase secrets. Stripe uses the Deno build
+- **Edge functions (Deno):** submit-quote (quotes + booking requests + emails),
+  submit-form (newsletter, gift-card requests, jobs, contest), ai-chat, owner-assistant,
+  send-auth-email, create-payment-intent / stripe-webhook / gift-cards (payments, idle
+  while `ONLINE_PAYMENTS` is false), sync-to-twenty (optional CRM), notify-quote-request
+  (unused). Full table and deploy procedure: `AGENTS.md`.
+- **Payments:** Stripe keys exist (`pk_live` in `js/config.js`; `sk_live` + webhook
+  secret in Supabase secrets) but the account was never activated and payments are
+  **switched off** on the site (`ONLINE_PAYMENTS: false`). Stripe uses the Deno build
   (`esm.sh/stripe@14.21.0?target=deno`) + `Stripe.createFetchHttpClient()`.
 
 ### Interaction & motion system ("fluid layer", end of `css/styles.css`)
@@ -240,14 +248,14 @@ The notes below describe how it worked.
 
 - **Who to reach:** homeowners, renters, landlords/property managers, Airbnb/STR
   hosts, and small office/retail operators in Clarence-Rockland, Ottawa, Gatineau.
-- **Core promises to lead with:** transparent $30/h
-  pricing · same-day reply · local & bilingual · book online with a small deposit.
+- **Core promises to lead with:** transparent $30/h CAD
+  pricing · same-day reply · local & bilingual · free quote, nothing to pay online.
 - **Proof on hand:** real before/after photography already in `assets/images/`
   (hardwood, bathroom, fridge before/after pairs; dishwashing, baseboards, office,
   post-construction, move-in/out, Airbnb turnover, retail, pet-hair; a hero family
   photo and a hero proof video). Use these — do not invent new "proof."
 - **Honest levers available:** recurring plan savings (10% off → $27/h), the permanent
-  15% off on windows & outdoor/seasonal, gift cards (`gift-cards.html`), bilingual
+  15% off on windows & outdoor/seasonal, gift cards (`gift-cards.html`, by e-transfer), bilingual
   service, local/hyper-local SEO (dedicated Ottawa / Gatineau / Clarence-Rockland
   location pages already exist).
 - **Not yet available (don't promise):** no calendar/availability conflict checking,

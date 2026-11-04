@@ -8,9 +8,10 @@ window.MAGICSTICK_CONFIG = {
   // Base URL of the deployed edge functions, e.g.
   // "https://YOUR-PROJECT-REF.supabase.co/functions/v1"
   FUNCTIONS_URL: "https://siqpcnhfpseorjuwfrop.supabase.co/functions/v1",
-  // Online card payments (booking deposit, gift-card purchase). Off until the
-  // Stripe account is activated and one real payment has gone through end to
-  // end: meanwhile booking.html sends a free booking request and gift cards
-  // are ordered through the request form (paid by e-transfer).
+  // Online card payments (paying a quote on pay.html, gift-card purchase). Off
+  // until the Stripe account is activated and one real payment has gone
+  // through end to end: meanwhile pay.html shows Interac e-Transfer and gift
+  // cards are ordered through the request form. Card on pay.html also needs
+  // the Supabase secret QUOTE_CARD_PAYMENTS = "on" (quote-pay function).
   ONLINE_PAYMENTS: false,
 };

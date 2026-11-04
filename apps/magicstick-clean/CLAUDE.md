@@ -30,14 +30,20 @@ business is, what the site does, and the current live state — so any assistant
 - **Prices and answers, up front** — no call center, no rotating script.
   (**Do NOT promise "the same cleaner every visit"**: the owner intends to grow into a
   larger company with a team, so that promise was removed from the site and marketing.)
-- **Transparent pricing** shown before any commitment.
+- **A clear, personalized price** sent before any commitment (free quote, same-day reply).
 - **Same-day reply** promise (a real operating commitment).
 - **Personal & direct** (phone/text/email answered by the operator), vs. corporate
   franchises. The whole competitive story is: consistent, personal, trustworthy.
 
 ---
 
-## Services & pricing (CURRENT — updated this session)
+## Services & pricing — INTERNAL ONLY (prices are not on the site)
+
+> **Owner's decision, Nov 4, 2026: no price is shown anywhere on the site** (pages, JSON-LD,
+> Louis the chatbot). Every client gets a personalized quote, then pays with a link
+> (`pay.html`). The table below is the owner's old internal reference; on Nov 4 the owner also
+> said the minimum should be **$39.50/h** to stay profitable. Never publish these numbers;
+> ask the owner before using them anywhere (e.g. drafting a quote).
 
 All bookings have a **3-hour minimum**. Prices below are hourly; the site shows the
 3-hour starting total (e.g. Standard = $30/h → $90 to start).
@@ -78,15 +84,18 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    out. (The Database Webhook to `notify-quote-request` was never configured — that
    function is unused.) If the backend can't be reached, the page says so plainly and
    offers a prefilled email / a call: it never shows "received" when nothing arrived.
-2. **Book online** (`booking.html`) — pick service + date + time window. While
-   `ONLINE_PAYMENTS` is `false` in `js/config.js` (current state: no Stripe payment has
-   ever succeeded), it sends a **booking request, nothing to pay online** — saved with the
-   quotes (`source = 'booking'`), the owner confirms the date the same day, the client pays
-   at the appointment. Stripe.js isn't even loaded. Set the flag to `true` only after the
-   Stripe account is activated and one real payment has worked end to end; the deposit
-   flow (and online gift-card purchase) then come back as before.
-3. **Instant estimator** (homepage) — live price for service × hours × frequency
-   (3h min, recurring 10%), with CTAs into booking (service preselected) and quote.
+2. **Personalized price + payment link** — the owner opens the quote in `admin.html`, clicks
+   **Envoyer le prix / Send the price**, types the price (and what's included). That writes
+   `quoted_amount_cents` + a random 10-character `pay_code` (migration 0023) and prepares a
+   ready FR/EN message (SMS / email / copy) with the link `pay.html?code=…`.
+3. **Pay** (`pay.html`, function `quote-pay`) — the client sees their price (always read from
+   the database) and pays by **Interac e-Transfer** to magicstickclean@gmail.com with the code
+   as message, or on the day; the owner then clicks **Mark as paid**. **Card** (Stripe Payment
+   Element) appears only when `ONLINE_PAYMENTS: true` in `js/config.js` **and** the Supabase
+   secret `QUOTE_CARD_PAYMENTS=on`; `stripe-webhook` then marks the quote paid
+   (`metadata.kind = "quote"`) and emails owner + client.
+   `booking.html` and the homepage price estimator were **removed** (`/booking` redirects to
+   the quote form). The homepage now explains the 3 steps (quote → price → pay).
 4. **Customer accounts** (`account.html`) — sign up / log in, see own bookings.
 5. **Owner/admin dashboard** (`admin.html`) — view/manage quotes & bookings,
    edit AI knowledge, and chat with a private business co-pilot (see AI below).
@@ -248,14 +257,14 @@ The notes below describe how it worked.
 
 - **Who to reach:** homeowners, renters, landlords/property managers, Airbnb/STR
   hosts, and small office/retail operators in Clarence-Rockland, Ottawa, Gatineau.
-- **Core promises to lead with:** transparent $30/h CAD
-  pricing · same-day reply · local & bilingual · free quote, nothing to pay online.
+- **Core promises to lead with:** free personalized quote · same-day reply · local &
+  bilingual · easy payment by link after the quote. **Never publish a price.**
 - **Proof on hand:** real before/after photography already in `assets/images/`
   (hardwood, bathroom, fridge before/after pairs; dishwashing, baseboards, office,
   post-construction, move-in/out, Airbnb turnover, retail, pet-hair; a hero family
   photo and a hero proof video). Use these — do not invent new "proof."
-- **Honest levers available:** recurring plan savings (10% off → $27/h), the permanent
-  15% off on windows & outdoor/seasonal, gift cards (`gift-cards.html`, by e-transfer), bilingual
+- **Honest levers available:** regular visits (weekly/biweekly/monthly, priced in the quote),
+  gift cards (`gift-cards.html`, by e-transfer), bilingual
   service, local/hyper-local SEO (dedicated Ottawa / Gatineau / Clarence-Rockland
   location pages already exist).
 - **Not yet available (don't promise):** no calendar/availability conflict checking,

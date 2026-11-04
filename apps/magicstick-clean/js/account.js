@@ -25,11 +25,10 @@
     if (!activeServices || !activeServices.length) return '';
     const cards = activeServices.map((s) => {
       const name = (lang() === 'fr' && s.name_fr) ? s.name_fr : s.name;
-      const price = (s.base_price_cents / 100).toFixed(2);
       return `
-        <a class="book-service-card" href="booking.html?service=${encodeURIComponent(s.id)}">
+        <a class="book-service-card" href="quote.html">
           <span class="book-service-card-name">${esc(name)}</span>
-          <span class="book-service-card-price">${esc(t('account.bookNudge.priceFrom', { price }))}</span>
+          <span class="book-service-card-price">${esc(t('account.bookNudge.priceFrom'))}</span>
         </a>
       `;
     }).join('');

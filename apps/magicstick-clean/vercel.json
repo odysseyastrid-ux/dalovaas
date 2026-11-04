@@ -23,7 +23,7 @@
       ]
     },
     {
-      "source": "/((?!booking|gift-cards).*)",
+      "source": "/((?!pay|gift-cards).*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "source": "/(booking|gift-cards)(.*)",
+      "source": "/(pay|gift-cards)(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -46,6 +46,11 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/booking(.html)?",
+      "destination": "/quote.html",
+      "permanent": true
+    },
     {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "magicstickclean.vercel.app" }],

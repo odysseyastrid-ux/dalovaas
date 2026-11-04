@@ -156,6 +156,7 @@
           renderQuotes();
         })
       );
+      qStatusCell.appendChild(priceButton(q));
       // Quotes booked off-site (phone/text) can get the same review request.
       if (q.status === 'booked') {
         qStatusCell.appendChild(reviewButton({ table: 'quote_requests', row: q, name: q.name, contact: q.contact, onChange: renderQuotes }));
@@ -290,6 +291,111 @@
       ? t('admin.review.askedOn', { date: fmtDate(target.row.review_requested_at) })
       : t('admin.booking.reviewTitle');
     btn.addEventListener('click', () => openReviewDialog(target));
+    return btn;
+  }
+
+
+  // ---------- Price & payment link (prices are never shown on the site) ----------
+  // The owner sets the client's price here. Saving creates a random 10-character
+  // pay_code; the client opens pay.html?code=… to see the price and pay
+  // (Interac now, card once ONLINE_PAYMENTS is on). The webhook marks card
+  // payments; e-Transfer / cash payments are marked here by hand.
+  const PAY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const priceDialog = document.getElementById('priceDialog');
+  const priceAmount = document.getElementById('priceAmount');
+  const priceNote = document.getElementById('priceNote');
+  const priceSend = document.getElementById('priceSend');
+  const priceMessage = document.getElementById('priceMessage');
+  const priceStatus = document.getElementById('priceStatus');
+  let priceTarget = null;
+  let priceLang = 'fr';
+  const newPayCode = () => {
+    const bytes = crypto.getRandomValues(new Uint8Array(10));
+    return Array.from(bytes, (b) => PAY_ALPHABET[b % 32]).join('');
+  };
+  const prettyCode = (c) => c.replace(/^(.{4})(.{4})(.{2})$/, '$1-$2-$3');
+  const payLink = (q) => `https://magicstickclean.ca/pay.html?code=${q.pay_code}`;
+  const cad = (cents, l) => new Intl.NumberFormat(l === 'fr' ? 'fr-CA' : 'en-CA', { style: 'currency', currency: 'CAD' }).format(cents / 100);
+  const PRICE_TEMPLATES = {
+    fr: (q) => `Bonjour ${firstNameOf(q.name)}, merci pour votre demande ! Votre prix pour ${q.service} : ${cad(q.quoted_amount_cents, 'fr')}.` +
+      `${q.quote_note ? `\n${q.quote_note}` : ''}\n\nPour accepter et payer : ${payLink(q)} (code ${prettyCode(q.pay_code)}). ` +
+      `Vous pouvez aussi payer le jour du ménage.\n\n— Magicstick Clean, (343) 843-7761`,
+    en: (q) => `Hi ${firstNameOf(q.name)}, thanks for your request! Your price for ${q.service}: ${cad(q.quoted_amount_cents, 'en')}.` +
+      `${q.quote_note ? `\n${q.quote_note}` : ''}\n\nTo accept and pay: ${payLink(q)} (code ${prettyCode(q.pay_code)}). ` +
+      `You can also pay on the day of the cleaning.\n\n— Magicstick Clean, (343) 843-7761`,
+  };
+
+  function refreshPriceDialog() {
+    const q = priceTarget;
+    if (!q) return;
+    const ready = !!(q.quoted_amount_cents && q.pay_code);
+    priceSend.hidden = !ready;
+    if (!ready) return;
+    priceDialog.querySelectorAll('[data-price-lang]').forEach((b) => b.classList.toggle('is-active', b.dataset.priceLang === priceLang));
+    priceMessage.value = PRICE_TEMPLATES[priceLang](q);
+    refreshPriceLinks();
+    document.getElementById('priceLink').textContent = payLink(q);
+    document.getElementById('pricePaid').hidden = !!q.paid_at;
+    document.getElementById('priceUnpaid').hidden = !q.paid_at;
+    priceStatus.textContent = q.paid_at ? t('admin.price.paidOn', { date: fmtDate(q.paid_at), method: q.payment_method || '' }) : '';
+  }
+  function refreshPriceLinks() {
+    const q = priceTarget;
+    const phone = phoneOf(q.phone || q.contact);
+    const email = emailOf(q.email || q.contact);
+    const sms = document.getElementById('priceSms');
+    const mail = document.getElementById('priceEmail');
+    sms.hidden = !phone;
+    mail.hidden = !email;
+    sms.href = phone ? `sms:+${phone}?&body=${encodeURIComponent(priceMessage.value)}` : '#';
+    const subject = priceLang === 'fr' ? 'Votre prix Magicstick Clean' : 'Your Magicstick Clean price';
+    mail.href = email ? `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(priceMessage.value)}` : '#';
+  }
+  function openPriceDialog(q) {
+    priceTarget = q;
+    priceLang = q.lang === 'en' ? 'en' : 'fr';
+    document.getElementById('priceDialogClient').textContent = `${q.name} · ${q.service}`;
+    priceAmount.value = q.quoted_amount_cents ? (q.quoted_amount_cents / 100).toFixed(2) : '';
+    priceNote.value = q.quote_note || '';
+    priceStatus.textContent = '';
+    refreshPriceDialog();
+    if (typeof priceDialog.showModal === 'function') priceDialog.showModal(); else priceDialog.setAttribute('open', '');
+  }
+  async function savePriceFields(patch) {
+    const { error } = await supabase.from('quote_requests').update(patch).eq('id', priceTarget.id);
+    if (error) { priceStatus.textContent = t('admin.review.saveError'); return false; }
+    Object.assign(priceTarget, patch);
+    refreshPriceDialog();
+    renderQuotes();
+    return true;
+  }
+  if (priceDialog) {
+    document.getElementById('priceSave').addEventListener('click', async () => {
+      const cents = Math.round(parseFloat(String(priceAmount.value).replace(',', '.')) * 100);
+      if (!Number.isFinite(cents) || cents < 100 || cents > 2000000) { priceStatus.textContent = t('admin.price.amountErr'); return; }
+      const patch = { quoted_amount_cents: cents, quote_note: priceNote.value.trim().slice(0, 500) || null, quoted_at: new Date().toISOString() };
+      if (!priceTarget.pay_code) patch.pay_code = newPayCode();
+      if (await savePriceFields(patch)) priceStatus.textContent = t('admin.price.saved');
+    });
+    priceDialog.querySelectorAll('[data-price-lang]').forEach((b) => b.addEventListener('click', () => { priceLang = b.dataset.priceLang; refreshPriceDialog(); }));
+    priceMessage.addEventListener('input', refreshPriceLinks);
+    document.getElementById('priceCopy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(priceMessage.value); priceStatus.textContent = t('admin.review.copied'); } catch (_) { priceMessage.select(); }
+    });
+    document.getElementById('pricePaid').addEventListener('click', () => {
+      const method = window.confirm(t('admin.price.confirmInterac')) ? 'interac' : 'cash';
+      savePriceFields({ paid_at: new Date().toISOString(), payment_method: method });
+    });
+    document.getElementById('priceUnpaid').addEventListener('click', () => savePriceFields({ paid_at: null, payment_method: null }));
+  }
+  function priceButton(q) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'booking-review-btn' + (q.paid_at ? ' is-done' : '');
+    btn.textContent = q.paid_at
+      ? t('admin.price.btnPaid', { amount: cad(q.quoted_amount_cents, lang()) })
+      : q.quoted_amount_cents ? t('admin.price.btnSent', { amount: cad(q.quoted_amount_cents, lang()) }) : t('admin.price.btn');
+    btn.addEventListener('click', () => openPriceDialog(q));
     return btn;
   }
 

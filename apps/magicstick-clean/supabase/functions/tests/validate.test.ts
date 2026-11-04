@@ -49,11 +49,12 @@ Deno.test("booking: every rule the audit asked for", () => {
   assert.equal(err({ notes: undefined }), "ok");
 });
 
-Deno.test("booking: the time windows are the ones booking.html offers", async () => {
-  const html = await Deno.readTextFile(new URL("../../../booking.html", import.meta.url));
-  for (const w of TIME_WINDOWS) assert.ok(html.includes(`value="${w}"`), `booking.html has no option "${w}"`);
+// booking.html was removed (Nov 4, 2026: every price now comes from a quote);
+// the zones the quote form offers must still be the ones the server knows.
+Deno.test("quote: the zones are the ones quote.html offers", async () => {
+  const html = await Deno.readTextFile(new URL("../../../quote.html", import.meta.url));
   for (const z of ["Rockland-Orléans", "Ottawa-Gatineau", "Other"]) {
-    assert.ok(html.includes(`value="${z}"`), `booking.html has no zone option "${z}"`);
+    assert.ok(html.includes(`value="${z}"`), `quote.html has no zone option "${z}"`);
   }
 });
 

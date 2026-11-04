@@ -12,7 +12,8 @@ Votre site est **magicstickclean.ca**, en français et en anglais.
 | Ce que le client fait | Ce qui se passe ensuite |
 |---|---|
 | Il demande un **devis gratuit** (page « Devis ») | Vous recevez un **courriel en français** avec tous ses détails. Le client reçoit une confirmation s'il a laissé son courriel. La demande est aussi dans votre tableau de bord. |
-| Il fait une **demande de réservation** (page « Réserver ») | Même chose : courriel + tableau de bord. **Il ne paie rien en ligne.** Vous confirmez la date et il paie sur place. |
+| Vous lui envoyez **son prix** (tableau de bord → bouton **« Envoyer le prix »**) | Le site crée un **lien de paiement** et un message prêt à envoyer par texto ou courriel. |
+| Il ouvre le lien (page **« Payer un devis »**) | Il voit son prix et paie par **virement Interac** (avec son code), ou le jour du ménage. Le paiement par carte viendra quand Stripe sera activé. |
 | Il demande une **carte-cadeau** | Vous recevez la demande. Le paiement se fait par virement Interac. |
 | Il parle à **Louis** (la bulle de clavardage) | L'IA répond avec vos vrais prix. Elle n'invente rien, sinon elle donne votre téléphone. |
 | Il s'abonne à l'infolettre ou postule pour un emploi | C'est enregistré, vous êtes avisé. |
@@ -27,8 +28,11 @@ Votre site est **magicstickclean.ca**, en français et en anglais.
    arrivent dans **magicstickclean@gmail.com**, vérifiez aussi les **pourriels** la
    première semaine. Pour répondre au client, faites simplement **« Répondre »**.
 2. **Répondez le jour même.** Votre site le promet, c'est votre force.
-3. Ouvrez **magicstickclean.ca/admin.html** (connexion avec votre courriel). Changez le statut de
-   la demande : *contacté*, *réservé*, *terminé*…
+3. Ouvrez **magicstickclean.ca/admin.html** (connexion avec votre courriel). Sur la demande,
+   cliquez **« Envoyer le prix »** : tapez le prix (et ce qui est inclus), cliquez
+   **« Enregistrer »**, puis **Texto** ou **Courriel** : le message avec le lien part tout seul.
+   Quand le virement Interac arrive, rouvrez-le et cliquez **« Marquer payé »**.
+   Changez aussi le statut : *contacté*, *réservé*, *terminé*…
 4. Quand un ménage est **terminé**, mettez le statut « Terminé ». Le site propose alors
    d'**envoyer une demande d'avis Google** (texto, WhatsApp ou courriel, déjà rédigé).
    Un seul rappel au maximum, et **jamais de cadeau en échange d'un avis** (c'est interdit par Google).
@@ -145,17 +149,9 @@ Allez sur Vercel → projet *magicstickclean* → **Deployments**. Choisissez la
 
 ---
 
-## 6. Vos prix actuels (pour mémoire)
+## 6. Les prix
 
-Minimum 3 heures par visite. Prix en dollars canadiens.
-
-| Service | Taux | Départ (3 h) |
-|---|---|---|
-| Ménage standard, Airbnb, commercial | 30 $/h | 90 $ |
-| Grand ménage | 43 $/h | 129 $ |
-| Fenêtres et vitres (15 % de rabais permanent) | 25,50 $/h | 76,50 $ |
-| Après-construction, emménagement / déménagement | 50 $/h | 150 $ |
-| Extérieur et saisonnier (pelouse, neige), 15 % de rabais | 50 $/h | sur devis |
-
-Les plans réguliers (chaque semaine, aux 2 semaines, chaque mois) sont à **27 $/h** (10 % de
-rabais). Il n'y a **pas de rabais de première visite**.
+**Aucun prix n'est affiché sur le site** (votre décision du 4 novembre 2026). Chaque client
+reçoit son prix personnalisé par le bouton « Envoyer le prix ». Vous aviez parlé d'un minimum de
+**39,50 $/h** pour être rentable : c'est à vous de l'appliquer dans vos devis. Ne demandez jamais
+à un agent de remettre des prix sur le site sans le vouloir vraiment.

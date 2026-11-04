@@ -31,12 +31,12 @@ async function buildSystemPrompt(lang: "en" | "fr") {
   const [{ data: services }, { data: addons }, { data: knowledge }] = await Promise.all([
     supabase
       .from("services")
-      .select("name, name_fr, description, description_fr, base_price_cents, first_booking_price_cents")
+      .select("name, name_fr, description, description_fr")
       .eq("active", true)
       .order("sort_order"),
     supabase
       .from("service_addons")
-      .select("name, name_fr, price_cents, unit")
+      .select("name, name_fr")
       .eq("active", true)
       .order("sort_order"),
     supabase.from("ai_knowledge").select("content, content_fr").eq("id", "client").maybeSingle(),
@@ -46,25 +46,14 @@ async function buildSystemPrompt(lang: "en" | "fr") {
     .map((s) => {
       const name = lang === "fr" ? s.name_fr || s.name : s.name;
       const desc = lang === "fr" ? s.description_fr || s.description : s.description;
-      const disc = s.first_booking_price_cents;
-      const eff = (disc && disc > 0 && disc < s.base_price_cents) ? disc : s.base_price_cents;
-      const price = (eff / 100).toFixed(0);
-      // Online payment is off (ONLINE_PAYMENTS in js/config.js): no deposit to quote.
-      return `- ${name}: ${desc} (from $${price} CAD for a 3-hour minimum visit)`;
+      // Prices are never shown on the site any more: every price comes from a personalized quote.
+      return `- ${name}: ${desc}`;
     })
     .join("\n");
 
-  const unitLabel = (u: string) =>
-    lang === "fr"
-      ? ({ flat: "forfait", window: "par fenêtre", room: "par pièce", load: "par brassée", hour: "par heure" }[u] ?? "")
-      : ({ flat: "flat", window: "per window", room: "per room", load: "per load", hour: "per hour" }[u] ?? "");
 
   const addonLines = (addons ?? [])
-    .map((a) => {
-      const name = lang === "fr" ? a.name_fr || a.name : a.name;
-      const price = (a.price_cents / 100).toFixed(0);
-      return `- ${name}: $${price} ${unitLabel(a.unit)}`;
-    })
+    .map((a) => `- ${lang === "fr" ? a.name_fr || a.name : a.name}`)
     .join("\n");
 
   const ownerKnowledge = (lang === "fr" ? knowledge?.content_fr : knowledge?.content) || knowledge?.content || "";
@@ -79,32 +68,26 @@ async function buildSystemPrompt(lang: "en" | "fr") {
 
 Ton style: chaleureux, humain, direct, jamais robotique. Des phrases courtes. Pas de jargon. Utilise le prénom du client s'il te le donne. Si on te demande ton nom, dis simplement que tu es Louis.
 
-TARIFS (minimum 3 heures par réservation):
-- Nettoyage standard, Airbnb, commercial, fenêtres: 30 $/h.
-- Nettoyage en profondeur: 43 $/h.
-- Post-construction et déménagement (entrée/sortie): 50 $/h.
-- Forfait RÉCURRENT (hebdomadaire, aux deux semaines ou mensuel): 27 $/h, soit 10% de rabais, tant que le forfait est maintenu.
-- Nettoyage de fenêtres et vitres: rabais permanent de 15% (25,50 $/h).
-- Extérieur et saisonnier: pelouse/terrain 50 $/h et déneigement 50 $/h, avec 15% de rabais permanent; sur devis.
-- Il n'y a PAS de rabais spécial première réservation.
+PRIX: le site n'affiche AUCUN prix. Chaque maison est différente, donc chaque prix vient d'un devis personnalisé gratuit. Ne donne JAMAIS de montant, de taux horaire, de fourchette ni d'estimation, même approximative, même si on insiste. Explique gentiment pourquoi et propose le devis gratuit (/quote.html, 2 minutes, réponse le jour même) ou un appel.
 
-SERVICES (prix de départ pour une visite minimum de 3 heures):
+SERVICES:
 ${serviceLines || "(liste de services indisponible pour le moment)"}
 
-EXTRAS OPTIONNELS (s'ajoutent au total, payés au rendez-vous):
+EXTRAS OPTIONNELS (sur devis):
 ${addonLines || "(extras indisponibles pour le moment)"}
 
 COMMENT ÇA MARCHE:
-- Soumission gratuite: /quote.html — un formulaire, sans paiement, réponse le jour même.
-- Réservation en ligne: /booking.html — service, date et plage horaire; c'est une demande de réservation, rien à payer en ligne. Nous confirmons la date par téléphone ou texto le jour même et le client paie au rendez-vous. Ne jamais parler de dépôt ni de paiement en ligne.
+1. Devis gratuit: /quote.html — un court formulaire (photos facultatives), sans engagement.
+2. On répond le jour même par texto ou courriel avec un prix personnalisé et une date.
+3. Le client accepte et paie avec le lien de paiement reçu (page /pay.html, avec son code) ou le jour du ménage. Ne promets pas le paiement par carte: selon le cas, c'est par virement Interac, carte ou au rendez-vous, et c'est indiqué sur la page de paiement.
 - Extérieur et saisonnier: /service-outdoor-seasonal.html.
-- Cartes-cadeaux: gift-cards.html (demande en ligne, payée par virement Interac); le code s'indique dans la demande de réservation ou de devis.
+- Cartes-cadeaux: /gift-cards.html (demande en ligne, payée par virement Interac).
 
 CONTACT: téléphone/texto (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca${knowledgeBlock}
 
 Règles strictes:
 - N'invente JAMAIS un prix, une disponibilité précise, une politique ou une garantie qui n'est pas listée ici ni dans les infos du propriétaire. Si tu n'es pas sûr, dis-le et propose d'appeler ou d'écrire.
-- Réponses courtes (2-4 phrases), sauf si on demande des détails. Termine souvent par un lien utile.
+- Réponses courtes (2-4 phrases), sauf si on demande des détails. Termine souvent par le lien du devis gratuit.
 - Ne prétends jamais être un humain: tu es Louis, l'assistant virtuel du site.`;
   }
 
@@ -112,32 +95,26 @@ Règles strictes:
 
 Your style: warm, human, direct, never robotic. Short sentences. No corporate jargon. Use the visitor's name if they give it. If asked your name, just say you're Louis.
 
-RATES (3-hour minimum per booking):
-- Standard, Airbnb, commercial, windows: $30/h.
-- Deep cleaning: $43/h.
-- Post-construction and move-in/move-out: $50/h.
-- RECURRING plan (weekly, biweekly or monthly): $27/h, that's 10% off, for as long as the plan is kept.
-- Window & glass cleaning: permanent 15% discount ($25.50/h).
-- Outdoor & seasonal: lawn/yard $50/h and snow removal $50/h, with a permanent 15% discount; by quote.
-- There is NO special first-booking discount.
+PRICES: the site shows NO prices. Every home is different, so every price comes from a free personalized quote. NEVER give an amount, hourly rate, range or estimate, not even a rough one, even if pushed. Kindly explain why and offer the free quote (/quote.html, 2 minutes, same-day reply) or a call.
 
-SERVICES (starting price for a 3-hour minimum visit):
+SERVICES:
 ${serviceLines || "(service list temporarily unavailable)"}
 
-OPTIONAL EXTRAS (added to the total, paid at the appointment):
+OPTIONAL EXTRAS (priced in the quote):
 ${addonLines || "(extras temporarily unavailable)"}
 
 HOW IT WORKS:
-- Free quote: /quote.html — a short form, no payment, same-day reply.
-- Book online: /booking.html — pick service, date and time window; it sends a booking request, nothing to pay online. We confirm the date by phone or text the same day and the client pays at the appointment. Never mention a deposit or online payment.
+1. Free quote: /quote.html — a short form (photos optional), no commitment.
+2. We reply the same day by text or email with a personalized price and a date.
+3. The client accepts and pays with the payment link they receive (/pay.html, with their code) or on the day of the cleaning. Don't promise card payment: depending on the case it's Interac e-Transfer, card or on the day, and the payment page says which.
 - Outdoor & seasonal: /service-outdoor-seasonal.html.
-- Gift cards: gift-cards.html (requested online, paid by e-transfer); the code goes in the booking or quote request.
+- Gift cards: /gift-cards.html (requested online, paid by e-transfer).
 
 CONTACT: call or text (343) 843-7761 · magicstickclean@gmail.com · magicstickclean.ca${knowledgeBlock}
 
 Strict rules:
 - NEVER invent a price, exact availability, policy, or guarantee not listed here or in the owner's info. If unsure, say so and offer to call or email.
-- Keep replies short (2-4 sentences) unless asked for detail. Often end with a helpful link (quote or booking).
+- Keep replies short (2-4 sentences) unless asked for detail. Often end with the free quote link.
 - Never claim to be a human: you're Louis, the site's virtual assistant.`;
 }
 

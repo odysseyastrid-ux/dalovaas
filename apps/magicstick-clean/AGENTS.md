@@ -23,12 +23,10 @@ This file covers *how* to change, test and deploy the site safely.
      rating and count shown on Google.
    - Add a review only from a screenshot or text of the real Google review. Check it is
      not already there. The Luffy M. review (5★, "Louis was very diligent…") already is.
-2. **Never change prices or business details without the owner's explicit OK.** That means
-   rates, minimums, discounts, service area, phone, email and name.
-   - The prices are in three places that must stay in agreement:
-     - the `services` table in the database;
-     - `js/i18n.js` (price strings);
-     - the JSON-LD in `index.html` and the service pages.
+2. **No price is ever shown on the site** (owner's decision, Nov 4, 2026): not in pages,
+   JSON-LD, meta descriptions or Louis's answers. Every price comes from a personalized quote
+   the owner sends (dashboard → "Send the price"). Never change business details (service
+   area, phone, email, name) without the owner's explicit OK.
 3. **Never pretend something works.** A form shows "received" only if the server really
    saved it. A test counts as passed only if you actually ran it and saw it pass.
 4. **No online payment** while `ONLINE_PAYMENTS: false` in `js/config.js` (see §7).
@@ -67,7 +65,7 @@ apps/magicstick-clean/
 ├── *.html              27 static pages (no build step; each page has its own <head>)
 │   ├── index.html      home: hero, estimator, services, reviews, contact band
 │   ├── quote.html      free quote form  ← main conversion
-│   ├── booking.html    booking REQUEST (no payment while ONLINE_PAYMENTS=false)
+│   ├── pay.html        client pays a quote with its code (quote-pay function)
 │   ├── gift-cards.html gift-card request (paid by e-transfer)
 │   ├── account.html    client login / own bookings
 │   ├── admin.html      owner dashboard (login + admin_users)
@@ -86,7 +84,7 @@ apps/magicstick-clean/
 │   └── script.js, site-enhancements.js, supabaseClient.js …
 ├── assets/             real photos/videos of the business (only real ones!)
 ├── supabase/
-│   ├── migrations/     0001 … 0022 (SQL, applied in order). Next one = 0023
+│   ├── migrations/     0001 … 0023 (SQL, applied in order). Next one = 0024
 │   └── functions/      Deno edge functions + tests/ (see §5)
 ├── tools/              maintenance scripts (see §4), not deployed
 ├── server/             optional separate Express admin API, NOT deployed, ignore it
@@ -137,7 +135,8 @@ If Playwright isn't installed in the folder, point to it: `PLAYWRIGHT=/path/to/p
 
 | Function | Role | Status |
 |---|---|---|
-| `submit-quote` | Quote form + booking requests: saves to `quote_requests`, uploads, **emails the owner (FR) and the client** | LIVE, critical |
+| `quote-pay` | pay.html: shows a quote's price by `pay_code`; creates the Stripe PaymentIntent (only if secret `QUOTE_CARD_PAYMENTS=on`) | LIVE once deployed |
+| `submit-quote` | Quote form (+ old booking requests): saves to `quote_requests`, uploads, **emails the owner (FR) and the client** | LIVE, critical |
 | `submit-form` | newsletter, gift-card requests, job applications, contest (refuses after the closing date with 410) | LIVE |
 | `ai-chat` | "Louis" public chat (Groq). Must never invent prices or policies | LIVE |
 | `owner-assistant` | private co-pilot in the dashboard (admins only) | LIVE |
@@ -149,8 +148,8 @@ If Playwright isn't installed in the folder, point to it: `PLAYWRIGHT=/path/to/p
 | `stripe-diag` | diagnostic (JWT) | dashboard only, not in repo: candidate for deletion (ask the owner) |
 
 **Rules for functions:**
-- **`guard.ts` exists in 5 copies** (ai-chat, create-payment-intent, gift-cards, submit-form,
-  submit-quote) that must stay **byte-identical**. Check with
+- **`guard.ts` exists in 6 copies** (ai-chat, create-payment-intent, gift-cards, submit-form,
+  submit-quote, quote-pay) that must stay **byte-identical**. Check with
   `md5sum supabase/functions/*/guard.ts`; the md5 today is `8868ff5b4bada5231ec79aa533e05535`.
   Change one, change all.
 - CORS allows only `https://magicstickclean.ca` and `https://www.magicstickclean.ca`. Any other
@@ -166,13 +165,13 @@ If Playwright isn't installed in the folder, point to it: `PLAYWRIGHT=/path/to/p
   `STRIPE_WEBHOOK_SECRET`, `WEBHOOK_SHARED_SECRET`, `SEND_EMAIL_HOOK_SECRET`, `TWENTY_API_URL`,
   `TWENTY_API_KEY`. Never print, copy or ask for their values.
 
-**Tests:** `cd supabase/functions/tests && deno test -A`. Today **96 pass, 0 fail**. They
+**Tests:** `cd supabase/functions/tests && deno test -A`. Today **103 pass, 0 fail**. They
 must all pass before any function deploy.
 - `csp.test.ts` guards the CSP hashes (see §6).
 - The contest tests pin the date, so they don't break with time.
 
 **Database:**
-- Migrations are numbered. Add `supabase/migrations/0023_<name>.sql`, then apply it with the
+- Migrations are numbered. Add `supabase/migrations/0024_<name>.sql`, then apply it with the
   MCP `apply_migration` or the SQL editor.
 - Never edit an old migration.
 - RLS is on everywhere. Public writes go only through the functions.
@@ -198,12 +197,13 @@ must all pass before any function deploy.
 
 ## 7. Payments switch (`ONLINE_PAYMENTS` in js/config.js)
 
-- `false` (now): booking sends a **request** (`submit-quote`, `source:'booking'`). The page says
-  "nothing to pay online". Stripe.js is not loaded at all. Gift cards are by e-transfer.
+- `false` (now): `pay.html` offers **Interac e-Transfer** (or pay on the day) and never loads
+  Stripe.js; the owner marks the quote paid in the dashboard. Gift cards are by e-transfer.
 - To turn payments on (**only when the owner asks and Stripe is activated**):
   1. Check that the Stripe account is activated and the live secret and webhook secret are set.
-  2. Set `ONLINE_PAYMENTS: true`.
-  3. Make one real small payment end to end: booking confirmed in `bookings`, webhook received,
+  2. Set `ONLINE_PAYMENTS: true` **and** the Supabase secret `QUOTE_CARD_PAYMENTS=on`; check that
+     the Stripe webhook listens to `payment_intent.succeeded` (quotes use `metadata.kind = "quote"`).
+  3. Make one real small payment end to end: quote marked paid (`quote_requests.paid_at`), webhook received,
      emails sent. Then refund it.
   4. Update CLAUDE.md, the terms and the AI knowledge (deposit wording).
 
@@ -243,7 +243,16 @@ must all pass before any function deploy.
 6. Commit with a clear message, update CLAUDE.md if behaviour changed, and tell the owner in
    simple French what changed and what's left.
 
-## 10. Known open items (as of Nov 3, 2026)
+## 10. Known open items (as of Nov 4, 2026)
+
+- **Deploy check:** `quote-pay`, `ai-chat` (no prices) and `stripe-webhook` (quote payments)
+  must be deployed from this repo. If `quote-pay` is missing, pay.html says "unavailable".
+- **Terms:** the late-cancellation rule for prepaid quotes was removed with the deposit text;
+  ask the owner whether he wants one (don't invent it).
+- **Interac:** confirm with the owner that magicstickclean@gmail.com receives e-Transfers
+  (autodeposit) before relying on it.
+- `submit-quote`'s client email still says "nothing to pay online" (true until the payment
+  link is sent); update notify.ts + quote_v2.test.ts and redeploy if the owner wants.
 
 - **3 TEST rows** in `quote_requests` from the final tests are waiting for the owner's OK to delete:
   `bd20a99b-f727-46de-a62a-efd20a480e66`, `4dd04bbc-c7f5-46d9-b408-75c3a32c8e7b`,

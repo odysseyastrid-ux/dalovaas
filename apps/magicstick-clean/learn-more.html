@@ -60,8 +60,8 @@
     },
     {
       "@type": "Question",
-      "name": "Do you offer discounts for recurring cleanings?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. One-time cleanings are $30/h; on any recurring plan (weekly, biweekly or monthly) every visit is $27/h, that's 10% off, for as long as you keep the plan. Every booking has a 3-hour minimum. You can pick a frequency when requesting a quote." }
+      "name": "Do you offer recurring cleanings?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes: weekly, biweekly or monthly. Pick a frequency in your quote request and your personalized price takes it into account." }
     },
     {
       "@type": "Question",
@@ -103,7 +103,7 @@
       <a href="index.html#services" data-i18n="nav.services">Services</a>
       <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
-      <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="pay.html" data-i18n="nav.payQuote">Pay a quote</a>
       <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
       <a href="account.html" data-i18n="nav.myAccount">My account</a>
       <a href="quote.html" class="cta-arrow"><span class="cta-arrow-text" data-i18n="nav.getQuote">Get a quote</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></a>
@@ -120,7 +120,7 @@
     <a href="index.html#services" data-i18n="nav.services">Services</a>
     <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
-    <a href="booking.html" data-i18n="nav.bookOnline">Book online</a>
+    <a href="pay.html" data-i18n="nav.payQuote">Pay a quote</a>
     <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
     <a href="account.html" data-i18n="nav.myAccount">My account</a>
     <a href="quote.html" data-i18n="nav.getQuote">Get a quote</a>
@@ -198,8 +198,8 @@
 <section id="how" class="tint">
   <div class="wrap">
     <div class="sec-head">
-      <h2 data-i18n="home.how.title">How it works</h2>
-      <p data-i18n="home.how.subtitle">Booking takes about as long as making a coffee.</p>
+      <h2 data-i18n="home.how.title">Your price in &lt;span class="accent-word"&gt;3 simple steps&lt;/span&gt;</h2>
+      <p data-i18n="home.how.subtitle">Every home is different, so every price is made for yours. No surprises, no commitment.</p>
     </div>
     <div class="steps">
       <div class="step">
@@ -298,44 +298,27 @@
 <section id="pricing">
   <div class="wrap">
     <div class="sec-head">
-      <h2 data-i18n="pricing.title">Book a recurring plan, pay less per hour</h2>
-      <p data-i18n="pricing.subtitle">Every visit starts at our standard rate of $30/h CAD, with a 3-hour minimum. Choose a recurring plan and every visit drops to $27/h, that’s 10% off, for as long as you keep it.</p>
+      <h2 data-i18n="pricing.title">How we set your price</h2>
+      <p data-i18n="pricing.subtitle">No one-size-fits-all rate: your quote is made for your home, free and with no commitment.</p>
     </div>
-    <ol class="freq-tiers">
-      <li class="freq-tier">
-        <div class="freq-tier-top">
-          <h3 class="freq-tier-name" data-i18n="pricing.oneTime.name">One-time</h3>
-          <span class="freq-tier-badge freq-tier-badge-none" data-i18n="pricing.oneTime.badge">Standard rate</span>
-        </div>
-        <p class="freq-tier-rate" data-i18n="pricing.oneTime.rate">$30/h</p>
-        <p class="freq-tier-why" data-i18n="pricing.oneTime.why">A one-off visit usually means more built-up dirt and a home we’re seeing for the first time, so each room takes longer. Every booking is a minimum of 3 hours so the job gets done properly.</p>
-      </li>
-      <li class="freq-tier">
-        <div class="freq-tier-top">
-          <h3 class="freq-tier-name" data-i18n="pricing.monthly.name">Monthly</h3>
-          <span class="freq-tier-badge" data-i18n="pricing.monthly.badge">10% off</span>
-        </div>
-        <p class="freq-tier-rate" data-i18n="pricing.monthly.rate">$27/h</p>
-        <p class="freq-tier-why" data-i18n="pricing.monthly.why">A fixed monthly slot lets us plan our schedule ahead, and your recurring plan locks in the $27/h rate.</p>
-      </li>
-      <li class="freq-tier">
-        <div class="freq-tier-top">
-          <h3 class="freq-tier-name" data-i18n="pricing.biweekly.name">Biweekly</h3>
-          <span class="freq-tier-badge" data-i18n="pricing.biweekly.badge">10% off</span>
-        </div>
-        <p class="freq-tier-rate" data-i18n="pricing.biweekly.rate">$27/h</p>
-        <p class="freq-tier-why" data-i18n="pricing.biweekly.why">Every two weeks, your home never falls far behind. Visits go faster because we’re maintaining, not catching up, a good balance of budget and cleanliness at the recurring $27/h rate.</p>
-      </li>
-      <li class="freq-tier freq-tier-best">
-        <div class="freq-tier-top">
-          <h3 class="freq-tier-name" data-i18n="pricing.weekly.name">Weekly</h3>
-          <span class="freq-tier-badge" data-i18n="pricing.weekly.badge">10% off</span>
-        </div>
-        <p class="freq-tier-rate" data-i18n="pricing.weekly.rate">$27/h</p>
-        <p class="freq-tier-why" data-i18n="pricing.weekly.why">Your home stays clean all the time, so every visit is pure upkeep, at the recurring $27/h rate with a guaranteed weekly spot on our calendar.</p>
-      </li>
-    </ol>
-    <p class="freq-tiers-note" data-i18n-html="pricing.note"><strong>Every booking is a minimum of 3 hours</strong> so we can clean thoroughly, not rush a quick once-over. A recurring plan locks in the $27/h rate from your very first visit. Prices in Canadian dollars (CAD). <a href="quote.html">Get a free quote &rarr;</a></p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3 data-i18n="pricing.f1.title">Your home</h3>
+        <p data-i18n="pricing.f1.desc">Size, number of rooms and bathrooms, and how much needs doing. Photos help us be exact.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3 data-i18n="pricing.f2.title">The service</h3>
+        <p data-i18n="pricing.f2.desc">Regular upkeep, deep clean, move-in/move-out, post-construction, office or Airbnb turnover.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3 data-i18n="pricing.f3.title">How often</h3>
+        <p data-i18n="pricing.f3.desc">One visit, or weekly, biweekly or monthly. Tell us in your request and we adapt the quote.</p>
+      </div>
+    </div>
+    <p class="freq-tiers-note" data-i18n-html="pricing.note">You get a clear price in Canadian dollars (CAD) before anything is booked. Once you accept, you pay with the link we send you, or on the day. <a href="quote.html">Get a free quote &rarr;</a></p>
   </div>
 </section>
 
@@ -405,10 +388,10 @@
       </div>
       <div class="faq-item">
         <button class="faq-q" id="faq-btn-5" aria-expanded="false" aria-controls="faq-a-5">
-          <span data-i18n="home.faq.q5">Do you offer discounts for recurring cleanings?</span>
+          <span data-i18n="home.faq.q5">Do you offer recurring cleanings?</span>
           <span class="faq-icon">+</span>
         </button>
-        <div class="faq-a" id="faq-a-5"><p data-i18n="home.faq.a5">Yes. One-time cleanings are $30/h CAD; on any recurring plan (weekly, biweekly or monthly) every visit is $27/h, that’s 10% off, for as long as you keep the plan. Every booking has a 3-hour minimum. You can pick a frequency when requesting a quote.</p></div>
+        <div class="faq-a" id="faq-a-5"><p data-i18n="home.faq.a5">Yes: weekly, biweekly or monthly. Pick a frequency in your quote request and your personalized price takes it into account.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q" id="faq-btn-6" aria-expanded="false" aria-controls="faq-a-6">
@@ -457,7 +440,7 @@
     </div>
     <div class="ctas">
       <a href="quote.html" class="cta-arrow"><span class="cta-arrow-text" data-i18n="about.cta.quote">Get a quote</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></a>
-      <a href="booking.html" class="btn btn-outline-light" data-i18n="about.cta.book">Book online</a>
+      <a href="tel:3438437761" class="btn btn-outline-light" data-i18n="home.hero.ctaCall">Call (343) 843-7761</a>
     </div>
   </div>
 </div>

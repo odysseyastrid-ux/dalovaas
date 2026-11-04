@@ -860,6 +860,40 @@
   </form>
 </dialog>
 
+<dialog id="priceDialog" class="review-dialog" aria-labelledby="priceDialogTitle">
+  <form method="dialog" class="review-dialog-inner">
+    <div class="review-dialog-head">
+      <h2 id="priceDialogTitle" data-i18n="admin.price.title">Price &amp; payment link</h2>
+      <button type="submit" class="review-dialog-close" value="close" data-i18n-aria-label="admin.review.close" aria-label="Close">×</button>
+    </div>
+    <p class="review-dialog-client" id="priceDialogClient"></p>
+    <label for="priceAmount" class="fine" data-i18n="admin.price.amount">Price for this client (CAD, taxes included if any)</label>
+    <input id="priceAmount" type="number" min="1" max="20000" step="0.01" inputmode="decimal">
+    <label for="priceNote" class="fine" data-i18n="admin.price.note">What's included (optional, shown to the client)</label>
+    <textarea id="priceNote" rows="2" maxlength="500"></textarea>
+    <button type="button" class="review-action" id="priceSave" data-i18n="admin.price.save">Save the price and create the link</button>
+    <div id="priceSend" hidden>
+      <div class="review-lang" role="group" aria-label="Message language">
+        <button type="button" data-price-lang="fr">Français</button>
+        <button type="button" data-price-lang="en">English</button>
+      </div>
+      <label for="priceMessage" class="fine" data-i18n="admin.review.messageLabel">Message (you can edit it before sending)</label>
+      <textarea id="priceMessage" rows="6"></textarea>
+      <div class="review-actions">
+        <a class="review-action" id="priceSms" href="#" data-i18n="admin.review.sms">Text (SMS)</a>
+        <a class="review-action" id="priceEmail" href="#" data-i18n="admin.review.email">Email</a>
+        <button type="button" class="review-action" id="priceCopy" data-i18n="admin.review.copy">Copy</button>
+      </div>
+      <p class="fine" id="priceLink"></p>
+      <div class="review-actions">
+        <button type="button" class="review-action" id="pricePaid" data-i18n="admin.price.markPaid">Mark as paid (e-Transfer / cash)</button>
+        <button type="button" class="review-reset" id="priceUnpaid" hidden data-i18n="admin.price.markUnpaid">Mark as not paid</button>
+      </div>
+    </div>
+    <p class="fine review-dialog-status" id="priceStatus" aria-live="polite"></p>
+  </form>
+</dialog>
+
 <script src="js/admin.js"></script>
 <script src="js/admin-dashboard.js"></script>
 <script src="js/site-enhancements.js"></script>

@@ -69,6 +69,50 @@ async function activateGiftCard(giftCardId: string | undefined) {
   if (!res.ok) throw new Error(`Gift card activation failed: ${res.status} ${await res.text()}`);
 }
 
+// A personalized quote paid by card (quote-pay function, metadata.kind =
+// "quote"). Marked paid once; a retried event changes nothing. The amount
+// received must cover the quoted amount. A database error is thrown so
+// Stripe retries.
+async function markQuotePaid(intent: Stripe.PaymentIntent) {
+  const quoteId = intent.metadata?.quote_id;
+  if (!quoteId) {
+    console.error("quote payment with no quote_id in metadata");
+    return;
+  }
+  const { data: q, error } = await supabase
+    .from("quote_requests")
+    .select("id, name, service, quoted_amount_cents, paid_at, email, lang")
+    .eq("id", quoteId)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to read quote ${quoteId}: ${error.message}`);
+  if (!q || q.paid_at) return;
+  const received = intent.amount_received ?? intent.amount ?? 0;
+  if (!q.quoted_amount_cents || received < q.quoted_amount_cents) {
+    console.error("quote payment below the quoted amount", quoteId);
+    await sendEmail(OWNER_EMAIL, `Paiement à vérifier : ${q.name}`,
+      `Un paiement par carte de ${(received / 100).toFixed(2)} $ est arrivé pour le devis de ${q.name}, ` +
+      `mais il ne couvre pas le prix demandé. Vérifiez dans Stripe et le tableau de bord.`);
+    return;
+  }
+  const { error: upError } = await supabase
+    .from("quote_requests")
+    .update({ paid_at: new Date().toISOString(), payment_method: "card" })
+    .eq("id", quoteId)
+    .is("paid_at", null);
+  if (upError) throw new Error(`Failed to mark quote ${quoteId} paid: ${upError.message}`);
+  const amount = (q.quoted_amount_cents / 100).toFixed(2);
+  await sendEmail(OWNER_EMAIL, `Paiement reçu : ${q.name} (${amount} $)`,
+    `${q.name} a payé ${amount} $ CAD par carte pour : ${q.service}.\n\nTableau de bord : https://magicstickclean.ca/admin.html`);
+  if (q.email && isEmail(q.email)) {
+    const fr = q.lang === "fr";
+    await sendEmail(q.email,
+      fr ? "Magicstick Clean : paiement reçu, merci !" : "Magicstick Clean: payment received, thank you!",
+      fr
+        ? `Bonjour ${q.name},\n\nNous avons bien reçu votre paiement de ${amount} $ CAD (${q.service}). Merci ! Nous vous confirmons les détails de la visite.\n\nQuestions : (343) 843-7761 ou magicstickclean@gmail.com.\n\n— Magicstick Clean`
+        : `Hi ${q.name},\n\nWe received your payment of $${amount} CAD (${q.service}). Thank you! We'll confirm the visit details with you.\n\nQuestions? (343) 843-7761 or magicstickclean@gmail.com.\n\n— Magicstick Clean`);
+  }
+}
+
 Deno.serve(async (req) => {
   const signature = req.headers.get("Stripe-Signature");
   const rawBody = await req.text();
@@ -84,6 +128,11 @@ Deno.serve(async (req) => {
   try {
     if (event.type === "payment_intent.succeeded") {
       const intent = event.data.object as Stripe.PaymentIntent;
+
+      if (intent.metadata?.kind === "quote") {
+        await markQuotePaid(intent);
+        return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
+      }
 
       if (intent.metadata?.kind === "gift_card") {
         await activateGiftCard(intent.metadata.gift_card_id);

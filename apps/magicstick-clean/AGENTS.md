@@ -77,7 +77,7 @@ apps/magicstick-clean/
 │   ├── config.js       public config: Supabase URL + publishable key, Stripe pk, ONLINE_PAYMENTS
 │   ├── i18n.js         ALL UI strings EN/FR (STRINGS)  · i18n-content.js = long texts (c.*)
 │   ├── quote.js, booking.js, gift-cards.js, careers.js, account.js, admin.js, admin-dashboard.js
-│   ├── form-guard.js   anti-spam (honeypot "website" + arithmetic question)
+│   ├── form-guard.js   anti-spam (honeypot "website" + "I'm not a robot" box: real click + 2.5 s minimum)
 │   ├── reviews.js      real Google reviews (word for word)
 │   ├── estimator.js    instant price estimator
 │   ├── ai-chat.js      "Louis" chat widget (talks to the ai-chat function)
@@ -231,9 +231,11 @@ must all pass before any function deploy.
 2. If functions changed: `deno test -A` is all green, the guard.ts md5 values are identical,
    the function is deployed, and the logs show no error (`query_logs` / dashboard).
 3. If a form changed: send **one real test** on production.
-   - Fill **only** the visible fields and the arithmetic answer
-     (`input[id$="-answer"]`), **never the hidden honeypot `website` field**, or the
-     server pretends success and saves nothing.
+   - Fill **only** the visible fields and tick the "I'm not a robot" box with a real click
+     (`.human-box`, after 2.5 s), **never the hidden honeypot `website` field**, or the
+     form pretends success and saves nothing. A real Google reCAPTCHA / Cloudflare Turnstile
+     needs keys from the owner's account (site key in config.js, secret in Supabase) and a
+     server-side check in submit-quote / quote-pay / submit-form: not done yet.
    - Check that the row exists in the database and the owner email arrived.
    - Name the test "TEST …", then ask the owner before deleting the row.
 4. Check the page in **FR and EN**, desktop **and** mobile (375 px): no horizontal scroll,

@@ -18,37 +18,49 @@ window.MagicstickFormGuard = (function () {
   //   'wrong-answer'  — a person answered the question incorrectly —
   //                     the caller should show a validation error and
   //                     let them retry, same as any other required field.
+  // "I'm not a robot" box (owner's request, Nov 2026; replaces the arithmetic
+  // question). A bot that fills the form instantly or ticks the box without a
+  // real click/keypress is treated like a wrong answer. Not Google reCAPTCHA:
+  // real server-side CAPTCHA would need keys from the owner (see AGENTS.md).
   function attach(container) {
-    const a = 1 + Math.floor(Math.random() * 8);
-    const b = 1 + Math.floor(Math.random() * 8);
-    const answer = a + b;
     const uid = 'fg' + Math.random().toString(36).slice(2, 8);
-
+    const loadedAt = Date.now();
     container.innerHTML = `
       <div class="hp-field" aria-hidden="true">
         <label>Leave this field blank
           <input type="text" name="website" id="${uid}-hp" tabindex="-1" autocomplete="off">
         </label>
       </div>
-      <div class="field security-question">
-        <label for="${uid}-answer">${t('form.security.question', { a, b })}</label>
-        <input type="text" id="${uid}-answer" inputmode="numeric" autocomplete="off" placeholder="${t('form.security.placeholder')}" required>
-        <span class="err">${t('form.security.error')}</span>
+      <div class="field human-check">
+        <label class="human-box" for="${uid}-human">
+          <input type="checkbox" id="${uid}-human">
+          <span class="human-tick" aria-hidden="true"></span>
+          <span class="human-text">${t('form.human.label')}</span>
+          <span class="human-shield" aria-hidden="true">🛡️</span>
+        </label>
+        <span class="err">${t('form.human.error')}</span>
       </div>
     `;
 
     const honeypot = container.querySelector(`#${uid}-hp`);
-    const answerInput = container.querySelector(`#${uid}-answer`);
-    const answerField = answerInput.closest('.field');
+    const box = container.querySelector(`#${uid}-human`);
+    const field = box.closest('.field');
+    let realGesture = false;
+    const mark = (e) => { if (e.isTrusted) realGesture = true; };
+    box.addEventListener('pointerdown', mark);
+    box.addEventListener('keydown', mark);
+    container.querySelector('.human-box').addEventListener('pointerdown', mark);
+    box.addEventListener('change', () => { if (box.checked) field.classList.remove('invalid'); });
 
     return function check() {
       if (honeypot.value.trim() !== '') return 'honeypot';
-      const given = parseInt(answerInput.value.trim(), 10);
-      if (given !== answer) {
-        answerField.classList.add('invalid');
+      const tooFast = Date.now() - loadedAt < 2500;
+      if (!box.checked || !realGesture || tooFast) {
+        if (tooFast && box.checked) box.checked = false;
+        field.classList.add('invalid');
         return 'wrong-answer';
       }
-      answerField.classList.remove('invalid');
+      field.classList.remove('invalid');
       return 'ok';
     };
   }

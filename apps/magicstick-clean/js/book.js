@@ -75,7 +75,7 @@
         body: JSON.stringify({
           action: 'book_standard', lang: lang(), name: $('bName').value.trim(), phone, email,
           address: $('bAddress').value.trim(), zone: $('bZone').value, preferred_date: date,
-          preferred_time: $('bTime').value, hours: hours(), message: $('bMessage').value.trim(),
+          preferred_time: $('bTime').value, frequency: $('bFrequency').value, hours: hours(), message: $('bMessage').value.trim(),
           website: g === 'honeypot' ? 'x' : '',
         }),
       });

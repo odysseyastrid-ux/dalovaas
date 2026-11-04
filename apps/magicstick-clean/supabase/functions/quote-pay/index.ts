@@ -41,6 +41,7 @@ export const FIRST_CLEAN_DISCOUNT = 0.2;
 const PAY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export const TIME_WINDOWS = ["Morning (8am–11am)", "Midday (11am–2pm)", "Afternoon (2pm–5pm)"];
 const ZONES = ["Rockland-Orléans", "Ottawa-Gatineau", "Other"];
+const FREQUENCIES = ["One-time", "Weekly", "Biweekly", "Monthly"];
 let stripe: Stripe | null = null;
 function stripeClient(): Stripe {
   stripe ??= new Stripe(STRIPE_KEY, { apiVersion: "2023-10-16", httpClient: Stripe.createFetchHttpClient() });
@@ -137,6 +138,7 @@ async function bookStandard(req: Request, body: Record<string, unknown>): Promis
   const hours = Number(body.hours);
   const message = str(body.message, 2000);
   const lang = body.lang === "en" ? "en" : "fr";
+  const frequency = FREQUENCIES.includes(str(body.frequency, 20)) ? str(body.frequency, 20) : "One-time";
   if (!name) return json({ error: "invalid_name" }, 400);
   if (phone && !isPhone(phone)) return json({ error: "invalid_phone" }, 400);
   if (email && !isEmail(email)) return json({ error: "invalid_email" }, 400);
@@ -180,7 +182,7 @@ async function bookStandard(req: Request, body: Record<string, unknown>): Promis
     code = newPayCode();
     const { data, error } = await supabase.from("quote_requests").insert({
       name, contact: phone || email, phone: phone || null, email: email || null, address, zone,
-      service: "Standard Cleaning", frequency: "One-time", preferred_date: date, preferred_time: time,
+      service: "Standard Cleaning", frequency, preferred_date: date, preferred_time: time,
       message, source: "booking", lang, status: "new",
       quoted_amount_cents: amount, quote_note: note, quoted_at: new Date().toISOString(), pay_code: code,
     }).select("id").single();
@@ -190,7 +192,7 @@ async function bookStandard(req: Request, body: Record<string, unknown>): Promis
   if (!row) return json({ error: "unavailable" }, 503);
   await sendEmail(OWNER_EMAIL, `Réservation en ligne : ménage standard (${name})`, [
     `${name} a réservé un ménage standard en ligne.`, "",
-    `Date souhaitée : ${date} (${time})`, `Durée : ${hoursTxt} h`, `Prix : ${cad(amount, "fr")}${returning ? "" : ` (−20 % premier ménage, prix régulier ${cad(fullAmount, "fr")})`}`,
+    `Date souhaitée : ${date} (${time})`, `Fréquence : ${({ "One-time": "une fois", Weekly: "chaque semaine", Biweekly: "aux deux semaines", Monthly: "chaque mois" } as Record<string, string>)[frequency]}`, `Durée : ${hoursTxt} h`, `Prix : ${cad(amount, "fr")}${returning ? "" : ` (−20 % premier ménage, prix régulier ${cad(fullAmount, "fr")})`}`,
     `Téléphone : ${phone || "Non précisé"}`, `Courriel : ${email || "Non précisé"}`,
     `Adresse : ${address}`, `Zone : ${zone}`, `Langue du client : ${lang === "fr" ? "français" : "anglais"}`, "",
     "Message :", message || "(aucun)", "",

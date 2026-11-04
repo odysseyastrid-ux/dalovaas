@@ -2505,3 +2505,31 @@ body{ transition:background-color .35s ease, color .35s ease; }
 #cookieBanner.zone-hidden{visibility:hidden}
 .zone-backdrop{z-index:3000}
 .zone-modal .zone-lead-err{color:#b42318;font-size:14px;font-weight:600;margin:0}
+
+/* ---------- "I'm not a robot" box (js/form-guard.js) ---------- */
+.human-check{margin-top:4px}
+.human-box{display:flex;align-items:center;gap:12px;max-width:340px;padding:14px 16px;border:1px solid #d1d5db;border-radius:10px;background:#f9fafb;color:#1f2937;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);font-weight:500}
+.human-box input{position:absolute;opacity:0;width:1px;height:1px}
+.human-tick{flex:0 0 26px;height:26px;border:2px solid #9ca3af;border-radius:4px;background:#fff;display:grid;place-items:center;transition:background .15s,border-color .15s}
+.human-box input:checked + .human-tick{background:#16a34a;border-color:#16a34a}
+.human-box input:checked + .human-tick::after{content:"";width:7px;height:13px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.human-box input:focus-visible + .human-tick{outline:3px solid #4b3bd6;outline-offset:2px}
+.human-text{flex:1;font-size:15px}
+.human-shield{font-size:20px;opacity:.7}
+.human-check.invalid .human-box{border-color:#b42318}
+[data-theme="dark"] .human-box{background:#111827;border-color:#374151;color:#f3f4f6}
+
+/* Promo bar v2: lives inside <header>; one tidy line on phones. */
+.promo-bar{padding:8px 44px}
+.promo-bar-link{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px;color:#fff;text-decoration:none;border:0;padding:0;font:inherit;white-space:normal}
+.promo-bar-link:hover{background:none}
+.promo-bar-cta{font-family:'Inter',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.02em;padding:5px 12px;border:1px solid rgba(255,255,255,.7);border-radius:999px;white-space:nowrap}
+.promo-bar-short{display:none}
+.promo-bar .promo-bar-link{border:0;padding:0;border-radius:0}
+@media (max-width:640px){
+  .promo-bar{padding:7px 36px;font-size:16px}
+  .promo-bar-long,.promo-bar-cta{display:none}
+  .promo-bar-short{display:inline}
+  .promo-bar-short::after{content:" →";font-family:'Inter',Arial,sans-serif;font-weight:700}
+  .promo-bar-pct{font-size:17px;padding:0 9px 1px}
+}

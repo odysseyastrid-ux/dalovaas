@@ -592,7 +592,8 @@
     bar.className = 'promo-bar';
     bar.setAttribute('role', 'note');
     const render = () => {
-      bar.innerHTML = `<span>${t('promo20.text')}</span> <a href="quote.html">${t('promo20.cta')}</a>` +
+      bar.innerHTML = `<a class="promo-bar-link" href="quote.html"><span class="promo-bar-long">${t('promo20.text')}</span>` +
+        `<span class="promo-bar-short">${t('promo20.short')}</span><span class="promo-bar-cta">${t('promo20.cta')}</span></a>` +
         `<button type="button" class="promo-bar-close" aria-label="${t('zone.dismiss')}">&times;</button>`;
       bar.querySelector('.promo-bar-close').addEventListener('click', () => {
         bar.remove();
@@ -601,7 +602,20 @@
     };
     render();
     document.addEventListener('magicstick:langchange', () => { if (bar.isConnected) render(); });
-    header.parentNode.insertBefore(bar, header);
+    // Inside the header, above the nav: it moves with the (sticky/fixed) header
+    // instead of sliding under the logo on the homepage photo.
+    header.insertBefore(bar, header.firstChild);
+    // Homepage: the header floats over the hero photo, so push the hero's
+    // content down by the bar's height (and back up when it is closed).
+    const hero = header.classList.contains('header-on-photo') ? document.querySelector('.hero-photo') : null;
+    if (hero) {
+      const base = parseFloat(getComputedStyle(hero).paddingTop) || 0;
+      const fit = () => { hero.style.paddingTop = (base + (bar.isConnected ? bar.offsetHeight + (innerWidth < 640 ? 16 : 0) : 0)) + 'px'; };
+      fit();
+      window.addEventListener('resize', fit);
+      document.addEventListener('magicstick:langchange', () => requestAnimationFrame(fit));
+      bar.addEventListener('click', (e) => { if (e.target.closest('.promo-bar-close')) requestAnimationFrame(fit); });
+    }
   }
 
   function init() {

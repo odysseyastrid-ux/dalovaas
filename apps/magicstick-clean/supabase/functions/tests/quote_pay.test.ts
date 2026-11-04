@@ -200,3 +200,12 @@ Deno.test("book_standard: no first-cleaning discount for a client who already pa
   assert.equal(r.json.first_discount, false);
   assert.equal(state.table("quote_requests").find((q) => q.pay_code === r.json.code)!.quoted_amount_cents, 15800);
 });
+
+Deno.test("book_standard records the chosen frequency (unknown values fall back to one-time)", async () => {
+  seed();
+  state.table("services").push({ id: "standard", base_price_cents: 9000, duration_minutes: 180, active: true });
+  const r = await call(booking({ frequency: "Biweekly" }));
+  assert.equal(state.table("quote_requests").find((q) => q.pay_code === r.json.code)!.frequency, "Biweekly");
+  const bad = await call(booking({ frequency: "Daily", email: "other@example.com", phone: "" }));
+  assert.equal(state.table("quote_requests").find((q) => q.pay_code === bad.json.code)!.frequency, "One-time");
+});

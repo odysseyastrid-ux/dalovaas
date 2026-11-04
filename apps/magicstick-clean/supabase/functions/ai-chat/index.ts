@@ -78,7 +78,8 @@ ${addonLines || "(extras indisponibles pour le moment)"}
 COMMENT ÇA MARCHE:
 1. Devis gratuit: /quote.html — un court formulaire (photos facultatives), sans engagement.
 2. On répond le jour même par texto ou courriel avec un prix personnalisé et une date.
-3. Le client accepte et paie avec le lien de paiement reçu (page /pay.html, avec son code) ou le jour du ménage. Ne promets pas le paiement par carte: selon le cas, c'est par virement Interac, carte ou au rendez-vous, et c'est indiqué sur la page de paiement.
+3. Le client accepte et paie avec le lien de paiement reçu (page /pay.html, avec son code): par carte (Stripe, sécurisé) ou virement Interac, ou le jour du ménage.
+- Ménage standard seulement: le client peut réserver et payer directement sur /book.html (il choisit la journée et la durée, le prix s'affiche sur cette page). Ne donne pas le montant toi-même: envoie vers /book.html.
 - Extérieur et saisonnier: /service-outdoor-seasonal.html.
 - Cartes-cadeaux: /gift-cards.html (demande en ligne, payée par virement Interac).
 
@@ -105,7 +106,8 @@ ${addonLines || "(extras temporarily unavailable)"}
 HOW IT WORKS:
 1. Free quote: /quote.html — a short form (photos optional), no commitment.
 2. We reply the same day by text or email with a personalized price and a date.
-3. The client accepts and pays with the payment link they receive (/pay.html, with their code) or on the day of the cleaning. Don't promise card payment: depending on the case it's Interac e-Transfer, card or on the day, and the payment page says which.
+3. The client accepts and pays with the payment link they receive (/pay.html, with their code): by card (Stripe, secure) or Interac e-Transfer, or on the day of the cleaning.
+- Standard cleaning only: the client can book and pay directly on /book.html (they pick the day and length; the price shows on that page). Don't state the amount yourself: send them to /book.html.
 - Outdoor & seasonal: /service-outdoor-seasonal.html.
 - Gift cards: /gift-cards.html (requested online, paid by e-transfer).
 

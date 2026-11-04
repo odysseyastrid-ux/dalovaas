@@ -347,6 +347,7 @@
     const mail = document.getElementById('priceEmail');
     sms.hidden = !phone;
     mail.hidden = !email;
+    document.getElementById('priceSendEmail').hidden = !email;
     sms.href = phone ? `sms:+${phone}?&body=${encodeURIComponent(priceMessage.value)}` : '#';
     const subject = priceLang === 'fr' ? 'Votre prix Magicstick Clean' : 'Your Magicstick Clean price';
     mail.href = email ? `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(priceMessage.value)}` : '#';
@@ -380,6 +381,26 @@
     });
     priceDialog.querySelectorAll('[data-price-lang]').forEach((b) => b.addEventListener('click', () => { priceLang = b.dataset.priceLang; refreshPriceDialog(); }));
     priceMessage.addEventListener('input', refreshPriceLinks);
+    document.getElementById('priceSendEmail').addEventListener('click', async (ev) => {
+      const btn = ev.currentTarget;
+      btn.disabled = true;
+      priceStatus.textContent = '…';
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const res = await fetch(`${backend.config.FUNCTIONS_URL}/quote-pay`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionData?.session?.access_token || ''}` },
+          body: JSON.stringify({ action: 'send_link', quote_id: priceTarget.id }),
+        });
+        const r = await res.json().catch(() => ({}));
+        priceStatus.textContent = res.ok ? t('admin.price.emailSent', { to: r.to })
+          : r.error === 'no_email' ? t('admin.price.noEmail') : t('admin.price.emailFailed');
+      } catch (_) {
+        priceStatus.textContent = t('admin.price.emailFailed');
+      } finally {
+        btn.disabled = false;
+      }
+    });
     document.getElementById('priceCopy').addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(priceMessage.value); priceStatus.textContent = t('admin.review.copied'); } catch (_) { priceMessage.select(); }
     });

@@ -110,4 +110,7 @@
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
+  <url>
+    <loc>https://magicstickclean.ca/book.html</loc>
+  </url>
 </urlset>

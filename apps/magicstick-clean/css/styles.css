@@ -2462,3 +2462,7 @@ body{ transition:background-color .35s ease, color .35s ease; }
 .price-calc-grid input,.price-calc-grid select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:16px;width:100%}
 .price-calc-grid label:first-child{grid-column:1/-1}
 .price-calc-total{margin:0;font-size:20px;font-weight:800}
+.book-total{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;padding:16px;border-radius:14px;background:var(--teal-tint)}
+.book-total strong{font-size:32px;font-weight:800}
+.review-action-main{font-weight:700}
+.pay-card .fine{font-size:14px;line-height:1.5}

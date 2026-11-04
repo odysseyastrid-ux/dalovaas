@@ -1,8 +1,8 @@
 // pay.html: a client pays the personalized quote the owner sent them.
 // The code comes from the link (?code=…) or is typed in. The amount always
 // comes from the server (quote-pay function), never from the page.
-// Card payment appears only when ONLINE_PAYMENTS is on in js/config.js AND the
-// server says card payment is available; otherwise Interac e-Transfer.
+// Card payment (Stripe) appears when the server says it is available (kill
+// switch: secret QUOTE_CARD_PAYMENTS=off); Interac e-Transfer is always shown.
 (function () {
   const cfg = window.MAGICSTICK_CONFIG || {};
   const i18n = window.MagicstickI18N;
@@ -46,7 +46,7 @@
     document.querySelectorAll('.pay-code-inline').forEach((el) => { el.textContent = pretty(current.code); });
     $('payPaid').hidden = !d.paid;
     $('payOther').hidden = !!d.paid;
-    const cardOk = !d.paid && d.card === true && cfg.ONLINE_PAYMENTS === true && !!cfg.STRIPE_PUBLISHABLE_KEY;
+    const cardOk = !d.paid && d.card === true && !!cfg.STRIPE_PUBLISHABLE_KEY;
     $('payCard').hidden = !cardOk;
     if (cardOk && !elements) mountCard();
     result.hidden = false;

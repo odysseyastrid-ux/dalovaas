@@ -33,7 +33,11 @@ Votre site est **magicstickclean.ca**, en français et en anglais.
    services, minimum 39,50 $/h, heures estimées selon la superficie : ajustez-les). Cliquez
    **« Utiliser ce prix »** et le message est prêt. Ou bien tapez le prix vous-même, cliquez
    **« Enregistrer »**, puis **Texto** ou **Courriel** : le message avec le lien part tout seul.
-   Quand le virement Interac arrive, rouvrez-le et cliquez **« Marquer payé »**.
+   Le bouton **« Envoyer au client par courriel »** envoie le prix et le lien tout seul.
+   Quand l'argent arrive (virement Interac **ou** courriel de paiement de Stripe), rouvrez la
+   demande et cliquez **« Marquer payé »**.
+   Les réservations de **ménage standard** faites sur la page « Réserver en ligne » arrivent
+   aussi dans la liste, déjà avec leur prix : confirmez la date avec le client.
    Changez aussi le statut : *contacté*, *réservé*, *terminé*…
 4. Quand un ménage est **terminé**, mettez le statut « Terminé ». Le site propose alors
    d'**envoyer une demande d'avis Google** (texto, WhatsApp ou courriel, déjà rédigé).

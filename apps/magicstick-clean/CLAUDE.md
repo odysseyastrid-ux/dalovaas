@@ -99,7 +99,12 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    Element) appears only when `ONLINE_PAYMENTS: true` in `js/config.js` **and** the Supabase
    secret `QUOTE_CARD_PAYMENTS=on`; `stripe-webhook` then marks the quote paid
    (`metadata.kind = "quote"`) and emails owner + client.
-   `booking.html` and the homepage price estimator were **removed** (`/booking` redirects to
+   **Standard Cleaning only** can be booked and paid directly on `book.html` (owner's decision,
+   Nov 4): day, time window, 3–8 h, price = rate × hours computed by `quote-pay`
+   (`book_standard`), then pay.html. Card is ON (Stripe activated by the owner); the dashboard
+   can email the pay link itself (`send_link`). Card-paid quotes are marked paid by hand (the
+   owner declined the webhook update).
+      `booking.html` and the homepage price estimator were **removed** (`/booking` redirects to
    the quote form). The homepage now explains the 3 steps (quote → price → pay).
 4. **Customer accounts** (`account.html`) — sign up / log in, see own bookings.
 5. **Owner/admin dashboard** (`admin.html`) — view/manage quotes & bookings,

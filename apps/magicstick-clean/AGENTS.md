@@ -245,10 +245,12 @@ must all pass before any function deploy.
 
 ## 10. Known open items (as of Nov 4, 2026)
 
-- **Deployed Nov 4, 2026:** `quote-pay` v1 and `ai-chat` v23 (no prices). **Not yet deployed:**
-  the `stripe-webhook` change that marks card-paid quotes (repo is ahead of the live v19). It
-  is only needed for card payments: deploy it (index.ts) **before** setting
-  `QUOTE_CARD_PAYMENTS=on`.
+- **Deployed Nov 4, 2026:** `quote-pay` v2 (get/intent/book_standard/send_link; card ON unless
+  secret `QUOTE_CARD_PAYMENTS=off`) and `ai-chat` v24. **The owner declined deploying the
+  `stripe-webhook` change** ("leave Stripe as it is"): the live webhook (v19) ignores
+  `metadata.kind = "quote"`, so a card-paid quote is NOT marked paid automatically; the owner
+  gets Stripe's own payment email and clicks "Mark as paid". Don't redeploy stripe-webhook
+  without the owner's explicit OK.
 - **Terms:** the late-cancellation rule for prepaid quotes was removed with the deposit text;
   ask the owner whether he wants one (don't invent it).
 - **Interac:** confirm with the owner that magicstickclean@gmail.com receives e-Transfers

@@ -69,6 +69,12 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
   (`js/zone-popup.js`, quote + booking pages) and Louis (via `ai_knowledge` row `client`).
   Honest conversion only: trust strip (same-day reply, free re-clean guarantee, eco supplies,
   secure payment, local) + the real Google review; never fake urgency, counts or reviews.
+- **Lead capture** (Nov 2026): the area popup's step 3 asks for a name + email or phone with a
+  required, unticked consent box (CASL). `submit-form` form `lead` saves it in
+  `newsletter_subscribers` (`source = 'popup'`, `consent_at`, `consent_version`
+  `popup-optin-v1`, migration 0025), emails the owner ("Nouveau prospect") and the visitor (20%
+  offer). Dashboard → **Prospects** lists them with CSV export. Offers go only to rows with a
+  consent date (or newsletter sign-ups) and not unsubscribed.
 - The payment page is called **"Pay my order / Payer ma commande"**; the pay code is shown to
   clients as their **order number**.
 - **Nothing is paid online right now** (`ONLINE_PAYMENTS: false`): the client pays at

@@ -108,7 +108,7 @@ async function limitGuard(req: Request, form: string, recipient: string | null):
 // The address a submission will send mail to, when there is one: the
 // newsletter's `email`, or the `contact` of the other forms if it is an email.
 function mailRecipient(form: string, body: Record<string, unknown>): string | null {
-  const raw = clean(form === "newsletter" ? body.email : body.contact, 254).toLowerCase();
+  const raw = clean(form === "newsletter" || form === "lead" ? body.email : body.contact, 254).toLowerCase();
   return isEmail(raw) ? raw : null;
 }
 
@@ -131,10 +131,61 @@ async function handleNewsletter(body: Record<string, unknown>, fr: boolean) {
     email,
     fr ? "Bienvenue dans l’infolettre Magicstick Clean" : "Welcome to the Magicstick Clean newsletter",
     fr
-      ? `Bonjour,\n\nMerci de vous être inscrit à l’infolettre Magicstick Clean ! Vous recevrez à l’occasion des conseils de ménage et nos offres saisonnières, jamais de pourriel.\n\nMénage résidentiel dès 30 $/h CAD (27 $/h avec un forfait récurrent). Réservez sur https://magicstickclean.ca/booking.html ou demandez un devis gratuit sur https://magicstickclean.ca/quote.html.\n\nVous ne voulez plus recevoir nos courriels ? Répondez simplement « désabonner » à ce message.\n\n${SIGNATURE_FR}`
-      : `Hi,\n\nThanks for subscribing to the Magicstick Clean newsletter! You'll get occasional cleaning tips and seasonal offers — never spam.\n\nHome cleaning from $30/h CAD ($27/h on a recurring plan). Book at https://magicstickclean.ca/booking.html or get a free quote at https://magicstickclean.ca/quote.html.\n\nDon't want these emails anymore? Just reply "unsubscribe" to this message.\n\n${SIGNATURE_EN}`,
+      ? `Bonjour,\n\nMerci de vous être inscrit à l’infolettre Magicstick Clean ! Vous recevrez à l’occasion des conseils de ménage et nos offres saisonnières, jamais de pourriel.\n\nVotre premier ménage est à −20 % : demandez votre devis gratuit sur https://magicstickclean.ca/quote.html (réponse le jour même), ou réservez un ménage standard sur https://magicstickclean.ca/book.html.\n\nVous ne voulez plus recevoir nos courriels ? Répondez simplement « désabonner » à ce message.\n\n${SIGNATURE_FR}`
+      : `Hi,\n\nThanks for subscribing to the Magicstick Clean newsletter! You'll get occasional cleaning tips and seasonal offers — never spam.\n\nYour first cleaning is 20% off: get your free quote at https://magicstickclean.ca/quote.html (same-day reply), or book a standard cleaning at https://magicstickclean.ca/book.html.\n\nDon't want these emails anymore? Just reply "unsubscribe" to this message.\n\n${SIGNATURE_EN}`,
   );
   return json({ ok: true });
+}
+
+// Area-popup lead (js/zone-popup.js): name + email and/or phone, saved ONLY with
+// the visitor's express consent (CASL), so the owner can send offers later.
+const LEAD_CONSENT_VERSION = "popup-optin-v1";
+async function handleLead(body: Record<string, unknown>, fr: boolean) {
+  const name = clean(body.name, 120);
+  const email = clean(body.email, 254).toLowerCase();
+  const phone = clean(body.phone, 40);
+  const zone = clean(body.zone, 80);
+  if (!name) return json({ ok: false, error: "invalid_name" }, 400);
+  if (email && !isEmail(email)) return json({ ok: false, error: "invalid_email" }, 400);
+  if (phone && phone.replace(/\D/g, "").length < 10) return json({ ok: false, error: "invalid_phone" }, 400);
+  if (!email && !phone) return json({ ok: false, error: "invalid_contact" }, 400);
+  if (body.consent !== true) return json({ ok: false, error: "consent_required" }, 400);
+
+  const row = {
+    name, email: email || null, phone: phone || null, zone: zone || null, source: "popup",
+    lang: fr ? "fr" : "en", source_page: clean(body.page, 200) || null,
+    consent_at: new Date().toISOString(), consent_version: LEAD_CONSENT_VERSION, unsubscribed_at: null,
+  };
+  const { error } = await supabase.from("newsletter_subscribers").insert(row);
+  let already = false;
+  if (error) {
+    if (error.code !== "23505") throw new Error(error.message);
+    already = true;
+    // Same email or phone already on the list: refresh the name/consent.
+    const key = email ? { col: "email", val: email } : { col: "phone", val: phone };
+    const { error: upErr } = await supabase.from("newsletter_subscribers")
+      .update({ name, zone: row.zone, consent_at: row.consent_at, consent_version: LEAD_CONSENT_VERSION, unsubscribed_at: null })
+      .eq(key.col, key.val);
+    if (upErr) throw new Error(upErr.message);
+  }
+
+  if (!already) {
+    await sendEmail(OWNER_EMAIL, `Nouveau prospect (fenêtre du site) : ${name}`,
+      `Nom : ${name}\nCourriel : ${email || "Non précisé"}\nTéléphone : ${phone || "Non précisé"}\nSecteur : ${zone || "Non précisé"}\n` +
+      `Langue : ${fr ? "français" : "anglais"}\nPage : ${clean(body.page, 200) || "inconnue"}\n\n` +
+      `Il a accepté de recevoir vos offres. Il n'a encore rien demandé : un petit message aujourd'hui peut le convertir.\n` +
+      `Liste des prospects : https://magicstickclean.ca/admin.html`);
+  }
+  if (email && !already) {
+    await sendEmail(
+      email,
+      fr ? "Votre rabais de 20 % chez Magicstick Clean" : "Your 20% off at Magicstick Clean",
+      fr
+        ? `Bonjour ${name},\n\nMerci ! Votre premier ménage avec Magicstick Clean est à −20 %.\n\nDemandez votre devis gratuit (2 minutes, réponse le jour même) : https://magicstickclean.ca/quote.html\nOu réservez un ménage standard en ligne : https://magicstickclean.ca/book.html\n\nVous ne voulez plus recevoir nos offres ? Répondez simplement « désabonner » à ce courriel.\n\n${SIGNATURE_FR}`
+        : `Hi ${name},\n\nThanks! Your first cleaning with Magicstick Clean is 20% off.\n\nGet your free quote (2 minutes, same-day reply): https://magicstickclean.ca/quote.html\nOr book a standard cleaning online: https://magicstickclean.ca/book.html\n\nDon't want our offers anymore? Just reply "unsubscribe" to this email.\n\n${SIGNATURE_EN}`,
+    );
+  }
+  return json({ ok: true, already });
 }
 
 async function handleGiftCard(body: Record<string, unknown>, fr: boolean) {
@@ -302,7 +353,7 @@ async function handle(req: Request): Promise<Response> {
     // Honeypot filled in: a bot. Report success so it learns nothing.
     if (clean(body.company, 200)) return json({ ok: true });
 
-    if (!["newsletter", "gift_card", "job_application", "contest"].includes(form)) {
+    if (!["newsletter", "lead", "gift_card", "job_application", "contest"].includes(form)) {
       return json({ ok: false, error: "unknown_form" }, 400);
     }
 
@@ -310,6 +361,7 @@ async function handle(req: Request): Promise<Response> {
     if (blocked) return blocked;
 
     if (form === "newsletter") return await handleNewsletter(body, fr);
+    if (form === "lead") return await handleLead(body, fr);
     if (form === "gift_card") return await handleGiftCard(body, fr);
     if (form === "contest") return await handleContest(body, fr);
     return await handleJobApplication(body, fr);

@@ -160,6 +160,11 @@ Allez sur Vercel → projet *magicstickclean* → **Deployments**. Choisissez la
 - **−20 % sur le premier ménage**, un par foyer. Il est annoncé par un bandeau en haut du site,
   par la fenêtre « Dans quel secteur êtes-vous ? » et par Louis. Il est appliqué tout seul sur
   « Réserver en ligne ». Dans le calculateur, il est pré-rempli à 20 % pour un nouveau client.
+- La fenêtre du secteur demande ensuite **le nom et le courriel ou téléphone** du visiteur, pour ne
+  pas le perdre s'il n'achète pas. Vous recevez un courriel « Nouveau prospect » et il apparaît
+  dans le tableau de bord → **Prospects** (bouton « Exporter en CSV » pour vos envois). La loi
+  canadienne anti-pourriel exige son accord : il coche une case, sinon rien n'est enregistré. Si
+  quelqu'un répond « désabonner », ne lui écrivez plus.
 - Pour **arrêter l'offre** un jour, demandez simplement à l'agent : « enlève le rabais de 20 % ».
 - Les pages de devis, réservation et paiement montrent vos vrais arguments (réponse le jour même,
   garantie, produits écologiques, paiement sécurisé, entreprise locale) et votre vrai avis Google.

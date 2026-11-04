@@ -4,7 +4,7 @@
 // deno-lint-ignore-file no-explicit-any
 import assert from "node:assert/strict";
 import { state } from "./fake_supabase.ts";
-import { fetchCalls, installFetch, loadHandler, post, resetAll, setProviderReply } from "./harness.ts";
+import { emails, fetchCalls, installFetch, loadHandler, post, resetAll, setProviderReply } from "./harness.ts";
 
 installFetch();
 const giftCards = await loadHandler("../gift-cards/index.ts");
@@ -275,4 +275,23 @@ contestTest("contest: an email entrant gets a confirmation; a phone entrant gets
   resetAll();
   await call(submitForm, contestEntry());
   assert.equal(fetchCalls.filter((c) => c.url.includes("resend") && c.body.to !== "owner@example.com").length, 0);
+});
+
+Deno.test("lead (area popup): saved only with consent, email or phone, owner told", async () => {
+  resetAll();
+  const base = { form: "lead", lang: "fr", name: "Léa", email: "lea@example.com", zone: "Ottawa-Gatineau" };
+  const noConsent = await call(submitForm, base);
+  assert.equal(noConsent.status, 400);
+  assert.equal(state.table("newsletter_subscribers").length, 0);
+  assert.equal((await call(submitForm, { ...base, email: "", consent: true })).status, 400);
+  const ok = await call(submitForm, { ...base, consent: true });
+  assert.equal(ok.status, 200);
+  const row = state.table("newsletter_subscribers")[0];
+  assert.equal(row.source, "popup");
+  assert.ok(row.consent_at);
+  assert.ok(emails.some((e) => /Nouveau prospect/.test(e.subject)));
+  assert.ok(emails.some((e) => e.to === "lea@example.com" && /20 %/.test(e.subject)));
+  const phoneOnly = await call(submitForm, { form: "lead", lang: "en", name: "Sam", phone: "343 555 0000", consent: true });
+  assert.equal(phoneOnly.status, 200);
+  assert.equal(state.table("newsletter_subscribers")[1].email, null);
 });

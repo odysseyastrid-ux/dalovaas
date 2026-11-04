@@ -2495,3 +2495,13 @@ body{ transition:background-color .35s ease, color .35s ease; }
 [data-theme="dark"] .trust-strip li,[data-theme="dark"] .trust-review{background:#111827;color:#f3f4f6}
 [data-theme="dark"] .trust-review blockquote{color:#f3f4f6}
 [data-theme="dark"] .trust-review figcaption{color:#d1d5db}
+.zone-lead-form{display:grid;gap:10px;text-align:left;margin:14px 0 6px}
+.zone-field{display:grid;gap:4px;font-size:14px;font-weight:600}
+.zone-field input{padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;width:100%}
+.zone-consent{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.4;font-weight:400}
+.zone-consent input{margin-top:3px;flex:0 0 auto}
+.zone-lead-err{color:#b42318;font-size:14px;margin:0}
+.zone-modal{max-height:calc(100vh - 32px);overflow-y:auto}
+#cookieBanner.zone-hidden{visibility:hidden}
+.zone-backdrop{z-index:3000}
+.zone-modal .zone-lead-err{color:#b42318;font-size:14px;font-weight:600;margin:0}

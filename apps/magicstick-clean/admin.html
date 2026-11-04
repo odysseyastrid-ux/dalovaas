@@ -145,6 +145,10 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg>
               <span data-i18n="admin.dash.nav.contest">Contest</span>
             </button>
+            <button type="button" class="dash-nav-btn" data-section="leads">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+              <span data-i18n="admin.dash.nav.leads">Prospects</span>
+            </button>
             <button type="button" class="dash-nav-btn" data-section="notifications">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span data-i18n="admin.dash.nav.notifications">Notifications</span>
@@ -456,6 +460,36 @@
                 <button type="submit" class="btn" data-i18n="admin.extras.add">Add extra</button>
                 <p class="form-note" id="addAddonNote"></p>
               </form>
+            </div>
+          </section>
+
+          <section class="dash-section" id="dashSection-leads">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <div>
+                  <h3 data-i18n="admin.leads.title">Prospects (email list)</h3>
+                  <p class="dash-card-sub" data-i18n="admin.leads.sub">People who left their contact in the site’s popup or the newsletter. Only those with a consent date may receive offers (Canadian anti-spam law).</p>
+                </div>
+              </div>
+              <div class="contest-admin-actions">
+                <p><strong id="leadsCount">0</strong> <span data-i18n="admin.leads.count">contacts</span></p>
+                <button type="button" class="btn-outline" id="leadsExport" data-i18n="admin.leads.export">Export CSV</button>
+              </div>
+              <div class="table-scroll">
+                <table class="admin-table" id="leadsTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="admin.col.date">Date</th>
+                      <th data-i18n="admin.col.name">Name</th>
+                      <th data-i18n="admin.col.contact">Contact</th>
+                      <th data-i18n="admin.leads.col.zone">Area</th>
+                      <th data-i18n="admin.contest.col.source">Source</th>
+                      <th data-i18n="admin.leads.col.consent">Consent</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
           </section>
 

@@ -1153,6 +1153,43 @@
     renderContest();
   });
 
+
+  // ---------- Prospects: popup leads + newsletter (newsletter_subscribers) ----------
+  let lastLeads = null;
+  async function loadLeads() {
+    const { data, error } = await supabase.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
+    if (error || !data) return;
+    lastLeads = data;
+    renderLeads();
+  }
+  function renderLeads() {
+    const tbody = document.querySelector('#leadsTable tbody');
+    if (!tbody || !lastLeads) return;
+    const active = lastLeads.filter((r) => !r.unsubscribed_at);
+    document.getElementById('leadsCount').textContent = String(active.length);
+    tbody.innerHTML = active.length ? '' : `<tr><td colspan="6">${esc(t('admin.leads.empty'))}</td></tr>`;
+    const fmt = (d) => new Date(d).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA');
+    active.forEach((r) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${esc(fmt(r.created_at))}</td><td>${esc(r.name) || '—'}</td>` +
+        `<td>${contactCell({ phone: r.phone, email: r.email, contact: '' })}</td><td>${esc(r.zone) || '—'}</td>` +
+        `<td>${esc(r.source || 'newsletter')}</td><td>${r.consent_at ? esc(fmt(r.consent_at)) : (r.source === 'newsletter' ? '✓' : '—')}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('leadsExport').addEventListener('click', () => {
+    if (!lastLeads) return;
+    const head = ['date', 'name', 'email', 'phone', 'area', 'language', 'source', 'consent_at'];
+    const lines = [head.join(',')].concat(lastLeads.filter((r) => !r.unsubscribed_at).map((r) =>
+      [r.created_at, r.name, r.email, r.phone, r.zone, r.lang, r.source, r.consent_at || ''].map(csvCell).join(',')));
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prospects-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
   async function showDashboard() {
     dashboard.hidden = false;
     loadQuotes();
@@ -1160,6 +1197,7 @@
     loadGiftCards();
     loadGiftRequests();
     loadContest();
+    loadLeads();
     await loadCategories();
     loadServices();
     loadAddons();

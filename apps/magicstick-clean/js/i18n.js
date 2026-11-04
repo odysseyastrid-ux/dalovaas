@@ -141,7 +141,7 @@
     'zone.claimOffer': { en: 'Claim my 20% off', fr: 'Profiter de mon rabais de 20 %' },
     'zone.offer': { en: 'We can help. <strong>Your first cleaning is 20% off</strong>, applied automatically to your price.', fr: 'On peut vous aider. <strong>Votre premier ménage est à −20 %</strong>, appliqué automatiquement à votre prix.' },
     'zone.offerZone': { en: 'We clean {zone}. <strong>Your first cleaning is 20% off</strong>, applied automatically to your price.', fr: 'On dessert {zone}. <strong>Votre premier ménage est à −20 %</strong>, appliqué automatiquement à votre prix.' },
-    'promo20.text': { en: '🎉 20% off your first cleaning with Magicstick Clean', fr: '🎉 −20 % sur votre premier ménage avec Magicstick Clean' },
+    'promo20.text': { en: '<em class="promo-bar-pct">20% off</em> your first cleaning with Magicstick Clean', fr: '<em class="promo-bar-pct">−20 %</em> sur votre premier ménage avec Magicstick Clean' },
     'promo20.cta': { en: 'Get my free quote →', fr: 'Obtenir mon devis gratuit →' },
     'promo20.terms': { en: 'Offer valid on your first cleaning, one per household (same address, phone or email).', fr: 'Offre valable sur votre premier ménage, une par foyer (même adresse, téléphone ou courriel).' },
     'trust.sameDay': { en: 'Reply the same day', fr: 'Réponse le jour même' },

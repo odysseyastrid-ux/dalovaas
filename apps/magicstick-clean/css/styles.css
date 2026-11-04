@@ -2468,8 +2468,11 @@ body{ transition:background-color .35s ease, color .35s ease; }
 .pay-card .fine{font-size:14px;line-height:1.5}
 
 /* ---------- conversion: first-cleaning bar, trust strip, review ---------- */
-.promo-bar{position:relative;z-index:60;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 12px;padding:9px 44px;background:var(--brand-grad, #2E8BE6);color:#fff;font-size:14px;font-weight:600;text-align:center}
-.promo-bar a{color:#fff;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.promo-bar{position:relative;z-index:60;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 14px;padding:10px 48px;background:var(--brand-grad, #2E8BE6);color:#fff;text-align:center;font-family:'Instrument Serif','Fraunces',Georgia,serif;font-size:19px;font-weight:400;line-height:1.25;letter-spacing:.005em}
+.promo-bar-pct{display:inline-block;margin-right:4px;padding:1px 12px 2px;border-radius:999px;background:#fff;color:#4b3bd6;font-style:italic;font-size:21px;line-height:1.2}
+.promo-bar a{color:#fff;font-family:'Inter',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.02em;text-decoration:none;padding:5px 12px;border:1px solid rgba(255,255,255,.7);border-radius:999px;white-space:nowrap}
+.promo-bar a:hover{background:rgba(255,255,255,.15)}
+@media (max-width:480px){.promo-bar{font-size:17px;padding:9px 40px}.promo-bar-pct{font-size:18px}}
 .promo-bar-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}
 .trust-strip{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
 .trust-strip li{padding:7px 12px;border-radius:999px;background:var(--teal-tint);font-size:13px;font-weight:600}

@@ -245,8 +245,10 @@ must all pass before any function deploy.
 
 ## 10. Known open items (as of Nov 4, 2026)
 
-- **Deploy check:** `quote-pay`, `ai-chat` (no prices) and `stripe-webhook` (quote payments)
-  must be deployed from this repo. If `quote-pay` is missing, pay.html says "unavailable".
+- **Deployed Nov 4, 2026:** `quote-pay` v1 and `ai-chat` v23 (no prices). **Not yet deployed:**
+  the `stripe-webhook` change that marks card-paid quotes (repo is ahead of the live v19). It
+  is only needed for card payments: deploy it (index.ts) **before** setting
+  `QUOTE_CARD_PAYMENTS=on`.
 - **Terms:** the late-cancellation rule for prepaid quotes was removed with the deposit text;
   ask the owner whether he wants one (don't invent it).
 - **Interac:** confirm with the owner that magicstickclean@gmail.com receives e-Transfers

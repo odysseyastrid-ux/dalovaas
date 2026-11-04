@@ -51,7 +51,6 @@ async function buildSystemPrompt(lang: "en" | "fr") {
     })
     .join("\n");
 
-
   const addonLines = (addons ?? [])
     .map((a) => `- ${lang === "fr" ? a.name_fr || a.name : a.name}`)
     .join("\n");

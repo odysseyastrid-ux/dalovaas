@@ -140,7 +140,7 @@ async function handleNewsletter(body: Record<string, unknown>, fr: boolean) {
 // Area-popup lead (js/zone-popup.js): name + email and/or phone, saved ONLY with
 // the visitor's express consent (CASL), so the owner can send offers later.
 const LEAD_CONSENT_VERSION = "popup-optin-v1";
-async function handleLead(body: Record<string, unknown>, fr: boolean) {
+async function handleLead(req: Request, body: Record<string, unknown>, fr: boolean) {
   const name = clean(body.name, 120);
   const email = clean(body.email, 254).toLowerCase();
   const phone = clean(body.phone, 40);
@@ -176,7 +176,14 @@ async function handleLead(body: Record<string, unknown>, fr: boolean) {
       `Il a accepté de recevoir vos offres. Il n'a encore rien demandé : un petit message aujourd'hui peut le convertir.\n` +
       `Liste des prospects : https://magicstickclean.ca/admin.html`);
   }
-  if (email && !already) {
+  // The per-address mail cap only decides whether the welcome email goes out:
+  // the lead itself is always saved (a busy address must not lose a prospect).
+  const mailOk = email && !already
+    ? (await checkLimits(supabase, req, "form", [
+      { scope: "key", id: email, windowSeconds: 86400, max: MAX_MAILS_PER_ADDRESS_PER_DAY },
+    ])) === "ok"
+    : false;
+  if (mailOk) {
     await sendEmail(
       email,
       fr ? "Votre rabais de 20 % chez Magicstick Clean" : "Your 20% off at Magicstick Clean",
@@ -357,11 +364,13 @@ async function handle(req: Request): Promise<Response> {
       return json({ ok: false, error: "unknown_form" }, 400);
     }
 
-    const blocked = await limitGuard(req, form, mailRecipient(form, body));
+    // Leads: per-visitor and site-wide limits apply; the per-address cap is
+    // checked inside handleLead and only skips the email.
+    const blocked = await limitGuard(req, form, form === "lead" ? null : mailRecipient(form, body));
     if (blocked) return blocked;
 
     if (form === "newsletter") return await handleNewsletter(body, fr);
-    if (form === "lead") return await handleLead(body, fr);
+    if (form === "lead") return await handleLead(req, body, fr);
     if (form === "gift_card") return await handleGiftCard(body, fr);
     if (form === "contest") return await handleContest(body, fr);
     return await handleJobApplication(body, fr);

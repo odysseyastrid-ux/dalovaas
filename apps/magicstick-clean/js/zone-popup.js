@@ -107,6 +107,7 @@
         body: JSON.stringify({ form: 'lead', lang: i18n ? i18n.getLang() : 'en', name, email, phone, zone: chosenZone,
           consent: true, page: location.pathname, company: f.company.value }),
       });
+      if (res.status === 429) { fail('lead.tooMany'); return; }
       if (!res.ok) throw new Error(String(res.status));
       step(4);
     } catch (_) {

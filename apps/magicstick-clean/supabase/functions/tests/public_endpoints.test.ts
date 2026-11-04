@@ -295,3 +295,13 @@ Deno.test("lead (area popup): saved only with consent, email or phone, owner tol
   assert.equal(phoneOnly.status, 200);
   assert.equal(state.table("newsletter_subscribers")[1].email, null);
 });
+
+Deno.test("lead: a busy address is still saved, only the email is skipped", async () => {
+  resetAll();
+  state.rpcHandlers.rate_limit_hit = (a: any) => ({ data: !String(a.p_key).startsWith("form:key:"), error: null });
+  const r = await call(submitForm, { form: "lead", lang: "fr", name: "Léa", email: "busy@example.com", consent: true });
+  assert.equal(r.status, 200);
+  assert.equal(state.table("newsletter_subscribers").length, 1);
+  assert.ok(!emails.some((e) => e.to === "busy@example.com"));
+  assert.ok(emails.some((e) => /Nouveau prospect/.test(e.subject)));
+});

@@ -151,6 +151,7 @@
     'lead.contactErr': { en: 'Please enter a valid email or phone number.', fr: 'Veuillez entrer un courriel ou un numéro de téléphone valide.' },
     'lead.consentErr': { en: 'Please tick the box so we can send you your offer.', fr: 'Cochez la case pour qu’on puisse vous envoyer votre offre.' },
     'lead.sendErr': { en: 'That didn’t go through. Try again, or call (343) 843-7761.', fr: 'L’envoi n’a pas fonctionné. Réessayez, ou appelez le (343) 843-7761.' },
+    'lead.tooMany': { en: 'Too many tries from this connection. Please try again in an hour, or call (343) 843-7761.', fr: 'Trop d’essais depuis cette connexion. Réessayez dans une heure, ou appelez le (343) 843-7761.' },
     'lead.thanksTitle': { en: 'It’s saved!', fr: 'C’est noté !' },
     'lead.thanks': { en: 'Your 20% off your first cleaning is waiting for you. We’ve filled in your details below: finish your request whenever you’re ready.', fr: 'Votre rabais de 20 % sur le premier ménage vous attend. On a rempli vos coordonnées ci-dessous : terminez votre demande quand vous voulez.' },
     'lead.continue': { en: 'Continue', fr: 'Continuer' },

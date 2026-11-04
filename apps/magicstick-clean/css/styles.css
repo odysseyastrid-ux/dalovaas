@@ -2484,3 +2484,14 @@ body{ transition:background-color .35s ease, color .35s ease; }
 .zone-offer strong{color:var(--teal)}
 .book-total s{opacity:.6;font-size:18px}
 [data-theme="dark"] .trust-review{background:rgba(255,255,255,.04)}
+
+/* Trust strip + review: own colours so they stay readable on any background
+   (the quote page puts them on the purple gradient, where text is white). */
+.trust-strip li{background:#fff;color:#1f2937;box-shadow:0 2px 10px rgba(17,24,39,.08)}
+.trust-strip li::before{color:#4b3bd6}
+.trust-review{background:#fff;color:#1f2937;border-left-color:#4b3bd6;box-shadow:0 4px 16px rgba(17,24,39,.08);text-align:left}
+.trust-review blockquote{color:#1f2937}
+.trust-review figcaption{color:#4b5563}
+[data-theme="dark"] .trust-strip li,[data-theme="dark"] .trust-review{background:#111827;color:#f3f4f6}
+[data-theme="dark"] .trust-review blockquote{color:#f3f4f6}
+[data-theme="dark"] .trust-review figcaption{color:#d1d5db}

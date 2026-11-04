@@ -79,7 +79,7 @@
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok && data.code) { location.href = `pay.html?code=${data.code}`; return; }
+      if (res.ok && data.code) { location.href = `pay.html?code=${data.code}&lang=${lang()}`; return; }
       if (res.ok) { form.reset(); err.textContent = t('book.err.unavailable'); err.hidden = false; return; }
       const key = { invalid_date: 'book.dateErr', rate_limited: 'pay.err.tooMany', invalid_phone: 'form.phoneOrEmailErr', invalid_email: 'form.emailErr', invalid_contact: 'form.phoneOrEmailErr' }[data.error] || 'book.err.unavailable';
       err.textContent = t(key);

@@ -66,7 +66,8 @@
       if (new URLSearchParams(location.search).get('paid') === '1' && !r.data.paid) r.data.processing = true;
       render();
       if (r.data.processing) { $('payPaid').hidden = false; $('payOther').hidden = true; $('payCard').hidden = true; }
-      history.replaceState(null, '', `pay.html?code=${code}`);
+      if (i18n && !new URLSearchParams(location.search).get('lang') && r.data.lang && i18n.setLang) i18n.setLang(r.data.lang);
+      history.replaceState(null, '', `pay.html?code=${code}&lang=${lang()}`);
     } catch (_) {
       showError(codeErr, 'pay.err.unavailable');
     }
@@ -100,7 +101,7 @@
       err.hidden = true;
       const { error } = await stripe.confirmPayment({
         elements,
-        confirmParams: { return_url: `${location.origin}/pay.html?code=${current.code}&paid=1` },
+        confirmParams: { return_url: `${location.origin}/pay.html?code=${current.code}&lang=${lang()}&paid=1` },
       });
       if (error) { err.textContent = error.message || t('pay.err.card'); err.hidden = false; }
     });

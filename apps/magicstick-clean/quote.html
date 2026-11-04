@@ -25,6 +25,7 @@
 <script src="js/supabaseClient.js"></script>
 <script src="js/i18n-content.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/zone-popup.js" defer></script>
 <script src="js/date-picker.js"></script>
 <script src="js/form-guard.js"></script>
 </head>
@@ -52,6 +53,7 @@
       <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
       <a href="book.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="pay.html" data-i18n="nav.payOrder">Pay my order</a>
       <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
       <a href="account.html" data-i18n="nav.myAccount">My account</a>
       <a href="tel:3438437761" class="nav-icon-link" data-i18n-aria-label="contact.callAria" aria-label="Call Magicstick Clean at 343-843-7761"><span class="contact-badge"><svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span></a>
@@ -71,6 +73,7 @@
     <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
     <a href="book.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="pay.html" data-i18n="nav.payOrder">Pay my order</a>
     <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
     <a href="account.html" data-i18n="nav.myAccount">My account</a>
     <div class="mm-contact-row">
@@ -108,6 +111,17 @@
 
     <div class="quote-layout">
     <div class="quote-main">
+<ul class="trust-strip">
+  <li data-i18n="trust.sameDay">Reply the same day</li>
+  <li data-i18n="trust.guarantee">Not happy? We come back for free</li>
+  <li data-i18n="trust.supplies">Eco-friendly supplies included</li>
+  <li data-i18n="trust.secure">Secure payment: card (Stripe) or Interac</li>
+  <li data-i18n="trust.local">Local, bilingual business</li>
+</ul>
+<figure class="trust-review">
+  <blockquote>“I really appreciated the services; Louis was very diligent and concise. He even cleaned the areas most cleaning companies don't clean.”</blockquote>
+  <figcaption>★★★★★ Luffy M. · <span data-i18n="trust.googleReview">Google review</span></figcaption>
+</figure>
     <form id="quoteForm" class="quote-form" novalidate>
       <div class="form-row">
         <div class="field">
@@ -298,6 +312,7 @@
       <p class="quote-success-ref"><span data-i18n="form.success.ref">Reference</span> #<span id="quoteRefCode"></span></p>
       <p id="quoteSuccessBody" data-i18n="form.success.body">We reply the same day, by phone or email. If you gave an email address, a confirmation is already on its way.</p>
       <p class="quote-success-warning" id="quoteSuccessWarning" hidden></p>
+      <p class="fine" data-i18n-html="form.success.pay">When you get your price, pay here with your order number: <a href="pay.html">Pay my order &rarr;</a></p>
       <button type="button" class="btn btn-outline" id="quoteAnotherBtn" data-i18n="form.success.another">Submit another request</button>
     </div>
     </div>
@@ -348,7 +363,7 @@
         <a href="about.html" data-i18n="footer.about">About us</a>
         <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
         <a href="gift-cards.html" data-i18n="footer.giftCards">Gift cards</a>
-        <a href="pay.html" data-i18n="footer.payQuote">Pay a quote</a>
+        <a href="pay.html" data-i18n="footer.payQuote">Pay my order</a>
         <a href="services.html" data-i18n="footer.allServices">All services</a>
         <a href="locations.html" data-i18n="footer.serviceAreas">Service areas</a>
         <a href="learn-more.html#faq" data-i18n="nav.faq">FAQ</a>

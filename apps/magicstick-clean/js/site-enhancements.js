@@ -578,6 +578,32 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   }
 
+  // ---------- First-cleaning offer bar (owner's offer, Nov 4, 2026) ----------
+  // A slim, dismissible bar above the header: 20% off the first cleaning.
+  // Not shown on the dashboard, the payment page or the closed contest page.
+  function initPromoBar() {
+    if (/(admin|pay|concours)\.html$/.test(location.pathname) || document.querySelector('.promo-bar')) return;
+    try { if (localStorage.getItem('magicstick_promo20_closed')) return; } catch (_) { /* show it */ }
+    const header = document.querySelector('header');
+    if (!header) return;
+    const i18n = window.MagicstickI18N;
+    const t = (k) => (i18n ? i18n.t(k) : k);
+    const bar = document.createElement('div');
+    bar.className = 'promo-bar';
+    bar.setAttribute('role', 'note');
+    const render = () => {
+      bar.innerHTML = `<span>${t('promo20.text')}</span> <a href="quote.html">${t('promo20.cta')}</a>` +
+        `<button type="button" class="promo-bar-close" aria-label="${t('zone.dismiss')}">&times;</button>`;
+      bar.querySelector('.promo-bar-close').addEventListener('click', () => {
+        bar.remove();
+        try { localStorage.setItem('magicstick_promo20_closed', '1'); } catch (_) { /* ignore */ }
+      });
+    };
+    render();
+    document.addEventListener('magicstick:langchange', () => { if (bar.isConnected) render(); });
+    header.parentNode.insertBefore(bar, header);
+  }
+
   function init() {
     initSkipLink();
     initScrollProgress();
@@ -593,6 +619,7 @@
     initUtmCapture();
     initNewsletterForm();
     initNavFit();
+    initPromoBar();
   }
 
   if (document.readyState === 'loading') {

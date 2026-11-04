@@ -136,7 +136,8 @@ Deno.test("book_standard prices on the server (rate floor $39.50/h) and returns 
   assert.equal(r.status, 200);
   assert.match(r.json.code, /^[A-HJ-NP-Z2-9]{10}$/);
   const row = state.table("quote_requests").find((q) => q.pay_code === r.json.code)!;
-  assert.equal(row.quoted_amount_cents, 15800); // 4 h x $39.50, never the browser's number
+  assert.equal(row.quoted_amount_cents, 12640); // 4 h x $39.50 = $158, -20% first cleaning; never the browser's number
+  assert.equal(r.json.first_discount, true);
   assert.equal(row.source, "booking");
   assert.equal(row.service, "Standard Cleaning");
   assert.ok(emails.some((e) => e.to === "owner@example.com" && /Réservation en ligne/.test(e.subject)));
@@ -147,7 +148,7 @@ Deno.test("book_standard uses a higher service rate when the owner sets one", as
   seed();
   state.table("services").push({ id: "standard", base_price_cents: 13500, duration_minutes: 180, active: true });
   const r = await call(booking({ hours: 3.5 }));
-  assert.equal(state.table("quote_requests").find((q) => q.pay_code === r.json.code)!.quoted_amount_cents, 15750);
+  assert.equal(state.table("quote_requests").find((q) => q.pay_code === r.json.code)!.quoted_amount_cents, 12600); // 3.5 h x $45 = $157.50, -20%
 });
 
 Deno.test("book_standard rejects bad input and saves nothing for bots", async () => {
@@ -189,4 +190,13 @@ Deno.test("send_link needs an admin and emails the client their link", async () 
   assert.match(mail.subject, /Votre prix/);
   assert.ok(mail.text.includes(`pay.html?code=${CODE}`));
   assert.ok(mail.text.includes("250,00"));
+});
+
+Deno.test("book_standard: no first-cleaning discount for a client who already paid", async () => {
+  seed();
+  state.table("services").push({ id: "standard", base_price_cents: 9000, duration_minutes: 180, active: true });
+  state.table("quote_requests").push({ id: "old", phone: "(343) 555-1234", paid_at: "2026-10-01T10:00:00Z" });
+  const r = await call(booking());
+  assert.equal(r.json.first_discount, false);
+  assert.equal(state.table("quote_requests").find((q) => q.pay_code === r.json.code)!.quoted_amount_cents, 15800);
 });

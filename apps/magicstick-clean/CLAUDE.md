@@ -62,8 +62,15 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
 
 - **Recurring plans** (weekly / biweekly / monthly) on eligible services drop to
   **$27/h = 10% off**, for as long as the plan is kept.
-- There is **NO first-booking / first-time discount** anymore (it was removed — do
-  not reintroduce it in copy or math).
+- **First cleaning: 20% off** (owner's offer, Nov 4, 2026), one per household (same address,
+  phone or email). Applied by `quote-pay` on `book.html` (skipped if that phone/email already
+  paid a quote) and pre-filled at 20% in the dashboard calculator for new clients. Promoted by a
+  dismissible bar on every page (`initPromoBar` in site-enhancements.js), the area popup
+  (`js/zone-popup.js`, quote + booking pages) and Louis (via `ai_knowledge` row `client`).
+  Honest conversion only: trust strip (same-day reply, free re-clean guarantee, eco supplies,
+  secure payment, local) + the real Google review; never fake urgency, counts or reviews.
+- The payment page is called **"Pay my order / Payer ma commande"**; the pay code is shown to
+  clients as their **order number**.
 - **Nothing is paid online right now** (`ONLINE_PAYMENTS: false`): the client pays at
   the appointment. The deposit amounts stay in the DB for when Stripe is switched on
   (Standard/Commercial/Windows $30, Airbnb $25, Deep/Post/Move $50) but the site does

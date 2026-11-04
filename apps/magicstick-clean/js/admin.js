@@ -487,7 +487,9 @@
     const sv = guessService(q, list);
     sel.value = sv.id;
     try { calcEl('calcTax').value = localStorage.getItem('magicstick_calc_tax') || '0'; } catch (_) { /* private mode */ }
-    calcEl('calcDiscount').value = '0';
+    // First cleaning: 20% off unless this phone/email already paid a quote.
+    const same = (x) => x.id !== q.id && x.paid_at && ((q.phone && x.phone === q.phone) || (q.email && x.email === q.email));
+    calcEl('calcDiscount').value = (lastQuotes || []).some(same) ? '0' : '20';
     calcEl('calcExtras').value = '0';
     apply(sv, false);
     sel.onchange = () => apply(list.find((x) => x.id === sel.value), false);
@@ -503,6 +505,7 @@
         const svName = sv ? (priceTarget.lang === 'en' ? sv.name : (sv.name_fr || sv.name)) : priceTarget.service;
         const hours = Math.max(3, num('calcHours'));
         priceNote.value = priceTarget.lang === 'en' ? `About ${hours} h of ${svName.toLowerCase()}.` : `Environ ${String(hours).replace('.', ',')} h de ${svName.toLowerCase()}.`;
+        if (num('calcDiscount') === 20) priceNote.value += priceTarget.lang === 'en' ? ' First-cleaning 20% off included.' : ' Rabais premier ménage −20 % inclus.';
       }
       document.getElementById('priceSave').click();
     });

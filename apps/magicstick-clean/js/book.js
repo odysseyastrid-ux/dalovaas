@@ -21,8 +21,9 @@
 
   function renderTotal() {
     if (rateCents === null) { $('bookTotal').textContent = '…'; return; }
-    $('bookTotal').textContent = money(Math.round(rateCents * hours()));
-    $('bookRate').textContent = t('book.rateLine', { hours: String(hours()).replace('.', lang() === 'fr' ? ',' : '.'), rate: money(rateCents) });
+    const full = Math.round(rateCents * hours());
+    $('bookTotal').innerHTML = `<s>${money(full)}</s> ${money(Math.round(full * 0.8))}`;
+    $('bookRate').textContent = t('book.rateLine', { hours: String(hours()).replace('.', lang() === 'fr' ? ',' : '.'), rate: money(rateCents) }) + ' · ' + t('book.firstDiscount');
   }
 
   async function loadRate() {

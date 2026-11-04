@@ -2466,3 +2466,18 @@ body{ transition:background-color .35s ease, color .35s ease; }
 .book-total strong{font-size:32px;font-weight:800}
 .review-action-main{font-weight:700}
 .pay-card .fine{font-size:14px;line-height:1.5}
+
+/* ---------- conversion: first-cleaning bar, trust strip, review ---------- */
+.promo-bar{position:relative;z-index:60;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 12px;padding:9px 44px;background:var(--brand-grad, #2E8BE6);color:#fff;font-size:14px;font-weight:600;text-align:center}
+.promo-bar a{color:#fff;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.promo-bar-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}
+.trust-strip{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.trust-strip li{padding:7px 12px;border-radius:999px;background:var(--teal-tint);font-size:13px;font-weight:600}
+.trust-strip li::before{content:"✓ ";color:var(--teal)}
+.trust-review{margin:16px 0 0;padding:14px 16px;border-left:3px solid var(--gold);background:rgba(0,0,0,.02);border-radius:0 12px 12px 0}
+.trust-review blockquote{margin:0;font-style:italic}
+.trust-review figcaption{margin-top:6px;font-size:13px;color:var(--gray)}
+.zone-offer{font-size:17px}
+.zone-offer strong{color:var(--teal)}
+.book-total s{opacity:.6;font-size:18px}
+[data-theme="dark"] .trust-review{background:rgba(255,255,255,.04)}

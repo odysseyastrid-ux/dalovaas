@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
 <link rel="icon" type="image/png" sizes="96x96" href="assets/images/favicon-96.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
-<title data-i18n="title.pay">Pay your quote | Magicstick Clean</title>
+<title data-i18n="title.pay">Pay my order | Magicstick Clean</title>
 <meta name="description" content="Pay your personalized Magicstick Clean quote with the code we sent you.">
 <meta name="robots" content="noindex, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,6 +41,7 @@
       <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
       <a href="book.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="pay.html" data-i18n="nav.payOrder">Pay my order</a>
       <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
       <a href="account.html" data-i18n="nav.myAccount">My account</a>
       <a href="quote.html" class="cta-arrow"><span class="cta-arrow-text" data-i18n="nav.getQuote">Get a quote</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></a>
@@ -58,6 +59,7 @@
     <a href="learn-more.html" data-i18n="nav.learnMore">Learn more</a>
       <a href="service-outdoor-seasonal.html" data-i18n="nav.outdoor">Outdoor &amp; Seasonal</a>
     <a href="book.html" data-i18n="nav.bookOnline">Book online</a>
+      <a href="pay.html" data-i18n="nav.payOrder">Pay my order</a>
     <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
     <a href="account.html" data-i18n="nav.myAccount">My account</a>
     <a href="quote.html" data-i18n="nav.getQuote">Get a quote</a>
@@ -78,14 +80,14 @@
 
 <section class="hero" style="padding:72px 0 88px;">
   <div class="wrap" style="display:block;max-width:640px;margin:0 auto;">
-    <h1 style="font-size:40px;" data-i18n="pay.title">Pay your quote</h1>
-    <p class="lede" data-i18n="pay.lede">Enter the code from the message we sent you with your price. Don’t have a quote yet? It’s free and takes two minutes.</p>
+    <h1 style="font-size:40px;" data-i18n="pay.title">Pay my order</h1>
+    <p class="lede" data-i18n="pay.lede">Enter the order number from the message we sent you with your price. Don’t have a quote yet? It’s free and takes two minutes.</p>
 
     <form id="payLookup" class="quote-form pay-card" novalidate>
-      <label for="payCode" data-i18n="pay.code.label">Payment code</label>
+      <label for="payCode" data-i18n="pay.code.label">Order number</label>
       <input id="payCode" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" inputmode="text" data-i18n-placeholder="pay.code.placeholder" placeholder="e.g. K7Q2-MX9P-4T">
       <p class="field-error" id="payCodeError" role="alert" hidden></p>
-      <button type="submit" class="cta-arrow"><span class="cta-arrow-text" data-i18n="pay.code.submit">See my quote</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></button>
+      <button type="submit" class="cta-arrow"><span class="cta-arrow-text" data-i18n="pay.code.submit">See my order</span><span class="cta-arrow-box"><span class="cta-arrow-icon">&rarr;</span></span></button>
       <p class="fine"><a href="quote.html" data-i18n="pay.noQuote">Get a free quote &rarr;</a></p>
     </form>
 
@@ -112,13 +114,24 @@
         <h2 class="pay-h2" data-i18n="pay.interac.title">Pay by Interac e-Transfer</h2>
         <ol class="pay-steps">
           <li data-i18n-html="pay.interac.s1">Send the amount to <strong>magicstickclean@gmail.com</strong> from your bank app.</li>
-          <li data-i18n-html="pay.interac.s2">In the message, write your payment code: <strong class="pay-code-inline"></strong></li>
+          <li data-i18n-html="pay.interac.s2">In the message, write your order number: <strong class="pay-code-inline"></strong></li>
           <li data-i18n="pay.interac.s3">We confirm your payment by text or email, usually the same day.</li>
         </ol>
         <p class="fine" data-i18n="pay.onsite">You can also pay on the day of the cleaning.</p>
       </div>
     </div>
 
+<ul class="trust-strip">
+  <li data-i18n="trust.sameDay">Reply the same day</li>
+  <li data-i18n="trust.guarantee">Not happy? We come back for free</li>
+  <li data-i18n="trust.supplies">Eco-friendly supplies included</li>
+  <li data-i18n="trust.secure">Secure payment: card (Stripe) or Interac</li>
+  <li data-i18n="trust.local">Local, bilingual business</li>
+</ul>
+<figure class="trust-review">
+  <blockquote>“I really appreciated the services; Louis was very diligent and concise. He even cleaned the areas most cleaning companies don't clean.”</blockquote>
+  <figcaption>★★★★★ Luffy M. · <span data-i18n="trust.googleReview">Google review</span></figcaption>
+</figure>
     <p class="fine pay-help" data-i18n-html="pay.help">A question about your price? Call or text <a href="tel:3438437761">(343) 843-7761</a> or write to <a href="mailto:magicstickclean@gmail.com">magicstickclean@gmail.com</a>.</p>
   </div>
 </section>
@@ -138,7 +151,7 @@
         <a href="about.html" data-i18n="footer.about">About us</a>
         <a href="careers.html" data-i18n="nav.workWithUs">Work With Us</a>
         <a href="gift-cards.html" data-i18n="footer.giftCards">Gift cards</a>
-        <a href="pay.html" data-i18n="footer.payQuote">Pay a quote</a>
+        <a href="pay.html" data-i18n="footer.payQuote">Pay my order</a>
         <a href="services.html" data-i18n="footer.allServices">All services</a>
         <a href="locations.html" data-i18n="footer.serviceAreas">Service areas</a>
         <a href="learn-more.html#faq" data-i18n="nav.faq">FAQ</a>

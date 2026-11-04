@@ -155,7 +155,16 @@ Allez sur Vercel → projet *magicstickclean* → **Deployments**. Choisissez la
 
 ---
 
-## 6. Les prix
+## 6. Le rabais de 20 % et le marketing
+
+- **−20 % sur le premier ménage**, un par foyer. Il est annoncé par un bandeau en haut du site,
+  par la fenêtre « Dans quel secteur êtes-vous ? » et par Louis. Il est appliqué tout seul sur
+  « Réserver en ligne ». Dans le calculateur, il est pré-rempli à 20 % pour un nouveau client.
+- Pour **arrêter l'offre** un jour, demandez simplement à l'agent : « enlève le rabais de 20 % ».
+- Les pages de devis, réservation et paiement montrent vos vrais arguments (réponse le jour même,
+  garantie, produits écologiques, paiement sécurisé, entreprise locale) et votre vrai avis Google.
+
+## 7. Les prix
 
 **Aucun prix n'est affiché sur le site** (votre décision du 4 novembre 2026). Chaque client
 reçoit son prix personnalisé par le bouton « Envoyer le prix ». Vous aviez parlé d'un minimum de

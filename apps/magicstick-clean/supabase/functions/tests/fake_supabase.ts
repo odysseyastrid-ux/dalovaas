@@ -54,6 +54,7 @@ class Query implements PromiseLike<any> {
   insert(row: Row) { this.op = "insert"; this.payload = row; return this; }
   update(patch: Row) { this.op = "update"; this.payload = patch; return this; }
   eq(k: string, v: any) { this.filters.push((r) => r[k] === v); return this; }
+  not(k: string, op: string, v: any) { this.filters.push((r) => op === "is" ? (r[k] ?? null) !== v : r[k] !== v); return this; }
   is(k: string, v: any) { this.filters.push((r) => (r[k] ?? null) === v); return this; }
   in(k: string, vs: any[]) { this.filters.push((r) => vs.includes(r[k])); return this; }
   lt(k: string, v: any) { this.filters.push((r) => r[k] < v); return this; }

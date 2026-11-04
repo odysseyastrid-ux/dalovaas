@@ -21,7 +21,7 @@ for (const f of fs.readdirSync(root).filter((f) => f.endsWith('.html'))) {
 const noFr = Object.entries(S).filter(([, v]) => v && v.en && !v.fr).map(([k]) => k);
 // Unicode-aware word edges (\b treats « ê » as a boundary, so « êtes » looked like « tes »).
 const TU = /(?<![\p{L}’'])(tu|ton|ta|tes|toi|Tu|Ton|Ta|Tes)(?![\p{L}])|(?<![\p{L}])t’/u;
-const tu = Object.entries(S).filter(([k, v]) => v && v.fr && !/^(admin|careers|zone)\./.test(k) && TU.test(v.fr)).map(([k]) => k);
+const tu = Object.entries(S).filter(([k, v]) => v && v.fr && !/^(admin|careers)\./.test(k) && TU.test(v.fr)).map(([k]) => k);
 console.log('Keys used in HTML but missing:', missing.size ? [...missing] : 'none');
 console.log('Keys without French:', noFr.length ? noFr : 'none');
 console.log('Customer-facing French in "tu":', tu.length ? tu : 'none');

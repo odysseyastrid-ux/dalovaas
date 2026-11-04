@@ -35,6 +35,9 @@ const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "magicstickclean@gmail.com";
 const FROM_EMAIL = Deno.env.get("OWNER_NOTIFY_FROM") ?? "noreply@magicstickclean.ca";
 const SITE = "https://magicstickclean.ca";
 export const MIN_RATE_CENTS = 3950;
+// First cleaning: 20% off (owner's offer, Nov 4, 2026), once per client (phone or email
+// that never paid a quote before).
+export const FIRST_CLEAN_DISCOUNT = 0.2;
 const PAY_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export const TIME_WINDOWS = ["Morning (8am–11am)", "Midday (11am–2pm)", "Afternoon (2pm–5pm)"];
 const ZONES = ["Rockland-Orléans", "Ottawa-Gatineau", "Other"];
@@ -158,9 +161,19 @@ async function bookStandard(req: Request, body: Record<string, unknown>): Promis
     .select("base_price_cents, duration_minutes, active").eq("id", "standard").maybeSingle();
   if (svErr || !sv || !sv.active) return json({ error: "unavailable" }, 503);
   const rate = Math.max(MIN_RATE_CENTS, Math.round(sv.base_price_cents / ((sv.duration_minutes || 180) / 60)));
-  const amount = Math.round(rate * hours);
+  // Returning client = this phone or email already paid a quote.
+  let returning = false;
+  for (const [col, val] of [["phone", phone], ["email", email]] as const) {
+    if (!val || returning) continue;
+    const { data: prev } = await supabase.from("quote_requests").select("id")
+      .eq(col, val).not("paid_at", "is", null).limit(1);
+    returning = !!(prev && prev.length);
+  }
+  const fullAmount = Math.round(rate * hours);
+  const amount = returning ? fullAmount : Math.round(fullAmount * (1 - FIRST_CLEAN_DISCOUNT));
   const hoursTxt = String(hours).replace(".", lang === "fr" ? "," : ".");
-  const note = lang === "fr" ? `Ménage standard de ${hoursTxt} h, le ${date} (${time}).` : `Standard cleaning, ${hoursTxt} h, on ${date} (${time}).`;
+  const promo = returning ? "" : (lang === "fr" ? ` Rabais premier ménage −20 % inclus (prix régulier ${cad(fullAmount, "fr")}).` : ` First-cleaning 20% off included (regular price ${cad(fullAmount, "en")}).`);
+  const note = (lang === "fr" ? `Ménage standard de ${hoursTxt} h, le ${date} (${time}).` : `Standard cleaning, ${hoursTxt} h, on ${date} (${time}).`) + promo;
   let code = "";
   let row: { id: string } | null = null;
   for (let i = 0; i < 3 && !row; i++) {
@@ -177,7 +190,7 @@ async function bookStandard(req: Request, body: Record<string, unknown>): Promis
   if (!row) return json({ error: "unavailable" }, 503);
   await sendEmail(OWNER_EMAIL, `Réservation en ligne : ménage standard (${name})`, [
     `${name} a réservé un ménage standard en ligne.`, "",
-    `Date souhaitée : ${date} (${time})`, `Durée : ${hoursTxt} h`, `Prix : ${cad(amount, "fr")}`,
+    `Date souhaitée : ${date} (${time})`, `Durée : ${hoursTxt} h`, `Prix : ${cad(amount, "fr")}${returning ? "" : ` (−20 % premier ménage, prix régulier ${cad(fullAmount, "fr")})`}`,
     `Téléphone : ${phone || "Non précisé"}`, `Courriel : ${email || "Non précisé"}`,
     `Adresse : ${address}`, `Zone : ${zone}`, `Langue du client : ${lang === "fr" ? "français" : "anglais"}`, "",
     "Message :", message || "(aucun)", "",
@@ -188,7 +201,7 @@ async function bookStandard(req: Request, body: Record<string, unknown>): Promis
     const m = priceMessage({ name, service: lang === "fr" ? "Ménage standard" : "Standard cleaning", quoted_amount_cents: amount, quote_note: note, pay_code: code, lang });
     await sendEmail(email, lang === "fr" ? "Magicstick Clean : votre réservation" : "Magicstick Clean: your booking", m.text, OWNER_EMAIL);
   }
-  return json({ ok: true, code });
+  return json({ ok: true, code, first_discount: !returning });
 }
 
 Deno.serve(async (req) => withCors(req, rejectForeignOrigin(req) ?? await handle(req)));

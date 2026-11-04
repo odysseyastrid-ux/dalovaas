@@ -359,6 +359,7 @@
     priceNote.value = q.quote_note || '';
     priceStatus.textContent = '';
     refreshPriceDialog();
+    setupCalc(q);
     if (typeof priceDialog.showModal === 'function') priceDialog.showModal(); else priceDialog.setAttribute('open', '');
   }
   async function savePriceFields(patch) {
@@ -388,6 +389,104 @@
     });
     document.getElementById('priceUnpaid').addEventListener('click', () => savePriceFields({ paid_at: null, payment_method: null }));
   }
+
+  // ---------- Price calculator (inside the price dialog, owner-only) ----------
+  // Rates come from the services table (base_price_cents for duration_minutes,
+  // editable in the Services tab), never below MIN_RATE (owner, Nov 4, 2026).
+  // Hours are only a suggestion from the home size / rooms; the owner adjusts.
+  const MIN_RATE = 39.5;
+  const EXTRA_SERVICES = [{ id: 'outdoor', name: 'Outdoor & seasonal (lawn / snow)', name_fr: 'Extérieur et saisonnier (pelouse / neige)', rate: 50 }];
+  const HOURS_FACTOR = { deep: 1.5, 'move-in-out': 1.5, 'post-construction': 1.75 };
+  const SIZE_HOURS = { 'Under 1,000 sq ft': 3, '1,000–1,500 sq ft': 4, '1,500–2,000 sq ft': 5, '2,000–3,000 sq ft': 6, 'Over 3,000 sq ft': 8 };
+  let calcServices = null;
+  const calcEl = (id) => document.getElementById(id);
+  const num = (id) => { const v = parseFloat(String(calcEl(id).value).replace(',', '.')); return Number.isFinite(v) ? v : 0; };
+  const halfUp = (h) => Math.ceil(h * 2) / 2;
+
+  async function loadCalcServices() {
+    if (calcServices) return calcServices;
+    const { data } = await supabase.from('services').select('id, name, name_fr, base_price_cents, duration_minutes').eq('active', true).order('sort_order');
+    calcServices = (data || []).map((sv) => ({
+      ...sv, rate: Math.max(MIN_RATE, sv.duration_minutes ? (sv.base_price_cents / 100) / (sv.duration_minutes / 60) : MIN_RATE),
+    })).concat(EXTRA_SERVICES);
+    return calcServices;
+  }
+  function guessService(q, list) {
+    const label = String(q.service || '').toLowerCase();
+    const hit = list.find((sv) => [sv.name, sv.name_fr].some((n) => n && label && (n.toLowerCase() === label || label.includes(n.toLowerCase().split(' ')[0]))));
+    if (hit) return hit;
+    if (/outdoor|ext[ée]rieur|snow|neige|lawn|pelouse/.test(label)) return list.find((sv) => sv.id === 'outdoor');
+    if (/deep|profondeur|grand/.test(label)) return list.find((sv) => sv.id === 'deep');
+    if (/move|d[ée]m[ée]nag/.test(label)) return list.find((sv) => sv.id === 'move-in-out');
+    if (/construction/.test(label)) return list.find((sv) => sv.id === 'post-construction');
+    return list[0];
+  }
+  function suggestHours(q, sv) {
+    let h = SIZE_HOURS[q.home_size];
+    let why = h ? t('admin.calc.fromSize', { size: q.home_size }) : '';
+    if (!h) {
+      const bed = parseFloat(q.bedrooms) || 0;
+      const bath = parseFloat(q.bathrooms) || 0;
+      if (bed || bath) { h = 2 + 0.5 * bed + 0.5 * bath; why = t('admin.calc.fromRooms', { bed: bed || 0, bath: bath || 0 }); }
+    }
+    if (!h) { h = 3; why = t('admin.calc.noInfo'); }
+    h = Math.max(3, halfUp(h * (HOURS_FACTOR[sv.id] || 1)));
+    return { h, why };
+  }
+  function calcTotalCents() {
+    const hours = Math.max(3, num('calcHours'));
+    const base = num('calcRate') * hours;
+    const afterDiscount = base * (1 - Math.min(50, Math.max(0, num('calcDiscount'))) / 100) + Math.max(0, num('calcExtras'));
+    return Math.round(afterDiscount * (1 + Math.max(0, num('calcTax')) / 100) * 100);
+  }
+  function refreshCalc() {
+    const cents = calcTotalCents();
+    const hours = Math.max(3, num('calcHours'));
+    calcEl('calcTotal').textContent = t('admin.calc.total', {
+      hours: String(hours).replace('.', lang() === 'fr' ? ',' : '.'), rate: cad(Math.round(num('calcRate') * 100), lang()), total: cad(cents, lang()),
+    });
+  }
+  async function setupCalc(q) {
+    const list = await loadCalcServices();
+    const sel = calcEl('calcService');
+    sel.innerHTML = '';
+    list.forEach((sv) => {
+      const o = document.createElement('option');
+      o.value = sv.id;
+      o.textContent = `${lang() === 'fr' && sv.name_fr ? sv.name_fr : sv.name} · ${cad(Math.round(sv.rate * 100), lang())}/h`;
+      sel.appendChild(o);
+    });
+    const apply = (sv, keepHours) => {
+      calcEl('calcRate').value = sv.rate.toFixed(2);
+      const s = suggestHours(q, sv);
+      if (!keepHours) calcEl('calcHours').value = s.h;
+      calcEl('calcHint').textContent = t('admin.calc.hint', { hours: s.h, why: s.why });
+      refreshCalc();
+    };
+    const sv = guessService(q, list);
+    sel.value = sv.id;
+    try { calcEl('calcTax').value = localStorage.getItem('magicstick_calc_tax') || '0'; } catch (_) { /* private mode */ }
+    calcEl('calcDiscount').value = '0';
+    calcEl('calcExtras').value = '0';
+    apply(sv, false);
+    sel.onchange = () => apply(list.find((x) => x.id === sel.value), false);
+  }
+  if (priceDialog) {
+    ['calcRate', 'calcHours', 'calcDiscount', 'calcExtras', 'calcTax'].forEach((id) => calcEl(id).addEventListener('input', refreshCalc));
+    calcEl('calcTax').addEventListener('change', () => { try { localStorage.setItem('magicstick_calc_tax', calcEl('calcTax').value); } catch (_) { /* ignore */ } });
+    calcEl('calcUse').addEventListener('click', () => {
+      const cents = calcTotalCents();
+      priceAmount.value = (cents / 100).toFixed(2);
+      if (!priceNote.value.trim()) {
+        const sv = (calcServices || []).find((x) => x.id === calcEl('calcService').value);
+        const svName = sv ? (priceTarget.lang === 'en' ? sv.name : (sv.name_fr || sv.name)) : priceTarget.service;
+        const hours = Math.max(3, num('calcHours'));
+        priceNote.value = priceTarget.lang === 'en' ? `About ${hours} h of ${svName.toLowerCase()}.` : `Environ ${String(hours).replace('.', ',')} h de ${svName.toLowerCase()}.`;
+      }
+      document.getElementById('priceSave').click();
+    });
+  }
+
   function priceButton(q) {
     const btn = document.createElement('button');
     btn.type = 'button';

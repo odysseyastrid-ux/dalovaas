@@ -29,7 +29,9 @@ Votre site est **magicstickclean.ca**, en français et en anglais.
    première semaine. Pour répondre au client, faites simplement **« Répondre »**.
 2. **Répondez le jour même.** Votre site le promet, c'est votre force.
 3. Ouvrez **magicstickclean.ca/admin.html** (connexion avec votre courriel). Sur la demande,
-   cliquez **« Envoyer le prix »** : tapez le prix (et ce qui est inclus), cliquez
+   cliquez **« Envoyer le prix »**. Le **calculateur** en haut propose un prix (taux de vos
+   services, minimum 39,50 $/h, heures estimées selon la superficie : ajustez-les). Cliquez
+   **« Utiliser ce prix »** et le message est prêt. Ou bien tapez le prix vous-même, cliquez
    **« Enregistrer »**, puis **Texto** ou **Courriel** : le message avec le lien part tout seul.
    Quand le virement Interac arrive, rouvrez-le et cliquez **« Marquer payé »**.
    Changez aussi le statut : *contacté*, *réservé*, *terminé*…
@@ -153,5 +155,5 @@ Allez sur Vercel → projet *magicstickclean* → **Deployments**. Choisissez la
 
 **Aucun prix n'est affiché sur le site** (votre décision du 4 novembre 2026). Chaque client
 reçoit son prix personnalisé par le bouton « Envoyer le prix ». Vous aviez parlé d'un minimum de
-**39,50 $/h** pour être rentable : c'est à vous de l'appliquer dans vos devis. Ne demandez jamais
+**39,50 $/h** pour être rentable : le calculateur du tableau de bord l'applique déjà. Pour changer un taux : tableau de bord → Services → Prix (pour 3 h). Ne demandez jamais
 à un agent de remettre des prix sur le site sans le vouloir vraiment.

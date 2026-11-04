@@ -88,6 +88,11 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    **Envoyer le prix / Send the price**, types the price (and what's included). That writes
    `quoted_amount_cents` + a random 10-character `pay_code` (migration 0023) and prepares a
    ready FR/EN message (SMS / email / copy) with the link `pay.html?code=…`.
+   The same dialog has an internal **price calculator**: rate from the `services` table
+   (`base_price_cents` / `duration_minutes`, editable in the Services tab, floor $39.50/h,
+   migration 0024; outdoor lawn/snow is a fixed $50/h in `admin.js`), suggested hours from the
+   home size or rooms (owner adjusts), discount %, extras, taxes % (remembered on the device).
+   "Use this price" fills the price, saves it and prepares the message.
 3. **Pay** (`pay.html`, function `quote-pay`) — the client sees their price (always read from
    the database) and pays by **Interac e-Transfer** to magicstickclean@gmail.com with the code
    as message, or on the day; the owner then clicks **Mark as paid**. **Card** (Stripe Payment

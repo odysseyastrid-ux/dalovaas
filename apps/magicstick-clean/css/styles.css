@@ -2453,3 +2453,12 @@ body{ transition:background-color .35s ease, color .35s ease; }
 [data-theme="dark"] .pay-card{background:#111827;border-color:#1f2937}
 [data-theme="dark"] .pay-card input{background:#0b1220;color:#f3f4f6;border-color:#374151}
 [data-theme="dark"] .pay-amount{color:#f9fafb}
+
+/* ---------- admin: price calculator in the price dialog ---------- */
+.price-calc{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px;display:grid;gap:8px}
+.price-calc legend{font-weight:700;padding:0 6px}
+.price-calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.price-calc-grid label{display:grid;gap:4px;font-size:13px}
+.price-calc-grid input,.price-calc-grid select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:16px;width:100%}
+.price-calc-grid label:first-child{grid-column:1/-1}
+.price-calc-total{margin:0;font-size:20px;font-weight:800}

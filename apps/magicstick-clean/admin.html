@@ -867,6 +867,20 @@
       <button type="submit" class="review-dialog-close" value="close" data-i18n-aria-label="admin.review.close" aria-label="Close">×</button>
     </div>
     <p class="review-dialog-client" id="priceDialogClient"></p>
+    <fieldset class="price-calc">
+      <legend data-i18n="admin.calc.title">Price calculator (internal, never shown to clients)</legend>
+      <div class="price-calc-grid">
+        <label><span data-i18n="admin.calc.service">Service</span><select id="calcService"></select></label>
+        <label><span data-i18n="admin.calc.rate">Rate ($/h)</span><input id="calcRate" type="number" min="0" step="0.5" inputmode="decimal"></label>
+        <label><span data-i18n="admin.calc.hours">Hours (min. 3)</span><input id="calcHours" type="number" min="3" step="0.5" inputmode="decimal"></label>
+        <label><span data-i18n="admin.calc.discount">Discount (%)</span><input id="calcDiscount" type="number" min="0" max="50" step="1" value="0" inputmode="numeric"></label>
+        <label><span data-i18n="admin.calc.extras">Extras ($)</span><input id="calcExtras" type="number" min="0" step="1" value="0" inputmode="decimal"></label>
+        <label><span data-i18n="admin.calc.tax">Taxes (%)</span><input id="calcTax" type="number" min="0" max="20" step="0.025" value="0" inputmode="decimal"></label>
+      </div>
+      <p class="fine" id="calcHint"></p>
+      <p class="price-calc-total" id="calcTotal"></p>
+      <button type="button" class="review-action" id="calcUse" data-i18n="admin.calc.use">Use this price and prepare the message</button>
+    </fieldset>
     <label for="priceAmount" class="fine" data-i18n="admin.price.amount">Price for this client (CAD, taxes included if any)</label>
     <input id="priceAmount" type="number" min="1" max="20000" step="0.01" inputmode="decimal">
     <label for="priceNote" class="fine" data-i18n="admin.price.note">What's included (optional, shown to the client)</label>

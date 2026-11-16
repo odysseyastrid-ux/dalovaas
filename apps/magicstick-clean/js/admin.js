@@ -281,6 +281,7 @@
     document.querySelectorAll('.dash-section').forEach((s) => s.classList.toggle('active', s.id === `dashSection-${name}`));
     try { sessionStorage.setItem('magicstick_admin_section', name); } catch (_) { /* private mode */ }
     if (name === 'home') renderHome(true);
+    if (name === 'care') { renderActivity(); runHealth(); }
     window.scrollTo({ top: document.getElementById('adminDashboard').offsetTop - 12, behavior: 'smooth' });
   }
   document.querySelectorAll('.dash-nav-btn').forEach((b) => b.addEventListener('click', () => openSection(b.dataset.section)));
@@ -411,6 +412,7 @@
       { n: stages.filter((o) => o.s === 'done' && !o.x.review_requested_at).length, key: 'admin.home.todo.review', go: 'done' },
       { n: (lastJobs || []).filter((j) => !j.status || j.status === 'new').length, key: 'admin.home.todo.jobs', section: 'team' },
       { n: (lastGiftRequests || []).filter((g) => g.status === 'new').length, key: 'admin.home.todo.giftReq', section: 'gifts' },
+      { n: (lastSupplies || []).filter((x) => Number(x.quantity) <= Number(x.min_quantity)).length, key: 'admin.home.todo.stock', section: 'care' },
     ].filter((x) => x.n > 0);
     const ul = document.getElementById('homeTodo');
     ul.innerHTML = todo.length ? '' : `<li class="todo-empty">${esc(t('admin.home.todo.none'))}</li>`;
@@ -1287,7 +1289,7 @@
     let start = 'home';
     try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
     if (!document.getElementById(`dashSection-${start}`)) start = 'home';
-    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs()]);
+    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin()]);
     openSection(start);
     renderHome(true);
     await loadCategories();
@@ -1295,6 +1297,172 @@
     loadAddons();
     initAi();
   }
+
+  // ---------- Site care (Entretien): health, top-bar message, inventory, backup ----------
+  const careCfg = window.MAGICSTICK_CONFIG || {};
+  let lastSupplies = null;
+  const agoText = (iso) => {
+    if (!iso) return t('admin.care.never');
+    const days = Math.floor((Date.now() - new Date(iso)) / 864e5);
+    return days <= 0 ? t('admin.care.today') : t('admin.care.daysAgo', { n: days });
+  };
+
+  async function timed(fn) {
+    const t0 = performance.now();
+    try { const ok = await fn(); return { ok, ms: Math.round(performance.now() - t0) }; } catch (_) { return { ok: false, ms: Math.round(performance.now() - t0) }; }
+  }
+  async function runHealth() {
+    const ul = document.getElementById('careHealth');
+    if (!ul) return;
+    const page = (path) => () => fetch(path, { cache: 'no-store' }).then((r) => r.ok);
+    const fn = (name, body, okStatuses) => () => fetch(`${careCfg.FUNCTIONS_URL}/${name}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    }).then((r) => okStatuses.includes(r.status));
+    const checks = [
+      ['admin.care.chk.home', page('/')],
+      ['admin.care.chk.quote', page('/quote.html')],
+      ['admin.care.chk.book', page('/book.html')],
+      ['admin.care.chk.pay', page('/pay.html')],
+      ['admin.care.chk.gifts', page('/gift-cards.html')],
+      ['admin.care.chk.careers', page('/careers.html')],
+      ['admin.care.chk.db', async () => !(await supabase.from('site_settings').select('id').limit(1)).error],
+      ['admin.care.chk.payments', fn('quote-pay', { action: 'get', code: 'AAAAAAAAAA' }, [200, 404])],
+      ['admin.care.chk.giftFn', fn('gift-cards', { action: 'check', code: 'MSC-0000-0000-0000' }, [200])],
+    ];
+    ul.innerHTML = checks.map(([k], i) => `<li style="--i:${i}"><span class="dot is-wait"></span><span>${esc(t(k))}</span><span class="fine">…</span></li>`).join('');
+    const items = [...ul.children];
+    let bad = 0;
+    await Promise.all(checks.map(async ([, check], i) => {
+      const r = await timed(check);
+      if (!r.ok) bad += 1;
+      items[i].querySelector('.dot').className = `dot ${r.ok ? 'is-ok' : 'is-bad'}`;
+      items[i].querySelector('.fine').textContent = r.ok ? `${r.ms} ms` : t('admin.care.down');
+    }));
+    setBadge('care', bad + lowStock().length);
+  }
+
+  function renderActivity() {
+    const ul = document.getElementById('careActivity');
+    if (!ul) return;
+    const newest = (arr, key = 'created_at') => (arr || []).reduce((m, x) => (x[key] && (!m || x[key] > m) ? x[key] : m), null);
+    const rows = [
+      ['admin.care.act.quote', newest(lastQuotes), 21],
+      ['admin.care.act.paid', newest(lastQuotes, 'paid_at'), 0],
+      ['admin.care.act.lead', newest(lastLeads), 0],
+      ['admin.care.act.job', newest(lastJobs), 0],
+      ['admin.care.act.gift', newest(lastGiftCards), 0],
+    ];
+    ul.innerHTML = rows.map(([k, iso, warnDays], i) => {
+      const old = warnDays && (!iso || (Date.now() - new Date(iso)) > warnDays * 864e5);
+      return `<li style="--i:${i}"><span class="dot ${old ? 'is-warn' : 'is-ok'}"></span><span>${esc(t(k))}</span><span class="fine">${esc(agoText(iso))}</span></li>`;
+    }).join('') + (rows[0][1] && (Date.now() - new Date(rows[0][1])) > 21 * 864e5 ? `<li class="care-tip">${esc(t('admin.care.quietTip'))}</li>` : '');
+  }
+
+  async function loadSiteSettingsAdmin() {
+    const { data } = await supabase.from('site_settings').select('*').eq('id', 'main').maybeSingle();
+    if (!data) return;
+    document.getElementById('carePromoOn').checked = data.promo_enabled !== false;
+    document.getElementById('carePromoFr').value = data.promo_text_fr || '';
+    document.getElementById('carePromoEn').value = data.promo_text_en || '';
+    document.getElementById('careNoticeOn').checked = !!data.notice_enabled;
+    document.getElementById('careNoticeFr').value = data.notice_fr || '';
+    document.getElementById('careNoticeEn').value = data.notice_en || '';
+    document.getElementById('careNoticeUntil').value = data.notice_until || '';
+  }
+  document.getElementById('careBarForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const note = document.getElementById('careBarNote');
+    const v = (id) => document.getElementById(id).value.trim() || null;
+    const patch = {
+      promo_enabled: document.getElementById('carePromoOn').checked,
+      promo_text_fr: v('carePromoFr'), promo_text_en: v('carePromoEn'),
+      notice_enabled: document.getElementById('careNoticeOn').checked,
+      notice_fr: v('careNoticeFr'), notice_en: v('careNoticeEn'), notice_until: v('careNoticeUntil'),
+      updated_at: new Date().toISOString(),
+    };
+    if (patch.notice_enabled && !patch.notice_fr && !patch.notice_en) { note.textContent = t('admin.care.noticeEmpty'); return; }
+    const { error } = await supabase.from('site_settings').update(patch).eq('id', 'main');
+    note.textContent = error ? t('admin.orders.saveError') : t('admin.care.saved');
+  });
+
+  const lowStock = () => (lastSupplies || []).filter((x) => Number(x.quantity) <= Number(x.min_quantity));
+  async function loadSupplies() {
+    const { data, error } = await supabase.from('supplies').select('*').order('name');
+    if (error || !data) return;
+    lastSupplies = data;
+    renderSupplies();
+  }
+  function renderSupplies() {
+    const ul = document.getElementById('careStock');
+    if (!ul || !lastSupplies) return;
+    ul.innerHTML = lastSupplies.length ? '' : `<li class="fine">${esc(t('admin.care.stockEmpty'))}</li>`;
+    lastSupplies.forEach((x, i) => {
+      const low = Number(x.quantity) <= Number(x.min_quantity);
+      const li = document.createElement('li');
+      li.className = low ? 'is-low' : '';
+      li.style.setProperty('--i', String(i));
+      li.innerHTML = `<div><b>${esc(x.name)}</b><span class="fine">${esc(t('admin.care.stockMin', { n: x.min_quantity }))}${low ? ` · ${esc(t('admin.care.toBuy'))}` : ''}</span></div>
+        <div class="stock-ctrl"><button type="button" data-d="-1" aria-label="−">−</button><output>${esc(String(Number(x.quantity)))}</output><span class="fine">${esc(x.unit || '')}</span><button type="button" data-d="1" aria-label="+">+</button><button type="button" class="stock-del" aria-label="${esc(t('admin.care.stockDelete'))}">×</button></div>`;
+      li.querySelectorAll('[data-d]').forEach((b) => b.addEventListener('click', async () => {
+        const q = Math.max(0, Number(x.quantity) + Number(b.dataset.d));
+        const { error } = await supabase.from('supplies').update({ quantity: q, updated_at: new Date().toISOString() }).eq('id', x.id);
+        if (!error) { x.quantity = q; renderSupplies(); renderHome(); }
+      }));
+      li.querySelector('.stock-del').addEventListener('click', async () => {
+        if (!confirm(t('admin.care.stockDeleteConfirm', { name: x.name }))) return;
+        const { error } = await supabase.from('supplies').delete().eq('id', x.id);
+        if (!error) { lastSupplies = lastSupplies.filter((y) => y.id !== x.id); renderSupplies(); renderHome(); }
+      });
+      ul.appendChild(li);
+    });
+    setBadge('care', lowStock().length);
+  }
+  document.getElementById('careStockForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const row = {
+      name: document.getElementById('stockName').value.trim(),
+      unit: document.getElementById('stockUnit').value.trim() || null,
+      quantity: Number(document.getElementById('stockQty').value) || 0,
+      min_quantity: Number(document.getElementById('stockMin').value) || 0,
+    };
+    if (!row.name) return;
+    const { error } = await supabase.from('supplies').insert(row);
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    e.target.reset();
+    loadSupplies();
+  });
+
+  function download(name, text, type) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  const stamp = () => new Date().toISOString().slice(0, 10);
+  document.getElementById('careBackupJson')?.addEventListener('click', async () => {
+    const note = document.getElementById('careBackupNote');
+    note.textContent = t('admin.care.backupWorking');
+    const tables = ['quote_requests', 'newsletter_subscribers', 'job_applications', 'gift_cards', 'gift_card_requests', 'gift_card_transactions', 'services', 'service_addons', 'supplies', 'site_settings', 'contest_entries', 'bookings'];
+    const out = { exported_at: new Date().toISOString(), site: 'magicstickclean.ca' };
+    for (const tb of tables) {
+      const { data, error } = await supabase.from(tb).select('*');
+      out[tb] = error ? { error: error.message } : data;
+    }
+    download(`magicstick-sauvegarde-${stamp()}.json`, JSON.stringify(out, null, 2), 'application/json');
+    note.textContent = t('admin.care.backupDone');
+  });
+  document.getElementById('careBackupCsv')?.addEventListener('click', () => {
+    const cols = ['created_at', 'name', 'phone', 'email', 'address', 'zone', 'service', 'frequency', 'home_size', 'preferred_date', 'scheduled_date', 'quoted_amount_cents', 'paid_at', 'payment_method', 'completed_at', 'status', 'pay_code', 'message'];
+    const cell = (v) => {
+      let s = v == null ? '' : String(v);
+      if (/^[=+\-@]/.test(s)) s = `'${s}`; // no spreadsheet formulas
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const rows = (lastQuotes || []).map((q) => cols.map((c) => cell(c === 'quoted_amount_cents' && q[c] != null ? (q[c] / 100).toFixed(2) : q[c])).join(','));
+    download(`magicstick-commandes-${stamp()}.csv`, '﻿' + [cols.join(','), ...rows].join('\n'), 'text/csv;charset=utf-8');
+  });
+  document.getElementById('careCheckBtn')?.addEventListener('click', runHealth);
 
   // ---------- AI assistant section ----------
   let aiInited = false;

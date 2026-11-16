@@ -2594,3 +2594,7 @@ body{ transition:background-color .35s ease, color .35s ease; }
 .mfa-secret-label{font-size:13px;color:#5F5D56;margin:6px 0 0}
 .mfa-secret{font-size:14px;letter-spacing:.08em;word-break:break-all;text-align:center;color:#17151F}
 #adminMfaCode{font-size:22px;letter-spacing:.3em;text-align:center}
+
+/* Top bar used as a notice (closure, holidays) — set from the dashboard. */
+.promo-bar.is-notice{background:#17151F;}
+.promo-bar p.promo-bar-link{margin:0;}

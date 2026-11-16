@@ -142,6 +142,9 @@
           <button type="button" class="dash-nav-btn" data-section="settings" aria-label="Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i18n="admin.nav.settings">Settings</span><span class="dash-nav-badge" id="navBadge-settings" hidden></span>
           </button>
+          <button type="button" class="dash-nav-btn" data-section="care" aria-label="Site care">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg><span data-i18n="admin.nav.care">Site care</span><span class="dash-nav-badge" id="navBadge-care" hidden></span>
+          </button>
           <button type="button" class="dash-nav-btn" data-section="assistant" aria-label="AI assistant">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg><span data-i18n="admin.nav.assistant">AI assistant</span><span class="dash-nav-badge" id="navBadge-assistant" hidden></span>
           </button>
@@ -441,6 +444,78 @@
                 <div class="ai-actions">
                   <button type="button" class="btn" id="aiClientSave" data-i18n="admin.ai.save">Save</button>
                   <p class="form-note" id="aiClientNote"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dash-section" id="dashSection-care">
+            <div class="care-grid">
+              <div class="dash-card care-health">
+                <div class="dash-card-head">
+                  <div><h3 data-i18n="admin.care.healthTitle">Site health</h3>
+                  <p class="dash-card-sub" data-i18n="admin.care.healthSub">Live check of your pages, forms and payment system.</p></div>
+                  <button type="button" class="btn-mini" id="careCheckBtn" data-i18n="admin.care.checkNow">Check now</button>
+                </div>
+                <ul class="health-list" id="careHealth"></ul>
+                <h4 class="care-sub" data-i18n="admin.care.activityTitle">Last activity received</h4>
+                <ul class="health-list" id="careActivity"></ul>
+              </div>
+
+              <div class="dash-card">
+                <div class="dash-card-head"><div><h3 data-i18n="admin.care.barTitle">Message at the top of the site</h3>
+                  <p class="dash-card-sub" data-i18n="admin.care.barSub">Change it without code. A notice (e.g. a holiday closure) replaces the promo until its end date. Leave a text empty to keep the site’s usual wording.</p></div></div>
+                <form id="careBarForm" class="care-form">
+                  <label class="care-switch"><input type="checkbox" id="carePromoOn"><span data-i18n="admin.care.promoOn">Show the 20% first-cleaning promo</span></label>
+                  <label><span data-i18n="admin.care.promoFr">Promo text (French)</span><input type="text" id="carePromoFr" maxlength="160"></label>
+                  <label><span data-i18n="admin.care.promoEn">Promo text (English)</span><input type="text" id="carePromoEn" maxlength="160"></label>
+                  <label class="care-switch"><input type="checkbox" id="careNoticeOn"><span data-i18n="admin.care.noticeOn">Show a notice instead (closure, holidays, news)</span></label>
+                  <label><span data-i18n="admin.care.noticeFr">Notice (French)</span><input type="text" id="careNoticeFr" maxlength="200"></label>
+                  <label><span data-i18n="admin.care.noticeEn">Notice (English)</span><input type="text" id="careNoticeEn" maxlength="200"></label>
+                  <label><span data-i18n="admin.care.noticeUntil">Show the notice until (included)</span><input type="date" id="careNoticeUntil"></label>
+                  <button type="submit" class="btn" data-i18n="admin.care.save">Save</button>
+                  <p class="form-note" id="careBarNote" role="status"></p>
+                </form>
+              </div>
+
+              <div class="dash-card">
+                <div class="dash-card-head"><div><h3 data-i18n="admin.care.stockTitle">Product inventory</h3>
+                  <p class="dash-card-sub" data-i18n="admin.care.stockSub">Your cleaning products. Tap − / + after each job; anything at or below its minimum shows up in “To do”.</p></div></div>
+                <ul class="stock-list" id="careStock"></ul>
+                <form id="careStockForm" class="care-form care-form-row">
+                  <input type="text" id="stockName" maxlength="80" required data-i18n-placeholder="admin.care.stockName" placeholder="Product (e.g. all-purpose cleaner)">
+                  <input type="text" id="stockUnit" maxlength="20" data-i18n-placeholder="admin.care.stockUnit" placeholder="Unit (bottles)">
+                  <input type="number" id="stockQty" min="0" step="0.5" value="1" aria-label="Quantity">
+                  <input type="number" id="stockMin" min="0" step="0.5" value="1" aria-label="Minimum">
+                  <button type="submit" class="btn-mini" data-i18n="admin.care.stockAdd">Add</button>
+                </form>
+                <p class="fine" data-i18n="admin.care.stockHint">Last two boxes: quantity in stock, then the minimum before buying more.</p>
+              </div>
+
+              <div class="dash-card">
+                <div class="dash-card-head"><div><h3 data-i18n="admin.care.backupTitle">Back up my data</h3>
+                  <p class="dash-card-sub" data-i18n="admin.care.backupSub">Download everything (orders, clients, leads, applications, gift cards, services, inventory, contest entries) to keep a copy on your computer. Do it once a month.</p></div></div>
+                <div class="order-actions">
+                  <button type="button" class="btn-mini" id="careBackupJson" data-i18n="admin.care.backupAll">Download everything (JSON)</button>
+                  <button type="button" class="btn-mini btn-mini-go" id="careBackupCsv" data-i18n="admin.care.backupOrders">Orders in Excel (CSV)</button>
+                </div>
+                <p class="form-note" id="careBackupNote" role="status"></p>
+              </div>
+
+              <div class="dash-card">
+                <div class="dash-card-head"><div><h3 data-i18n="admin.care.linksTitle">My tools</h3>
+                  <p class="dash-card-sub" data-i18n="admin.care.linksSub">One tap to every account that keeps the site running.</p></div></div>
+                <div class="care-links">
+                  <a href="https://business.google.com/" target="_blank" rel="noopener">Google Business Profile</a>
+                  <a href="https://g.page/r/CXlL7jiMiQp2EBI/review" target="_blank" rel="noopener" data-i18n="admin.care.linkReview">My Google review link</a>
+                  <a href="https://search.google.com/search-console" target="_blank" rel="noopener">Google Search Console</a>
+                  <a href="https://www.bingplaces.com/" target="_blank" rel="noopener">Bing Places</a>
+                  <a href="https://www.bing.com/webmasters" target="_blank" rel="noopener">Bing Webmaster</a>
+                  <a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener" data-i18n="admin.care.linkStripe">Stripe (payments)</a>
+                  <a href="https://mail.google.com/" target="_blank" rel="noopener">Gmail</a>
+                  <a href="https://supabase.com/dashboard/project/siqpcnhfpseorjuwfrop" target="_blank" rel="noopener" data-i18n="admin.care.linkSupabase">Supabase (database)</a>
+                  <a href="https://vercel.com/dashboard" target="_blank" rel="noopener" data-i18n="admin.care.linkVercel">Vercel (website hosting)</a>
+                  <a href="https://resend.com/emails" target="_blank" rel="noopener" data-i18n="admin.care.linkResend">Resend (emails sent)</a>
                 </div>
               </div>
             </div>

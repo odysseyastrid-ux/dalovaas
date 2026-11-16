@@ -581,23 +581,74 @@
   // ---------- First-cleaning offer bar (owner's offer, Nov 4, 2026) ----------
   // A slim, dismissible bar above the header: 20% off the first cleaning.
   // Not shown on the dashboard, the payment page or the closed contest page.
-  function initPromoBar() {
+  // What the bar says comes from the owner's dashboard (site_settings, read
+  // with the public key, cached 10 min per tab): a notice such as a holiday
+  // closure wins over the 20% promo; empty texts fall back to the defaults.
+  // If the settings can't be read, the default promo shows (never blocks).
+  async function loadSiteSettings() {
+    const cfg = window.MAGICSTICK_CONFIG || {};
+    try {
+      const cached = JSON.parse(sessionStorage.getItem('magicstick_site_settings') || 'null');
+      if (cached && Date.now() - cached.at < 600000) return cached.data;
+    } catch (_) { /* no cache */ }
+    if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return null;
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 2500);
+      const res = await fetch(`${cfg.SUPABASE_URL}/rest/v1/site_settings?id=eq.main&select=*`, {
+        headers: { apikey: cfg.SUPABASE_ANON_KEY }, signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      const rows = res.ok ? await res.json() : null;
+      const data = Array.isArray(rows) && rows[0] ? rows[0] : null;
+      try { sessionStorage.setItem('magicstick_site_settings', JSON.stringify({ at: Date.now(), data })); } catch (_) { /* ignore */ }
+      return data;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function initPromoBar() {
     if (/(admin|pay|concours)\.html$/.test(location.pathname) || document.querySelector('.promo-bar')) return;
-    try { if (localStorage.getItem('magicstick_promo20_closed')) return; } catch (_) { /* show it */ }
     const header = document.querySelector('header');
     if (!header) return;
+    const settings = await loadSiteSettings();
+    const today = new Date().toISOString().slice(0, 10);
+    const notice = settings && settings.notice_enabled && (settings.notice_fr || settings.notice_en)
+      && (!settings.notice_until || settings.notice_until >= today);
+    if (!notice) {
+      if (settings && settings.promo_enabled === false) return;
+      try { if (localStorage.getItem('magicstick_promo20_closed')) return; } catch (_) { /* show it */ }
+    } else {
+      try { if (sessionStorage.getItem('magicstick_notice_closed') === String(settings.updated_at)) return; } catch (_) { /* show it */ }
+    }
     const i18n = window.MagicstickI18N;
     const t = (k) => (i18n ? i18n.t(k) : k);
+    const esc = (v) => (i18n ? i18n.escapeHtml(v) : String(v ?? ''));
+    const fr = () => (i18n ? i18n.getLang() === 'fr' : false);
+    const pick = (frText, enText) => (fr() ? (frText || enText) : (enText || frText)) || '';
     const bar = document.createElement('div');
-    bar.className = 'promo-bar';
+    bar.className = 'promo-bar' + (notice ? ' is-notice' : '');
     bar.setAttribute('role', 'note');
     const render = () => {
-      bar.innerHTML = `<a class="promo-bar-link" href="quote.html"><span class="promo-bar-long">${t('promo20.text')}</span>` +
-        `<span class="promo-bar-short">${t('promo20.short')}</span><span class="promo-bar-cta">${t('promo20.cta')}</span></a>` +
-        `<button type="button" class="promo-bar-close" aria-label="${t('zone.dismiss')}">&times;</button>`;
+      if (notice) {
+        bar.innerHTML = `<p class="promo-bar-link"><span>${esc(pick(settings.notice_fr, settings.notice_en))}</span></p>` +
+          `<button type="button" class="promo-bar-close" aria-label="${t('zone.dismiss')}">&times;</button>`;
+      } else {
+        const custom = settings ? pick(settings.promo_text_fr, settings.promo_text_en) : '';
+        bar.innerHTML = `<a class="promo-bar-link" href="quote.html">` +
+          (custom
+            ? `<span>${esc(custom)}</span>`
+            : `<span class="promo-bar-long">${t('promo20.text')}</span><span class="promo-bar-short">${t('promo20.short')}</span>`) +
+          `<span class="promo-bar-cta">${t('promo20.cta')}</span></a>` +
+          `<button type="button" class="promo-bar-close" aria-label="${t('zone.dismiss')}">&times;</button>`;
+      }
       bar.querySelector('.promo-bar-close').addEventListener('click', () => {
         bar.remove();
-        try { localStorage.setItem('magicstick_promo20_closed', '1'); } catch (_) { /* ignore */ }
+        try {
+          if (notice) sessionStorage.setItem('magicstick_notice_closed', String(settings.updated_at));
+          else localStorage.setItem('magicstick_promo20_closed', '1');
+        } catch (_) { /* ignore */ }
       });
     };
     render();

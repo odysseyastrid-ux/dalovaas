@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Supabase__execute_sql",
+      "mcp__Supabase__apply_migration",
+      "mcp__Supabase__deploy_edge_function",
+      "mcp__Supabase__list_edge_functions",
+      "mcp__Supabase__get_edge_function",
+      "mcp__Supabase__query_logs",
+      "mcp__Supabase__get_advisors",
+      "mcp__Supabase__list_tables",
+      "mcp__Supabase__list_migrations",
+      "mcp__Vercel__create_deployment",
+      "mcp__Vercel__get_deployment",
+      "mcp__Vercel__list_deployments",
+      "mcp__Vercel__get_project",
+      "mcp__Gmail__search_threads",
+      "mcp__Gmail__get_thread",
+      "mcp__Gmail__get_message"
+    ]
+  }
+}

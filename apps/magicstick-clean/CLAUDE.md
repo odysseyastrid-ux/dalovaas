@@ -120,8 +120,19 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
       `booking.html` and the homepage price estimator were **removed** (`/booking` redirects to
    the quote form). The homepage now explains the 3 steps (quote → price → pay).
 4. **Customer accounts** (`account.html`) — sign up / log in, see own bookings.
-5. **Owner/admin dashboard** (`admin.html`) — view/manage quotes & bookings,
-   edit AI knowledge, and chat with a private business co-pilot (see AI below).
+5. **Owner/admin dashboard** (`admin.html`, rebuilt Nov 16, 2026 — real data only, all demo
+   modules and the contest section removed). 7 sections: **Home** (animated KPIs, "To do"
+   list, Chart.js charts: revenue/week, request→paid funnel, services, zones, request hours,
+   requests+leads/week), **Orders** (one card per quote_request, pipeline derived in
+   `stageOf()`: new → priced → paid → planned (`scheduled_date`/`scheduled_window`, migration
+   0028) → done (`completed_at`) / cancelled (`status = declined`)), **Clients & leads**,
+   **Gift cards**, **Team & applicants** (job_applications), **Settings** (services, extras,
+   Louis knowledge), **AI assistant**. Phone: bottom tab bar; PC: sidebar. Legacy `bookings`
+   rows (old booking.html, none paid) are no longer shown. Phase 2 (agreed with the owner):
+   automatic emails (request receipt, payment receipt, day-before reminder from the confirmed
+   date, thank-you + Google review on "done", one unpaid reminder after 3 days), employees with
+   emailed job sheets, first-party anonymous visit counter, stripe-webhook update (owner said
+   yes on Nov 16, 2026). The contest draw (Jan 5, 2027) must now be done by hand.
 
 ---
 

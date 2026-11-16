@@ -30,16 +30,16 @@
     return key ? t(key) : message;
   }
 
-  document.querySelectorAll('.admin-tabs .auth-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.admin-tabs .auth-tab').forEach((tb) => tb.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('quotesPanel').hidden = tab.dataset.tab !== 'quotes';
-      document.getElementById('bookingsPanel').hidden = tab.dataset.tab !== 'bookings';
-      document.getElementById('servicesPanel').hidden = tab.dataset.tab !== 'services';
-      const extrasPanel = document.getElementById('extrasPanel');
-      if (extrasPanel) extrasPanel.hidden = tab.dataset.tab !== 'extras';
-    });
+  // Tabs switch only the panels named by their own group's buttons.
+  document.querySelectorAll('.admin-tabs').forEach((group) => {
+    const tabs = [...group.querySelectorAll('.auth-tab')];
+    tabs.forEach((tab) => tab.addEventListener('click', () => {
+      tabs.forEach((tb) => {
+        tb.classList.toggle('active', tb === tab);
+        const panel = document.getElementById(`${tb.dataset.tab}Panel`);
+        if (panel) panel.hidden = tb !== tab;
+      });
+    }));
   });
 
   function statusSelect(current, options, onchange) {
@@ -77,7 +77,6 @@
   }
 
   let lastQuotes = null;
-  let lastBookings = null;
 
   async function showFilesForQuote(quote, container) {
     const paths = [...(quote.photo_paths || [])];
@@ -126,44 +125,359 @@
     return wrap;
   }
 
+  // ---------- Orders (Commandes): one pipeline per client ----------
+  // Stage is derived from the row: declined -> cancelled, completed_at ->
+  // done, scheduled_date -> planned, paid_at -> paid, a price -> priced, else new.
+  const STAGES = ['new', 'priced', 'paid', 'planned', 'done', 'cancelled'];
+  const TIME_WINDOWS = ['Morning (8am–11am)', 'Midday (11am–2pm)', 'Afternoon (2pm–5pm)'];
+  function stageOf(q) {
+    if (q.status === 'declined') return 'cancelled';
+    if (q.completed_at) return 'done';
+    if (q.scheduled_date) return 'planned';
+    if (q.paid_at) return 'paid';
+    if (q.quoted_amount_cents) return 'priced';
+    return 'new';
+  }
+  let orderStage = 'active';
+  let orderQuery = '';
+  const dateFmt = (d) => new Date(d).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA', { day: 'numeric', month: 'short' });
+  const dayFmt = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA', { weekday: 'short', day: 'numeric', month: 'short' }) : '');
+  const windowLabel = (w) => {
+    const i = TIME_WINDOWS.indexOf(w);
+    return i >= 0 ? t(['admin.window.morning', 'admin.window.midday', 'admin.window.afternoon'][i]) : (w || '');
+  };
+  const serviceLabel = (s) => (window.MagicstickI18N && window.MagicstickI18N.localizeLabel
+    ? window.MagicstickI18N.localizeLabel(s, ['pay.service.standardBooking', 'form.service.standard', 'form.service.moveInOut',
+      'form.service.deep', 'form.service.office', 'form.service.airbnb', 'form.service.postConstruction',
+      'form.service.retail', 'form.service.windows', 'form.service.notSure'])
+    : (s || ''));
+
+  async function updateQuote(q, patch) {
+    const { error } = await supabase.from('quote_requests').update(patch).eq('id', q.id);
+    if (error) { alert(t('admin.orders.saveError')); return false; }
+    Object.assign(q, patch);
+    renderQuotes();
+    renderHome();
+    return true;
+  }
+
+  function renderStageChips() {
+    const box = document.getElementById('stageChips');
+    if (!box) return;
+    const counts = { active: 0 };
+    STAGES.forEach((s) => { counts[s] = 0; });
+    (lastQuotes || []).forEach((q) => {
+      const s = stageOf(q);
+      counts[s] += 1;
+      if (s !== 'done' && s !== 'cancelled') counts.active += 1;
+    });
+    box.innerHTML = '';
+    ['active', ...STAGES].forEach((s) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `stage-chip stage-${s}${orderStage === s ? ' is-on' : ''}`;
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(orderStage === s));
+      b.innerHTML = `<span>${esc(t(`admin.stage.${s}`))}</span><b>${counts[s]}</b>`;
+      b.addEventListener('click', () => { orderStage = s; renderQuotes(); });
+      box.appendChild(b);
+    });
+    setBadge('orders', counts.new);
+  }
+
+  function orderActions(q, stage) {
+    const wrap = document.createElement('div');
+    wrap.className = 'order-actions';
+    const add = (label, cls, fn) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = cls; b.textContent = label;
+      b.addEventListener('click', fn);
+      wrap.appendChild(b);
+      return b;
+    };
+    if (stage !== 'cancelled' && stage !== 'done') wrap.appendChild(priceButton(q));
+    if (stage === 'paid' || stage === 'planned') {
+      const plan = document.createElement('div');
+      plan.className = 'order-plan';
+      plan.innerHTML = `<label>${esc(t('admin.orders.confirmedDate'))}<input type="date" value="${esc(q.scheduled_date || q.preferred_date || '')}"></label>
+        <select>${TIME_WINDOWS.map((w) => `<option value="${esc(w)}"${(q.scheduled_window || q.preferred_time) === w ? ' selected' : ''}>${esc(windowLabel(w))}</option>`).join('')}</select>`;
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'button'; saveBtn.className = 'btn-mini';
+      saveBtn.textContent = stage === 'planned' ? t('admin.orders.reschedule') : t('admin.orders.plan');
+      saveBtn.addEventListener('click', () => {
+        const d = plan.querySelector('input').value;
+        if (!d) return;
+        updateQuote(q, { scheduled_date: d, scheduled_window: plan.querySelector('select').value });
+      });
+      plan.appendChild(saveBtn);
+      wrap.appendChild(plan);
+    }
+    if (stage === 'planned') add(t('admin.orders.markDone'), 'btn-mini btn-mini-go', () => updateQuote(q, { completed_at: new Date().toISOString(), status: 'booked' }));
+    if (stage === 'done') {
+      wrap.appendChild(reviewButton({ table: 'quote_requests', row: q, name: q.name, contact: q.contact, onChange: renderQuotes }));
+      add(t('admin.orders.undoDone'), 'btn-mini btn-mini-ghost', () => updateQuote(q, { completed_at: null }));
+    }
+    if (stage === 'cancelled') add(t('admin.orders.restore'), 'btn-mini btn-mini-ghost', () => updateQuote(q, { status: 'new' }));
+    else if (stage !== 'done') {
+      add(t('admin.orders.cancel'), 'btn-mini btn-mini-ghost', () => {
+        if (confirm(t('admin.orders.cancelConfirm', { name: q.name || '' }))) updateQuote(q, { status: 'declined' });
+      });
+    }
+    return wrap;
+  }
+
   function renderQuotes() {
-    const tbody = document.querySelector('#quotesTable tbody');
-    tbody.innerHTML = '';
+    const list = document.getElementById('ordersList');
+    if (!list) return;
+    renderStageChips();
+    list.innerHTML = '';
     if (!lastQuotes) return;
-    lastQuotes.forEach((q) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${esc(new Date(q.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
-        <td>${esc(q.name)}${q.source === 'booking' ? `<br><span class="fine">${esc(t('admin.quote.bookingRequest'))}</span>` : ''}</td>
-        <td>${contactCell(q)}</td>
-        <td>${esc(q.service)}</td>
-        <td>${esc(q.frequency)}</td>
-        <td>${esc(q.zone) || '—'}</td>
-        <td>${esc(formatHome(q))}</td>
-        <td>${esc(q.preferred_date) || '—'}${q.preferred_time ? `<br><span class="fine">${esc(q.preferred_time)}</span>` : ''}</td>
-        <td>${esc(q.pets) || '—'}</td>
-        <td class="files-cell"></td>
-        <td>${esc(q.message) || '—'}</td>
-        <td class="status-cell"></td>
-      `;
-      tr.querySelector('.files-cell').appendChild(filesCell(q));
-      const qStatusCell = tr.querySelector('.status-cell');
-      qStatusCell.appendChild(
-        statusSelect(q.status, QUOTE_STATUSES, async (value) => {
-          const { error } = await supabase.from('quote_requests').update({ status: value }).eq('id', q.id);
-          if (error) return;
-          q.status = value;
-          renderQuotes();
-        })
-      );
-      qStatusCell.appendChild(priceButton(q));
-      // Quotes booked off-site (phone/text) can get the same review request.
-      if (q.status === 'booked') {
-        qStatusCell.appendChild(reviewButton({ table: 'quote_requests', row: q, name: q.name, contact: q.contact, onChange: renderQuotes }));
-      }
-      tbody.appendChild(tr);
+    const qy = orderQuery.trim().toLowerCase().replace(/[-\s]/g, '');
+    const rows = lastQuotes.filter((q) => {
+      const s = stageOf(q);
+      const inStage = orderStage === 'active' ? (s !== 'done' && s !== 'cancelled') : s === orderStage;
+      if (!inStage) return false;
+      if (!qy) return true;
+      return [q.name, q.phone, q.email, q.contact, q.pay_code, q.address].some((v) => String(v || '').toLowerCase().replace(/[-\s]/g, '').includes(qy));
+    });
+    document.getElementById('ordersEmpty').hidden = rows.length > 0;
+    rows.forEach((q, i) => {
+      const stage = stageOf(q);
+      const card = document.createElement('article');
+      card.className = `order-card stage-${stage}`;
+      card.style.setProperty('--i', String(Math.min(i, 12)));
+      const when = q.scheduled_date
+        ? `<span class="order-when is-confirmed">${esc(dayFmt(q.scheduled_date))} · ${esc(windowLabel(q.scheduled_window))}</span>`
+        : q.preferred_date ? `<span class="order-when">${esc(t('admin.orders.wished'))} ${esc(dayFmt(q.preferred_date))}${q.preferred_time ? ` · ${esc(windowLabel(q.preferred_time))}` : ''}</span>` : '';
+      const freqKey = { 'One-time': 'form.frequency.oneTime', Weekly: 'form.frequency.weekly', Biweekly: 'form.frequency.biweekly', Monthly: 'form.frequency.monthly' }[q.frequency];
+      const facts = [serviceLabel(q.service), freqKey ? t(freqKey) : q.frequency, q.zone, formatHome(q), q.pets ? `${t('admin.col.pets')}: ${q.pets}` : ''].filter(Boolean);
+      card.innerHTML = `
+        <div class="order-head">
+          <div><h4>${esc(q.name || '—')}</h4><span class="fine">${esc(dateFmt(q.created_at))}${q.source === 'booking' ? ` · ${esc(t('admin.quote.bookingRequest'))}` : ''}${q.pay_code ? ` · #${esc(q.pay_code.replace(/^(.{4})(.{4})(.{2})$/, '$1-$2-$3'))}` : ''}</span></div>
+          <span class="stage-pill stage-${stage}">${esc(t(`admin.stage.${stage}`))}</span>
+        </div>
+        <p class="order-facts">${facts.map((f) => `<span>${esc(f)}</span>`).join('')}</p>
+        ${when}
+        ${q.quoted_amount_cents ? `<p class="order-amount">${esc(cad(q.quoted_amount_cents, lang()))}${q.paid_at ? ` <span class="paid-tag">✓ ${esc(t('admin.stage.paid'))}</span>` : ''}</p>` : ''}
+        <div class="order-contact">${contactCell(q)}</div>
+        ${q.message ? `<p class="order-msg">${esc(q.message)}</p>` : ''}
+        <div class="order-files"></div>`;
+      card.querySelector('.order-files').appendChild(filesCell(q));
+      card.appendChild(orderActions(q, stage));
+      list.appendChild(card);
     });
   }
+  document.getElementById('ordersSearch')?.addEventListener('input', (e) => { orderQuery = e.target.value; renderQuotes(); });
+
+  // ---------- Navigation (7 sections) ----------
+  function setBadge(section, n) {
+    const el = document.getElementById(`navBadge-${section}`);
+    if (!el) return;
+    el.textContent = String(n);
+    el.hidden = !n;
+  }
+  function openSection(name) {
+    document.querySelectorAll('.dash-nav-btn').forEach((b) => b.classList.toggle('active', b.dataset.section === name));
+    document.querySelectorAll('.dash-section').forEach((s) => s.classList.toggle('active', s.id === `dashSection-${name}`));
+    try { sessionStorage.setItem('magicstick_admin_section', name); } catch (_) { /* private mode */ }
+    if (name === 'home') renderHome(true);
+    window.scrollTo({ top: document.getElementById('adminDashboard').offsetTop - 12, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.dash-nav-btn').forEach((b) => b.addEventListener('click', () => openSection(b.dataset.section)));
+
+  // ---------- Team & applicants ----------
+  let lastJobs = null;
+  const JOB_STATUSES = ['new', 'contacted', 'interview', 'hired', 'declined'];
+  async function loadJobs() {
+    const { data, error } = await supabase.from('job_applications').select('*').order('created_at', { ascending: false });
+    if (error || !data) return;
+    lastJobs = data;
+    renderJobs();
+  }
+  function renderJobs() {
+    const list = document.getElementById('jobsList');
+    if (!list || !lastJobs) return;
+    list.innerHTML = '';
+    document.getElementById('jobsEmpty').hidden = lastJobs.length > 0;
+    lastJobs.forEach((j, i) => {
+      const card = document.createElement('article');
+      card.className = 'order-card';
+      card.style.setProperty('--i', String(Math.min(i, 12)));
+      card.innerHTML = `
+        <div class="order-head"><div><h4>${esc(j.name || '—')}</h4><span class="fine">${esc(dateFmt(j.created_at))}</span></div></div>
+        <p class="order-facts">${[j.availability, j.experience].filter(Boolean).map((f) => `<span>${esc(f)}</span>`).join('')}</p>
+        <div class="order-contact">${contactCell({ contact: j.contact, phone: /@/.test(j.contact || '') ? '' : j.contact, email: /@/.test(j.contact || '') ? j.contact : '' })}</div>
+        ${j.message ? `<p class="order-msg">${esc(j.message)}</p>` : ''}
+        <div class="order-actions"></div>`;
+      card.querySelector('.order-actions').appendChild(statusSelect(j.status || 'new', JOB_STATUSES, async (value) => {
+        const { error } = await supabase.from('job_applications').update({ status: value }).eq('id', j.id);
+        if (!error) { j.status = value; renderJobs(); renderHome(); }
+      }));
+      list.appendChild(card);
+    });
+    setBadge('team', lastJobs.filter((j) => !j.status || j.status === 'new').length);
+  }
+
+  // ---------- Home: KPIs, to-do, animated charts (real data only) ----------
+  const charts = {};
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const PALETTE = ['#6B3FE6', '#2E8BE6', '#8B4DE6', '#22B8A6', '#F2A33A', '#E2557B', '#7DB8F4', '#B9A1F7'];
+
+  function countUp(el, to, fmt) {
+    if (reduceMotion) { el.textContent = fmt(to); return; }
+    const start = performance.now(), dur = 900;
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / dur);
+      el.textContent = fmt(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function weekStart(d) {
+    const x = new Date(d); x.setHours(0, 0, 0, 0);
+    x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+    return x;
+  }
+
+  function drawChart(id, config) {
+    const el = document.getElementById(id);
+    if (!el || !window.Chart) return;
+    if (charts[id]) charts[id].destroy();
+    const text = css('--charcoal') || '#17151F';
+    const grid = css('--line') || '#E6E1D7';
+    config.options = Object.assign({
+      responsive: true, maintainAspectRatio: false,
+      animation: reduceMotion ? false : { duration: 1100, easing: 'easeOutQuart' },
+      plugins: { legend: { display: false, labels: { color: text } }, tooltip: { padding: 10, cornerRadius: 10 } },
+    }, config.options || {});
+    if (config.type === 'bar' || config.type === 'line') {
+      config.options.scales = Object.assign({
+        x: { grid: { display: false }, ticks: { color: text, font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: grid }, ticks: { color: text, font: { size: 11 }, precision: 0 } },
+      }, config.options.scales || {});
+    }
+    charts[id] = new window.Chart(el, config);
+  }
+
+  function renderHome(replay) {
+    const kpiBox = document.getElementById('homeKpis');
+    if (!kpiBox || !lastQuotes) return;
+    const fr = lang() === 'fr';
+    const now = new Date();
+    document.getElementById('homeDate').textContent = now.toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const q = lastQuotes;
+    const paidIn = (a, b) => q.filter((x) => x.paid_at && new Date(x.paid_at) >= a && new Date(x.paid_at) < b).reduce((s, x) => s + (x.quoted_amount_cents || 0), 0);
+    const revMonth = paidIn(monthStart, new Date(8.64e15));
+    const revPrev = paidIn(prevStart, monthStart);
+    const reqMonth = q.filter((x) => new Date(x.created_at) >= monthStart).length;
+    const since90 = new Date(now - 90 * 864e5);
+    const last90 = q.filter((x) => new Date(x.created_at) >= since90);
+    const conv = last90.length ? Math.round((last90.filter((x) => x.paid_at).length / last90.length) * 100) : 0;
+    const leads = (lastLeads || []).filter((l) => !l.unsubscribed_at);
+    const leadsMonth = leads.filter((l) => new Date(l.created_at) >= monthStart).length;
+    const giftSold = (lastGiftCards || []).filter((g) => g.source === 'online').reduce((s, g) => s + (g.initial_cents || 0), 0);
+    const money = (c) => cad(Math.round(c), lang()).replace(/[.,]00(?=\D*$)/, '');
+    const delta = revPrev ? Math.round(((revMonth - revPrev) / revPrev) * 100) : null;
+    const KPIS = [
+      { label: t('admin.home.kpi.revenue'), value: revMonth, fmt: (v) => money(v), sub: delta === null ? t('admin.home.kpi.revenueSub') : t('admin.home.kpi.vsLast', { pct: `${delta >= 0 ? '+' : ''}${delta}` }), cls: delta === null ? '' : delta >= 0 ? 'up' : 'down' },
+      { label: t('admin.home.kpi.requests'), value: reqMonth, fmt: (v) => String(Math.round(v)), sub: t('admin.home.kpi.requestsSub') },
+      { label: t('admin.home.kpi.conversion'), value: conv, fmt: (v) => `${Math.round(v)} %`, sub: t('admin.home.kpi.conversionSub') },
+      { label: t('admin.home.kpi.leads'), value: leads.length, fmt: (v) => String(Math.round(v)), sub: t('admin.home.kpi.leadsSub', { n: leadsMonth }) },
+      { label: t('admin.home.kpi.gifts'), value: giftSold, fmt: (v) => money(v), sub: t('admin.home.kpi.giftsSub') },
+    ];
+    kpiBox.innerHTML = '';
+    KPIS.forEach((k, i) => {
+      const el = document.createElement('div');
+      el.className = 'dash-kpi kpi-anim';
+      el.style.setProperty('--i', String(i));
+      el.innerHTML = `<div class="dash-kpi-label">${esc(k.label)}</div><div class="dash-kpi-value"></div><div class="dash-kpi-delta ${k.cls || ''}">${esc(k.sub)}</div>`;
+      kpiBox.appendChild(el);
+      countUp(el.querySelector('.dash-kpi-value'), k.value, k.fmt);
+    });
+
+    // To do: what needs the owner now.
+    const todayIso = new Date(now.getTime() - now.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    const tomorrowIso = new Date(now.getTime() + 864e5 - now.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    const stages = q.map((x) => ({ x, s: stageOf(x) }));
+    const todo = [
+      { n: stages.filter((o) => o.s === 'new').length, key: 'admin.home.todo.new', go: 'new' },
+      { n: stages.filter((o) => o.s === 'priced' && o.x.quoted_at && (now - new Date(o.x.quoted_at)) > 3 * 864e5).length, key: 'admin.home.todo.unpaid', go: 'priced' },
+      { n: stages.filter((o) => o.s === 'paid').length, key: 'admin.home.todo.toPlan', go: 'paid' },
+      { n: stages.filter((o) => o.s === 'planned' && (o.x.scheduled_date === todayIso || o.x.scheduled_date === tomorrowIso)).length, key: 'admin.home.todo.soon', go: 'planned' },
+      { n: stages.filter((o) => o.s === 'done' && !o.x.review_requested_at).length, key: 'admin.home.todo.review', go: 'done' },
+      { n: (lastJobs || []).filter((j) => !j.status || j.status === 'new').length, key: 'admin.home.todo.jobs', section: 'team' },
+      { n: (lastGiftRequests || []).filter((g) => g.status === 'new').length, key: 'admin.home.todo.giftReq', section: 'gifts' },
+    ].filter((x) => x.n > 0);
+    const ul = document.getElementById('homeTodo');
+    ul.innerHTML = todo.length ? '' : `<li class="todo-empty">${esc(t('admin.home.todo.none'))}</li>`;
+    todo.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.style.setProperty('--i', String(i));
+      li.innerHTML = `<button type="button"><b>${item.n}</b><span>${esc(t(item.key))}</span><span aria-hidden="true">→</span></button>`;
+      li.querySelector('button').addEventListener('click', () => {
+        if (item.section) return openSection(item.section);
+        orderStage = item.go; renderQuotes(); openSection('orders');
+      });
+      ul.appendChild(li);
+    });
+
+    if (!document.getElementById('dashSection-home').classList.contains('active') && !replay) return;
+    const accent = css('--teal') || '#6B3FE6';
+    // Revenue per week, last 12 weeks.
+    const w0 = weekStart(new Date(now - 11 * 7 * 864e5));
+    const weeks = Array.from({ length: 12 }, (_, i) => new Date(w0.getTime() + i * 7 * 864e5));
+    const weekIdx = (d) => Math.floor((weekStart(d) - w0) / (7 * 864e5));
+    const rev = new Array(12).fill(0), reqW = new Array(12).fill(0), leadW = new Array(12).fill(0);
+    q.forEach((x) => {
+      if (x.paid_at) { const i = weekIdx(new Date(x.paid_at)); if (i >= 0 && i < 12) rev[i] += (x.quoted_amount_cents || 0) / 100; }
+      const j = weekIdx(new Date(x.created_at)); if (j >= 0 && j < 12) reqW[j] += 1;
+    });
+    leads.forEach((l) => { const i = weekIdx(new Date(l.created_at)); if (i >= 0 && i < 12) leadW[i] += 1; });
+    const wLabels = weeks.map((d) => d.toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { day: 'numeric', month: 'short' }));
+    drawChart('chartRevenue', {
+      type: 'bar',
+      data: { labels: wLabels, datasets: [{ data: rev, backgroundColor: accent, borderRadius: 8, maxBarThickness: 34 }] },
+      options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => money(c.raw * 100) } } } },
+    });
+    const f = [last90.length, last90.filter((x) => x.quoted_amount_cents).length, last90.filter((x) => x.paid_at).length, last90.filter((x) => x.completed_at).length];
+    drawChart('chartFunnel', {
+      type: 'bar',
+      data: { labels: [t('admin.funnel.requests'), t('admin.funnel.priced'), t('admin.funnel.paid'), t('admin.funnel.done')], datasets: [{ data: f, backgroundColor: ['#B9A1F7', '#8B4DE6', '#6B3FE6', '#22B8A6'], borderRadius: 8 }] },
+      options: { indexAxis: 'y' },
+    });
+    const tally = (arr, key) => {
+      const m = new Map();
+      arr.forEach((x) => { const k = key(x) || t('admin.home.unknown'); m.set(k, (m.get(k) || 0) + 1); });
+      return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7);
+    };
+    const doughnut = (id, pairs) => drawChart(id, {
+      type: 'doughnut',
+      data: { labels: pairs.map((p) => p[0]), datasets: [{ data: pairs.map((p) => p[1]), backgroundColor: PALETTE, borderWidth: 0, hoverOffset: 8 }] },
+      options: { cutout: '62%', plugins: { legend: { display: true, position: 'bottom', labels: { color: css('--charcoal'), boxWidth: 10, font: { size: 11 } } } } },
+    });
+    doughnut('chartServices', tally(q, (x) => serviceLabel(x.service)));
+    doughnut('chartZones', tally(q, (x) => x.zone));
+    const hours = new Array(24).fill(0);
+    q.forEach((x) => { hours[new Date(x.created_at).getHours()] += 1; });
+    drawChart('chartHours', {
+      type: 'bar',
+      data: { labels: hours.map((_, h) => `${h}h`), datasets: [{ data: hours, backgroundColor: '#2E8BE6', borderRadius: 5 }] },
+    });
+    drawChart('chartLeads', {
+      type: 'line',
+      data: { labels: wLabels, datasets: [
+        { label: t('admin.home.series.requests'), data: reqW, borderColor: accent, backgroundColor: 'rgba(107,63,230,.12)', fill: true, tension: .35, pointRadius: 3 },
+        { label: t('admin.home.series.leads'), data: leadW, borderColor: '#22B8A6', backgroundColor: 'rgba(34,184,166,.10)', fill: true, tension: .35, pointRadius: 3 },
+      ] },
+      options: { plugins: { legend: { display: true, position: 'bottom', labels: { color: css('--charcoal'), boxWidth: 10 } } } },
+    });
+  }
+  document.addEventListener('magicstick:langchange', () => { renderQuotes(); renderHome(true); renderJobs(); });
+
 
   // ---------- Google review requests ----------
   // One window to send a ready-made review request by text, WhatsApp, email or
@@ -522,91 +836,6 @@
     return btn;
   }
 
-  const bookingReviewTarget = (b) => ({ table: 'bookings', row: b, name: b.guest_name, contact: b.guest_contact, onChange: renderBookings });
-
-  // Completed cleanings whose client hasn't been asked yet, newest first.
-  function renderReviewTodo() {
-    const box = document.getElementById('reviewTodo');
-    if (!box) return;
-    const due = (lastBookings || []).filter((b) => b.status === 'completed' && !b.review_requested_at);
-    box.hidden = due.length === 0;
-    if (!due.length) return;
-    document.getElementById('reviewTodoCount').textContent = t('admin.review.todoCount', { count: due.length });
-    const list = document.getElementById('reviewTodoList');
-    list.innerHTML = '';
-    due.slice(0, 8).forEach((b) => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'review-todo-chip';
-      chip.innerHTML = `<span>${esc(b.guest_name || '—')}</span><span class="fine">${esc(b.requested_date || '')}</span>`;
-      chip.addEventListener('click', () => openReviewDialog(bookingReviewTarget(b)));
-      list.appendChild(chip);
-    });
-  }
-
-  function renderBookings() {
-    const tbody = document.querySelector('#bookingsTable tbody');
-    tbody.innerHTML = '';
-    if (!lastBookings) return;
-    lastBookings.forEach((b) => {
-      const serviceName = (lang() === 'fr' && b.services?.name_fr) ? b.services.name_fr : (b.services?.name ?? b.service_id);
-      const sizeBits = [];
-      if (b.bedrooms != null) sizeBits.push(`${b.bedrooms} ${t('bed.suffix')}`);
-      if (b.bathrooms != null) sizeBits.push(`${b.bathrooms} ${t('bath.suffix')}`);
-      if (b.half_bathrooms) sizeBits.push(`${b.half_bathrooms} ${t('halfbath.suffix')}`);
-      const addonList = Array.isArray(b.addons) ? b.addons : [];
-      const addonNote = addonList.length
-        ? `<br><span class="fine">${esc(addonList.map((a) => `${(lang() === 'fr' && a.name_fr) ? a.name_fr : a.name}${a.unit && a.unit !== 'flat' ? ` ×${a.qty}` : ''}`).join(', '))} (+$${((b.addons_cents || 0) / 100).toFixed(2)})</span>`
-        : '';
-      const sizeNote = sizeBits.length ? `<br><span class="fine">${esc(sizeBits.join(' · '))}</span>` : '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${esc(b.requested_date)}</td>
-        <td>${esc(b.time_window)}</td>
-        <td>${esc(b.guest_name)}</td>
-        <td>${esc(b.guest_contact)}</td>
-        <td>${esc(serviceName)}${sizeNote}${addonNote}</td>
-        <td>${esc(b.zone) || '—'}</td>
-        <td>$${(b.deposit_cents / 100).toFixed(2)}${b.paid_at ? ' ✓' : ''}${b.gift_card_applied_cents ? `<br><span class="fine">${esc(t('admin.gift.bookingLine', { amount: (b.gift_card_applied_cents / 100).toFixed(2) }))}</span>` : ''}</td>
-        <td class="status-cell"></td>
-      `;
-      const statusCell = tr.querySelector('.status-cell');
-      statusCell.appendChild(
-        statusSelect(b.status, BOOKING_STATUSES, async (value) => {
-          const { error } = await supabase.from('bookings').update({ status: value }).eq('id', b.id);
-          if (error) return;
-          b.status = value;
-          renderReviewTodo();
-          // Job done: open the review window right away (if not asked yet).
-          if (value === 'completed' && !b.review_requested_at) openReviewDialog(bookingReviewTarget(b));
-        })
-      );
-      statusCell.appendChild(reviewButton(bookingReviewTarget(b)));
-      const delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'booking-del-btn';
-      delBtn.textContent = t('admin.booking.delete');
-      delBtn.title = t('admin.booking.delete');
-      delBtn.addEventListener('click', async () => {
-        if (!window.confirm(t('admin.booking.deleteConfirm', { name: b.guest_name }))) return;
-        delBtn.disabled = true;
-        const { error } = await supabase.from('bookings').delete().eq('id', b.id);
-        if (error) {
-          delBtn.disabled = false;
-          window.alert(t('admin.booking.deleteError'));
-          return;
-        }
-        if (Array.isArray(lastBookings)) {
-          lastBookings = lastBookings.filter((x) => x.id !== b.id);
-        }
-        tr.remove();
-      });
-      statusCell.appendChild(delBtn);
-      tbody.appendChild(tr);
-    });
-    renderReviewTodo();
-  }
-
   let currentAdminId = null;
   let lastCategories = [];
   let lastServices = null;
@@ -831,16 +1060,6 @@
     renderQuotes();
   }
 
-  async function loadBookings() {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*, services(name, name_fr)')
-      .order('requested_date', { ascending: false });
-    if (error || !data) return;
-    lastBookings = data;
-    renderBookings();
-  }
-
   // ---------- Gift cards ----------
   const GIFT_REQUEST_STATUSES = ['new', 'contacted', 'paid', 'delivered', 'cancelled'];
   let lastGiftCards = null;
@@ -1019,140 +1238,13 @@
   });
 
   document.addEventListener('magicstick:langchange', () => {
-    renderQuotes();
-    renderBookings();
     fillCategoryPicker();
     renderServices();
     renderAddons();
     renderGiftCards();
     renderGiftRequests();
-    renderContest();
+    renderLeads();
   });
-
-  // ---------- Contest (concours.html): entries, CSV, draw ----------
-  const CONTEST_DRAW_AT = Date.parse('2027-01-05T17:00:00Z'); // Jan 5, 2027, 12 p.m. Eastern
-  const CONTEST_CLOSES_AT = Date.parse('2027-01-01T05:00:00Z');
-  const CONTEST_PRIZES = 50;
-  const CONTEST_STATUSES = ['entered', 'winner', 'disqualified'];
-  let lastContest = null;
-
-  async function loadContest() {
-    const { data, error } = await supabase
-      .from('contest_entries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error || !data) return;
-    lastContest = data;
-    renderContest();
-  }
-
-  function renderContest() {
-    const tbody = document.querySelector('#contestTable tbody');
-    if (!tbody || !lastContest) return;
-    const q = (document.getElementById('contestSearch').value || '').trim().toLowerCase();
-    const rows = q
-      ? lastContest.filter((r) => [r.name, r.contact, r.address].some((v) => String(v || '').toLowerCase().includes(q)))
-      : lastContest;
-    document.getElementById('contestCount').textContent = String(lastContest.length);
-    document.getElementById('contestWinners').textContent = String(lastContest.filter((r) => r.status === 'winner').length);
-    document.getElementById('contestOptins').textContent = String(lastContest.filter((r) => r.marketing_consent_at).length);
-    const msLeft = CONTEST_CLOSES_AT - Date.now();
-    document.getElementById('contestDays').textContent = msLeft > 0 ? String(Math.ceil(msLeft / 86400000)) : '0';
-    tbody.innerHTML = '';
-    rows.forEach((r) => {
-      const tr = document.createElement('tr');
-      if (r.status === 'winner') tr.classList.add('contest-winner-row');
-      tr.innerHTML = `
-        <td>${esc(new Date(r.created_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA'))}</td>
-        <td>${esc(r.name)}</td>
-        <td>${esc(r.contact)}</td>
-        <td>${esc(r.address)}</td>
-        <td>${esc(r.source) || '—'}</td>
-        <td class="consent-cell"></td>
-        <td class="status-cell"></td>
-      `;
-      // Offers may only be sent to people who ticked the optional box.
-      // "Unsubscribe" records a withdrawal (reply "unsubscribe" / phone call).
-      const consentCell = tr.querySelector('.consent-cell');
-      if (r.marketing_consent_at) {
-        const since = new Date(r.marketing_consent_at).toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA');
-        consentCell.textContent = `${t('admin.contest.optedIn')} (${since}) `;
-        const off = document.createElement('button');
-        off.type = 'button';
-        off.className = 'portal-link gift-void-btn';
-        off.textContent = t('admin.contest.unsubscribe');
-        off.addEventListener('click', async () => {
-          if (!window.confirm(t('admin.contest.unsubscribeConfirm', { name: r.name }))) return;
-          const { error } = await supabase.from('contest_entries')
-            .update({ marketing_consent_at: null, marketing_consent_version: null }).eq('id', r.id);
-          if (error) return;
-          r.marketing_consent_at = null;
-          logActivity('contest_unsubscribe', r.id);
-          renderContest();
-        });
-        consentCell.appendChild(off);
-      } else {
-        consentCell.textContent = t('admin.contest.notOptedIn');
-      }
-      tr.querySelector('.status-cell').appendChild(statusSelect(r.status, CONTEST_STATUSES, async (value) => {
-        const { error } = await supabase.from('contest_entries').update({ status: value }).eq('id', r.id);
-        if (error) return;
-        r.status = value;
-        renderContest();
-      }));
-      tbody.appendChild(tr);
-    });
-  }
-
-  const csvCell = (v) => {
-    let s = String(v ?? '');
-    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; // no spreadsheet formulas from visitor input
-    return `"${s.replace(/"/g, '""')}"`;
-  };
-  document.getElementById('contestSearch').addEventListener('input', renderContest);
-  document.getElementById('contestExport').addEventListener('click', () => {
-    if (!lastContest) return;
-    const head = ['date', 'name', 'contact', 'address', 'language', 'source', 'status', 'accepts_offers_since'];
-    const lines = [head.join(',')].concat(lastContest.map((r) =>
-      [r.created_at, r.name, r.contact, r.address, r.lang, r.source, r.status, r.marketing_consent_at || ''].map(csvCell).join(',')));
-    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `concours-inscriptions-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  });
-
-  // Fair random draw: fills the remaining winner spots (50 minus current
-  // winners) from entries still "entered", using the browser's crypto RNG.
-  // Disqualify someone afterwards and click again to draw a replacement.
-  function randomIndex(n) {
-    const max = Math.floor(0x100000000 / n) * n;
-    const buf = new Uint32Array(1);
-    do { crypto.getRandomValues(buf); } while (buf[0] >= max);
-    return buf[0] % n;
-  }
-  document.getElementById('contestDraw').addEventListener('click', async () => {
-    const note = document.getElementById('contestNote');
-    if (!lastContest) return;
-    const winners = lastContest.filter((r) => r.status === 'winner').length;
-    const pool = lastContest.filter((r) => r.status === 'entered');
-    const toDraw = Math.min(CONTEST_PRIZES - winners, pool.length);
-    if (toDraw <= 0) { note.textContent = t('admin.contest.drawNothing'); return; }
-    const early = Date.now() < CONTEST_DRAW_AT;
-    if (!window.confirm(t(early ? 'admin.contest.drawEarly' : 'admin.contest.drawConfirm', { count: toDraw, pool: pool.length }))) return;
-    const picked = [];
-    const bag = pool.slice();
-    for (let i = 0; i < toDraw; i++) picked.push(bag.splice(randomIndex(bag.length), 1)[0]);
-    const ids = picked.map((r) => r.id);
-    const { error } = await supabase.from('contest_entries').update({ status: 'winner' }).in('id', ids);
-    if (error) { note.textContent = t('admin.contest.drawError'); return; }
-    picked.forEach((r) => { r.status = 'winner'; });
-    await logActivity('contest_draw', { drawn: ids.length, pool: pool.length });
-    note.textContent = t('admin.contest.drawDone', { count: ids.length });
-    renderContest();
-  });
-
 
   // ---------- Prospects: popup leads + newsletter (newsletter_subscribers) ----------
   let lastLeads = null;
@@ -1192,12 +1284,12 @@
 
   async function showDashboard() {
     dashboard.hidden = false;
-    loadQuotes();
-    loadBookings();
-    loadGiftCards();
-    loadGiftRequests();
-    loadContest();
-    loadLeads();
+    let start = 'home';
+    try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
+    if (!document.getElementById(`dashSection-${start}`)) start = 'home';
+    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs()]);
+    openSection(start);
+    renderHome(true);
     await loadCategories();
     loadServices();
     loadAddons();

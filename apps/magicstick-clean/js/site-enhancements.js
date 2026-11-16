@@ -669,6 +669,44 @@
     }
   }
 
+  // Anonymous visit counter (owner's dashboard → Home → visits). No IP, no
+  // cookie: one row per page view with the page, the referring site, phone or
+  // computer, the language and the time zone (a rough region), plus a random
+  // per-tab id to count visitors instead of clicks. Skipped for visitors who
+  // refused optional cookies, for the owner's own pages and for robots.
+  function countVisit() {
+    try {
+      if (navigator.webdriver || /bot|crawl|spider|preview/i.test(navigator.userAgent)) return;
+      if (/(admin|account)\.html$/.test(location.pathname)) return;
+      const consent = getCookieConsent();
+      if (consent && consent.analytics === false) return;
+      const cfg = window.MAGICSTICK_CONFIG || {};
+      if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return;
+      let sid = sessionStorage.getItem('magicstick_visit_id');
+      if (!sid) {
+        sid = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+        sessionStorage.setItem('magicstick_visit_id', sid);
+      }
+      let ref = '';
+      try { const r = new URL(document.referrer); if (r.host !== location.host) ref = r.host.slice(0, 100); } catch (_) { /* direct */ }
+      const w = Math.min(screen.width || innerWidth, innerWidth);
+      const row = {
+        path: (location.pathname || '/').slice(0, 200),
+        ref_host: ref || null,
+        device: w < 700 ? 'mobile' : w < 1100 ? 'tablet' : 'desktop',
+        lang: (navigator.language || '').slice(0, 12),
+        tz: (Intl.DateTimeFormat().resolvedOptions().timeZone || '').slice(0, 60),
+        session_id: sid.slice(0, 40),
+      };
+      fetch(`${cfg.SUPABASE_URL}/rest/v1/page_views`, {
+        method: 'POST',
+        headers: { apikey: cfg.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify(row),
+        keepalive: true,
+      }).catch(() => { /* never disturb the visit */ });
+    } catch (_) { /* never disturb the visit */ }
+  }
+
   function init() {
     initSkipLink();
     initScrollProgress();
@@ -685,6 +723,7 @@
     initNewsletterForm();
     initNavFit();
     initPromoBar();
+    setTimeout(countVisit, 1500);
   }
 
   if (document.readyState === 'loading') {

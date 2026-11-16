@@ -169,7 +169,16 @@
               <div class="dash-card chart-card"><div class="dash-card-head"><h3 data-i18n="admin.home.chart.hours">When requests come in (hour of day)</h3></div><div class="chart-box"><canvas id="chartHours"></canvas></div></div>
               <div class="dash-card chart-card chart-wide"><div class="dash-card-head"><h3 data-i18n="admin.home.chart.leads">New requests and leads per week</h3></div><div class="chart-box"><canvas id="chartLeads"></canvas></div></div>
             </div>
-            <p class="fine home-visits-note" data-i18n="admin.home.visitsSoon">Website visits (pages, hours, where visitors come from) arrive with step 2.</p>
+            <h3 class="home-title home-visits-title" data-i18n="admin.visits.title">Website visits (last 30 days)</h3>
+            <p class="fine" id="visitsNote" data-i18n="admin.visits.note">Anonymous count: no IP address, no cookie, visitors who refused cookies are not counted.</p>
+            <div class="home-charts">
+              <div class="dash-card chart-card chart-wide"><div class="dash-card-head"><h3 data-i18n="admin.visits.perDay">Visitors per day</h3></div><div class="chart-box"><canvas id="chartVisits"></canvas></div></div>
+              <div class="dash-card chart-card"><div class="dash-card-head"><h3 data-i18n="admin.visits.pages">Most visited pages</h3></div><div class="chart-box"><canvas id="chartPages"></canvas></div></div>
+              <div class="dash-card chart-card"><div class="dash-card-head"><h3 data-i18n="admin.visits.sources">Where visitors come from</h3></div><div class="chart-box"><canvas id="chartSources"></canvas></div></div>
+              <div class="dash-card chart-card"><div class="dash-card-head"><h3 data-i18n="admin.visits.devices">Phone or computer</h3></div><div class="chart-box"><canvas id="chartDevices"></canvas></div></div>
+              <div class="dash-card chart-card"><div class="dash-card-head"><h3 data-i18n="admin.visits.hours">Visit hours</h3></div><div class="chart-box"><canvas id="chartVisitHours"></canvas></div></div>
+              <div class="dash-card chart-card chart-wide"><div class="dash-card-head"><h3 data-i18n="admin.visits.regions">Visitors' region (time zone)</h3></div><div class="chart-box"><canvas id="chartRegions"></canvas></div></div>
+            </div>
           </section>
 
           <section class="dash-section" id="dashSection-orders">
@@ -310,6 +319,17 @@
           </section>
 
           <section class="dash-section" id="dashSection-team">
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.team.staffTitle">My team</h3>
+                <p class="dash-card-sub" data-i18n="admin.team.staffSub">Assign a cleaning to someone from the Orders list: they receive their job sheet by email (address, date, instructions) and a reminder the day before. They never see your dashboard.</p></div></div>
+              <ul class="stock-list" id="staffList"></ul>
+              <form id="staffForm" class="care-form care-form-row staff-form">
+                <input type="text" id="staffName" maxlength="80" required data-i18n-placeholder="admin.team.name" placeholder="Name">
+                <input type="email" id="staffEmail" maxlength="254" required data-i18n-placeholder="admin.team.email" placeholder="Email">
+                <input type="tel" id="staffPhone" maxlength="40" data-i18n-placeholder="admin.team.phone" placeholder="Phone">
+                <button type="submit" class="btn-mini" data-i18n="admin.care.stockAdd">Add</button>
+              </form>
+            </div>
             <div class="dash-card">
               <div class="dash-card-head">
                 <div>

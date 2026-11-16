@@ -102,14 +102,15 @@ async function markQuotePaid(intent: Stripe.PaymentIntent) {
   if (upError) throw new Error(`Failed to mark quote ${quoteId} paid: ${upError.message}`);
   const amount = (q.quoted_amount_cents / 100).toFixed(2);
   await sendEmail(OWNER_EMAIL, `Paiement reçu : ${q.name} (${amount} $)`,
-    `${q.name} a payé ${amount} $ CAD par carte pour : ${q.service}.\n\nTableau de bord : https://magicstickclean.ca/admin.html`);
-  if (q.email && isEmail(q.email)) {
-    const fr = q.lang === "fr";
-    await sendEmail(q.email,
-      fr ? "Magicstick Clean : paiement reçu, merci !" : "Magicstick Clean: payment received, thank you!",
-      fr
-        ? `Bonjour ${q.name},\n\nNous avons bien reçu votre paiement de ${amount} $ CAD (${q.service}). Merci ! Nous vous confirmons les détails de la visite.\n\nQuestions : (343) 843-7761 ou magicstickclean@gmail.com.\n\n— Magicstick Clean`
-        : `Hi ${q.name},\n\nWe received your payment of $${amount} CAD (${q.service}). Thank you! We'll confirm the visit details with you.\n\nQuestions? (343) 843-7761 or magicstickclean@gmail.com.\n\n— Magicstick Clean`);
+    `${q.name} a payé ${amount} $ CAD par carte pour : ${q.service}.\n\nLe reçu part automatiquement au client.\nTableau de bord : https://magicstickclean.ca/admin.html`);
+  // The client's receipt is sent by the automations function (one path for
+  // card and Interac, stamped receipt_sent_at so it never goes out twice).
+  try {
+    await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/automations`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: '{"source":"stripe-webhook"}',
+    });
+  } catch (_) {
+    console.error("automations call failed; the 15-minute run will send the receipt");
   }
 }
 

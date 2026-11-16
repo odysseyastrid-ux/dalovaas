@@ -58,6 +58,28 @@ class Query implements PromiseLike<any> {
   is(k: string, v: any) { this.filters.push((r) => (r[k] ?? null) === v); return this; }
   in(k: string, vs: any[]) { this.filters.push((r) => vs.includes(r[k])); return this; }
   lt(k: string, v: any) { this.filters.push((r) => r[k] < v); return this; }
+  neq(k: string, v: any) { this.filters.push((r) => r[k] !== v); return this; }
+  gte(k: string, v: any) { this.filters.push((r) => r[k] != null && r[k] >= v); return this; }
+  lte(k: string, v: any) { this.filters.push((r) => r[k] != null && r[k] <= v); return this; }
+  // PostgREST "or" with simple col.op.value terms (is/eq/neq/gte/lte).
+  or(expr: string) {
+    const terms = expr.split(",").map((t) => {
+      const [col, op, ...rest] = t.split(".");
+      const raw = rest.join(".");
+      const v = raw === "null" ? null : raw;
+      return (r: Row) => {
+        const x = r[col] ?? null;
+        if (op === "is") return x === v;
+        if (op === "eq") return x === v;
+        if (op === "neq") return x !== v;
+        if (op === "gte") return x != null && x >= (v as any);
+        if (op === "lte") return x != null && x <= (v as any);
+        return false;
+      };
+    });
+    this.filters.push((r) => terms.some((f) => f(r)));
+    return this;
+  }
   order(k: string, o?: { ascending?: boolean }) { this.orderKey = k; this.asc = o?.ascending !== false; return this; }
   limit(n: number) { this.max = n; return this; }
   single() { this.mode = "single"; return this; }

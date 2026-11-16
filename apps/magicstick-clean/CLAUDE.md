@@ -115,8 +115,8 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    **Standard Cleaning only** can be booked and paid directly on `book.html` (owner's decision,
    Nov 4): day, time window, 3–8 h, price = rate × hours computed by `quote-pay`
    (`book_standard`), then pay.html. Card is ON (Stripe activated by the owner); the dashboard
-   can email the pay link itself (`send_link`). Card-paid quotes are marked paid by hand (the
-   owner declined the webhook update).
+   can email the pay link itself (`send_link`). Card payments are marked paid by `stripe-webhook`
+   (deployed Nov 16, 2026 with the owner's OK), which then calls `automations` for the receipt.
       `booking.html` and the homepage price estimator were **removed** (`/booking` redirects to
    the quote form). The homepage now explains the 3 steps (quote → price → pay).
 4. **Customer accounts** (`account.html`) — sign up / log in, see own bookings.
@@ -128,11 +128,22 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    0028) → done (`completed_at`) / cancelled (`status = declined`)), **Clients & leads**,
    **Gift cards**, **Team & applicants** (job_applications), **Settings** (services, extras,
    Louis knowledge), **AI assistant**. Phone: bottom tab bar; PC: sidebar. Legacy `bookings`
-   rows (old booking.html, none paid) are no longer shown. Phase 2 (agreed with the owner):
-   automatic emails (request receipt, payment receipt, day-before reminder from the confirmed
-   date, thank-you + Google review on "done", one unpaid reminder after 3 days), employees with
-   emailed job sheets, first-party anonymous visit counter, stripe-webhook update (owner said
-   yes on Nov 16, 2026). The contest draw (Jan 5, 2027) must now be done by hand.
+   rows (old booking.html, none paid) are no longer shown. **Step 2 (live, Nov 16, 2026):**
+   - `automations` edge function (pg_cron every 15 min + pinged after dashboard actions and by
+     stripe-webhook; public, idempotent, rate limited): payment receipt, employee job sheet (on
+     assignment / reassignment), day-before reminder from `scheduled_date` (client + employee,
+     from 9 a.m. Eastern), thank-you + Google review link 2 h after "done" (9 a.m.–8 p.m.), one
+     unpaid reminder 3 days after the price. Each email is claimed via its stamp column
+     (`receipt_sent_at`, `job_sheet_employee_id`, `reminder_sent_at`, `thanks_sent_at`,
+     `unpaid_reminder_at`, migration 0030); rows existing before 0030 were stamped as handled.
+   - `employees` table (Team section) + `quote_requests.assigned_employee_id`; employees get
+     emails only, never dashboard access.
+   - `page_views`: anonymous first-party visit counter (`countVisit` in site-enhancements.js;
+     no IP/cookie, per-tab random id, skipped when optional cookies are refused; disclosed in
+     privacy.cookies.p1). Home shows visitors/day, pages, sources, devices, hours, time zones.
+   - Site care section (migration 0029): health checks, top-bar message (`site_settings`),
+     supplies inventory, JSON/CSV backup, tool links.
+   The contest draw (Jan 5, 2027) must now be done by hand (data is in the JSON backup).
 
 ---
 

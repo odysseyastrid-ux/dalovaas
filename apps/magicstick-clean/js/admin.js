@@ -158,6 +158,7 @@
     Object.assign(q, patch);
     renderQuotes();
     renderHome();
+    pingAutomations();
     return true;
   }
 
@@ -263,11 +264,163 @@
         ${q.message ? `<p class="order-msg">${esc(q.message)}</p>` : ''}
         <div class="order-files"></div>`;
       card.querySelector('.order-files').appendChild(filesCell(q));
+      if (stage !== 'cancelled') card.appendChild(assignBlock(q));
       card.appendChild(orderActions(q, stage));
       list.appendChild(card);
     });
   }
   document.getElementById('ordersSearch')?.addEventListener('input', (e) => { orderQuery = e.target.value; renderQuotes(); });
+
+  // ---------- Automations: run right after a dashboard action ----------
+  // The automations function also runs every 15 min on its own; this just
+  // makes receipts and job sheets leave within seconds.
+  let pingTimer = null;
+  function pingAutomations() {
+    const base = (window.MAGICSTICK_CONFIG || {}).FUNCTIONS_URL;
+    if (!base) return;
+    clearTimeout(pingTimer);
+    pingTimer = setTimeout(() => {
+      fetch(`${base}/automations`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"source":"dashboard"}' })
+        .then(() => setTimeout(loadQuotes, 2500))
+        .catch(() => { /* the 15-minute run will catch up */ });
+    }, 1200);
+  }
+
+  // ---------- Team (employees) ----------
+  let lastStaff = null;
+  async function loadStaff() {
+    const { data, error } = await supabase.from('employees').select('*').order('name');
+    if (error || !data) return;
+    lastStaff = data;
+    renderStaff();
+    renderQuotes();
+  }
+  function renderStaff() {
+    const ul = document.getElementById('staffList');
+    if (!ul || !lastStaff) return;
+    ul.innerHTML = lastStaff.length ? '' : `<li class="fine">${esc(t('admin.team.staffEmpty'))}</li>`;
+    lastStaff.forEach((e, i) => {
+      const li = document.createElement('li');
+      li.style.setProperty('--i', String(i));
+      li.className = e.active ? '' : 'is-off';
+      li.innerHTML = `<div><b>${esc(e.name)}</b><span class="fine">${esc([e.email, e.phone].filter(Boolean).join(' · '))}</span></div>
+        <div class="stock-ctrl"><label class="care-switch"><input type="checkbox" ${e.active ? 'checked' : ''}><span class="fine">${esc(t('admin.team.active'))}</span></label><button type="button" class="stock-del" aria-label="${esc(t('admin.care.stockDelete'))}">×</button></div>`;
+      li.querySelector('input').addEventListener('change', async (ev) => {
+        const { error } = await supabase.from('employees').update({ active: ev.target.checked }).eq('id', e.id);
+        if (!error) { e.active = ev.target.checked; renderStaff(); renderQuotes(); }
+      });
+      li.querySelector('.stock-del').addEventListener('click', async () => {
+        if (!confirm(t('admin.team.deleteConfirm', { name: e.name }))) return;
+        const { error } = await supabase.from('employees').delete().eq('id', e.id);
+        if (!error) { lastStaff = lastStaff.filter((x) => x.id !== e.id); renderStaff(); loadQuotes(); }
+      });
+      ul.appendChild(li);
+    });
+  }
+  document.getElementById('staffForm')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const row = {
+      name: document.getElementById('staffName').value.trim(),
+      email: document.getElementById('staffEmail').value.trim().toLowerCase(),
+      phone: document.getElementById('staffPhone').value.trim() || null,
+    };
+    if (!row.name || !row.email) return;
+    const { error } = await supabase.from('employees').insert(row);
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    ev.target.reset();
+    loadStaff();
+  });
+
+  // Who does the job + what the automations already sent, on each order card.
+  function assignBlock(q) {
+    const box = document.createElement('div');
+    box.className = 'order-assign';
+    const staff = (lastStaff || []).filter((e) => e.active || e.id === q.assigned_employee_id);
+    if (staff.length) {
+      const sel = document.createElement('select');
+      sel.innerHTML = `<option value="">${esc(t('admin.team.assignNone'))}</option>` +
+        staff.map((e) => `<option value="${esc(e.id)}"${e.id === q.assigned_employee_id ? ' selected' : ''}>${esc(e.name)}</option>`).join('');
+      sel.addEventListener('change', () => updateQuote(q, { assigned_employee_id: sel.value || null }));
+      const lab = document.createElement('label');
+      lab.innerHTML = `<span>${esc(t('admin.team.assign'))}</span>`;
+      lab.appendChild(sel);
+      box.appendChild(lab);
+    }
+    const sent = [
+      [q.receipt_sent_at && q.paid_at, 'admin.auto.receipt'],
+      [q.job_sheet_sent_at && q.job_sheet_employee_id, 'admin.auto.sheet'],
+      [q.reminder_sent_at && q.scheduled_date, 'admin.auto.reminder'],
+      [q.unpaid_reminder_at && !q.paid_at && q.quoted_at, 'admin.auto.unpaid'],
+      [q.thanks_sent_at && q.completed_at, 'admin.auto.thanks'],
+    ].filter(([on]) => on);
+    if (sent.length) {
+      const p = document.createElement('p');
+      p.className = 'auto-sent';
+      p.innerHTML = sent.map(([, k]) => `<span>✓ ${esc(t(k))}</span>`).join('');
+      box.appendChild(p);
+    }
+    return box;
+  }
+
+  // ---------- Website visits (page_views, anonymous) ----------
+  let lastVisits = null;
+  async function loadVisits() {
+    const since = new Date(Date.now() - 30 * 864e5).toISOString();
+    const { data, error } = await supabase.from('page_views').select('at, path, ref_host, device, tz, session_id')
+      .gte('at', since).order('at', { ascending: false }).limit(20000);
+    if (error || !data) return;
+    lastVisits = data;
+  }
+  const PAGE_NAMES = { '/': 'Accueil', '/index.html': 'Accueil', '/quote.html': 'Soumission', '/book.html': 'Réservation', '/pay.html': 'Paiement', '/services.html': 'Services', '/gift-cards.html': 'Cartes-cadeaux', '/careers.html': 'Emplois', '/learn-more.html': 'En savoir plus', '/about.html': 'À propos', '/locations.html': 'Zones' };
+  const pageName = (p) => PAGE_NAMES[p] || p.replace(/^\//, '').replace(/\.html$/, '').replace(/-/g, ' ');
+  const sourceName = (h) => {
+    if (!h) return t('admin.visits.direct');
+    if (/google\./.test(h)) return 'Google';
+    if (/bing\.|msn\./.test(h)) return 'Bing';
+    if (/facebook\.|fb\.|instagram\./.test(h)) return 'Facebook / Instagram';
+    if (/chatgpt|openai|perplexity|claude|copilot|gemini/.test(h)) return t('admin.visits.ai');
+    if (/nextdoor/.test(h)) return 'Nextdoor';
+    return h.replace(/^www\./, '');
+  };
+  const regionName = (tz) => ({ 'America/Toronto': 'Ontario / Québec (Est)', 'America/Montreal': 'Québec', 'America/New_York': 'Est (É.-U.)', 'America/Vancouver': 'C.-B. / Pacifique', 'America/Edmonton': 'Alberta', 'America/Winnipeg': 'Manitoba', 'America/Halifax': 'Atlantique' }[tz] || tz || t('admin.home.unknown'));
+  function renderVisits(fr, tally, doughnut, money) {
+    const v = lastVisits || [];
+    const sessions = new Set(v.map((x) => x.session_id || x.at)).size;
+    const kpiBox = document.getElementById('homeKpis');
+    if (kpiBox && !kpiBox.querySelector('.kpi-visits')) {
+      const el = document.createElement('div');
+      el.className = 'dash-kpi kpi-anim kpi-visits';
+      el.style.setProperty('--i', '5');
+      el.innerHTML = `<div class="dash-kpi-label">${esc(t('admin.visits.kpi'))}</div><div class="dash-kpi-value"></div><div class="dash-kpi-delta">${esc(t('admin.visits.kpiSub', { n: v.length }))}</div>`;
+      kpiBox.appendChild(el);
+      countUp(el.querySelector('.dash-kpi-value'), sessions, (n) => String(Math.round(n)));
+    }
+    const days = Array.from({ length: 30 }, (_, i) => { const d = new Date(Date.now() - (29 - i) * 864e5); return d.toISOString().slice(0, 10); });
+    const perDay = days.map((d) => new Set(v.filter((x) => x.at.slice(0, 10) === d).map((x) => x.session_id || x.at)).size);
+    drawChart('chartVisits', {
+      type: 'line',
+      data: { labels: days.map((d) => new Date(`${d}T12:00:00`).toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { day: 'numeric', month: 'short' })),
+        datasets: [{ data: perDay, borderColor: '#2E8BE6', backgroundColor: 'rgba(46,139,230,.14)', fill: true, tension: .35, pointRadius: 2 }] },
+    });
+    const pages = tally(v, (x) => pageName(x.path));
+    drawChart('chartPages', {
+      type: 'bar',
+      data: { labels: pages.map((p) => p[0]), datasets: [{ data: pages.map((p) => p[1]), backgroundColor: '#8B4DE6', borderRadius: 6 }] },
+      options: { indexAxis: 'y' },
+    });
+    const firstHits = [...new Map(v.slice().reverse().map((x) => [x.session_id || x.at, x])).values()];
+    doughnut('chartSources', tally(firstHits, (x) => sourceName(x.ref_host)));
+    doughnut('chartDevices', tally(firstHits, (x) => t(`admin.visits.device.${x.device || 'desktop'}`)));
+    const hours = new Array(24).fill(0);
+    v.forEach((x) => { hours[new Date(x.at).getHours()] += 1; });
+    drawChart('chartVisitHours', { type: 'bar', data: { labels: hours.map((_, h) => `${h}h`), datasets: [{ data: hours, backgroundColor: '#22B8A6', borderRadius: 5 }] } });
+    const regions = tally(firstHits, (x) => regionName(x.tz));
+    drawChart('chartRegions', {
+      type: 'bar',
+      data: { labels: regions.map((p) => p[0]), datasets: [{ data: regions.map((p) => p[1]), backgroundColor: '#F2A33A', borderRadius: 6 }] },
+      options: { indexAxis: 'y' },
+    });
+  }
 
   // ---------- Navigation (7 sections) ----------
   function setBadge(section, n) {
@@ -477,8 +630,9 @@
       ] },
       options: { plugins: { legend: { display: true, position: 'bottom', labels: { color: css('--charcoal'), boxWidth: 10 } } } },
     });
+    renderVisits(fr, tally, doughnut, money);
   }
-  document.addEventListener('magicstick:langchange', () => { renderQuotes(); renderHome(true); renderJobs(); });
+  document.addEventListener('magicstick:langchange', () => { renderQuotes(); renderHome(true); renderJobs(); renderStaff(); });
 
 
   // ---------- Google review requests ----------
@@ -685,6 +839,7 @@
     Object.assign(priceTarget, patch);
     refreshPriceDialog();
     renderQuotes();
+    pingAutomations();
     return true;
   }
   if (priceDialog) {
@@ -1289,7 +1444,7 @@
     let start = 'home';
     try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
     if (!document.getElementById(`dashSection-${start}`)) start = 'home';
-    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin()]);
+    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits()]);
     openSection(start);
     renderHome(true);
     await loadCategories();

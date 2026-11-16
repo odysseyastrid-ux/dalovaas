@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import { state } from "./fake_supabase.ts";
 import { stripeState } from "./fake_stripe.ts";
-import { emails, installFetch, jwt, loadHandler, resetAll } from "./harness.ts";
+import { emails, fetchCalls, installFetch, jwt, loadHandler, resetAll } from "./harness.ts";
 
 installFetch();
 const pay = await loadHandler("../quote-pay/index.ts");
@@ -100,20 +100,21 @@ async function deliver(intent: any) {
   return res.status;
 }
 
-Deno.test("webhook marks the quote paid once and emails owner and client", async () => {
+Deno.test("webhook marks the quote paid once, tells the owner and hands the receipt to the automations", async () => {
   seed();
   const intent = { id: "pi_q", amount: 25000, amount_received: 25000, metadata: { kind: "quote", quote_id: "q1" } };
+  const before = fetchCalls.length;
   assert.equal(await deliver(intent), 200);
   const q = state.table("quote_requests")[0];
   assert.ok(q.paid_at);
   assert.equal(q.payment_method, "card");
-  assert.equal(emails.length, 2);
+  assert.equal(emails.length, 1);
   assert.match(emails[0].subject, /Paiement reçu/);
-  assert.match(emails[1].subject, /paiement reçu/);
+  assert.ok(fetchCalls.slice(before).some((c) => c.url.endsWith("/functions/v1/automations")));
   const first = q.paid_at;
   assert.equal(await deliver(intent), 200);
   assert.equal(state.table("quote_requests")[0].paid_at, first);
-  assert.equal(emails.length, 2);
+  assert.equal(emails.length, 1);
 });
 
 Deno.test("webhook does not mark an underpaid quote", async () => {

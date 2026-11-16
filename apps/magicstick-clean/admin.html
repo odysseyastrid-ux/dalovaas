@@ -65,6 +65,26 @@
       <p class="form-note" id="adminLoginNote"></p>
     </form>
 
+    <!-- Two-step sign-in: after the password, a 6-digit code from an
+         authenticator app (Google Authenticator, Microsoft Authenticator,
+         1Password…). The database refuses admin data without it. -->
+    <form id="adminMfaForm" class="auth-form mfa-form" hidden style="max-width:420px;" autocomplete="off">
+      <h2 class="mfa-title" id="adminMfaTitle" data-i18n="admin.mfa.verifyTitle">Enter your security code</h2>
+      <p class="mfa-lede" id="adminMfaLede" data-i18n="admin.mfa.verifyLede">Open your authenticator app and type the 6-digit code shown for Magicstick Clean.</p>
+      <div class="mfa-enroll" id="adminMfaEnroll" hidden>
+        <img id="adminMfaQr" class="mfa-qr" width="200" height="200" alt="">
+        <p class="mfa-secret-label" data-i18n="admin.mfa.secretLabel">Can’t scan? Type this key in the app:</p>
+        <code class="mfa-secret" id="adminMfaSecret"></code>
+      </div>
+      <div class="field">
+        <label for="adminMfaCode" data-i18n="admin.mfa.codeLabel">6-digit code</label>
+        <input type="text" id="adminMfaCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      </div>
+      <button type="submit" class="btn" data-i18n="admin.mfa.submit">Verify</button>
+      <button type="button" class="quote-switch-link" id="adminMfaCancel" data-i18n="admin.mfa.cancel">Sign out</button>
+      <p class="form-note" id="adminMfaNote" role="alert"></p>
+    </form>
+
     <div id="notAdminNotice" class="notice-box" hidden>
       <p data-i18n-html="admin.notAdmin">This account isn’t set up as an admin. Add it to <code>admin_users</code> in Supabase, see SETUP.md.</p>
     </div>

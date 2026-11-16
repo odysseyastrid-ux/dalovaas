@@ -60,11 +60,20 @@ demandes et vos prix. Demandez-lui par exemple « À qui dois-je demander un avi
 | **GitHub** | le « code » du site (l'historique de chaque changement) | github.com/odysseyastrid-ux/dalovaas |
 | **Resend** | envoie les courriels automatiques (noreply@magicstickclean.ca) | resend.com |
 | **Groq** | fait fonctionner l'IA Louis et le co-pilote | console.groq.com |
-| **Stripe** | paiements en ligne : **pas encore activé** | stripe.com |
+| **Stripe** | paiements par carte (commandes après devis, ménage standard, cartes-cadeaux) | stripe.com |
 | **Google (fiche d'entreprise)** | vos avis et votre présence sur Google Maps | business.google.com |
 | **Nom de domaine** magicstickclean.ca | l'adresse du site | chez votre registraire : **vérifiez la date de renouvellement** |
 
 **Admins du tableau de bord :** magicstickclean@gmail.com et odysseyastrid@gmail.com.
+
+**Connexion en deux étapes (depuis le 16 nov. 2026).** Pour ouvrir le tableau de bord, il faut
+votre mot de passe **et** un code à 6 chiffres affiché par une application sur votre téléphone
+(Google Authenticator ou Microsoft Authenticator, gratuites). La première fois, le tableau de
+bord affiche un code QR : scannez-le avec l'application, puis tapez le code. Chaque admin le
+fait une fois sur son propre téléphone. Sans ce code, la base de données refuse de montrer vos
+données, même à quelqu'un qui aurait volé votre mot de passe. **Téléphone perdu ?** Demandez à
+un agent qui a accès à Supabase de supprimer votre ancien code (il sait comment, voir
+`AGENTS.md`) : vous en créerez un nouveau à la prochaine connexion.
 
 **Lien pour demander un avis Google :** https://g.page/r/CXlL7jiMiQp2EBI/review
 
@@ -154,6 +163,15 @@ Allez sur Vercel → projet *magicstickclean* → **Deployments**. Choisissez la
 1 minute. Ou dites simplement à l'agent : « remets la version précédente du site ».
 
 ---
+
+## 5 bis. Les cartes-cadeaux (automatiques)
+
+Depuis le 16 nov. 2026, un client achète une carte-cadeau **directement par carte** sur
+magicstickclean.ca/gift-cards.html. Dès que Stripe accepte le paiement, la carte (montant +
+code unique) part **toute seule** par courriel : à la personne qui la reçoit, avec une copie à
+l'acheteur, et vous recevez un avis. Vous n'avez rien à faire. Quand quelqu'un vous donne son
+code (dans sa demande de soumission ou au téléphone), retirez le montant de son prix ; le solde
+se voit dans le tableau de bord, section Cartes-cadeaux.
 
 ## 6. Le rabais de 20 % et le marketing
 

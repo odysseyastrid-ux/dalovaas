@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import { state } from "./fake_supabase.ts";
 import { stripeState } from "./fake_stripe.ts";
-import { emails, installFetch, loadHandler, resetAll } from "./harness.ts";
+import { emails, installFetch, jwt, loadHandler, resetAll } from "./harness.ts";
 
 installFetch();
 const pay = await loadHandler("../quote-pay/index.ts");
@@ -180,11 +180,17 @@ Deno.test("send_link needs an admin and emails the client their link", async () 
     return { status: res.status, json: await res.json() as any };
   };
   assert.equal((await send()).status, 401);
-  state.users["user-token"] = "u-client";
-  assert.equal((await send("user-token")).status, 403);
-  state.users["admin-token"] = "u-admin";
+  const client = jwt("aal2", "u-client");
+  state.users[client] = "u-client";
+  assert.equal((await send(client)).status, 403);
   state.table("admin_users").push({ id: "u-admin" });
-  const r = await send("admin-token");
+  // The owner's password alone (aal1) is not enough: two-step sign-in required.
+  const passwordOnly = jwt("aal1", "u-admin");
+  state.users[passwordOnly] = "u-admin";
+  assert.equal((await send(passwordOnly)).status, 401);
+  const admin = jwt("aal2", "u-admin");
+  state.users[admin] = "u-admin";
+  const r = await send(admin);
   assert.equal(r.status, 200);
   const mail = emails.find((e) => e.to === "ana@example.com")!;
   assert.match(mail.subject, /Votre prix/);

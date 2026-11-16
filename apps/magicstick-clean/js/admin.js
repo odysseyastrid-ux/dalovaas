@@ -1295,6 +1295,73 @@
     });
   }
 
+  // ---------- Two-step sign-in (password + authenticator app) ----------
+  // The database only hands admin data to sessions that passed the second
+  // step (aal2, migration 0027), so this screen is not just cosmetic.
+  const mfaForm = document.getElementById('adminMfaForm');
+  let mfaFactorId = null;
+
+  async function showMfa() {
+    loginForm.hidden = true;
+    mfaForm.hidden = false;
+    const note = document.getElementById('adminMfaNote');
+    note.textContent = '';
+    const { data: factors, error } = await supabase.auth.mfa.listFactors();
+    if (error) { note.textContent = t('admin.mfa.error'); return; }
+    const verified = (factors.totp || []).find((f) => f.status === 'verified');
+    const enrollBox = document.getElementById('adminMfaEnroll');
+    if (verified) {
+      mfaFactorId = verified.id;
+      enrollBox.hidden = true;
+      document.getElementById('adminMfaTitle').textContent = t('admin.mfa.verifyTitle');
+      document.getElementById('adminMfaLede').textContent = t('admin.mfa.verifyLede');
+    } else {
+      // First time: drop half-finished setups, then show a fresh QR code.
+      for (const f of (factors.all || []).filter((x) => x.status !== 'verified')) {
+        await supabase.auth.mfa.unenroll({ factorId: f.id });
+      }
+      const { data: enrolled, error: enrollError } = await supabase.auth.mfa.enroll({
+        factorType: 'totp', friendlyName: `Magicstick Clean ${new Date().toISOString().slice(0, 10)}`,
+      });
+      if (enrollError) { note.textContent = t('admin.mfa.error'); return; }
+      mfaFactorId = enrolled.id;
+      // Supabase returns the QR code as an un-encoded SVG data URL; encode it
+      // so every browser draws it.
+      const qr = String(enrolled.totp.qr_code || '');
+      const m = qr.match(/^data:image\/svg\+xml;(?:utf-8|charset=utf-8),([\s\S]*)$/i);
+      document.getElementById('adminMfaQr').src = m && /[<>#]/.test(m[1])
+        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(m[1])}`
+        : qr;
+      document.getElementById('adminMfaSecret').textContent = enrolled.totp.secret;
+      enrollBox.hidden = false;
+      document.getElementById('adminMfaTitle').textContent = t('admin.mfa.enrollTitle');
+      document.getElementById('adminMfaLede').textContent = t('admin.mfa.enrollLede');
+    }
+    setTimeout(() => document.getElementById('adminMfaCode').focus(), 30);
+  }
+
+  mfaForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const note = document.getElementById('adminMfaNote');
+    const code = document.getElementById('adminMfaCode').value.replace(/\D/g, '');
+    if (code.length !== 6 || !mfaFactorId) { note.textContent = t('admin.mfa.badCode'); return; }
+    note.textContent = t('admin.mfa.checking');
+    const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: mfaFactorId, code });
+    if (error) {
+      note.textContent = t('admin.mfa.badCode');
+      document.getElementById('adminMfaCode').select();
+      return;
+    }
+    mfaForm.hidden = true;
+    mfaForm.reset();
+    checkAccess();
+  });
+
+  document.getElementById('adminMfaCancel').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  });
+
   async function checkAccess() {
     const { data: sessionData } = await supabase.auth.getSession();
     const user = sessionData?.session?.user;
@@ -1303,6 +1370,11 @@
       if (backend.consumeIdleNotice && backend.consumeIdleNotice()) {
         document.getElementById('adminLoginNote').textContent = t('auth.idleSignedOut');
       }
+      return;
+    }
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (!aal || aal.currentLevel !== 'aal2') {
+      showMfa();
       return;
     }
     const { data: adminRow } = await supabase.from('admin_users').select('id').eq('id', user.id).maybeSingle();

@@ -209,6 +209,14 @@ must all pass before any function deploy.
 
   If any step fails, set it back to `false`.
 
+## 7 bis. Admin two-step sign-in (migration 0027)
+
+Admin data needs an aal2 session (password + authenticator code). Deploy order for any change
+to it: website first (admin.html can enroll/verify), then the functions, then the migration.
+Lost phone / locked-out owner: `delete from auth.mfa_factors where user_id = '<owner uuid>';`
+(only when the owner asks, after confirming who they are); they re-enroll at next sign-in.
+Never drop the restrictive policy to "fix" a login problem.
+
 ## 8. Deploying the website (Vercel)
 
 - **Pushing to GitHub creates only a *preview*** (needs a Vercel login). The real site

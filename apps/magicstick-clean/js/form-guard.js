@@ -34,9 +34,15 @@ window.MagicstickFormGuard = (function () {
       <div class="field human-check">
         <label class="human-box" for="${uid}-human">
           <input type="checkbox" id="${uid}-human">
-          <span class="human-tick" aria-hidden="true"></span>
-          <span class="human-text">${t('form.human.label')}</span>
-          <span class="human-shield" aria-hidden="true">🛡️</span>
+          <span class="human-tick" aria-hidden="true">
+            <svg class="human-ring" viewBox="0 0 28 28"><circle cx="14" cy="14" r="12"/></svg>
+            <svg class="human-check-icon" viewBox="0 0 28 28"><path d="M8 14.5l4 4 8-9"/></svg>
+          </span>
+          <span class="human-copy">
+            <span class="human-text">${t('form.human.label')}</span>
+            <span class="human-status" aria-live="polite"></span>
+          </span>
+          <svg class="human-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
         </label>
         <span class="err">${t('form.human.error')}</span>
       </div>
@@ -50,13 +56,34 @@ window.MagicstickFormGuard = (function () {
     box.addEventListener('pointerdown', mark);
     box.addEventListener('keydown', mark);
     container.querySelector('.human-box').addEventListener('pointerdown', mark);
-    box.addEventListener('change', () => { if (box.checked) field.classList.remove('invalid'); });
+    // A short "verifying" beat, then the check draws itself: it reads as a
+    // real check without making anyone wait.
+    const label = container.querySelector('.human-box');
+    const status = container.querySelector('.human-status');
+    let timer = null;
+    box.addEventListener('change', () => {
+      clearTimeout(timer);
+      label.classList.remove('is-verifying', 'is-verified');
+      status.textContent = '';
+      if (!box.checked) return;
+      field.classList.remove('invalid');
+      label.classList.add('is-verifying');
+      status.textContent = t('form.human.verifying');
+      timer = setTimeout(() => {
+        label.classList.remove('is-verifying');
+        label.classList.add('is-verified');
+        status.textContent = t('form.human.verified');
+      }, 650);
+    });
 
     return function check() {
       if (honeypot.value.trim() !== '') return 'honeypot';
       const tooFast = Date.now() - loadedAt < 2500;
       if (!box.checked || !realGesture || tooFast) {
-        if (tooFast && box.checked) box.checked = false;
+        if (tooFast && box.checked) {
+          box.checked = false;
+          box.dispatchEvent(new Event('change'));
+        }
         field.classList.add('invalid');
         return 'wrong-answer';
       }

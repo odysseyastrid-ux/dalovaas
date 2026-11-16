@@ -201,6 +201,23 @@ function refreshBuySummary() {
     : t('giftcards.buy.submitNoAmount');
 }
 
+// Asks the server to verify the payment with Stripe and send the card.
+// Returns 'delivered', 'processing' or 'unknown' (the webhook will still
+// deliver it; the success message stays true either way).
+async function confirmGiftPayment(intentId) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const { res, data } = await callGiftCards({ action: 'confirm', payment_intent: intentId });
+      if (res.ok && data.status) return data.status;
+      if (res.status === 400) return 'unknown';
+    } catch (err) {
+      console.error(err);
+    }
+    await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+  }
+  return 'unknown';
+}
+
 function initBuyOnline() {
   document.querySelectorAll('#giftAmountGroup .pill-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -292,15 +309,16 @@ function initBuyOnline() {
       payForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
       giftElements = giftStripe.elements({
         clientSecret: data.client_secret,
+        locale: giftLang(),
         appearance: {
           theme: 'flat',
           variables: {
-            colorPrimary: '#0B5D52', colorBackground: 'transparent', colorText: '#1F2937',
-            fontFamily: "'Inter', Arial, sans-serif", borderRadius: '9px',
+            colorPrimary: '#6D28D9', colorBackground: '#FFFFFF', colorText: '#1F2937',
+            fontFamily: "'Inter', Arial, sans-serif", borderRadius: '12px',
           },
           rules: {
-            '.Input': { backgroundColor: '#F2F2F2', border: '1px solid transparent', padding: '12px' },
-            '.Input:focus': { border: '1px solid #0B5D52', boxShadow: 'none' },
+            '.Input': { backgroundColor: '#F6F4EF', border: '1px solid #E5E1D8', padding: '12px' },
+            '.Input:focus': { border: '1px solid #6D28D9', boxShadow: '0 0 0 3px rgba(109,40,217,.15)' },
             '.Label': { fontSize: '12px', fontWeight: '600', color: '#6B7280', marginBottom: '4px' },
           },
         },
@@ -344,10 +362,19 @@ function initBuyOnline() {
       payBtn.disabled = false;
       return;
     }
-    if (paymentIntent && paymentIntent.status === 'succeeded') {
-      showSuccess(lastPurchase.deliver_to === 'recipient'
-        ? t('giftcards.success.recipient', { email: lastPurchase.recipient_email, buyer: lastPurchase.purchaser_email })
-        : t('giftcards.success.me', { email: lastPurchase.purchaser_email }));
+    if (paymentIntent && (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing')) {
+      // The server re-checks the payment with Stripe, activates the card and
+      // emails it right away (the Stripe webhook is only a backup).
+      payNote.textContent = t('giftcards.pay.sending');
+      const confirmed = await confirmGiftPayment(paymentIntent.id);
+      showSuccess(confirmed === 'processing'
+        ? t('giftcards.success.processing')
+        : lastPurchase.deliver_to === 'recipient'
+          ? t('giftcards.success.recipient', { email: lastPurchase.recipient_email, buyer: lastPurchase.purchaser_email })
+          : t('giftcards.success.me', { email: lastPurchase.purchaser_email }));
+    } else {
+      payBtn.disabled = false;
+      payNote.textContent = t('booking.payment.note.error');
     }
   });
 
@@ -356,7 +383,8 @@ function initBuyOnline() {
   refreshBuySummary();
 }
 
-if (giftCfg.ONLINE_PAYMENTS === true && giftCfg.STRIPE_PUBLISHABLE_KEY && giftFunctionsUrl) {
+const giftCardPaymentsOn = giftCfg.ONLINE_PAYMENTS === true || giftCfg.GIFT_CARD_PAYMENTS === true;
+if (giftCardPaymentsOn && giftCfg.STRIPE_PUBLISHABLE_KEY && giftFunctionsUrl) {
   const tag = document.createElement('script');
   tag.src = 'https://js.stripe.com/v3/';
   tag.onload = () => {
@@ -367,6 +395,15 @@ if (giftCfg.ONLINE_PAYMENTS === true && giftCfg.STRIPE_PUBLISHABLE_KEY && giftFu
   document.head.appendChild(tag);
 }
 
-if (new URLSearchParams(window.location.search).get('gift') === 'success') {
-  showSuccess(t('giftcards.success.generic'));
+// Back from a bank's 3-D Secure page: Stripe adds the PaymentIntent to the URL.
+const giftReturn = new URLSearchParams(window.location.search);
+if (giftReturn.get('gift') === 'success') {
+  const intentId = giftReturn.get('payment_intent');
+  if (intentId && giftReturn.get('redirect_status') === 'failed') {
+    note.textContent = t('booking.payment.note.error');
+  } else {
+    showSuccess(t('giftcards.success.generic'));
+    if (intentId && giftFunctionsUrl) confirmGiftPayment(intentId);
+  }
+  history.replaceState(null, '', window.location.pathname + '#request');
 }

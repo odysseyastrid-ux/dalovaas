@@ -1,3 +1,5 @@
+/* The hidden attribute always wins over a component's display rule. */
+[hidden]{display:none !important}
 :root{
     /* Magicstick "Folio" identity: a warm bone paper, editorial serif
        headlines, 1px hairlines, and the brand's blue -> violet gradient
@@ -2508,16 +2510,35 @@ body{ transition:background-color .35s ease, color .35s ease; }
 
 /* ---------- "I'm not a robot" box (js/form-guard.js) ---------- */
 .human-check{margin-top:4px}
-.human-box{display:flex;align-items:center;gap:12px;max-width:340px;padding:14px 16px;border:1px solid #d1d5db;border-radius:10px;background:#f9fafb;color:#1f2937;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);font-weight:500}
+.human-box{position:relative;display:flex;align-items:center;gap:14px;max-width:360px;padding:12px 16px 12px 12px;border:1px solid #e5e1d8;border-radius:16px;background:#fff;color:#111827;cursor:pointer;box-shadow:0 1px 2px rgba(17,24,39,.04);transition:border-color .2s,box-shadow .2s,transform .1s}
+.human-box:hover{border-color:#c4b5fd;box-shadow:0 6px 18px rgba(109,40,217,.10)}
+.human-box:active{transform:scale(.99)}
 .human-box input{position:absolute;opacity:0;width:1px;height:1px}
-.human-tick{flex:0 0 26px;height:26px;border:2px solid #9ca3af;border-radius:4px;background:#fff;display:grid;place-items:center;transition:background .15s,border-color .15s}
-.human-box input:checked + .human-tick{background:#16a34a;border-color:#16a34a}
-.human-box input:checked + .human-tick::after{content:"";width:7px;height:13px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
-.human-box input:focus-visible + .human-tick{outline:3px solid #4b3bd6;outline-offset:2px}
-.human-text{flex:1;font-size:15px}
-.human-shield{font-size:20px;opacity:.7}
-.human-check.invalid .human-box{border-color:#b42318}
+.human-tick{position:relative;flex:0 0 32px;height:32px;border-radius:50%;border:2px solid #cbd5e1;background:#fff;transition:border-color .2s,background .25s,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.human-tick svg{position:absolute;inset:-2px;width:32px;height:32px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.human-ring{opacity:0}
+.human-ring circle{stroke:#7c3aed;stroke-width:2.5;stroke-dasharray:56 76}
+.human-check-icon path{stroke:#fff;stroke-width:2.6;stroke-dasharray:20;stroke-dashoffset:20}
+.human-box.is-verifying .human-tick{border-color:#ede9fe}
+.human-box.is-verifying .human-ring{opacity:1;animation:human-spin .7s linear infinite;transform-origin:50% 50%}
+.human-box.is-verified .human-tick{border-color:transparent;background:linear-gradient(135deg,#7c3aed,#2563eb);transform:scale(1.06)}
+.human-box.is-verified .human-check-icon path{animation:human-draw .35s .05s ease-out forwards}
+.human-box.is-verified{border-color:#c4b5fd}
+@keyframes human-spin{to{transform:rotate(360deg)}}
+@keyframes human-draw{to{stroke-dashoffset:0}}
+.human-box input:focus-visible + .human-tick{outline:3px solid #7c3aed;outline-offset:3px}
+.human-copy{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.human-text{font-size:15px;font-weight:600}
+.human-status{font-size:12.5px;color:#6b7280;min-height:0}
+.human-status:empty{display:none}
+.human-box.is-verified .human-status{color:#6d28d9}
+.human-lock{flex:0 0 18px;width:18px;height:18px;fill:none;stroke:#9ca3af;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.human-check.invalid .human-box{border-color:#b42318;box-shadow:0 0 0 3px rgba(180,35,24,.10)}
 [data-theme="dark"] .human-box{background:#111827;border-color:#374151;color:#f3f4f6}
+[data-theme="dark"] .human-tick{background:#0b1220;border-color:#4b5563}
+[data-theme="dark"] .human-status{color:#9ca3af}
+[data-theme="dark"] .human-box.is-verified .human-status{color:#c4b5fd}
+@media (prefers-reduced-motion:reduce){.human-box.is-verifying .human-ring{animation:none}.human-box.is-verified .human-check-icon path{animation:none;stroke-dashoffset:0}.human-tick{transition:none}}
 
 /* Promo bar v2: lives inside <header>; one tidy line on phones. */
 .promo-bar{padding:8px 44px}
@@ -2533,3 +2554,43 @@ body{ transition:background-color .35s ease, color .35s ease; }
   .promo-bar-short::after{content:" →";font-family:'Inter',Arial,sans-serif;font-weight:700}
   .promo-bar-pct{font-size:17px;padding:0 9px 1px}
 }
+
+
+/* ---------- Readability pass (Nov 16, 2026) ----------
+   Every text reaches WCAG AA contrast in both themes (checked page by page
+   with a contrast audit). In dark mode the violet accent (--teal, #6B3FE6) is
+   too dark for text on the dark page, so text uses a lighter violet there;
+   buttons and fills keep the brand violet. */
+:root{--accent-text:#5B2FD6;}
+:root[data-theme="dark"]{--accent-text:#B9A1F7;--teal-tint:#251B45;}
+.foot-newsletter .subscribe-card .subscribe-heading{color:var(--charcoal);}
+.breadcrumbs .sep{color:var(--gray);}
+.cat-label,.step .num{color:#1E6BC0;}
+.greviews-stars{color:#B7791F;}
+.portal-card .portal-or,.portal-card .portal-tab:not(.active){color:#5F5D56;}
+:root[data-theme="dark"] .cat-label,
+:root[data-theme="dark"] .step .num{color:#7DB8F4;}
+:root[data-theme="dark"] .greviews-stars{color:#F5B301;}
+:root[data-theme="dark"] .tag,
+:root[data-theme="dark"] .hub-card-link,
+:root[data-theme="dark"] .quote-form .form-reassurance,
+:root[data-theme="dark"] .quote-switch-link,
+:root[data-theme="dark"] .legal-toc a.active,
+:root[data-theme="dark"] .breadcrumbs a,
+:root[data-theme="dark"] main a:not([class]),
+:root[data-theme="dark"] main a[class=""],
+:root[data-theme="dark"] .service-detail-learnmore a,
+:root[data-theme="dark"] main li a:not(.btn):not(.cta-arrow),
+:root[data-theme="dark"] .legal-a a,
+:root[data-theme="dark"] .contest-rules a,
+:root[data-theme="dark"] section li a:not([class*="btn"]):not([class*="cta"]),
+:root[data-theme="dark"] footer a:not([class]){color:var(--accent-text);}
+
+/* Two-step sign-in (admin.html) */
+.mfa-title{font-size:24px;margin:0 0 8px}
+.mfa-lede{color:var(--gray);margin:0 0 18px;line-height:1.55}
+.mfa-enroll{display:grid;justify-items:center;gap:8px;margin:0 0 18px;padding:18px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.mfa-qr{width:200px;height:200px;image-rendering:pixelated}
+.mfa-secret-label{font-size:13px;color:#5F5D56;margin:6px 0 0}
+.mfa-secret{font-size:14px;letter-spacing:.08em;word-break:break-all;text-align:center;color:#17151F}
+#adminMfaCode{font-size:22px;letter-spacing:.3em;text-align:center}

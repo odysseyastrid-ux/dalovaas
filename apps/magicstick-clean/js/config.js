@@ -14,4 +14,8 @@ window.MAGICSTICK_CONFIG = {
   // cards are ordered through the request form. Card on pay.html also needs
   // the Supabase secret QUOTE_CARD_PAYMENTS = "on" (quote-pay function).
   ONLINE_PAYMENTS: false,
+  // Gift cards are bought and paid by card right on gift-cards.html (owner's
+  // decision, Nov 16 2026); the card is emailed automatically once Stripe
+  // confirms the payment. Set to false to go back to the request form.
+  GIFT_CARD_PAYMENTS: true,
 };

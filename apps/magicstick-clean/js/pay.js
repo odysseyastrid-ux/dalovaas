@@ -23,6 +23,13 @@
   const pretty = (c) => c.replace(/^(.{4})(.{4})(.{2})$/, '$1-$2-$3');
   const money = (cents) => new Intl.NumberFormat(lang() === 'fr' ? 'fr-CA' : 'en-CA', { style: 'currency', currency: 'CAD' }).format(cents / 100);
 
+  // Service names are saved as typed on the quote form (EN or FR), or as
+  // "Standard Cleaning" for online bookings: show them in the page's language.
+  const SERVICE_KEYS = ['pay.service.standardBooking', 'form.service.standard', 'form.service.moveInOut',
+    'form.service.deep', 'form.service.office', 'form.service.airbnb', 'form.service.postConstruction',
+    'form.service.retail', 'form.service.windows', 'form.service.notSure'];
+  const serviceName = (s) => (i18n && i18n.localizeLabel ? i18n.localizeLabel(s, SERVICE_KEYS) : (s || ''));
+
   function showError(el, key) { el.textContent = t(key); el.hidden = false; }
 
   async function call(action, code) {
@@ -39,7 +46,7 @@
     if (!current) return;
     const d = current.data;
     $('payHello').textContent = d.first_name ? t('pay.hello', { name: d.first_name }) : t('pay.helloNoName');
-    $('payService').textContent = d.service || '';
+    $('payService').textContent = serviceName(d.service);
     $('payAmount').textContent = money(d.amount_cents);
     $('payNote').textContent = d.note || '';
     $('payNote').hidden = !d.note;
@@ -49,8 +56,10 @@
     const cardOk = !d.paid && d.card === true && !!cfg.STRIPE_PUBLISHABLE_KEY;
     $('payCard').hidden = !cardOk;
     if (cardOk && !elements) mountCard();
+    const wasHidden = result.hidden;
     result.hidden = false;
     form.hidden = true;
+    if (wasHidden) result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function lookup(code) {

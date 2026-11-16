@@ -47,9 +47,26 @@
         undefined,
         reducedMotion ? 0 : 1
       );
+      watchCanvas(container);
     } catch (err) {
       // No WebGL — leave the solid fallback color (see .contact-band in styles.css).
+      container.remove();
     }
+  }
+
+  // Phones drop WebGL contexts under memory pressure (or when too many are
+  // open); Chrome then paints a white box with a sad-face icon over the band,
+  // and the band's white text disappears on white. On a lost context, remove
+  // the canvas so the band's violet gradient shows instead.
+  function watchCanvas(container) {
+    const canvas = container.querySelector('canvas');
+    if (!canvas) return;
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      container.remove();
+    }, { once: true });
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    if (!gl || (gl.isContextLost && gl.isContextLost())) container.remove();
   }
 
   function mountAll() {

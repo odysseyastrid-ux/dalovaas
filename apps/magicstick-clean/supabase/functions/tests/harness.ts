@@ -31,7 +31,7 @@ export async function loadHandler(relativePath: string): Promise<Handler> {
   return captured;
 }
 
-export type Email = { to: string; subject: string; text: string };
+export type Email = { to: string; subject: string; text: string; html?: string };
 export const emails: Email[] = [];
 export const fetchCalls: { url: string; body: any }[] = [];
 let realFetch: typeof fetch | null = null;
@@ -50,7 +50,7 @@ export function installFetch() {
     const body = init?.body ? (() => { try { return JSON.parse(init.body); } catch { return init.body; } })() : null;
     fetchCalls.push({ url, body });
     if (url.startsWith("https://api.resend.com/")) {
-      emails.push({ to: body.to, subject: body.subject, text: body.text });
+      emails.push({ to: body.to, subject: body.subject, text: body.text, html: body.html });
       return new Response("{}", { status: 200 });
     }
     if (url.startsWith("https://api.groq.com/")) {
@@ -107,4 +107,11 @@ export function post(body: unknown, headers: Record<string, string> = {}, raw?: 
 
 export function addGiftCard(balance: number, id = "card-1") {
   state.table("gift_cards").push({ id, code: "MSC-ABCD-EFGH-JKLM", balance_cents: balance, status: "active" });
+}
+
+// A JWT-shaped access token for the fakes: getUser() maps it to a user, and
+// the functions read its "aal" claim (two-step sign-in) after that check.
+export function jwt(aal: "aal1" | "aal2", sub = "u"): string {
+  const b64 = (o: unknown) => btoa(JSON.stringify(o)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return `${b64({ alg: "HS256" })}.${b64({ sub, aal })}.sig`;
 }

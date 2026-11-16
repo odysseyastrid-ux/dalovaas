@@ -50,6 +50,7 @@
     'pay.code.submit': { en: 'See my order', fr: 'Voir ma commande' },
     'pay.noQuote': { en: 'Get a free quote →', fr: 'Obtenir un devis gratuit →' },
     'pay.hello': { en: 'Hi {name}, here is your order:', fr: 'Bonjour {name}, voici votre commande :' },
+    'pay.service.standardBooking': { en: 'Standard Cleaning', fr: 'Ménage standard' },
     'pay.helloNoName': { en: 'Here is your order:', fr: 'Voici votre commande :' },
     'pay.paid.title': { en: 'This quote is paid. Thank you!', fr: 'Ce devis est payé. Merci !' },
     'pay.paid.text': { en: 'We’ll confirm the visit details with you. Questions? Call or text (343) 843-7761.', fr: 'Nous vous confirmons les détails de la visite. Une question ? Appelez ou textez le (343) 843-7761.' },
@@ -349,6 +350,8 @@
     'form.security.placeholder': { en: 'Your answer', fr: 'Votre réponse' },
     'form.security.error': { en: 'That answer isn’t quite right, please try again.', fr: 'Cette réponse n’est pas tout à fait bonne, veuillez réessayer.' },
     'form.human.label': { en: 'I\'m not a robot', fr: 'Je ne suis pas un robot' },
+    'form.human.verifying': { en: 'Checking…', fr: 'Vérification…' },
+    'form.human.verified': { en: 'Verified', fr: 'Vérifié' },
     'form.human.error': { en: 'Please tick the box to confirm you\'re not a robot.', fr: 'Cochez la case pour confirmer que vous n’êtes pas un robot.' },
     'form.service': { en: 'What do you need?', fr: 'De quoi avez-vous besoin ?' },
     'form.service.standard': { en: 'Residential Cleaning (standard)', fr: 'Ménage résidentiel (standard)' },
@@ -700,6 +703,17 @@
     'admin.title': { en: 'Owner dashboard', fr: 'Tableau de bord propriétaire' },
     'admin.notice.backend': { en: 'The backend isn’t configured yet, see SETUP.md to connect Supabase.', fr: 'Le backend n’est pas encore configuré, voir SETUP.md pour connecter Supabase.' },
     'admin.notAdmin': { en: 'This account isn’t set up as an admin. Add it to <code>admin_users</code> in Supabase, see SETUP.md.', fr: 'Ce compte n’est pas configuré comme administrateur. Ajoute-le dans <code>admin_users</code> sur Supabase, voir SETUP.md.' },
+    'admin.mfa.verifyTitle': { en: 'Enter your security code', fr: 'Entrez votre code de sécurité' },
+    'admin.mfa.verifyLede': { en: 'Open your authenticator app and type the 6-digit code shown for Magicstick Clean.', fr: 'Ouvrez votre application d’authentification et tapez le code à 6 chiffres affiché pour Magicstick Clean.' },
+    'admin.mfa.enrollTitle': { en: 'Protect your dashboard', fr: 'Protégez votre tableau de bord' },
+    'admin.mfa.enrollLede': { en: 'One-time setup: install an authenticator app (Google Authenticator, Microsoft Authenticator…), scan this QR code with it, then type the 6-digit code it shows. From now on, signing in asks for your password and this code.', fr: 'Réglage à faire une seule fois : installez une application d’authentification (Google Authenticator, Microsoft Authenticator…), scannez ce code QR avec elle, puis tapez le code à 6 chiffres qu’elle affiche. Ensuite, chaque connexion demandera votre mot de passe et ce code.' },
+    'admin.mfa.secretLabel': { en: 'Can’t scan? Type this key in the app:', fr: 'Impossible de scanner ? Entrez cette clé dans l’application :' },
+    'admin.mfa.codeLabel': { en: '6-digit code', fr: 'Code à 6 chiffres' },
+    'admin.mfa.submit': { en: 'Verify', fr: 'Vérifier' },
+    'admin.mfa.cancel': { en: 'Sign out', fr: 'Se déconnecter' },
+    'admin.mfa.checking': { en: 'Checking…', fr: 'Vérification…' },
+    'admin.mfa.badCode': { en: 'That code didn’t work. Type the current 6-digit code from the app.', fr: 'Ce code ne fonctionne pas. Tapez le code à 6 chiffres affiché en ce moment dans l’application.' },
+    'admin.mfa.error': { en: 'Two-step sign-in is unavailable right now. Try again in a moment.', fr: 'La connexion en deux étapes est indisponible pour le moment. Réessayez dans un instant.' },
     'admin.tab.quotes': { en: 'Quote requests', fr: 'Demandes de devis' },
     'admin.tab.bookings': { en: 'Bookings', fr: 'Réservations' },
     'admin.tab.services': { en: 'Services', fr: 'Services' },
@@ -1053,7 +1067,7 @@
 
     'giftcards.hero.tag': { en: 'Gift cards', fr: 'Cartes-cadeaux' },
     'giftcards.hero.title': { en: 'Give the gift of a clean home', fr: 'Offrez le cadeau d’une maison propre' },
-    'giftcards.hero.lede': { en: 'A Magicstick Clean gift card is perfect for a housewarming, a new parent, a birthday, or just because. Request one online in a minute: we confirm within a day, you pay by Interac e-transfer, and the card arrives by email with its own code.', fr: 'Une carte-cadeau Magicstick Clean est parfaite pour une pendaison de crémaillère, de nouveaux parents, un anniversaire, ou simplement pour faire plaisir. Demandez-la en ligne en une minute : nous confirmons en moins d’une journée, vous payez par virement Interac, et la carte arrive par courriel avec son propre code.' },
+    'giftcards.hero.lede': { en: 'A Magicstick Clean gift card is perfect for a housewarming, a new parent, a birthday, or just because. Buy it here in a minute with your card: as soon as the payment is accepted, the card and its own code arrive by email.', fr: 'Une carte-cadeau Magicstick Clean est parfaite pour une pendaison de crémaillère, de nouveaux parents, un anniversaire, ou simplement pour faire plaisir. Achetez-la ici en une minute par carte : dès que le paiement est accepté, la carte et son propre code arrivent par courriel.' },
     'giftcards.pass.brand': { en: 'Magicstick Clean', fr: 'Magicstick Clean' },
     'giftcards.pass.label': { en: 'GIFT CARD', fr: 'CARTE-CADEAU' },
     'giftcards.pass.note': { en: 'Valid toward any Magicstick Clean service. Never expires.', fr: 'Valide pour tout service Magicstick Clean. N’expire jamais.' },
@@ -1061,10 +1075,10 @@
     'giftcards.how.title': { en: 'How it works', fr: 'Comment ça marche' },
     'giftcards.how.step1.title': { en: 'Choose an amount', fr: 'Choisissez un montant' },
     'giftcards.how.step1.desc': { en: 'Pick $50, $100, $150, $200 or any amount from $25 to $1,000, and who it’s for.', fr: 'Choisissez 50 $, 100 $, 150 $, 200 $ ou tout montant de 25 $ à 1 000 $, et pour qui c’est.' },
-    'giftcards.how.step2.title': { en: 'Pay by e-transfer', fr: 'Payez par virement Interac' },
-    'giftcards.how.step2.desc': { en: 'Send the request on this page: we contact you within a day and you pay by Interac e-transfer.', fr: 'Envoyez la demande sur cette page : nous vous contactons en moins d’une journée et vous payez par virement Interac.' },
+    'giftcards.how.step2.title': { en: 'Pay securely', fr: 'Payez en toute sécurité' },
+    'giftcards.how.step2.desc': { en: 'Pay by card on this page (secured by Stripe). The gift card is emailed automatically, to the recipient or to you.', fr: 'Payez par carte sur cette page (sécurisé par Stripe). La carte-cadeau est envoyée automatiquement par courriel, à la personne ou à vous.' },
     'giftcards.how.step3.title': { en: 'They book with the code', fr: 'La personne réserve avec le code' },
-    'giftcards.how.step3.desc': { en: 'The recipient gets a unique code by email and enters it when booking. Any unused balance stays on the card, and it never expires.', fr: 'La personne reçoit un code unique par courriel et l’entre en réservant. Le solde non utilisé reste sur la carte, et elle n’expire jamais.' },
+    'giftcards.how.step3.desc': { en: 'The recipient gets a unique code by email and mentions it when asking for a quote or booking. Any unused balance stays on the card, and it never expires.', fr: 'La personne reçoit un code unique par courriel et l’indique en demandant sa soumission ou en réservant. Le solde non utilisé reste sur la carte, et elle n’expire jamais.' },
     'giftcards.form.title': { en: 'Request a gift card', fr: 'Demander une carte-cadeau' },
     'giftcards.form.subtitle': { en: 'Fill this in and we’ll get back to you the same day.', fr: 'Remplissez ce formulaire et nous vous répondons le jour même.' },
     'giftcards.form.payOnline': { en: 'Pay online instead', fr: 'Payer en ligne plutôt' },
@@ -1092,10 +1106,12 @@
     'giftcards.pay.summaryRecipient': { en: 'Emailed to {email} as soon as the payment goes through.', fr: 'Envoyée par courriel à {email} dès que le paiement est accepté.' },
     'giftcards.pay.summaryMe': { en: 'Emailed to you ({email}) as soon as the payment goes through.', fr: 'Envoyée à votre courriel ({email}) dès que le paiement est accepté.' },
     'giftcards.pay.total': { en: 'Total: ${amount} CAD', fr: 'Total : {amount}$ CAD' },
+    'giftcards.pay.sending': { en: 'Payment accepted. Sending the gift card…', fr: 'Paiement accepté. Envoi de la carte-cadeau…' },
     'giftcards.success.title': { en: 'Thank you!', fr: 'Merci!' },
     'giftcards.success.recipient': { en: 'Payment received. The gift card is on its way to {email}, and a copy with the code is going to {buyer}.', fr: 'Paiement reçu. La carte-cadeau s’en va à {email}, et une copie avec le code est envoyée à {buyer}.' },
     'giftcards.success.me': { en: 'Payment received. Your gift card and its code are on their way to {email}, ready to give.', fr: 'Paiement reçu. Votre carte-cadeau et son code s’en vont à {email}, prête à offrir.' },
     'giftcards.success.generic': { en: 'Payment received. The gift card and its code are on their way by email.', fr: 'Paiement reçu. La carte-cadeau et son code s’en viennent par courriel.' },
+    'giftcards.success.processing': { en: 'Payment received and being confirmed by your bank. The gift card will be emailed automatically as soon as it clears (usually within minutes).', fr: 'Paiement reçu, en cours de confirmation par votre banque. La carte-cadeau sera envoyée automatiquement par courriel dès qu’il sera accepté (en général en quelques minutes).' },
     'giftcards.balance.title': { en: 'Check your balance', fr: 'Vérifiez votre solde' },
     'giftcards.balance.desc': { en: 'Enter the code from your gift card email to see what’s left on it.', fr: 'Entrez le code de votre courriel de carte-cadeau pour voir le solde restant.' },
     'giftcards.balance.label': { en: 'Gift card code', fr: 'Code de la carte-cadeau' },
@@ -1335,5 +1351,17 @@
     }[ch]));
   }
 
-  window.MagicstickI18N = { t, getLang, setLang, applyLang, escapeHtml };
+  // Translates a stored label (saved in either language) into the current one,
+  // using the keys that may have produced it. Unknown labels come back unchanged.
+  function localizeLabel(label, keys) {
+    const value = String(label || '').trim().toLowerCase();
+    if (!value) return label || '';
+    for (const key of keys) {
+      const entry = STRINGS[key] || (window.MAGICSTICK_I18N_CONTENT || {})[key];
+      if (entry && [entry.en, entry.fr].some((v) => String(v || '').trim().toLowerCase() === value)) return t(key);
+    }
+    return label;
+  }
+
+  window.MagicstickI18N = { t, getLang, setLang, applyLang, escapeHtml, localizeLabel };
 })();

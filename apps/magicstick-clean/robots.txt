@@ -1,6 +1,46 @@
+# Magicstick Clean — magicstickclean.ca
+# Search engines and AI assistants are welcome to read and cite the public
+# pages (services, service areas, how to get a quote). Private pages (owner
+# dashboard, customer accounts, personal payment links) are off limits.
+
 User-agent: *
 Allow: /
-Disallow: /account.html
 Disallow: /admin.html
+Disallow: /account.html
+Disallow: /pay.html?
+Disallow: /server/
+Disallow: /supabase/
+Disallow: /tools/
+
+# AI search and assistant crawlers (OpenAI, Anthropic, Perplexity, Google,
+# Apple, Microsoft, Meta, Mistral, DuckDuckGo, Amazon, You.com, Common Crawl):
+# same rules, listed by name so no default blocklist shuts them out.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: DuckAssistBot
+User-agent: meta-externalagent
+User-agent: MistralAI-User
+User-agent: Amazonbot
+User-agent: YouBot
+User-agent: CCBot
+Allow: /
+Disallow: /admin.html
+Disallow: /account.html
+Disallow: /pay.html?
+Disallow: /server/
+Disallow: /supabase/
+Disallow: /tools/
 
 Sitemap: https://magicstickclean.ca/sitemap.xml

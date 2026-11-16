@@ -103,11 +103,23 @@ export function priceMessage(q: { name: string; service: string; quoted_amount_c
           `You can also pay on the day of the cleaning. Questions? Reply to this email or call (343) 843-7761.\n\n— Magicstick Clean` };
 }
 
+// Admin actions need the two-step sign-in (JWT claim aal = "aal2"), the same
+// rule the database applies to admin_users (migration 0027). Only read after
+// auth.getUser() has verified the token.
+function passedTwoStep(token: string): boolean {
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(part + "=".repeat((4 - (part.length % 4)) % 4))).aal === "aal2";
+  } catch {
+    return false;
+  }
+}
+
 async function sendLink(req: Request, body: Record<string, unknown>): Promise<Response> {
   const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
   const { data: auth } = token ? await supabase.auth.getUser(token) : { data: { user: null } };
   const uid = auth?.user?.id;
-  if (!uid) return json({ error: "unauthorized" }, 401);
+  if (!uid || !passedTwoStep(token)) return json({ error: "unauthorized" }, 401);
   const { data: admin } = await supabase.from("admin_users").select("id").eq("id", uid).maybeSingle();
   if (!admin) return json({ error: "forbidden" }, 403);
   const id = str(body.quote_id, 60);

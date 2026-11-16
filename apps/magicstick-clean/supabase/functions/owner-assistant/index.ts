@@ -57,12 +57,24 @@ function json(body: unknown, status = 200) {
   });
 }
 
+// Admin actions need the two-step sign-in (JWT claim aal = "aal2"), the same
+// rule the database applies to admin_users (migration 0027). Only read after
+// auth.getUser() has verified the token.
+function passedTwoStep(token: string): boolean {
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(part + "=".repeat((4 - (part.length % 4)) % 4))).aal === "aal2";
+  } catch {
+    return false;
+  }
+}
+
 async function requireAdmin(req: Request, supabase: any): Promise<string | null> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return null;
   const token = authHeader.replace("Bearer ", "");
   const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data?.user) return null;
+  if (error || !data?.user || !passedTwoStep(token)) return null;
   const { data: adminRow } = await supabase
     .from("admin_users").select("id").eq("id", data.user.id).maybeSingle();
   return adminRow ? data.user.id : null;

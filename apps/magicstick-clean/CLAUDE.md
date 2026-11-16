@@ -176,9 +176,21 @@ globally; size-specific heading tracking, `text-wrap: balance`, body size in `re
 
 ### Backend status (as of this session)
 - Supabase is **provisioned and live**; services/pricing above are seeded in the DB.
-- Online payments are **switched off** (`ONLINE_PAYMENTS: false`, Nov 3, 2026): no
-  booking or gift card was ever paid. Turn back on only after Stripe activation + a real
-  end-to-end test. Gift cards are ordered through the request form (e-transfer).
+- Generic booking deposits stay off (`ONLINE_PAYMENTS: false`). Card payments that ARE on:
+  quotes on `pay.html` and standard cleaning on `book.html` (via `quote-pay`), and **gift
+  cards** on `gift-cards.html` (`GIFT_CARD_PAYMENTS: true` in `js/config.js`, Nov 16, 2026).
+  After Stripe accepts a gift card payment the page calls `gift-cards` action `confirm`, which
+  re-reads the PaymentIntent from Stripe, activates the card and sends the refined HTML email
+  (`giftCardHtml`) exactly once (`delivered_at` claim, migration 0026); the webhook is a backup.
+- **Admin two-step sign-in** (Nov 16, 2026): `admin.html` requires an authenticator-app code
+  (Supabase TOTP MFA). Migration 0027 adds a RESTRICTIVE policy on `admin_users` (aal2 only),
+  which closes every admin RLS policy to password-only sessions; `gift-cards`, `quote-pay`
+  and `owner-assistant` check the JWT `aal` claim too (`passedTwoStep`). Lost phone: delete the
+  owner's row in `auth.mfa_factors`; they re-enroll at next sign-in.
+- **Crawlers:** `robots.txt` names the AI/search bots and allows them (not admin/account/pay
+  links); `llms.txt` summarizes services and areas for AI assistants; IndexNow key file at
+  the root (`8b111f2252ce504abd513eeafb86facb.txt`) for Bing/Yandex pings. No keyword
+  stuffing: it violates Google's spam policies and gets sites demoted.
 
 ---
 
@@ -287,7 +299,7 @@ The notes below describe how it worked.
   post-construction, move-in/out, Airbnb turnover, retail, pet-hair; a hero family
   photo and a hero proof video). Use these — do not invent new "proof."
 - **Honest levers available:** regular visits (weekly/biweekly/monthly, priced in the quote),
-  gift cards (`gift-cards.html`, by e-transfer), bilingual
+  gift cards (`gift-cards.html`, paid by card, emailed automatically), bilingual
   service, local/hyper-local SEO (dedicated Ottawa / Gatineau / Clarence-Rockland
   location pages already exist).
 - **Not yet available (don't promise):** no calendar/availability conflict checking,

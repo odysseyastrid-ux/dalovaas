@@ -28,14 +28,6 @@ alter table quote_requests
   add column if not exists job_sheet_sent_at timestamptz;
 grant update (assigned_employee_id) on quote_requests to authenticated;
 
--- Existing rows count as handled: automations only act on what happens from
--- now on (no surprise emails to past or test clients).
-update quote_requests set
-  receipt_sent_at = coalesce(receipt_sent_at, case when paid_at is not null then now() end),
-  thanks_sent_at = coalesce(thanks_sent_at, case when completed_at is not null then now() end),
-  unpaid_reminder_at = coalesce(unpaid_reminder_at, case when quoted_at is not null and paid_at is null then now() end),
-  reminder_sent_at = coalesce(reminder_sent_at, case when scheduled_date is not null then now() end);
-
 -- 3. First-party visit counter: anonymous (no IP, no cookie), written by the
 --    site with the public key (insert only), read by admins only.
 create table if not exists page_views (
@@ -56,13 +48,4 @@ create policy "admins read visits" on page_views for select to authenticated
 grant insert (path, ref_host, device, lang, tz, session_id) on page_views to anon, authenticated;
 grant select on page_views to authenticated;
 
--- 4. Run the automations every 15 minutes (the function is idempotent and
---    rate limited, so it needs no secret).
-select cron.unschedule('magicstick-automations') where exists (select 1 from cron.job where jobname = 'magicstick-automations');
-select cron.schedule('magicstick-automations', '*/15 * * * *', $$
-  select net.http_post(
-    url := 'https://siqpcnhfpseorjuwfrop.supabase.co/functions/v1/automations',
-    headers := '{"Content-Type": "application/json"}'::jsonb,
-    body := '{"source": "cron"}'::jsonb
-  );
-$$);
+-- Backfill and the 15-minute schedule are in 0030b (applied separately).

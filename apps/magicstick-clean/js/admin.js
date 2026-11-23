@@ -871,12 +871,12 @@
     drawChart('chartVisits', {
       type: 'line',
       data: { labels: days.map((d) => new Date(`${d}T12:00:00`).toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { day: 'numeric', month: 'short' })),
-        datasets: [{ data: perDay, borderColor: '#3CCBB4', backgroundColor: 'rgba(60,203,180,.14)', fill: true, tension: .35, pointRadius: 2 }] },
+        datasets: [{ data: perDay, borderColor: COLORS().b, backgroundColor: COLORS().bFill, fill: true, tension: .35, pointRadius: 2 }] },
     });
     const pages = tally(v, (x) => pageName(x.path));
     drawChart('chartPages', {
       type: 'bar',
-      data: { labels: pages.map((p) => p[0]), datasets: [{ data: pages.map((p) => p[1]), backgroundColor: '#5FE3A1', borderRadius: 6 }] },
+      data: { labels: pages.map((p) => p[0]), datasets: [{ data: pages.map((p) => p[1]), backgroundColor: COLORS().a, borderRadius: 6 }] },
       options: { indexAxis: 'y' },
     });
     const firstHits = [...new Map(v.slice().reverse().map((x) => [x.session_id || x.at, x])).values()];
@@ -1011,8 +1011,16 @@
   const charts = {};
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Studio look (dark glass, mint accent).
-  const PALETTE = ['#5FE3A1', '#3CCBB4', '#B8F25A', '#5EB8FF', '#F5C451', '#F27C9A', '#A7F3CF', '#C4B5FD'];
+  // Chart colors follow the dashboard mode: violet in light (the original colors), mint in dark (studio).
+  const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+  const LIGHT = { palette: ['#6B3FE6', '#2E8BE6', '#8B4DE6', '#22B8A6', '#F2A33A', '#E2557B', '#7DB8F4', '#B9A1F7'],
+    a: '#8B4DE6', b: '#2E8BE6', bFill: 'rgba(46,139,230,.14)', funnel: ['#B9A1F7', '#8B4DE6', '#6B3FE6', '#22B8A6'] };
+  const DARK = { palette: ['#5FE3A1', '#3CCBB4', '#B8F25A', '#5EB8FF', '#F5C451', '#F27C9A', '#A7F3CF', '#C4B5FD'],
+    a: '#5FE3A1', b: '#3CCBB4', bFill: 'rgba(60,203,180,.14)', funnel: ['#2F6F55', '#3FA877', '#5FE3A1', '#B8F25A'] };
+  const COLORS = () => (isDark() ? DARK : LIGHT);
+  // Redraw the charts in the right colors when the owner switches the mode.
+  new MutationObserver(() => { if (lastQuotes) renderHome(true); })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   function countUp(el, to, fmt) {
     if (reduceMotion) { el.textContent = fmt(to); return; }
@@ -1243,7 +1251,7 @@
     });
 
     if (!document.getElementById('dashSection-home').classList.contains('active') && !replay) return;
-    const accent = css('--teal') || '#5FE3A1';
+    const accent = css('--teal') || '#6B3FE6';
     // Revenue per week, last 12 weeks.
     const w0 = weekStart(new Date(now - 11 * 7 * 864e5));
     const weeks = Array.from({ length: 12 }, (_, i) => new Date(w0.getTime() + i * 7 * 864e5));
@@ -1263,7 +1271,7 @@
     const f = [last90.length, last90.filter((x) => x.quoted_amount_cents).length, last90.filter((x) => x.paid_at).length, last90.filter((x) => x.completed_at).length];
     drawChart('chartFunnel', {
       type: 'bar',
-      data: { labels: [t('admin.funnel.requests'), t('admin.funnel.priced'), t('admin.funnel.paid'), t('admin.funnel.done')], datasets: [{ data: f, backgroundColor: ['#2F6F55', '#3FA877', '#5FE3A1', '#B8F25A'], borderRadius: 8 }] },
+      data: { labels: [t('admin.funnel.requests'), t('admin.funnel.priced'), t('admin.funnel.paid'), t('admin.funnel.done')], datasets: [{ data: f, backgroundColor: COLORS().funnel, borderRadius: 8 }] },
       options: { indexAxis: 'y' },
     });
     const tally = (arr, key) => {
@@ -1273,7 +1281,7 @@
     };
     const doughnut = (id, pairs) => drawChart(id, {
       type: 'doughnut',
-      data: { labels: pairs.map((p) => p[0]), datasets: [{ data: pairs.map((p) => p[1]), backgroundColor: PALETTE, borderWidth: 0, hoverOffset: 8 }] },
+      data: { labels: pairs.map((p) => p[0]), datasets: [{ data: pairs.map((p) => p[1]), backgroundColor: COLORS().palette, borderWidth: 0, hoverOffset: 8 }] },
       options: { cutout: '62%', plugins: { legend: { display: true, position: 'bottom', labels: { color: css('--charcoal'), boxWidth: 10, font: { size: 11 } } } } },
     });
     doughnut('chartServices', tally(q, (x) => serviceLabel(x.service)));
@@ -1282,7 +1290,7 @@
     q.forEach((x) => { hours[new Date(x.created_at).getHours()] += 1; });
     drawChart('chartHours', {
       type: 'bar',
-      data: { labels: hours.map((_, h) => `${h}h`), datasets: [{ data: hours, backgroundColor: '#3CCBB4', borderRadius: 5 }] },
+      data: { labels: hours.map((_, h) => `${h}h`), datasets: [{ data: hours, backgroundColor: COLORS().b, borderRadius: 5 }] },
     });
     drawChart('chartLeads', {
       type: 'line',

@@ -187,6 +187,10 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    back after `repeat_days`), Tomorrow, Later (3 days / 1 week / date), Not for me, a focus timer, and Pause until a
    date (also pauses the `prospects` owner email, restored on resume). The owner studies, works and has ADHD: never
    show tasks as "late", never guilt; keep tasks short and precise.
+   **Next (owner's decision, Nov 23, 2026): `PLAN-CONNEXIONS.md`** — connect Gmail (by forwarding, not the
+   API), Google Business Profile, GA4 + Search Console + Calendar (service account), Facebook/Instagram; plus
+   morning summary, review alerts, expenses & profit, PDF receipts. Bulle prepares, the owner confirms.
+   Google setup waits until after the owner's exams; Phase 0 (no Google needed) can be built first.
 
 ---
 

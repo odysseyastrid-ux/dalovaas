@@ -2599,3 +2599,84 @@ body{ transition:background-color .35s ease, color .35s ease; }
 /* Top bar used as a notice (closure, holidays) — set from the dashboard. */
 .promo-bar.is-notice{background:#17151F;}
 .promo-bar p.promo-bar-link{margin:0;}
+
+
+/* =====================================================================
+   Motion polish (Nov 23, 2026): Apple-style, quiet and purposeful.
+   - Content rises into place as it scrolls in (CSS scroll-driven
+     animations: no script, and nothing is ever hidden where unsupported).
+   - Buttons and cards: a soft light follows the pointer, a gentle lift on
+     hover, a one-time sheen across the main buttons, a springy focus ring.
+   - Uses `translate`/`scale` (not `transform`) so it composes with the
+     existing hover and press transforms. Off under reduced motion.
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference){
+  @supports (animation-timeline: view()){
+    .step, .ba-card, .hub-card, .service-item, .dl-card, .subscribe-card,
+    .greviews-card, .testimonial, .loc-card, .faq-item{
+      animation:msRise linear both;
+      animation-timeline:view();
+      animation-range:entry 0% entry 55%;
+    }
+    .steps > .step:nth-child(2), .ba-card:nth-child(2), .hub-card:nth-child(2n){ animation-range:entry 8% entry 63%; }
+    .steps > .step:nth-child(3), .ba-card:nth-child(3), .hub-card:nth-child(3n){ animation-range:entry 16% entry 71%; }
+    .ba-pair figure{ overflow:hidden; }
+    .ba-card img{
+      animation:msSettle linear both;
+      animation-timeline:view();
+      animation-range:entry 0% cover 40%;
+    }
+  }
+}
+@keyframes msRise{ from{ opacity:0; translate:0 28px; scale:.985; } to{ opacity:1; translate:0 0; scale:1; } }
+@keyframes msSettle{ from{ scale:1.06; } to{ scale:1; } }
+
+/* Buttons: pointer light + lift + one sheen pass on hover. */
+.btn, .btn-outline, .cta-arrow{ position:relative; isolation:isolate; }
+.btn{ overflow:hidden; }
+.btn::after, .btn-outline::after, .cta-arrow::after{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.35), transparent 60%);
+  opacity:0; transition:opacity .35s ease;
+  z-index:-1; /* above the button's own background, under its text (isolation:isolate) */
+}
+.cta-arrow::after, .btn-outline::after{
+  background:radial-gradient(140px circle at var(--mx, 50%) var(--my, 50%), rgba(107,63,230,.14), transparent 60%);
+}
+.btn::before{
+  content:""; position:absolute; top:0; bottom:0; left:-60%; width:45%; z-index:-1; pointer-events:none;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.38), transparent);
+  transform:skewX(-18deg) translateX(0); opacity:0;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover::after, .btn-outline:hover::after, .cta-arrow:hover::after{ opacity:1; }
+  .btn:hover::before{ animation:msSheen .9s var(--ease-spring) 1; }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 14px 30px -10px rgba(107,63,230,.65); }
+  .btn-outline:hover{ transform:translateY(-2px); box-shadow:0 12px 26px -14px rgba(23,21,31,.55); }
+}
+@keyframes msSheen{ 0%{ opacity:0; left:-60%; } 15%{ opacity:1; } 100%{ opacity:0; left:130%; } }
+
+/* Cards: lift gently and catch the light where the pointer is. */
+.hub-card, .ba-card, .step, .subscribe-card, .dl-card{
+  transition:transform var(--dur-spring) var(--ease-spring), box-shadow .35s ease, border-color .25s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .hub-card, .ba-card, .subscribe-card, .dl-card{ background-image:radial-gradient(420px circle at var(--mx, 50%) var(--my, -20%), rgba(107,63,230,.07), transparent 55%); }
+  .hub-card:hover, .ba-card:hover, .dl-card:hover{ transform:translateY(-4px); box-shadow:0 22px 44px -26px rgba(23,21,31,.45); }
+  .step:hover{ transform:translateY(-3px); }
+  .step .num{ transition:transform var(--dur-bounce) var(--ease-bounce); }
+  .step:hover .num{ transform:scale(1.08) rotate(-4deg); }
+}
+
+/* Focus ring that springs in (keyboard users see where they are, beautifully). */
+.btn:focus-visible, .btn-outline:focus-visible, .cta-arrow:focus-visible{
+  outline:3px solid color-mix(in srgb, var(--teal, #6B3FE6) 70%, transparent);
+  outline-offset:3px;
+  animation:msRing .45s var(--ease-bounce) 1;
+}
+@keyframes msRing{ from{ outline-offset:9px; outline-color:transparent; } to{ outline-offset:3px; } }
+
+@media (prefers-reduced-motion: reduce){
+  .btn::before{ display:none; }
+  .btn:hover, .btn-outline:hover, .hub-card:hover, .ba-card:hover, .dl-card:hover, .step:hover{ transform:none; }
+}

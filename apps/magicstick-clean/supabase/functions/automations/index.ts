@@ -25,6 +25,9 @@
 //   balance reminder  invoice unpaid after the terms -> partner (once)
 // Partner orders never get the "unpaid price" reminder or the review request.
 //
+//   prospects  every day from 8 a.m. Eastern, once  -> owner: who to contact today
+//              (follow-ups due + new prospects, max 10). Nothing goes to prospects.
+//
 // Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto), RESEND_API_KEY,
 //          OWNER_NOTIFY_FROM, OWNER_EMAIL.
 
@@ -383,6 +386,46 @@ async function balanceReminders(rows: Q[], partners: Map<string, Q>, now: Date) 
   return n;
 }
 
+// Daily prospecting list for the owner (migration 0033): follow-ups that are
+// due first, then prospects never contacted, 10 at most. Once a day, claimed
+// in automation_log.
+const CATEGORY_ORDER = ["agency", "airbnb", "property", "realtor", "contractor", "channel"];
+const CATEGORY_FR: Record<string, string> = {
+  agency: "Agence de ménage", airbnb: "Gestion Airbnb", property: "Gestion immobilière",
+  realtor: "Courtier immobilier", contractor: "Entrepreneur", channel: "Où trouver des ménages",
+};
+export function pickProspects(rows: Q[], today: string, max = 10) {
+  const due = rows.filter((p) => (p.status === "contacted" || p.status === "interested") && p.next_action_on && p.next_action_on <= today)
+    .sort((a, b) => String(a.next_action_on).localeCompare(String(b.next_action_on)));
+  const fresh = rows.filter((p) => p.status === "todo" && (!p.next_action_on || p.next_action_on <= today))
+    .sort((a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category) || String(a.created_at).localeCompare(String(b.created_at)));
+  return [...due, ...fresh].slice(0, max);
+}
+async function prospectDigest(today: string) {
+  const { data: rows, error } = await supabase.from("prospects")
+    .select("id, name, category, area, phone, email, website, status, next_action_on, notes, created_at")
+    .in("status", ["todo", "contacted", "interested"]).limit(500);
+  if (error || !rows) return 0;
+  const list = pickProspects(rows as Q[], today);
+  if (!list.length) return 0;
+  const { data: claimed } = await supabase.from("automation_log").upsert({ key: `prospect-digest:${today}` }, { onConflict: "key", ignoreDuplicates: true }).select("key");
+  if (!claimed || claimed.length !== 1) return 0;
+  const line = (p: Q) => [
+    `<strong>${esc(p.name)}</strong> · ${esc(CATEGORY_FR[p.category] ?? p.category)}${p.area ? ` · ${esc(p.area)}` : ""}${p.status !== "todo" ? " · <em>relance</em>" : ""}`,
+    p.phone ? `<a href="tel:${esc(String(p.phone).replace(/[^0-9+]/g, ""))}">${esc(p.phone)}</a>` : "",
+    p.email ? `<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>` : "",
+    p.website ? `<a href="${esc(p.website)}">site</a>` : "",
+    p.notes ? `<span style="color:#6b7280">${esc(p.notes)}</span>` : "",
+  ].filter(Boolean).join("<br>");
+  const ok = await send(OWNER_EMAIL, `À contacter aujourd’hui : ${list.length} prospect${list.length > 1 ? "s" : ""}`,
+    "Vos contacts du jour", [
+      "Appelez d’abord, c’est ce qui marche le mieux. Après chaque contact, cliquez « Contacté » dans le tableau de bord : la relance se programme toute seule.",
+      ...list.map(line),
+    ], true, { href: `${SITE}/admin.html`, label: "Ouvrir la prospection" });
+  if (!ok) await supabase.from("automation_log").delete().eq("key", `prospect-digest:${today}`);
+  return ok ? list.length : 0;
+}
+
 export async function runAutomations(now = new Date()) {
   const { today, tomorrow, hour } = eastern(now);
   const daytime = hour >= 9 && hour < 20;
@@ -425,6 +468,7 @@ export async function runAutomations(now = new Date()) {
     owner_deposit_alerts: await ownerDepositAlerts(p3.data ?? [], partners),
     invoices: await invoices(p4.data ?? [], partners),
     balance_reminders: await balanceReminders(p5.data ?? [], partners, now),
+    prospects: hour >= 8 && hour < 20 ? await prospectDigest(today) : 0,
   };
 }
 

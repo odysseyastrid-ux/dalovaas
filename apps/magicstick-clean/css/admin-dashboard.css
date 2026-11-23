@@ -653,3 +653,18 @@
 .order-partner .is-due{color:#b45309;font-weight:700}
 [data-theme="dark"] .order-partner{background:rgba(167,139,250,.12)}
 [data-theme="dark"] .order-partner .is-due{color:#fbbf24}
+
+/* Prospecting (Clients > Prospection) */
+.prospect-stats{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.prospect-stats span{font-size:13px;padding:6px 10px;border-radius:999px;background:rgba(107,63,230,.08)}
+.prospect-stats b{font-size:15px}
+.prospect-card .order-facts a{color:inherit}
+.prospect-card .prospect-links{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.prospect-card .prospect-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:14px;text-decoration:none;color:inherit}
+.prospect-card .prospect-next{font-size:13px;font-weight:600}
+.prospect-card .prospect-next.is-due{color:#b45309}
+[data-theme="dark"] .prospect-card .prospect-next.is-due{color:#fbbf24}
+[data-theme="dark"] .prospect-stats span{background:rgba(167,139,250,.14)}
+.prospect-add{margin-top:14px}
+.prospect-add > summary{cursor:pointer;font-weight:700}
+.stage-chip.stage-today{border-color:#b45309}

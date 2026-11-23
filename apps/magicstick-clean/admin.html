@@ -215,6 +215,35 @@
           </section>
 
           <section class="dash-section" id="dashSection-clients">
+            <div class="dash-card" id="prospectCard">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.prospects.title">Prospecting</h3>
+                <p class="dash-card-sub" data-i18n="admin.prospects.sub">Businesses that could send you regular jobs. Every morning you get an email with who to contact today (10 max). After each call, tap a button: the follow-up schedules itself.</p></div></div>
+              <div class="prospect-stats" id="prospectStats"></div>
+              <div class="stage-chips" id="prospectChips" role="tablist"></div>
+              <div class="orders-list prospect-list" id="prospectList"></div>
+              <p class="fine" id="prospectEmpty" data-i18n="admin.orders.empty" hidden>Nothing here.</p>
+              <details class="prospect-add">
+                <summary data-i18n="admin.prospects.addTitle">Add a prospect</summary>
+                <form id="prospectForm" class="care-form partner-job-form">
+                  <input type="text" id="psName" maxlength="120" required data-i18n-placeholder="admin.prospects.name" placeholder="Business name">
+                  <select id="psCategory" aria-label="Category">
+                    <option value="agency" data-i18n="admin.prospects.cat.agency">Cleaning agency</option>
+                    <option value="airbnb" data-i18n="admin.prospects.cat.airbnb">Airbnb manager</option>
+                    <option value="property" data-i18n="admin.prospects.cat.property">Property manager</option>
+                    <option value="realtor" data-i18n="admin.prospects.cat.realtor">Realtor</option>
+                    <option value="contractor" data-i18n="admin.prospects.cat.contractor">Contractor</option>
+                    <option value="channel" data-i18n="admin.prospects.cat.channel">Where to find jobs</option>
+                  </select>
+                  <input type="text" id="psArea" maxlength="80" data-i18n-placeholder="admin.prospects.area" placeholder="Area">
+                  <input type="tel" id="psPhone" maxlength="40" data-i18n-placeholder="admin.team.phone" placeholder="Phone">
+                  <input type="email" id="psEmail" maxlength="254" data-i18n-placeholder="admin.team.email" placeholder="Email">
+                  <input type="text" id="psWebsite" maxlength="300" data-i18n-placeholder="admin.prospects.website" placeholder="Website">
+                  <select id="psLang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select>
+                  <input type="text" id="psNotes" maxlength="1000" data-i18n-placeholder="admin.prospects.notes" placeholder="Notes">
+                  <button type="submit" class="btn-mini" data-i18n="admin.care.stockAdd">Add</button>
+                </form>
+              </details>
+            </div>
             <div class="dash-card">
               <div class="dash-card-head"><div><h3 data-i18n="admin.partners.title">Partner agencies</h3>
                 <p class="dash-card-sub" data-i18n="admin.partners.sub">Agencies that send you jobs at their own rate. They pay the deposit before the cleaning; the balance is invoiced automatically from the hours actually worked (3-hour minimum).</p></div></div>

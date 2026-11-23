@@ -152,6 +152,14 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    the actual hours entered at "Done" (3-hour minimum, minus the deposit) and one balance
    reminder after the terms. pay.html shows partners what is due now (Interac only, no card).
    Partner orders never get the unpaid-price reminder or the Google review request.
+   **Prospecting (Nov 23, 2026, migration 0033):** `prospects` table (33 businesses found on the
+   web: cleaning agencies, Airbnb managers, property managers, realtors, contractors, job
+   channels; Care n Tidy marked client). Dashboard → Clients → Prospection: "Today" list (due
+   follow-ups first, then new ones, 10 max), call/website/intro-email links (the intro email
+   opens in the owner's own mailbox, with a "no thanks" opt-out line), buttons Contacted (+5 days),
+   Interested (+2), Later (+7), Not interested, "They said yes → client" (pre-fills the partner
+   form). `automations` emails the OWNER a daily "À contacter aujourd'hui" list from 8 a.m.
+   (claimed in `automation_log`). Nothing is ever sent to prospects automatically (CASL).
 
 ---
 

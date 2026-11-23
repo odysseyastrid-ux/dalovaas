@@ -521,6 +521,166 @@
   }
   const dep0 = (q) => (q.deposit_cents || 0) > 0 && !q.deposit_paid_at;
 
+  // ---------- Prospecting (migration 0033) ----------
+  // The owner works this list; automations emails a daily "contact today" list.
+  // Buttons move a prospect forward and schedule the follow-up automatically.
+  let lastProspects = null;
+  let prospectFilter = 'today';
+  const PROSPECT_CATS = ['agency', 'airbnb', 'property', 'realtor', 'contractor', 'channel'];
+  const PROSPECT_OPEN = ['todo', 'contacted', 'interested'];
+  const isoDay = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+  const inDaysIso = (n) => isoDay(Date.now() + n * 864e5);
+  // Same order as the daily email: due follow-ups, then new prospects by category.
+  function prospectsToday() {
+    const today = isoDay(Date.now());
+    const rows = lastProspects || [];
+    const due = rows.filter((p) => (p.status === 'contacted' || p.status === 'interested') && p.next_action_on && p.next_action_on <= today)
+      .sort((a, b) => String(a.next_action_on).localeCompare(String(b.next_action_on)));
+    const fresh = rows.filter((p) => p.status === 'todo' && (!p.next_action_on || p.next_action_on <= today))
+      .sort((a, b) => PROSPECT_CATS.indexOf(a.category) - PROSPECT_CATS.indexOf(b.category) || String(a.created_at).localeCompare(String(b.created_at)));
+    return [...due, ...fresh].slice(0, 10);
+  }
+  async function loadProspects() {
+    const { data, error } = await supabase.from('prospects').select('*').order('created_at');
+    if (error || !data) return;
+    lastProspects = data;
+    renderProspects();
+    renderHome();
+  }
+  async function updateProspect(p, patch) {
+    const { error } = await supabase.from('prospects').update(patch).eq('id', p.id);
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    Object.assign(p, patch);
+    renderProspects();
+    renderHome();
+  }
+  const contacted = (p, status, days) => ({
+    status, next_action_on: days == null ? null : inDaysIso(days),
+    last_contact_at: new Date().toISOString(), contact_count: (p.contact_count || 0) + 1,
+  });
+  function introMail(p) {
+    const fr = p.lang === 'fr';
+    const subject = fr ? 'Ménage fiable à Clarence-Rockland, Orléans, Ottawa et Gatineau' : 'Reliable cleaning in Orléans, Ottawa, Clarence-Rockland and Gatineau';
+    const body = fr
+      ? 'Bonjour,\n\nJe suis Louis de Magicstick Clean, une entreprise de ménage locale à Clarence-Rockland, Orléans, Ottawa et Gatineau. Je fais les ménages entre locataires, de déménagement, en profondeur et après chantier. J’apporte tous les produits, je réponds le jour même et j’envoie une facture claire après chaque ménage.\n\nSi vous avez besoin d’une personne fiable, même à court préavis, je serais heureux de faire un premier ménage pour que vous jugiez du travail.\n\nLouis\nMagicstick Clean · 343-843-7761 · magicstickclean.ca\n\n(Si vous ne souhaitez pas recevoir d’autre message, répondez simplement « non merci ».)'
+      : 'Hi,\n\nI’m Louis from Magicstick Clean, a local cleaning business serving Orléans, Ottawa, Clarence-Rockland and Gatineau. I handle turnover, move-out, deep and post-construction cleans, bring all supplies, reply the same day, and send a clear invoice after each job.\n\nIf you ever need a reliable cleaner on short notice, I’d be glad to do a first job so you can judge the work.\n\nLouis\nMagicstick Clean · 343-843-7761 · magicstickclean.ca\n\n(If you’d rather not hear from me again, just reply “no thanks”.)';
+    return `mailto:${encodeURIComponent(p.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+  function renderProspects() {
+    const list = document.getElementById('prospectList');
+    if (!list || !lastProspects) return;
+    const today = isoDay(Date.now());
+    const todayList = prospectsToday();
+    const count = (st) => lastProspects.filter((p) => p.status === st).length;
+    document.getElementById('prospectStats').innerHTML = [
+      ['admin.prospects.stat.today', todayList.length], ['admin.prospects.stat.todo', count('todo')],
+      ['admin.prospects.stat.contacted', count('contacted')], ['admin.prospects.stat.interested', count('interested')],
+      ['admin.prospects.stat.client', count('client')],
+    ].map(([k, n]) => `<span><b>${n}</b> ${esc(t(k))}</span>`).join('');
+    const chips = document.getElementById('prospectChips');
+    chips.innerHTML = '';
+    ['today', 'todo', 'contacted', 'interested', 'client', 'not_interested', 'all'].forEach((f) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `stage-chip stage-${f}${prospectFilter === f ? ' is-on' : ''}`;
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(prospectFilter === f));
+      b.textContent = t(`admin.prospects.filter.${f}`);
+      b.addEventListener('click', () => { prospectFilter = f; renderProspects(); });
+      chips.appendChild(b);
+    });
+    const rows = prospectFilter === 'today' ? todayList
+      : prospectFilter === 'all' ? lastProspects
+      : prospectFilter === 'not_interested' ? lastProspects.filter((p) => p.status === 'not_interested' || p.status === 'do_not_contact')
+      : lastProspects.filter((p) => p.status === prospectFilter);
+    document.getElementById('prospectEmpty').hidden = rows.length > 0;
+    list.innerHTML = '';
+    rows.forEach((p, i) => {
+      const card = document.createElement('article');
+      card.className = 'order-card prospect-card';
+      card.style.setProperty('--i', String(Math.min(i, 12)));
+      const due = PROSPECT_OPEN.includes(p.status) && p.next_action_on && p.next_action_on <= today;
+      const next = PROSPECT_OPEN.includes(p.status) && p.next_action_on
+        ? `<p class="prospect-next${due ? ' is-due' : ''}">${esc(t('admin.prospects.next', { date: dayFmt(p.next_action_on) }))}</p>` : '';
+      const last = p.last_contact_at ? ` · ${esc(t('admin.prospects.last', { date: dateFmt(p.last_contact_at), n: p.contact_count || 1 }))}` : '';
+      card.innerHTML = `
+        <div class="order-head">
+          <div><h4>${esc(p.name)}</h4><span class="fine">${esc(t(`admin.prospects.cat.${p.category}`))}${p.area ? ` · ${esc(p.area)}` : ''}${last}</span></div>
+          <span class="stage-pill">${esc(t(`admin.prospects.status.${p.status}`))}</span>
+        </div>
+        ${p.notes ? `<p class="order-msg">${esc(p.notes)}</p>` : ''}
+        ${next}
+        <div class="prospect-links"></div>
+        <div class="order-actions"></div>`;
+      const links = card.querySelector('.prospect-links');
+      const link = (href, label, onClick) => {
+        const a = document.createElement('a');
+        a.href = href; a.textContent = label;
+        if (/^https?:/.test(href)) { a.target = '_blank'; a.rel = 'noopener'; }
+        if (onClick) a.addEventListener('click', onClick);
+        links.appendChild(a);
+      };
+      if (p.phone) link(`tel:${String(p.phone).replace(/[^0-9+]/g, '')}`, `📞 ${p.phone}`);
+      if (p.email && p.status !== 'do_not_contact' && p.status !== 'not_interested') {
+        link(introMail(p), `✉️ ${t(p.intro_sent_at ? 'admin.prospects.emailAgain' : 'admin.prospects.email')}`, () => {
+          if (!p.intro_sent_at) updateProspect(p, { ...contacted(p, p.status === 'todo' ? 'contacted' : p.status, 5), intro_sent_at: new Date().toISOString() });
+        });
+      }
+      if (p.website) link(p.website, `🌐 ${t('admin.prospects.site')}`);
+      if (!p.website && p.source) link(p.source, `🔎 ${t('admin.prospects.source')}`);
+      const actions = card.querySelector('.order-actions');
+      const add = (label, cls, fn) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = cls; b.textContent = label;
+        b.addEventListener('click', fn);
+        actions.appendChild(b);
+      };
+      if (PROSPECT_OPEN.includes(p.status)) {
+        add(t('admin.prospects.act.contacted'), 'btn-mini', () => updateProspect(p, contacted(p, p.status === 'interested' ? 'interested' : 'contacted', 5)));
+        add(t('admin.prospects.act.interested'), 'btn-mini btn-mini-go', () => updateProspect(p, contacted(p, 'interested', 2)));
+        add(t('admin.prospects.act.client'), 'btn-mini btn-mini-go', () => makeClient(p));
+        add(t('admin.prospects.act.later'), 'btn-mini btn-mini-ghost', () => updateProspect(p, { next_action_on: inDaysIso(7) }));
+        add(t('admin.prospects.act.no'), 'btn-mini btn-mini-ghost', () => updateProspect(p, { status: 'not_interested', next_action_on: null }));
+      } else {
+        add(t('admin.prospects.act.reopen'), 'btn-mini btn-mini-ghost', () => updateProspect(p, { status: 'todo', next_action_on: null }));
+      }
+      add(t('admin.prospects.act.note'), 'btn-mini btn-mini-ghost', () => {
+        const note = prompt(t('admin.prospects.notePrompt'), p.notes || '');
+        if (note !== null) updateProspect(p, { notes: note.trim().slice(0, 1000) || null });
+      });
+      list.appendChild(card);
+    });
+    setBadge('clients', todayList.length);
+  }
+  // A prospect who says yes becomes a partner: the partner form is pre-filled.
+  function makeClient(p) {
+    updateProspect(p, { ...contacted(p, 'client', null) });
+    const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+    set('ptName', p.name); set('ptEmail', p.email); set('ptPhone', p.phone);
+    const lang = document.getElementById('ptLang'); if (lang) lang.value = p.lang === 'fr' ? 'fr' : 'en';
+    if (p.category !== 'channel') {
+      alert(t('admin.prospects.clientHint'));
+      document.getElementById('partnerForm')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('ptRate')?.focus();
+    }
+  }
+  document.getElementById('prospectForm')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const val = (id) => document.getElementById(id).value.trim();
+    let website = val('psWebsite');
+    if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
+    const row = {
+      name: val('psName'), category: document.getElementById('psCategory').value, area: val('psArea') || null,
+      phone: val('psPhone') || null, email: val('psEmail').toLowerCase() || null, website: website || null,
+      lang: document.getElementById('psLang').value === 'fr' ? 'fr' : 'en', notes: val('psNotes') || null,
+    };
+    if (!row.name) return;
+    const { error } = await supabase.from('prospects').insert(row);
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    ev.target.reset();
+    loadProspects();
+  });
+
   // ---------- Website visits (page_views, anonymous) ----------
   let lastVisits = null;
   async function loadVisits() {
@@ -725,6 +885,7 @@
       { n: (lastJobs || []).filter((j) => !j.status || j.status === 'new').length, key: 'admin.home.todo.jobs', section: 'team' },
       { n: (lastGiftRequests || []).filter((g) => g.status === 'new').length, key: 'admin.home.todo.giftReq', section: 'gifts' },
       { n: (lastSupplies || []).filter((x) => Number(x.quantity) <= Number(x.min_quantity)).length, key: 'admin.home.todo.stock', section: 'care' },
+      { n: lastProspects ? prospectsToday().length : 0, key: 'admin.home.todo.prospects', section: 'clients' },
     ].filter((x) => x.n > 0);
     const ul = document.getElementById('homeTodo');
     ul.innerHTML = todo.length ? '' : `<li class="todo-empty">${esc(t('admin.home.todo.none'))}</li>`;
@@ -1604,7 +1765,7 @@
     let start = 'home';
     try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
     if (!document.getElementById(`dashSection-${start}`)) start = 'home';
-    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners()]);
+    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners(), loadProspects()]);
     openSection(start);
     renderHome(true);
     await loadCategories();
@@ -1758,7 +1919,7 @@
   document.getElementById('careBackupJson')?.addEventListener('click', async () => {
     const note = document.getElementById('careBackupNote');
     note.textContent = t('admin.care.backupWorking');
-    const tables = ['quote_requests', 'newsletter_subscribers', 'job_applications', 'gift_cards', 'gift_card_requests', 'gift_card_transactions', 'services', 'service_addons', 'supplies', 'site_settings', 'bookings', 'partners', 'employees'];
+    const tables = ['quote_requests', 'newsletter_subscribers', 'job_applications', 'gift_cards', 'gift_card_requests', 'gift_card_transactions', 'services', 'service_addons', 'supplies', 'site_settings', 'bookings', 'partners', 'employees', 'prospects'];
     const out = { exported_at: new Date().toISOString(), site: 'magicstickclean.ca' };
     for (const tb of tables) {
       const { data, error } = await supabase.from(tb).select('*');

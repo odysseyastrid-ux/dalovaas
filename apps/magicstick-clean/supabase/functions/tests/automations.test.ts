@@ -124,3 +124,39 @@ Deno.test("partner: invoice from actual hours minus the deposit, then one balanc
   await run(); await run();
   assert.equal(emails.filter((e) => /Reminder: balance/.test(e.subject)).length, daytime() ? 1 : 0);
 });
+
+// ---------- Prospecting: one daily list for the owner, nothing to prospects ----------
+import { pickProspects } from "../automations/index.ts";
+
+Deno.test("pickProspects: due follow-ups first, then new ones by category, 10 max, skips done ones", () => {
+  const today = "2026-11-24";
+  const rows = [
+    { id: "a", name: "Builder", category: "contractor", status: "todo", created_at: "1" },
+    { id: "b", name: "Agency", category: "agency", status: "todo", created_at: "2" },
+    { id: "c", name: "Follow", category: "property", status: "contacted", next_action_on: "2026-11-23" },
+    { id: "d", name: "Later", category: "property", status: "contacted", next_action_on: "2026-11-30" },
+    { id: "e", name: "Snoozed", category: "airbnb", status: "todo", next_action_on: "2026-12-01" },
+    ...Array.from({ length: 12 }, (_, i) => ({ id: `x${i}`, name: `P${i}`, category: "realtor", status: "todo", created_at: `3${i}` })),
+  ];
+  const out = pickProspects(rows, today);
+  assert.equal(out.length, 10);
+  assert.deepEqual(out.slice(0, 2).map((p) => p.id), ["c", "b"]);
+  assert.ok(!out.some((p) => ["d", "e"].includes(p.id)));
+});
+
+Deno.test("prospect digest: sent to the owner once a day during the day, never to prospects", async () => {
+  resetAll();
+  state.table("prospects").push(
+    { id: "pr1", name: "LR Gestion", category: "property", status: "todo", phone: "819-414-2002", email: "location@lrgestion.example", created_at: "1" },
+    { id: "pr2", name: "Gone", category: "agency", status: "not_interested", created_at: "2" },
+  );
+  await run(); await run();
+  const { hour } = eastern();
+  const digests = emails.filter((e) => /À contacter aujourd’hui/.test(e.subject));
+  assert.equal(digests.length, hour >= 8 && hour < 20 ? 1 : 0);
+  if (digests.length) {
+    assert.ok(digests[0].html?.includes("LR Gestion"));
+    assert.ok(!digests[0].html?.includes("Gone"));
+  }
+  assert.equal(emails.filter((e) => e.to === "location@lrgestion.example").length, 0);
+});

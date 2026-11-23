@@ -36,7 +36,8 @@ export const state = {
 };
 
 class Query implements PromiseLike<any> {
-  private op: "select" | "insert" | "update" = "select";
+  private op: "select" | "insert" | "update" | "upsert" | "delete" = "select";
+  private upsertOpts: { onConflict?: string; ignoreDuplicates?: boolean } = {};
   private filters: ((r: Row) => boolean)[] = [];
   private payload: any;
   private head = false;
@@ -53,6 +54,8 @@ class Query implements PromiseLike<any> {
   }
   insert(row: Row) { this.op = "insert"; this.payload = row; return this; }
   update(patch: Row) { this.op = "update"; this.payload = patch; return this; }
+  upsert(row: Row, opts: { onConflict?: string; ignoreDuplicates?: boolean } = {}) { this.op = "upsert"; this.payload = row; this.upsertOpts = opts; return this; }
+  delete() { this.op = "delete"; return this; }
   eq(k: string, v: any) { this.filters.push((r) => r[k] === v); return this; }
   not(k: string, op: string, v: any) { this.filters.push((r) => op === "is" ? (r[k] ?? null) !== v : r[k] !== v); return this; }
   is(k: string, v: any) { this.filters.push((r) => (r[k] ?? null) === v); return this; }
@@ -110,7 +113,23 @@ class Query implements PromiseLike<any> {
       rows.push(row);
       return this.shape([row]);
     }
+    if (this.op === "upsert") {
+      const k = this.upsertOpts.onConflict ?? "id";
+      const existing = rows.find((r) => r[k] === this.payload[k]);
+      if (existing) {
+        if (this.upsertOpts.ignoreDuplicates) return { data: [], error: null };
+        Object.assign(existing, this.payload);
+        return this.shape([existing]);
+      }
+      const row: Row = { ...this.payload };
+      rows.push(row);
+      return this.shape([row]);
+    }
     let matched = rows.filter((r) => this.filters.every((f) => f(r)));
+    if (this.op === "delete") {
+      state.tables[this.name] = rows.filter((r) => !matched.includes(r));
+      return this.shape(matched);
+    }
     if (this.op === "update") {
       for (const r of matched) Object.assign(r, this.payload);
       return this.shape(matched);

@@ -155,7 +155,12 @@
   // Game feel (js/admin-fx.js): XP for real work, a celebration on each win.
   // Purely decorative; nothing breaks if admin-fx.js is missing.
   const XP = { done: 50, paid: 30, deposit: 30, scheduled: 10, contact: 10, interested: 20, client: 100, growth: 20 };
-  const fxWin = (points) => { if (points > 0 && window.MagicFX) window.MagicFX.win(points); };
+  // wins: list of XP keys earned by one save; the biggest one names the moment.
+  const fxWin = (wins) => {
+    if (!wins.length || !window.MagicFX) return;
+    const top = wins.reduce((a, b) => (XP[b] > XP[a] ? b : a));
+    window.MagicFX.win(wins.reduce((s, k) => s + XP[k], 0), top);
+  };
   function refreshXP() {
     if (!window.MagicFX || !lastQuotes) return;
     const quotes = lastQuotes.reduce((s, x) => s + (x.completed_at ? XP.done : 0) + (x.paid_at ? XP.paid : 0)
@@ -168,8 +173,8 @@
   async function updateQuote(q, patch) {
     const { error } = await supabase.from('quote_requests').update(patch).eq('id', q.id);
     if (error) { alert(t('admin.orders.saveError')); return false; }
-    const gained = (patch.completed_at && !q.completed_at ? XP.done : 0) + (patch.paid_at && !q.paid_at ? XP.paid : 0)
-      + (patch.deposit_paid_at && !q.deposit_paid_at ? XP.deposit : 0) + (patch.scheduled_date && !q.scheduled_date ? XP.scheduled : 0);
+    const gained = [['completed_at', 'done'], ['paid_at', 'paid'], ['deposit_paid_at', 'deposit'], ['scheduled_date', 'scheduled']]
+      .filter(([f]) => patch[f] && !q[f]).map(([, k]) => k);
     Object.assign(q, patch);
     renderQuotes();
     renderHome();
@@ -567,9 +572,10 @@
   async function updateProspect(p, patch) {
     const { error } = await supabase.from('prospects').update(patch).eq('id', p.id);
     if (error) { alert(t('admin.orders.saveError')); return; }
-    const gained = ((patch.contact_count || 0) > (p.contact_count || 0) ? XP.contact : 0)
-      + (patch.status === 'interested' && p.status !== 'interested' ? XP.interested : 0)
-      + (patch.status === 'client' && p.status !== 'client' ? XP.client : 0);
+    const gained = [];
+    if ((patch.contact_count || 0) > (p.contact_count || 0)) gained.push('contact');
+    if (patch.status === 'interested' && p.status !== 'interested') gained.push('interested');
+    if (patch.status === 'client' && p.status !== 'client') gained.push('client');
     Object.assign(p, patch);
     fxWin(gained);
     renderProspects();
@@ -741,7 +747,7 @@
     if (on) growthDone.add(key); else growthDone.delete(key);
     renderGrowth();
     refreshXP();
-    if (on) fxWin(XP.growth);
+    if (on) fxWin(['growth']);
   }
   function copyButton(text) {
     const b = document.createElement('button');

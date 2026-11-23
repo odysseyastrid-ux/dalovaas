@@ -166,6 +166,15 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    the owner creates these accounts; never create accounts or handle passwords for them),
    profile texts EN/FR, Facebook post for the Rockland groups, and the public requests with
    their reply + copy/contacted buttons. Ticks are stored in `growth_checklist`.
+   **Bulle, the owner's AI employee (Nov 23, 2026, migration 0036):** `owner-agent` edge function +
+   `js/admin-agent.js` (an original animated soap-bubble creature, floating button + drawer on every tab).
+   Fully separate from Louis (`ai-chat`, public site only; Louis and the cookie banner/promo bar are not
+   loaded on admin.html). Knows the site and the live back office (no client phone/email/address is sent
+   to the model), searches the web (Groq `browser_search`), skills: marketing, sales, call center,
+   cleaning, evaluation. It only PROPOSES actions (price window pre-filled, schedule, paid/done, prospect
+   status, growth tick, pause/intro of an automatic email, ready SMS/email); each runs only when the owner
+   clicks Confirm. `automation_settings` (pause per email kind + intro FR/EN) is read by `automations`;
+   `agent_messages` keeps the conversation.
 
 ---
 

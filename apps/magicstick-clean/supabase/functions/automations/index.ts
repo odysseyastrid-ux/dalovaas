@@ -85,8 +85,16 @@ ${button ? `<tr><td style="padding:18px 30px 6px"><a href="${button.href}" style
 const toText = (title: string, paragraphs: string[], button?: { href: string; label: string }) =>
   [title, "", ...paragraphs.map((p) => p.replace(/<br>/g, "\n").replace(/<[^>]+>/g, "")), button ? `\n${button.label}: ${button.href}` : "", "", "— Magicstick Clean · 343-843-7761"].join("\n");
 
+// Owner settings per email kind (table automation_settings, edited with Bulle in the
+// dashboard): a paused kind is skipped, an intro paragraph is added at the top.
+let settings = new Map<string, Q>();
+let currentKind = "";
+const isOn = (kind: string) => settings.get(kind)?.enabled !== false;
+
 async function send(to: string, subject: string, title: string, paragraphs: string[], fr: boolean, button?: { href: string; label: string }): Promise<boolean> {
   if (!RESEND_API_KEY) { console.error("RESEND_API_KEY missing"); return false; }
+  const intro = settings.get(currentKind)?.[fr ? "intro_fr" : "intro_en"];
+  if (intro && String(intro).trim()) paragraphs = [esc(String(intro).trim()), ...paragraphs];
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -456,19 +464,22 @@ export async function runAutomations(now = new Date()) {
     daytime ? q().not("partner_id", "is", null).not("invoice_sent_at", "is", null).is("paid_at", null).is("balance_reminder_at", null) : none,
   ] as PromiseLike<{ data: unknown }>[])) as { data: Q[] | null }[];
   const sheetsDue = (r2.data ?? []).filter((x) => x.job_sheet_employee_id !== x.assigned_employee_id);
+  const { data: settingRows } = await supabase.from("automation_settings").select("kind, enabled, intro_fr, intro_en");
+  settings = new Map<string, Q>(((settingRows ?? []) as Q[]).map((r) => [r.kind, r] as [string, Q]));
+  const run = async (kind: string, fn: () => Promise<number>) => { if (!isOn(kind)) return 0; currentKind = kind; try { return await fn(); } finally { currentKind = ""; } };
   return {
-    receipts: await receipts(r1.data ?? []),
-    job_sheets: await jobSheets(sheetsDue, staff),
-    reminders: await reminders((r3.data ?? []) as Q[], staff),
-    thanks: await thanks(r4.data ?? []),
-    unpaid: await unpaid(r5.data ?? []),
-    confirmations: await confirmations((c1.data ?? []).filter((x) => x.confirmation_date !== x.scheduled_date)),
-    deposit_receipts: await depositReceipts(p1.data ?? []),
-    deposit_reminders: await depositReminders(p2.data ?? []),
-    owner_deposit_alerts: await ownerDepositAlerts(p3.data ?? [], partners),
-    invoices: await invoices(p4.data ?? [], partners),
-    balance_reminders: await balanceReminders(p5.data ?? [], partners, now),
-    prospects: hour >= 8 && hour < 20 ? await prospectDigest(today) : 0,
+    receipts: await run("receipts", () => receipts(r1.data ?? [])),
+    job_sheets: await run("job_sheets", () => jobSheets(sheetsDue, staff)),
+    reminders: await run("reminders", () => reminders((r3.data ?? []) as Q[], staff)),
+    thanks: await run("thanks", () => thanks(r4.data ?? [])),
+    unpaid: await run("unpaid", () => unpaid(r5.data ?? [])),
+    confirmations: await run("confirmations", () => confirmations((c1.data ?? []).filter((x) => x.confirmation_date !== x.scheduled_date))),
+    deposit_receipts: await run("deposit_receipts", () => depositReceipts(p1.data ?? [])),
+    deposit_reminders: await run("deposit_reminders", () => depositReminders(p2.data ?? [])),
+    owner_deposit_alerts: await run("owner_deposit_alerts", () => ownerDepositAlerts(p3.data ?? [], partners)),
+    invoices: await run("invoices", () => invoices(p4.data ?? [], partners)),
+    balance_reminders: await run("balance_reminders", () => balanceReminders(p5.data ?? [], partners, now)),
+    prospects: hour >= 8 && hour < 20 ? await run("prospects", () => prospectDigest(today)) : 0,
   };
 }
 

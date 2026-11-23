@@ -708,20 +708,24 @@
   }
 
   function init() {
+    // The owner dashboard (admin.html, <html class="studio">) only takes the tools it
+    // needs: no cookie banner, promo bar, contact bubble, newsletter or visit counter.
+    const ownerDashboard = document.documentElement.classList.contains('studio');
     initSkipLink();
-    initScrollProgress();
-    initFloatingContact();
     initPageBack();
     initHeaderScrollEdge();
-    initBackToTop();
     initThemeToggle();
-    initCookieBanner();
     initCopyButtons();
     initConfirmModal();
     initPasswordToggles();
+    initNavFit();
+    if (ownerDashboard) return;
+    initScrollProgress();
+    initFloatingContact();
+    initBackToTop();
+    initCookieBanner();
     initUtmCapture();
     initNewsletterForm();
-    initNavFit();
     initPromoBar();
     setTimeout(countVisit, 1500);
   }

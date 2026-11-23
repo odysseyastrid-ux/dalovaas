@@ -1,0 +1,110 @@
+/* =====================================================================
+   "Bulle", the owner's AI employee (js/admin-agent.js). Dashboard only.
+   An original animated soap-bubble creature: it floats, blinks, wags its
+   feather-duster tail; looks up while thinking, talks, jumps when an action
+   is done. Follows the dashboard's light/dark colors.
+   ===================================================================== */
+.bulle-avatar{display:inline-block;width:64px;height:64px;position:relative;}
+.bulle-avatar.bulle-sm{width:42px;height:42px;}
+.bulle-avatar.bulle-lg{width:120px;height:120px;flex:none;}
+.bulle-svg{width:100%;height:100%;overflow:visible;animation:bulleFloat 3.2s ease-in-out infinite;filter:drop-shadow(0 10px 16px rgba(107,63,230,.35));}
+@keyframes bulleFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+.bulle-body{transform-origin:60px 100px;animation:bulleSquish 3.2s ease-in-out infinite;}
+@keyframes bulleSquish{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.97)}}
+.bulle-sheen{mix-blend-mode:screen;animation:bulleSheen 6s linear infinite;transform-origin:60px 64px;}
+@keyframes bulleSheen{to{transform:rotate(360deg)}}
+.bulle-eye{transform-box:fill-box;transform-origin:center;animation:bulleBlink 4.6s infinite;}
+.bulle-eye + .bulle-eye{animation-delay:.04s;}
+@keyframes bulleBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.bulle-pupil{transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+.bulle-tail{transform-origin:86px 86px;animation:bulleWag 1.6s ease-in-out infinite;}
+@keyframes bulleWag{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+.bulle-antenna{transform-origin:60px 26px;animation:bulleBob 2.4s ease-in-out infinite;}
+@keyframes bulleBob{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(8deg)}}
+.bulle-fizz circle{fill:#fff;stroke:#B49CF7;stroke-width:1;opacity:0;animation:bulleFizz 3.6s ease-in infinite;}
+.bulle-fizz circle:nth-child(2){animation-delay:1.2s;}
+.bulle-fizz circle:nth-child(3){animation-delay:2.3s;}
+@keyframes bulleFizz{0%{opacity:0;transform:translateY(6px) scale(.5)}20%{opacity:.9}100%{opacity:0;transform:translateY(-26px) scale(1.1)}}
+.bulle-mouth{transform-box:fill-box;transform-origin:center top;}
+/* Moods */
+.bulle-avatar.is-thinking .bulle-pupil{transform:translate(1px,-3px);}
+.bulle-avatar.is-thinking .bulle-svg{animation-duration:1.4s;}
+.bulle-avatar.is-thinking .bulle-antenna{animation-duration:.6s;}
+.bulle-avatar.is-talking .bulle-mouth{animation:bulleTalk .22s ease-in-out infinite alternate;}
+@keyframes bulleTalk{from{transform:scaleY(.6)}to{transform:scaleY(1.35)}}
+.bulle-avatar.is-happy .bulle-svg{animation:bulleJump .6s cubic-bezier(.3,1.6,.5,1) 2;}
+@keyframes bulleJump{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-14px) scale(1.06,.95)}}
+
+/* ---------- Floating button ---------- */
+.bulle-fab{position:fixed;right:22px;bottom:22px;z-index:600;width:74px;height:74px;padding:0;border:0;border-radius:50%;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 60%,rgba(185,161,247,.35),transparent 70%);transition:transform .3s cubic-bezier(.2,1.4,.4,1);}
+.bulle-fab:hover{transform:scale(1.08);}
+.bulle-fab:focus-visible{outline:3px solid var(--teal);outline-offset:3px;}
+body.bulle-on .bulle-fab{transform:scale(0);pointer-events:none;}
+@media (max-width:860px){.bulle-fab{bottom:96px;right:12px;width:64px;height:64px;}.bulle-fab .bulle-avatar{width:56px;height:56px;}}
+
+/* ---------- Drawer ---------- */
+.bulle-drawer{position:fixed;top:12px;right:12px;bottom:12px;z-index:700;width:min(420px,calc(100vw - 24px));display:flex;flex-direction:column;
+  background:var(--paper,#fff);border:1px solid var(--line);border-radius:24px;box-shadow:0 40px 90px -30px rgba(23,21,31,.45);
+  transform:translateX(30px) scale(.97);opacity:0;transition:transform .4s cubic-bezier(.2,.9,.2,1),opacity .3s ease;overflow:hidden;}
+.bulle-drawer.is-open{transform:none;opacity:1;}
+.bulle-drawer[hidden]{display:none;}
+:root[data-theme="dark"] .bulle-drawer{background:#0F1512;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 40px 90px -30px rgba(0,0,0,.9);}
+.bulle-head{display:flex;align-items:center;gap:10px;padding:14px 14px 12px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(120deg,rgba(185,161,247,.18),rgba(125,184,255,.12) 60%,transparent);}
+.bulle-id{display:grid;line-height:1.2;flex:1;min-width:0;}
+.bulle-id b{font-size:16px;color:var(--charcoal);}
+.bulle-id small{font-size:12px;color:var(--gray);}
+.bulle-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--gray);cursor:pointer;}
+.bulle-icon:hover{color:var(--charcoal);}
+.bulle-icon svg{width:18px;height:18px;}
+.bulle-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain;}
+.bulle-msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14px;line-height:1.5;color:var(--charcoal);word-wrap:break-word;animation:bulleIn .35s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes bulleIn{from{opacity:0;transform:translateY(8px) scale(.98)}}
+.bulle-msg-assistant{align-self:flex-start;background:var(--teal-tint,#F1ECFC);border-bottom-left-radius:6px;}
+.bulle-msg-user{align-self:flex-end;background:var(--teal,#6B3FE6);color:#fff;border-bottom-right-radius:6px;}
+:root[data-theme="dark"] .bulle-msg-user{color:#06110B;}
+.bulle-msg a{color:inherit;text-decoration:underline;word-break:break-all;}
+.bulle-msg code{font-size:12.5px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:5px;}
+.bulle-msg.is-typing{display:flex;gap:5px;padding:14px 16px;}
+.bulle-msg.is-typing span{width:7px;height:7px;border-radius:50%;background:var(--teal);opacity:.4;animation:bulleDot 1s infinite;}
+.bulle-msg.is-typing span:nth-child(2){animation-delay:.15s;}
+.bulle-msg.is-typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bulleDot{50%{opacity:1;transform:translateY(-3px)}}
+.bulle-chips{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;border-top:1px solid var(--line);scrollbar-width:none;}
+.bulle-chip{flex:none;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--charcoal);font:600 12.5px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.bulle-chip:hover{background:var(--teal-tint);}
+.bulle-form{display:flex;align-items:flex-end;gap:8px;padding:10px 12px 14px;}
+.bulle-input{flex:1;resize:none;max-height:140px;padding:11px 14px;border-radius:16px;border:1px solid var(--line);background:var(--cream,#F5F3EC);color:var(--charcoal);font:inherit;font-size:14px;line-height:1.4;}
+:root[data-theme="dark"] .bulle-input{background:rgba(255,255,255,.04);}
+.bulle-input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-tint);}
+.bulle-send{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;background:var(--teal);color:#fff;}
+:root[data-theme="dark"] .bulle-send{color:#06110B;}
+.bulle-send svg{width:19px;height:19px;}
+
+/* ---------- Proposed actions ---------- */
+.bulle-actions{display:grid;gap:8px;margin-top:10px;}
+.bulle-action{display:grid;gap:8px;padding:10px 12px;border-radius:12px;background:var(--paper,#fff);border:1px solid var(--line);}
+:root[data-theme="dark"] .bulle-action{background:rgba(255,255,255,.04);}
+.bulle-action.is-sensitive{border-color:#F2A33A;box-shadow:inset 3px 0 0 #F2A33A;}
+.bulle-action-text{display:grid;gap:4px;font-size:13.5px;font-weight:600;}
+.bulle-action-text em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#C77700;}
+.bulle-action-preview{margin:2px 0 0;font-weight:400;font-size:12.5px;color:var(--gray);white-space:pre-wrap;max-height:120px;overflow:auto;}
+.bulle-action-btns{display:flex;gap:6px;font-size:12.5px;font-weight:700;color:var(--gray);}
+.bulle-ok,.bulle-skip{padding:6px 12px;border-radius:999px;font:700 12.5px/1 inherit;font-family:inherit;cursor:pointer;}
+.bulle-ok{border:0;background:var(--teal);color:#fff;}
+:root[data-theme="dark"] .bulle-ok{color:#06110B;}
+.bulle-skip{border:1px solid var(--line);background:transparent;color:var(--charcoal);}
+.bulle-action.is-done{border-color:#22B8A6;}
+.bulle-action.is-done .bulle-action-btns{color:#16917F;}
+.bulle-action.is-failed .bulle-action-btns{color:#C0392B;}
+.bulle-action.is-skipped{opacity:.55;}
+
+/* ---------- AI tab intro ---------- */
+.bulle-intro{display:flex;align-items:center;gap:20px;padding:8px 4px 16px;}
+.bulle-intro p{margin:0 0 12px;max-width:60ch;color:var(--charcoal);}
+@media (max-width:560px){.bulle-intro{flex-direction:column;text-align:center;}}
+
+@media (prefers-reduced-motion:reduce){
+  .bulle-svg,.bulle-body,.bulle-sheen,.bulle-eye,.bulle-tail,.bulle-antenna,.bulle-fizz circle,.bulle-msg{animation:none;}
+}

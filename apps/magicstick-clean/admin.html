@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="css/admin-dashboard.css">
 <link rel="stylesheet" href="css/admin-widgets.css">
 <link rel="stylesheet" href="css/admin-studio.css">
+<link rel="stylesheet" href="css/admin-agent.css">
 <script src="js/vendor/supabase-js-2.117.3.umd.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
@@ -846,14 +847,16 @@
           <section class="dash-section" id="dashSection-assistant">
             <div class="dash-card">
                 <div class="dash-card-head">
-                  <h3 data-i18n="admin.ai.owner.title">My private assistant</h3>
+                  <h3 data-i18n="admin.agent.title">Bulle, your AI employee</h3>
                   <p class="dash-card-sub" data-i18n="admin.ai.owner.sub">Private to you — clients never see this. Ask it anything: marketing, draft an email or post, pricing math, planning, ideas. Unrelated to the client site.</p>
                 </div>
-                <div class="ai-chat-log" id="aiOwnerLog"></div>
-                <form id="aiOwnerForm" class="ai-chat-form">
-                  <textarea id="aiOwnerInput" rows="2" data-i18n-placeholder="admin.ai.owner.ph" placeholder="Ask your assistant anything…"></textarea>
-                  <button type="submit" class="btn" id="aiOwnerSend" data-i18n="admin.ai.send">Send</button>
-                </form>
+                <div class="bulle-intro">
+                  <div class="bulle-avatar bulle-lg" data-bulle-avatar aria-hidden="true"></div>
+                  <div>
+                    <p data-i18n="admin.agent.intro">Bulle is your AI employee: it knows the whole site and the whole dashboard, searches the web, drafts prices and messages, and suggests actions that you confirm with one click.</p>
+                    <button type="button" class="btn" data-bulle-open data-i18n="admin.agent.open">Talk to Bulle</button>
+                  </div>
+                </div>
                 <details class="ai-notes">
                   <summary data-i18n="admin.ai.owner.notesTitle">My notes &amp; standing instructions for this assistant</summary>
                   <textarea id="aiOwnerNotes" rows="5" data-i18n-placeholder="admin.ai.owner.notesPh" placeholder="e.g. My name is… My goals this quarter are… Always answer in French. My tone is friendly and direct…"></textarea>
@@ -948,6 +951,6 @@
 <script src="js/admin-fx.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/site-enhancements.js"></script>
-<script src="js/ai-chat.js"></script>
+<script src="js/admin-agent.js"></script>
 </body>
 </html>

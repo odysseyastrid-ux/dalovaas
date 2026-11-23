@@ -2346,6 +2346,7 @@
     const form = document.getElementById('aiOwnerForm');
     const input = document.getElementById('aiOwnerInput');
     const sendBtn = document.getElementById('aiOwnerSend');
+    if (!form) return; // the private chat is now Bulle (js/admin-agent.js)
 
     function bubble(role, text) {
       const el = document.createElement('div');
@@ -2537,4 +2538,9 @@
       setTimeout(close, 1400);
     });
   })();
+  // Bulle (js/admin-agent.js) runs the actions the owner confirms through these.
+  window.MagicAdmin = {
+    supabase, backend, t, lang, openSection, openPriceDialog, updateQuote, updateProspect, toggleGrowth,
+    quotes: () => lastQuotes || [], prospects: () => lastProspects || [], section: () => studioSection,
+  };
 })();

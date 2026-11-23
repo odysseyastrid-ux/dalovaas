@@ -322,29 +322,6 @@
       }
     });
   }
-
-  // Apple-style light that follows the pointer on buttons and cards (mouse and
-  // trackpad only; touch screens and reduced-motion users keep the plain style).
-  function initPointerGlow() {
-    const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!fine.matches || calm.matches) return;
-    const SEL = '.btn, .btn-outline, .cta-arrow, .hub-card, .ba-card, .step, .subscribe-card';
-    let raf = 0, last = null;
-    document.addEventListener('pointermove', (e) => {
-      last = e;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const el = last.target instanceof Element ? last.target.closest(SEL) : null;
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        el.style.setProperty('--mx', `${((last.clientX - r.left) / r.width) * 100}%`);
-        el.style.setProperty('--my', `${((last.clientY - r.top) / r.height) * 100}%`);
-      });
-    }, { passive: true });
-  }
-
   function initCopyButtons() {
     if (!navigator.clipboard) return;
     document.querySelectorAll('.foot-contact-link').forEach((link) => {
@@ -740,7 +717,6 @@
     initThemeToggle();
     initCookieBanner();
     initCopyButtons();
-    initPointerGlow();
     initConfirmModal();
     initPasswordToggles();
     initUtmCapture();

@@ -16,6 +16,8 @@
 //   action "send_link" { quote_id } + admin JWT -> emails the client their
 //                   price and payment link (from the dashboard).
 // The quote is marked paid only by stripe-webhook (metadata.kind = "quote").
+// Partner orders (migration 0031) show what is due now (the deposit before the
+// job, then the invoiced balance) and are paid by Interac only.
 //
 // Card payment is ON when STRIPE_SECRET_KEY is set, unless the secret
 // QUOTE_CARD_PAYMENTS = "off" (kill switch). Interac is always offered.
@@ -27,7 +29,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { checkLimits, readLimitedBody, withCors, rejectForeignOrigin, logResendError } from "./guard.ts";
 
-const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+// deno-lint-ignore no-explicit-any
+const supabase: any = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const STRIPE_KEY = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 const cardOn = () => Deno.env.get("QUOTE_CARD_PAYMENTS") !== "off" && !!STRIPE_KEY;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -134,6 +137,21 @@ async function sendLink(req: Request, body: Record<string, unknown>): Promise<Re
   if (!sent) return json({ error: "email_failed" }, 502);
   await supabase.from("quote_requests").update({ quoted_at: new Date().toISOString() }).eq("id", q.id);
   return json({ ok: true, to });
+}
+
+// What a partner agency owes right now: the deposit until it is received,
+// then the balance once the job is invoiced (final hours), else nothing yet.
+export function partnerDue(q: Record<string, unknown>) {
+  const dep = Number(q.deposit_cents ?? 0);
+  const total = Number(q.final_amount_cents ?? q.quoted_amount_cents ?? 0);
+  const first = String(q.name ?? "").trim().split(/\s+/)[0] ?? "";
+  const base = { first_name: first, service: q.service, note: q.quote_note ?? "", card: false, partner: true, lang: q.lang === "fr" ? "fr" : "en" };
+  if (q.paid_at) return { ...base, amount_cents: total, part: "full", paid: true };
+  if (dep > 0 && !q.deposit_paid_at) return { ...base, amount_cents: dep, part: "deposit", paid: false };
+  if (q.completed_at && q.final_amount_cents) {
+    return { ...base, amount_cents: Math.max(0, total - (q.deposit_paid_at ? dep : 0)), part: "balance", paid: false };
+  }
+  return { ...base, amount_cents: total, part: "estimate", paid: false, deposit_paid: true };
 }
 
 export function hoursOk(h: number) { return Number.isFinite(h) && h >= 3 && h <= 8 && Math.round(h * 2) === h * 2; }
@@ -245,7 +263,7 @@ async function handle(req: Request): Promise<Response> {
 
   const { data: q, error } = await supabase
     .from("quote_requests")
-    .select("id, name, service, quoted_amount_cents, quote_note, paid_at, lang, stripe_payment_intent_id")
+    .select("id, name, service, quoted_amount_cents, quote_note, paid_at, lang, stripe_payment_intent_id, partner_id, deposit_cents, deposit_paid_at, final_amount_cents, completed_at")
     .eq("pay_code", code)
     .maybeSingle();
   if (error) {
@@ -255,6 +273,7 @@ async function handle(req: Request): Promise<Response> {
   if (!q || !q.quoted_amount_cents) return json({ error: "not_found" }, 404);
 
   if (action === "get") {
+    if (q.partner_id) return json(partnerDue(q));
     return json({
       first_name: String(q.name ?? "").trim().split(/\s+/)[0] ?? "",
       service: q.service,
@@ -267,6 +286,7 @@ async function handle(req: Request): Promise<Response> {
   }
 
   if (q.paid_at) return json({ error: "already_paid" }, 409);
+  if (q.partner_id) return json({ error: "card_unavailable" }, 409);
   if (!cardOn()) return json({ error: "card_unavailable" }, 409);
 
   try {

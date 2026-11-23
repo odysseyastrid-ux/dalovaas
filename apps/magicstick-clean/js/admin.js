@@ -196,7 +196,7 @@
       wrap.appendChild(b);
       return b;
     };
-    if (stage !== 'cancelled' && stage !== 'done') wrap.appendChild(priceButton(q));
+    if (stage !== 'cancelled' && stage !== 'done' && !q.partner_id) wrap.appendChild(priceButton(q));
     if (stage === 'paid' || stage === 'planned') {
       const plan = document.createElement('div');
       plan.className = 'order-plan';
@@ -213,10 +213,10 @@
       plan.appendChild(saveBtn);
       wrap.appendChild(plan);
     }
-    if (stage === 'planned') add(t('admin.orders.markDone'), 'btn-mini btn-mini-go', () => updateQuote(q, { completed_at: new Date().toISOString(), status: 'booked' }));
+    if (stage === 'planned') add(t('admin.orders.markDone'), 'btn-mini btn-mini-go', () => (q.partner_id ? markPartnerDone(q) : updateQuote(q, { completed_at: new Date().toISOString(), status: 'booked' })));
     if (stage === 'done') {
-      wrap.appendChild(reviewButton({ table: 'quote_requests', row: q, name: q.name, contact: q.contact, onChange: renderQuotes }));
-      add(t('admin.orders.undoDone'), 'btn-mini btn-mini-ghost', () => updateQuote(q, { completed_at: null }));
+      if (!q.partner_id) wrap.appendChild(reviewButton({ table: 'quote_requests', row: q, name: q.name, contact: q.contact, onChange: renderQuotes }));
+      add(t('admin.orders.undoDone'), 'btn-mini btn-mini-ghost', () => updateQuote(q, q.partner_id && !q.paid_at ? { completed_at: null, actual_hours: null, final_amount_cents: null } : { completed_at: null }));
     }
     if (stage === 'cancelled') add(t('admin.orders.restore'), 'btn-mini btn-mini-ghost', () => updateQuote(q, { status: 'new' }));
     else if (stage !== 'done') {
@@ -259,11 +259,12 @@
         </div>
         <p class="order-facts">${facts.map((f) => `<span>${esc(f)}</span>`).join('')}</p>
         ${when}
-        ${q.quoted_amount_cents ? `<p class="order-amount">${esc(cad(q.quoted_amount_cents, lang()))}${q.paid_at ? ` <span class="paid-tag">✓ ${esc(t('admin.stage.paid'))}</span>` : ''}</p>` : ''}
+        ${q.quoted_amount_cents ? `<p class="order-amount">${esc(cad(amountOf(q), lang()))}${q.paid_at ? ` <span class="paid-tag">✓ ${esc(t('admin.stage.paid'))}</span>` : ''}</p>` : ''}
         <div class="order-contact">${contactCell(q)}</div>
         ${q.message ? `<p class="order-msg">${esc(q.message)}</p>` : ''}
         <div class="order-files"></div>`;
       card.querySelector('.order-files').appendChild(filesCell(q));
+      if (q.partner_id) card.appendChild(partnerBlock(q, stage));
       if (stage !== 'cancelled') card.appendChild(assignBlock(q));
       card.appendChild(orderActions(q, stage));
       list.appendChild(card);
@@ -352,6 +353,11 @@
       [q.reminder_sent_at && q.scheduled_date, 'admin.auto.reminder'],
       [q.unpaid_reminder_at && !q.paid_at && q.quoted_at, 'admin.auto.unpaid'],
       [q.thanks_sent_at && q.completed_at, 'admin.auto.thanks'],
+      [q.confirmation_date && q.confirmation_date === q.scheduled_date, 'admin.auto.confirm'],
+      [q.deposit_reminder_at && !q.deposit_paid_at, 'admin.auto.depositReminder'],
+      [q.deposit_receipt_at && q.deposit_paid_at, 'admin.auto.depositReceipt'],
+      [q.invoice_sent_at && q.final_amount_cents, 'admin.auto.invoice'],
+      [q.balance_reminder_at && !q.paid_at, 'admin.auto.balanceReminder'],
     ].filter(([on]) => on);
     if (sent.length) {
       const p = document.createElement('p');
@@ -361,6 +367,159 @@
     }
     return box;
   }
+
+  // ---------- Partner agencies (migration 0031) ----------
+  // An agency books a cleaning at its own rate. Its deposit (50% by default)
+  // is due BEFORE the job; the balance is invoiced from the actual hours
+  // (3-hour minimum) when the job is marked done. Emails: automations function.
+  let lastPartners = null;
+  const amountOf = (x) => x.final_amount_cents || x.quoted_amount_cents || 0;
+  const hoursNum = (v) => { const n = Number(String(v || '').replace(',', '.')); return Number.isFinite(n) ? Math.round(n * 2) / 2 : NaN; };
+  async function loadPartners() {
+    const { data, error } = await supabase.from('partners').select('*').order('name');
+    if (error || !data) return;
+    lastPartners = data;
+    renderPartners();
+    renderQuotes();
+  }
+  const partnerOf = (q) => (lastPartners || []).find((p) => p.id === q.partner_id) || null;
+  function renderPartners() {
+    const ul = document.getElementById('partnerList');
+    if (ul && lastPartners) {
+      ul.innerHTML = lastPartners.length ? '' : `<li class="fine">${esc(t('admin.partners.empty'))}</li>`;
+      lastPartners.forEach((p, i) => {
+        const owed = (lastQuotes || []).filter((q) => q.partner_id === p.id && q.status !== 'declined' && !q.paid_at)
+          .reduce((sum, q) => sum + (q.deposit_paid_at ? amountOf(q) - (q.deposit_cents || 0) : (q.deposit_cents || 0)), 0);
+        const jobs = (lastQuotes || []).filter((q) => q.partner_id === p.id && q.completed_at).length;
+        const li = document.createElement('li');
+        li.style.setProperty('--i', String(i));
+        li.className = p.active ? '' : 'is-off';
+        li.innerHTML = `<div><b>${esc(p.name)}</b><span class="fine">${esc([p.contact_name, p.email, p.phone].filter(Boolean).join(' · '))}</span>
+          <span class="fine">${esc(t('admin.partners.terms', { rate: cad(p.hourly_rate_cents, lang()), pct: p.deposit_percent, days: p.payment_terms_days }))}</span>
+          <span class="fine">${esc(t('admin.partners.stats', { jobs, owed: cad(Math.max(0, owed), lang()) }))}</span></div>
+          <div class="stock-ctrl"><label class="care-switch"><input type="checkbox" ${p.active ? 'checked' : ''}><span class="fine">${esc(t('admin.team.active'))}</span></label></div>`;
+        li.querySelector('input').addEventListener('change', async (ev) => {
+          const { error } = await supabase.from('partners').update({ active: ev.target.checked }).eq('id', p.id);
+          if (!error) { p.active = ev.target.checked; renderPartners(); }
+        });
+        ul.appendChild(li);
+      });
+    }
+    const sel = document.getElementById('pjPartner');
+    if (sel && lastPartners) {
+      const keep = sel.value;
+      sel.innerHTML = `<option value="">${esc(t('admin.partners.choose'))}</option>` +
+        lastPartners.filter((p) => p.active).map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+      sel.value = keep;
+    }
+    const box = document.getElementById('partnerJobCard');
+    if (box) box.hidden = !(lastPartners || []).some((p) => p.active);
+    refreshPartnerJob();
+  }
+  document.getElementById('partnerForm')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const val = (id) => document.getElementById(id).value.trim();
+    const rate = Math.round(Number(val('ptRate').replace(',', '.')) * 100);
+    const row = {
+      name: val('ptName'), contact_name: val('ptContact') || null, email: val('ptEmail').toLowerCase() || null,
+      phone: val('ptPhone') || null, hourly_rate_cents: rate,
+      deposit_percent: Math.round(Number(val('ptDeposit') || 50)), payment_terms_days: Math.round(Number(val('ptTerms') || 7)),
+      lang: document.getElementById('ptLang').value === 'fr' ? 'fr' : 'en',
+    };
+    if (!row.name || !(rate >= 1000)) { alert(t('admin.partners.invalid')); return; }
+    const { error } = await supabase.from('partners').insert(row);
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    ev.target.reset();
+    loadPartners();
+  });
+
+  // New partner job: estimate = rate x estimated hours; deposit = % of it.
+  function partnerJobNumbers() {
+    const p = (lastPartners || []).find((x) => x.id === document.getElementById('pjPartner')?.value);
+    const h = hoursNum(document.getElementById('pjHours')?.value);
+    if (!p || !(h >= 0.5)) return null;
+    const est = Math.round(p.hourly_rate_cents * Math.max(3, h));
+    const raw = document.getElementById('pjDeposit')?.value;
+    const pct = raw === '' || raw == null ? p.deposit_percent : Math.min(100, Math.max(0, Math.round(Number(raw))));
+    return { p, h, est, pct, dep: Math.round(est * pct / 100) };
+  }
+  function refreshPartnerJob() {
+    const out = document.getElementById('pjSummary');
+    if (!out) return;
+    const n = partnerJobNumbers();
+    out.textContent = n ? t(n.dep ? 'admin.partners.jobSummary' : 'admin.partners.jobSummaryNoDeposit', { est: cad(n.est, lang()), pct: n.pct, dep: cad(n.dep, lang()) }) : '';
+  }
+  ['pjDeposit', 'pjHours'].forEach((id) => document.getElementById(id)?.addEventListener('input', refreshPartnerJob));
+  // Choosing a partner pre-fills its usual deposit %, which can be changed for one job.
+  document.getElementById('pjPartner')?.addEventListener('change', (ev) => {
+    const p = (lastPartners || []).find((x) => x.id === ev.target.value);
+    const d = document.getElementById('pjDeposit');
+    if (d && p) d.value = String(p.deposit_percent);
+    refreshPartnerJob();
+  });
+  document.getElementById('partnerJobForm')?.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const n = partnerJobNumbers();
+    const val = (id) => document.getElementById(id).value.trim();
+    const date = val('pjDate');
+    if (!n || !date || !val('pjAddress')) { alert(t('admin.partners.jobInvalid')); return; }
+    const p = n.p;
+    const row = {
+      name: p.contact_name ? `${p.contact_name} (${p.name})` : p.name,
+      contact: p.email || p.phone || p.name, email: p.email || null, phone: p.phone || null,
+      address: val('pjAddress'), service: document.getElementById('pjService').value, frequency: 'One-time',
+      message: val('pjNotes'), source: 'partner', lang: p.lang, status: 'booked',
+      partner_id: p.id, hourly_rate_cents: p.hourly_rate_cents, estimated_hours: n.h,
+      quoted_amount_cents: n.est, deposit_cents: n.dep, quoted_at: new Date().toISOString(),
+      preferred_date: date, scheduled_date: date, scheduled_window: document.getElementById('pjWindow').value,
+    };
+    let error = null;
+    for (let i = 0; i < 3; i++) {
+      ({ error } = await supabase.from('quote_requests').insert({ ...row, pay_code: newPayCode() }));
+      if (!error || error.code !== '23505') break;
+    }
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    ev.target.reset();
+    refreshPartnerJob();
+    await loadQuotes();
+    pingAutomations();
+  });
+
+  // On a partner order card: deposit status, deposit received, hours done, balance received.
+  function partnerBlock(q, stage) {
+    const box = document.createElement('div');
+    box.className = 'order-partner';
+    const p = partnerOf(q);
+    const dep = q.deposit_cents || 0;
+    const balance = Math.max(0, amountOf(q) - (q.deposit_paid_at ? dep : 0));
+    const lines = [`<b>${esc(t('admin.partners.badge', { name: p ? p.name : '' }))}</b>`];
+    if (q.estimated_hours && q.hourly_rate_cents) lines.push(esc(t('admin.partners.estimate', { h: q.estimated_hours, rate: cad(q.hourly_rate_cents, lang()) })));
+    if (dep) lines.push(q.deposit_paid_at ? `✓ ${esc(t('admin.partners.depositPaid', { amount: cad(dep, lang()) }))}` : `<span class="is-due">${esc(t('admin.partners.depositDue', { amount: cad(dep, lang()) }))}</span>`);
+    if (q.actual_hours) lines.push(esc(t('admin.partners.actual', { h: q.actual_hours, total: cad(amountOf(q), lang()) })));
+    if (q.completed_at && !q.paid_at) lines.push(`<span class="is-due">${esc(t('admin.partners.balanceDue', { amount: cad(balance, lang()) }))}</span>`);
+    box.innerHTML = `<p>${lines.join('<br>')}</p>`;
+    const add = (label, cls, fn) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = cls; b.textContent = label;
+      b.addEventListener('click', fn);
+      box.appendChild(b);
+    };
+    if (stage !== 'cancelled' && dep && !q.deposit_paid_at) add(t('admin.partners.markDeposit'), 'btn-mini btn-mini-go', () => updateQuote(q, { deposit_paid_at: new Date().toISOString() }));
+    if (stage !== 'cancelled' && dep && q.deposit_paid_at && !q.completed_at) add(t('admin.partners.undoDeposit'), 'btn-mini btn-mini-ghost', () => updateQuote(q, { deposit_paid_at: null }));
+    if (q.completed_at && !q.paid_at) add(t('admin.partners.markBalance'), 'btn-mini btn-mini-go', () => updateQuote(q, { paid_at: new Date().toISOString(), payment_method: 'interac' }));
+    return box;
+  }
+  // "Done" on a partner order asks for the hours actually worked (3-hour minimum billed).
+  function markPartnerDone(q) {
+    if (dep0(q)) { if (!confirm(t('admin.partners.depositMissingConfirm'))) return; }
+    const h = hoursNum(prompt(t('admin.partners.hoursPrompt'), String(q.estimated_hours || '')));
+    if (!(h >= 0.5 && h <= 24)) return;
+    const final = Math.round((q.hourly_rate_cents || 0) * Math.max(3, h));
+    const patch = { completed_at: new Date().toISOString(), status: 'booked', actual_hours: h, final_amount_cents: final };
+    if (final - (q.deposit_paid_at ? (q.deposit_cents || 0) : 0) <= 0) Object.assign(patch, { paid_at: new Date().toISOString(), payment_method: 'interac' });
+    updateQuote(q, patch);
+  }
+  const dep0 = (q) => (q.deposit_cents || 0) > 0 && !q.deposit_paid_at;
 
   // ---------- Website visits (page_views, anonymous) ----------
   let lastVisits = null;
@@ -524,7 +683,7 @@
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const q = lastQuotes;
-    const paidIn = (a, b) => q.filter((x) => x.paid_at && new Date(x.paid_at) >= a && new Date(x.paid_at) < b).reduce((s, x) => s + (x.quoted_amount_cents || 0), 0);
+    const paidIn = (a, b) => q.filter((x) => x.paid_at && new Date(x.paid_at) >= a && new Date(x.paid_at) < b).reduce((s, x) => s + amountOf(x), 0);
     const revMonth = paidIn(monthStart, new Date(8.64e15));
     const revPrev = paidIn(prevStart, monthStart);
     const reqMonth = q.filter((x) => new Date(x.created_at) >= monthStart).length;
@@ -588,7 +747,7 @@
     const weekIdx = (d) => Math.floor((weekStart(d) - w0) / (7 * 864e5));
     const rev = new Array(12).fill(0), reqW = new Array(12).fill(0), leadW = new Array(12).fill(0);
     q.forEach((x) => {
-      if (x.paid_at) { const i = weekIdx(new Date(x.paid_at)); if (i >= 0 && i < 12) rev[i] += (x.quoted_amount_cents || 0) / 100; }
+      if (x.paid_at) { const i = weekIdx(new Date(x.paid_at)); if (i >= 0 && i < 12) rev[i] += amountOf(x) / 100; }
       const j = weekIdx(new Date(x.created_at)); if (j >= 0 && j < 12) reqW[j] += 1;
     });
     leads.forEach((l) => { const i = weekIdx(new Date(l.created_at)); if (i >= 0 && i < 12) leadW[i] += 1; });
@@ -1215,6 +1374,7 @@
     if (error || !data) return;
     lastQuotes = data;
     renderQuotes();
+    if (lastPartners) renderPartners();
   }
 
   // ---------- Gift cards ----------
@@ -1444,7 +1604,7 @@
     let start = 'home';
     try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
     if (!document.getElementById(`dashSection-${start}`)) start = 'home';
-    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits()]);
+    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners()]);
     openSection(start);
     renderHome(true);
     await loadCategories();

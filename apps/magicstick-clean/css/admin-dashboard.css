@@ -604,7 +604,7 @@
 @keyframes pulse{50%{opacity:.35}}
 .care-form{display:grid;gap:10px;}
 .care-form label{display:grid;gap:4px;font-size:13px;font-weight:600;}
-.care-form input[type=text],.care-form input[type=date],.care-form input[type=number]{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px;background:#fff;color:#17151F;}
+.care-form input[type=text],.care-form input[type=date],.care-form input[type=number],.care-form input[type=email],.care-form input[type=tel],.care-form select{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:14px;background:#fff;color:#17151F;}
 .care-switch{display:flex !important;align-items:center;gap:10px;font-weight:600;}
 .care-switch input{width:20px;height:20px;accent-color:var(--teal);}
 .care-form-row{grid-template-columns:2fr 1.2fr .8fr .8fr auto;align-items:center;margin-top:12px;}
@@ -639,3 +639,17 @@
 @media (max-width:560px){.staff-form{grid-template-columns:1fr 1fr;}.staff-form input:first-child{grid-column:1/-1;}}
 .home-visits-title{margin:26px 0 4px;font-size:20px;}
 #visitsNote{margin:0 0 12px;}
+
+/* Partner agencies (deposit before the job, balance from actual hours) */
+.partner-job > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.partner-job > summary::-webkit-details-marker{display:none}
+.partner-job > summary::before{content:"+";font-weight:700;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--accent-soft, rgba(107,63,230,.12))}
+.partner-job[open] > summary::before{content:"−"}
+.partner-job > summary h3{margin:0}
+.partner-job-form, .partner-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:10px}
+.partner-job-form #pjSummary{grid-column:1/-1;margin:0;font-weight:600}
+.order-partner{margin:8px 0;padding:10px 12px;border-radius:12px;background:rgba(107,63,230,.07);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.order-partner p{margin:0;flex:1 1 220px;font-size:14px;line-height:1.5}
+.order-partner .is-due{color:#b45309;font-weight:700}
+[data-theme="dark"] .order-partner{background:rgba(167,139,250,.12)}
+[data-theme="dark"] .order-partner .is-due{color:#fbbf24}

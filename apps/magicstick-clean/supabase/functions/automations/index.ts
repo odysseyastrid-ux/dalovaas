@@ -14,6 +14,16 @@
 //                                                -> client thank-you + Google review link
 //   unpaid    price sent 3+ days ago, not paid (9 a.m.–8 p.m.), once
 //                                                -> client reminder with the pay link
+//   confirm   a date is set (or changed)           -> booking confirmation
+//
+// Partner agencies (migration 0031) pay a deposit before the job and the
+// balance from the hours actually worked:
+//   deposit receipt   deposit marked received        -> partner
+//   deposit reminder  job in 2 days, deposit unpaid  -> partner (once)
+//   owner alert       job tomorrow, deposit unpaid   -> owner (once)
+//   invoice           done with final hours          -> partner (balance, due date)
+//   balance reminder  invoice unpaid after the terms -> partner (once)
+// Partner orders never get the "unpaid price" reminder or the review request.
 //
 // Secrets: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto), RESEND_API_KEY,
 //          OWNER_NOTIFY_FROM, OWNER_EMAIL.
@@ -103,6 +113,14 @@ const svc = (q: Q, fr: boolean) => {
   return s || (fr ? "votre ménage" : "your cleaning");
 };
 
+const total = (q: Q) => Number(q.final_amount_cents ?? q.quoted_amount_cents ?? 0);
+const depositPaid = (q: Q) => (q.deposit_paid_at ? Number(q.deposit_cents ?? 0) : 0);
+const hoursTxt = (h: unknown, fr: boolean) => String(Number(h)).replace(".", fr ? "," : ".");
+const payLink = (q: Q, fr: boolean) => `${SITE}/pay.html?code=${q.pay_code}&lang=${fr ? "fr" : "en"}`;
+const interacLine = (q: Q, cents: number, fr: boolean) => fr
+  ? `Par virement Interac à <strong>magicstickclean@gmail.com</strong>, montant <strong>${esc(cad(cents, true))}</strong>, avec le numéro de commande <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong> en message.`
+  : `By Interac e-Transfer to <strong>magicstickclean@gmail.com</strong>, amount <strong>${esc(cad(cents, false))}</strong>, with order number <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong> in the message.`;
+
 async function receipts(rows: Q[]) {
   let n = 0;
   for (const q of rows) {
@@ -114,8 +132,8 @@ async function receipts(rows: Q[]) {
     const ok = await send(to, fr ? "Paiement reçu, merci ! — Magicstick Clean" : "Payment received, thank you! — Magicstick Clean",
       fr ? `Merci ${first(q.name)}, c’est payé` : `Thank you ${first(q.name)}, you’re all set`,
       fr
-        ? [`Nous avons bien reçu votre paiement de <strong>${esc(cad(q.quoted_amount_cents, true))}</strong> ${esc(method)} pour : ${esc(svc(q, true))}.`, `Numéro de commande : <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong>`, q.scheduled_date ? `Votre ménage est prévu le <strong>${esc(dayText(q.scheduled_date, true))}</strong> (${esc(windowText(q.scheduled_window, true))}).` : "Nous vous confirmons la date et l’heure de la visite très bientôt."]
-        : [`We received your payment of <strong>${esc(cad(q.quoted_amount_cents, false))}</strong> ${esc(method)} for: ${esc(svc(q, false))}.`, `Order number: <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong>`, q.scheduled_date ? `Your cleaning is scheduled for <strong>${esc(dayText(q.scheduled_date, false))}</strong> (${esc(windowText(q.scheduled_window, false))}).` : "We’ll confirm the date and time of your visit very soon."],
+        ? [`Nous avons bien reçu votre paiement${q.partner_id ? " (total de la facture)" : ""} de <strong>${esc(cad(total(q), true))}</strong> ${esc(method)} pour : ${esc(svc(q, true))}.`, `Numéro de commande : <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong>`, q.completed_at ? "Merci pour votre confiance, au plaisir de travailler de nouveau ensemble." : q.scheduled_date ? `Votre ménage est prévu le <strong>${esc(dayText(q.scheduled_date, true))}</strong> (${esc(windowText(q.scheduled_window, true))}).` : "Nous vous confirmons la date et l’heure de la visite très bientôt."]
+        : [`We received your payment${q.partner_id ? " (invoice total)" : ""} of <strong>${esc(cad(total(q), false))}</strong> ${esc(method)} for: ${esc(svc(q, false))}.`, `Order number: <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong>`, q.completed_at ? "Thank you for your trust, we look forward to working together again." : q.scheduled_date ? `Your cleaning is scheduled for <strong>${esc(dayText(q.scheduled_date, false))}</strong> (${esc(windowText(q.scheduled_window, false))}).` : "We’ll confirm the date and time of your visit very soon."],
       fr);
     if (ok) n++; else await release(q.id, "receipt_sent_at");
   }
@@ -213,21 +231,186 @@ async function unpaid(rows: Q[]) {
   return n;
 }
 
+// Booking confirmation: sent when a date is set, and again if it changes.
+async function confirmations(rows: Q[]) {
+  let n = 0;
+  for (const q of rows) {
+    const to = clientEmail(q);
+    const { data } = await supabase.from("quote_requests").update({ confirmation_date: q.scheduled_date })
+      .eq("id", q.id).eq("scheduled_date", q.scheduled_date)
+      .or(`confirmation_date.is.null,confirmation_date.neq.${q.scheduled_date}`).select("id");
+    if (!data || data.length !== 1 || !to) continue;
+    const fr = q.lang !== "en";
+    const lines = [
+      `<strong>${fr ? "Quand" : "When"} :</strong> ${esc(dayText(q.scheduled_date, fr))} · ${esc(windowText(q.scheduled_window, fr))}`,
+      `<strong>${fr ? "Adresse" : "Address"} :</strong> ${esc(q.address || q.zone || (fr ? "à confirmer" : "to be confirmed"))}`,
+      `<strong>Service :</strong> ${esc(svc(q, fr))}`,
+    ];
+    let button: { href: string; label: string } | undefined;
+    if (q.partner_id) {
+      const rate = Number(q.hourly_rate_cents ?? 0);
+      if (q.estimated_hours && rate) {
+        lines.push(fr
+          ? `<strong>Estimation :</strong> ${esc(hoursTxt(q.estimated_hours, true))} h × ${esc(cad(rate, true))}/h = ${esc(cad(Number(q.quoted_amount_cents ?? 0), true))}. Facturé selon les heures réellement faites (minimum 3 h), produits et équipement inclus.`
+          : `<strong>Estimate:</strong> ${esc(hoursTxt(q.estimated_hours, false))} h × ${esc(cad(rate, false))}/h = ${esc(cad(Number(q.quoted_amount_cents ?? 0), false))}. Billed on the hours actually worked (3-hour minimum), all supplies and equipment included.`);
+      }
+      const dep = Number(q.deposit_cents ?? 0);
+      if (dep > 0 && !q.deposit_paid_at) {
+        lines.push(fr
+          ? `<strong>Acompte à payer avant le ménage : ${esc(cad(dep, true))}.</strong> Le ménage commence une fois l’acompte reçu. Le solde est facturé à la fin, selon les heures réelles.`
+          : `<strong>Deposit due before the cleaning: ${esc(cad(dep, false))}.</strong> The job starts once the deposit is received. The balance is invoiced at the end, based on the actual hours.`);
+        lines.push(interacLine(q, dep, fr));
+        if (q.pay_code) button = { href: payLink(q, fr), label: fr ? "Voir ma commande" : "View my order" };
+      } else if (dep > 0) {
+        lines.push(fr ? `Acompte de ${esc(cad(dep, true))} reçu, merci.` : `Deposit of ${esc(cad(dep, false))} received, thank you.`);
+      }
+    } else if (q.paid_at) {
+      lines.push(fr ? "C’est payé, merci." : "It’s paid, thank you.");
+    } else if (q.quoted_amount_cents && q.pay_code) {
+      lines.push(fr ? `Prix : <strong>${esc(cad(q.quoted_amount_cents, true))}</strong>, payable en ligne ou le jour du ménage.` : `Price: <strong>${esc(cad(q.quoted_amount_cents, false))}</strong>, payable online or on the day.`);
+      button = { href: payLink(q, fr), label: fr ? "Voir et payer ma commande" : "View and pay my order" };
+    }
+    lines.push(fr ? "Pour bien préparer la visite, répondez à ce courriel avec : le stationnement, l’accès (clé, code), les animaux, et quelques photos (cuisine, salles de bain, planchers, entrée)."
+      : "To prepare the visit, reply to this email with: parking, access (key, code), pets, and a few photos (kitchen, bathrooms, main floors, entryway).");
+    const ok = await send(to, fr ? `Rendez-vous confirmé : ${dayText(q.scheduled_date, true)} — Magicstick Clean` : `Booking confirmed: ${dayText(q.scheduled_date, false)} — Magicstick Clean`,
+      fr ? "Votre rendez-vous est confirmé" : "Your booking is confirmed", lines, fr, button);
+    if (ok) n++;
+    else await supabase.from("quote_requests").update({ confirmation_date: null }).eq("id", q.id);
+  }
+  return n;
+}
+
+async function depositReceipts(rows: Q[]) {
+  let n = 0;
+  for (const q of rows) {
+    const to = clientEmail(q);
+    if (!(await claim(q.id, "deposit_receipt_at")) || !to) continue;
+    const fr = q.lang !== "en";
+    const ok = await send(to, fr ? "Acompte reçu — Magicstick Clean" : "Deposit received — Magicstick Clean",
+      fr ? "Acompte reçu, c’est confirmé" : "Deposit received, you’re confirmed",
+      fr
+        ? [`Nous avons bien reçu l’acompte de <strong>${esc(cad(Number(q.deposit_cents ?? 0), true))}</strong> pour la commande <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong>.`, q.scheduled_date ? `Rendez-vous : <strong>${esc(dayText(q.scheduled_date, true))}</strong>, ${esc(windowText(q.scheduled_window, true))}, ${esc(q.address || "")}.` : "", "Le solde vous sera facturé à la fin du ménage, selon les heures réellement faites."].filter(Boolean)
+        : [`We received the deposit of <strong>${esc(cad(Number(q.deposit_cents ?? 0), false))}</strong> for order <strong>${esc(prettyCode(q.pay_code ?? ""))}</strong>.`, q.scheduled_date ? `Booking: <strong>${esc(dayText(q.scheduled_date, false))}</strong>, ${esc(windowText(q.scheduled_window, false))}, ${esc(q.address || "")}.` : "", "The balance will be invoiced when the job is done, based on the hours actually worked."].filter(Boolean),
+      fr);
+    if (ok) n++; else await release(q.id, "deposit_receipt_at");
+  }
+  return n;
+}
+
+async function depositReminders(rows: Q[]) {
+  let n = 0;
+  for (const q of rows) {
+    const to = clientEmail(q);
+    if (!(await claim(q.id, "deposit_reminder_at")) || !to) continue;
+    const fr = q.lang !== "en";
+    const dep = Number(q.deposit_cents ?? 0);
+    const ok = await send(to, fr ? "Rappel : acompte à payer avant le ménage" : "Reminder: deposit due before the cleaning",
+      fr ? "Petit rappel pour l’acompte" : "A quick reminder about the deposit",
+      [fr
+        ? `Le ménage du <strong>${esc(dayText(q.scheduled_date, true))}</strong> (${esc(q.address || "")}) commence une fois l’acompte de <strong>${esc(cad(dep, true))}</strong> reçu.`
+        : `The cleaning on <strong>${esc(dayText(q.scheduled_date, false))}</strong> (${esc(q.address || "")}) starts once the deposit of <strong>${esc(cad(dep, false))}</strong> is received.`,
+      interacLine(q, dep, fr)],
+      fr, q.pay_code ? { href: payLink(q, fr), label: fr ? "Voir ma commande" : "View my order" } : undefined);
+    if (ok) n++; else await release(q.id, "deposit_reminder_at");
+  }
+  return n;
+}
+
+async function ownerDepositAlerts(rows: Q[], partners: Map<string, Q>) {
+  let n = 0;
+  for (const q of rows) {
+    if (!(await claim(q.id, "owner_deposit_alert_at"))) continue;
+    const p = partners.get(q.partner_id);
+    const ok = await send(OWNER_EMAIL, `Acompte NON reçu : ${p?.name ?? q.name}, ménage du ${dayText(q.scheduled_date, true)}`,
+      "Acompte pas encore reçu", [
+        `${esc(p?.name ?? q.name)} n’a pas encore payé l’acompte de <strong>${esc(cad(Number(q.deposit_cents ?? 0), true))}</strong> pour le ménage du <strong>${esc(dayText(q.scheduled_date, true))}</strong> (${esc(q.address || "")}).`,
+        "Votre règle : le travail commence une fois l’acompte reçu. Si le virement arrive, cliquez « Acompte reçu » dans Commandes.",
+      ], true, { href: `${SITE}/admin.html`, label: "Ouvrir le tableau de bord" });
+    if (ok) n++; else await release(q.id, "owner_deposit_alert_at");
+  }
+  return n;
+}
+
+async function invoices(rows: Q[], partners: Map<string, Q>) {
+  let n = 0;
+  for (const q of rows) {
+    const to = clientEmail(q);
+    if (!(await claim(q.id, "invoice_sent_at")) || !to) continue;
+    const fr = q.lang !== "en";
+    const p = partners.get(q.partner_id);
+    const terms = Number(p?.payment_terms_days ?? 7);
+    const due = new Date(new Date(q.completed_at).getTime() + terms * 864e5).toISOString().slice(0, 10);
+    const balance = Math.max(0, total(q) - depositPaid(q));
+    const rate = Number(q.hourly_rate_cents ?? 0);
+    const billed = Math.max(3, Number(q.actual_hours ?? 0));
+    const ok = await send(to, fr ? `Facture — commande ${prettyCode(q.pay_code ?? "")} — Magicstick Clean` : `Invoice — order ${prettyCode(q.pay_code ?? "")} — Magicstick Clean`,
+      fr ? "Votre facture" : "Your invoice",
+      fr
+        ? [`Ménage du ${esc(q.scheduled_date ? dayText(q.scheduled_date, true) : "")}, ${esc(q.address || "")}.`,
+           rate ? `Heures faites : <strong>${esc(hoursTxt(q.actual_hours, true))} h</strong>${Number(q.actual_hours) < 3 ? " (minimum facturé : 3 h)" : ""} × ${esc(cad(rate, true))}/h = <strong>${esc(cad(Math.round(billed * rate), true))}</strong>` : `Total : <strong>${esc(cad(total(q), true))}</strong>`,
+           depositPaid(q) ? `Acompte déjà reçu : −${esc(cad(depositPaid(q), true))}` : "",
+           `<strong>Solde à payer : ${esc(cad(balance, true))}</strong>${balance ? `, d’ici le <strong>${esc(dayText(due, true))}</strong>.` : " — rien à payer, merci !"}`,
+           balance ? interacLine(q, balance, true) : ""].filter(Boolean)
+        : [`Cleaning on ${esc(q.scheduled_date ? dayText(q.scheduled_date, false) : "")}, ${esc(q.address || "")}.`,
+           rate ? `Hours worked: <strong>${esc(hoursTxt(q.actual_hours, false))} h</strong>${Number(q.actual_hours) < 3 ? " (3-hour minimum billed)" : ""} × ${esc(cad(rate, false))}/h = <strong>${esc(cad(Math.round(billed * rate), false))}</strong>` : `Total: <strong>${esc(cad(total(q), false))}</strong>`,
+           depositPaid(q) ? `Deposit already received: −${esc(cad(depositPaid(q), false))}` : "",
+           `<strong>Balance due: ${esc(cad(balance, false))}</strong>${balance ? `, by <strong>${esc(dayText(due, false))}</strong>.` : " — nothing to pay, thank you!"}`,
+           balance ? interacLine(q, balance, false) : ""].filter(Boolean),
+      fr, balance && q.pay_code ? { href: payLink(q, fr), label: fr ? "Voir ma commande" : "View my order" } : undefined);
+    if (ok) n++; else await release(q.id, "invoice_sent_at");
+  }
+  return n;
+}
+
+async function balanceReminders(rows: Q[], partners: Map<string, Q>, now: Date) {
+  let n = 0;
+  for (const q of rows) {
+    const terms = Number(partners.get(q.partner_id)?.payment_terms_days ?? 7);
+    if (now.getTime() - new Date(q.completed_at).getTime() < terms * 864e5) continue;
+    const to = clientEmail(q);
+    if (!(await claim(q.id, "balance_reminder_at")) || !to) continue;
+    const fr = q.lang !== "en";
+    const balance = Math.max(0, total(q) - depositPaid(q));
+    const ok = await send(to, fr ? `Rappel : solde de la commande ${prettyCode(q.pay_code ?? "")}` : `Reminder: balance for order ${prettyCode(q.pay_code ?? "")}`,
+      fr ? "Petit rappel de paiement" : "A friendly payment reminder",
+      [fr
+        ? `Le solde de <strong>${esc(cad(balance, true))}</strong> pour le ménage du ${esc(q.scheduled_date ? dayText(q.scheduled_date, true) : "")} (${esc(q.address || "")}) n’a pas encore été reçu. S’il est déjà parti, merci et ne tenez pas compte de ce message.`
+        : `The balance of <strong>${esc(cad(balance, false))}</strong> for the cleaning on ${esc(q.scheduled_date ? dayText(q.scheduled_date, false) : "")} (${esc(q.address || "")}) hasn’t arrived yet. If it’s already on its way, thank you, and please ignore this message.`,
+      interacLine(q, balance, fr)],
+      fr);
+    if (ok) n++; else await release(q.id, "balance_reminder_at");
+  }
+  return n;
+}
+
 export async function runAutomations(now = new Date()) {
   const { today, tomorrow, hour } = eastern(now);
   const daytime = hour >= 9 && hour < 20;
   const iso = (msAgo: number) => new Date(now.getTime() - msAgo).toISOString();
-  const cols = "id, name, email, contact, phone, address, zone, service, frequency, home_type, home_size, bedrooms, bathrooms, pets, message, lang, status, quoted_amount_cents, quoted_at, pay_code, paid_at, payment_method, scheduled_date, scheduled_window, completed_at, review_requested_at, assigned_employee_id, job_sheet_employee_id";
+  const cols = "id, name, email, contact, phone, address, zone, service, frequency, home_type, home_size, bedrooms, bathrooms, pets, message, lang, status, quoted_amount_cents, quoted_at, pay_code, paid_at, payment_method, scheduled_date, scheduled_window, completed_at, review_requested_at, assigned_employee_id, job_sheet_employee_id, partner_id, estimated_hours, hourly_rate_cents, deposit_cents, deposit_paid_at, actual_hours, final_amount_cents, confirmation_date";
   const { data: staffRows } = await supabase.from("employees").select("id, name, email, active");
   const staff = new Map<string, Q>(((staffRows ?? []) as Q[]).filter((e) => e.active !== false).map((e) => [e.id, e] as [string, Q]));
+
+  const { data: partnerRows } = await supabase.from("partners").select("id, name, payment_terms_days");
+  const partners = new Map<string, Q>(((partnerRows ?? []) as Q[]).map((p) => [p.id, p] as [string, Q]));
+  const in2days = (() => { const d = new Date(`${today}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + 2); return d.toISOString().slice(0, 10); })();
 
   const q = () => supabase.from("quote_requests").select(cols).neq("status", "declined").limit(50);
   const [r1, r2, r3, r4, r5] = (await Promise.all([
     q().not("paid_at", "is", null).is("receipt_sent_at", null).gte("paid_at", iso(14 * 864e5)),
     q().not("assigned_employee_id", "is", null).is("completed_at", null).or(`scheduled_date.is.null,scheduled_date.gte.${today}`),
     hour >= 9 ? q().eq("scheduled_date", tomorrow).is("reminder_sent_at", null).is("completed_at", null) : Promise.resolve({ data: [] }),
-    daytime ? q().not("completed_at", "is", null).is("thanks_sent_at", null).lte("completed_at", iso(2 * 36e5)).gte("completed_at", iso(7 * 864e5)) : Promise.resolve({ data: [] }),
-    daytime ? q().not("quoted_at", "is", null).is("paid_at", null).is("unpaid_reminder_at", null).lte("quoted_at", iso(3 * 864e5)).gte("quoted_at", iso(30 * 864e5)) : Promise.resolve({ data: [] }),
+    daytime ? q().is("partner_id", null).not("completed_at", "is", null).is("thanks_sent_at", null).lte("completed_at", iso(2 * 36e5)).gte("completed_at", iso(7 * 864e5)) : Promise.resolve({ data: [] }),
+    daytime ? q().is("partner_id", null).not("quoted_at", "is", null).is("paid_at", null).is("unpaid_reminder_at", null).lte("quoted_at", iso(3 * 864e5)).gte("quoted_at", iso(30 * 864e5)) : Promise.resolve({ data: [] }),
+  ] as PromiseLike<{ data: unknown }>[])) as { data: Q[] | null }[];
+  const none = Promise.resolve({ data: [] });
+  const [c1, p1, p2, p3, p4, p5] = (await Promise.all([
+    q().not("scheduled_date", "is", null).gte("scheduled_date", today).is("completed_at", null),
+    q().not("partner_id", "is", null).not("deposit_paid_at", "is", null).is("deposit_receipt_at", null),
+    daytime ? q().not("partner_id", "is", null).gt("deposit_cents", 0).is("deposit_paid_at", null).is("deposit_reminder_at", null).is("completed_at", null).gte("scheduled_date", today).lte("scheduled_date", in2days).lte("quoted_at", iso(864e5)) : none,
+    hour >= 9 ? q().not("partner_id", "is", null).gt("deposit_cents", 0).is("deposit_paid_at", null).is("owner_deposit_alert_at", null).is("completed_at", null).gte("scheduled_date", today).lte("scheduled_date", tomorrow) : none,
+    daytime ? q().not("partner_id", "is", null).not("completed_at", "is", null).not("final_amount_cents", "is", null).is("invoice_sent_at", null).is("paid_at", null) : none,
+    daytime ? q().not("partner_id", "is", null).not("invoice_sent_at", "is", null).is("paid_at", null).is("balance_reminder_at", null) : none,
   ] as PromiseLike<{ data: unknown }>[])) as { data: Q[] | null }[];
   const sheetsDue = (r2.data ?? []).filter((x) => x.job_sheet_employee_id !== x.assigned_employee_id);
   return {
@@ -236,6 +419,12 @@ export async function runAutomations(now = new Date()) {
     reminders: await reminders((r3.data ?? []) as Q[], staff),
     thanks: await thanks(r4.data ?? []),
     unpaid: await unpaid(r5.data ?? []),
+    confirmations: await confirmations((c1.data ?? []).filter((x) => x.confirmation_date !== x.scheduled_date)),
+    deposit_receipts: await depositReceipts(p1.data ?? []),
+    deposit_reminders: await depositReminders(p2.data ?? []),
+    owner_deposit_alerts: await ownerDepositAlerts(p3.data ?? [], partners),
+    invoices: await invoices(p4.data ?? [], partners),
+    balance_reminders: await balanceReminders(p5.data ?? [], partners, now),
   };
 }
 

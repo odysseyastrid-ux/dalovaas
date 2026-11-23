@@ -144,6 +144,15 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    - Site care section (migration 0029): health checks, top-bar message (`site_settings`),
      supplies inventory, JSON/CSV backup, tool links.
    The contest draw (Jan 5, 2027) must now be done by hand (data is in the JSON backup).
+   **Partner agencies (Nov 23, 2026, migration 0031):** `partners` table (rate, deposit %, days
+   to pay the balance; managed in Clients). The owner creates a partner job from Orders ("New
+   partner order": date, address, estimated hours, deposit % per job). Owner's rule: partners
+   pay the deposit (50% by default) BEFORE the job starts. `automations` then sends: booking
+   confirmation (every order, on date set/changed, `confirmation_date`), deposit reminder 2 days
+   before, owner alert the day before if the deposit is missing, deposit receipt, invoice from
+   the actual hours entered at "Done" (3-hour minimum, minus the deposit) and one balance
+   reminder after the terms. pay.html shows partners what is due now (Interac only, no card).
+   Partner orders never get the unpaid-price reminder or the Google review request.
 
 ---
 

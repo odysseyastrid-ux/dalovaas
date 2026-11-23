@@ -52,7 +52,12 @@
     $('payNote').hidden = !d.note;
     document.querySelectorAll('.pay-code-inline').forEach((el) => { el.textContent = pretty(current.code); });
     $('payPaid').hidden = !d.paid;
-    $('payOther').hidden = !!d.paid;
+    // Partner agencies: the deposit is due before the job, then the balance.
+    const part = d.partner ? ({ deposit: 'pay.part.deposit', balance: 'pay.part.balance', estimate: 'pay.part.estimate' })[d.part] : null;
+    $('payPart').textContent = part ? t(part) : '';
+    $('payPart').hidden = !part || !!d.paid;
+    $('payOnsite').hidden = !!d.partner;
+    $('payOther').hidden = !!d.paid || d.part === 'estimate';
     const cardOk = !d.paid && d.card === true && !!cfg.STRIPE_PUBLISHABLE_KEY;
     $('payCard').hidden = !cardOk;
     if (cardOk && !elements) mountCard();

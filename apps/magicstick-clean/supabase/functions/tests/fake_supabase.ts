@@ -58,6 +58,7 @@ class Query implements PromiseLike<any> {
   is(k: string, v: any) { this.filters.push((r) => (r[k] ?? null) === v); return this; }
   in(k: string, vs: any[]) { this.filters.push((r) => vs.includes(r[k])); return this; }
   lt(k: string, v: any) { this.filters.push((r) => r[k] < v); return this; }
+  gt(k: string, v: any) { this.filters.push((r) => r[k] != null && r[k] > v); return this; }
   neq(k: string, v: any) { this.filters.push((r) => r[k] !== v); return this; }
   gte(k: string, v: any) { this.filters.push((r) => r[k] != null && r[k] >= v); return this; }
   lte(k: string, v: any) { this.filters.push((r) => r[k] != null && r[k] <= v); return this; }

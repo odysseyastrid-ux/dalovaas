@@ -182,6 +182,32 @@
           </section>
 
           <section class="dash-section" id="dashSection-orders">
+            <details class="dash-card partner-job" id="partnerJobCard" hidden>
+              <summary><h3 data-i18n="admin.partners.jobTitle">New partner order</h3></summary>
+              <p class="dash-card-sub" data-i18n="admin.partners.jobSub">For an agency job: the confirmation with the deposit to pay before the cleaning leaves automatically by email.</p>
+              <form id="partnerJobForm" class="care-form partner-job-form">
+                <select id="pjPartner" required aria-label="Partner"></select>
+                <input type="text" id="pjAddress" maxlength="300" required data-i18n-placeholder="admin.partners.jobAddress" placeholder="Address of the home">
+                <select id="pjService" aria-label="Service">
+                  <option value="Standard Cleaning" data-i18n="form.service.standard">Residential Cleaning (standard)</option>
+                  <option value="Deep Cleaning" data-i18n="form.service.deep">Deep Cleaning</option>
+                  <option value="Move-In / Move-Out Cleaning" data-i18n="form.service.moveInOut">Move-In / Move-Out Cleaning</option>
+                  <option value="Airbnb / Rental Turnover" data-i18n="form.service.airbnb">Airbnb / Rental Turnover</option>
+                  <option value="Commercial / Office Cleaning" data-i18n="form.service.office">Commercial / Office Cleaning</option>
+                </select>
+                <input type="date" id="pjDate" required aria-label="Date">
+                <select id="pjWindow" aria-label="Time">
+                  <option value="Morning (8am–11am)" data-i18n="admin.window.morning">Morning (8–11 am)</option>
+                  <option value="Midday (11am–2pm)" data-i18n="admin.window.midday">Midday (11 am–2 pm)</option>
+                  <option value="Afternoon (2pm–5pm)" data-i18n="admin.window.afternoon">Afternoon (2–5 pm)</option>
+                </select>
+                <input type="number" id="pjDeposit" min="0" max="100" aria-label="Deposit %" data-i18n-placeholder="admin.partners.deposit" placeholder="Deposit %">
+                <input type="text" inputmode="decimal" id="pjHours" required data-i18n-placeholder="admin.partners.jobHours" placeholder="Estimated hours (e.g. 6)">
+                <input type="text" id="pjNotes" maxlength="2000" data-i18n-placeholder="admin.partners.jobNotes" placeholder="Notes (parking, access, pets…)">
+                <p class="fine" id="pjSummary" aria-live="polite"></p>
+                <button type="submit" class="btn-mini btn-mini-go" data-i18n="admin.partners.jobCreate">Create and send the confirmation</button>
+              </form>
+            </details>
             <div class="stage-chips" id="stageChips" role="tablist"></div>
             <input type="search" class="orders-search" id="ordersSearch" data-i18n-placeholder="admin.orders.search" placeholder="Search a name, phone, email or order number">
             <div class="orders-list" id="ordersList"></div>
@@ -189,6 +215,22 @@
           </section>
 
           <section class="dash-section" id="dashSection-clients">
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.partners.title">Partner agencies</h3>
+                <p class="dash-card-sub" data-i18n="admin.partners.sub">Agencies that send you jobs at their own rate. They pay the deposit before the cleaning; the balance is invoiced automatically from the hours actually worked (3-hour minimum).</p></div></div>
+              <ul class="stock-list" id="partnerList"></ul>
+              <form id="partnerForm" class="care-form care-form-row partner-form">
+                <input type="text" id="ptName" maxlength="120" required data-i18n-placeholder="admin.partners.name" placeholder="Agency name">
+                <input type="text" id="ptContact" maxlength="80" data-i18n-placeholder="admin.partners.contact" placeholder="Contact person">
+                <input type="email" id="ptEmail" maxlength="254" data-i18n-placeholder="admin.team.email" placeholder="Email">
+                <input type="tel" id="ptPhone" maxlength="40" data-i18n-placeholder="admin.team.phone" placeholder="Phone">
+                <input type="text" inputmode="decimal" id="ptRate" required data-i18n-placeholder="admin.partners.rate" placeholder="Rate $/h (e.g. 30)">
+                <input type="number" id="ptDeposit" min="0" max="100" value="50" aria-label="Deposit %" data-i18n-placeholder="admin.partners.deposit" placeholder="Deposit %">
+                <input type="number" id="ptTerms" min="0" max="60" value="7" aria-label="Days to pay" data-i18n-placeholder="admin.partners.termsDays" placeholder="Days to pay the balance">
+                <select id="ptLang" aria-label="Language"><option value="en">English</option><option value="fr">Français</option></select>
+                <button type="submit" class="btn-mini" data-i18n="admin.care.stockAdd">Add</button>
+              </form>
+            </div>
             <div class="dash-card">
               <div class="dash-card-head">
                 <div>

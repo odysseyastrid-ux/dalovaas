@@ -216,3 +216,15 @@ Deno.test("book_standard records the chosen frequency (unknown values fall back 
   const bad = await call(booking({ frequency: "Daily", email: "other@example.com", phone: "" }));
   assert.equal(state.table("quote_requests").find((q) => q.pay_code === bad.json.code)!.frequency, "One-time");
 });
+
+Deno.test("partnerDue: deposit first, then the invoiced balance", async () => {
+  const { partnerDue } = await import("../quote-pay/index.ts");
+  const q: Record<string, unknown> = { name: "Alex", service: "Standard Cleaning", partner_id: "p1", quoted_amount_cents: 18000, deposit_cents: 9000 };
+  assert.deepEqual([partnerDue(q).part, partnerDue(q).amount_cents, partnerDue(q).card], ["deposit", 9000, false]);
+  q.deposit_paid_at = "2026-11-24T10:00:00Z";
+  assert.equal(partnerDue(q).part, "estimate");
+  Object.assign(q, { completed_at: "2026-11-27T15:00:00Z", final_amount_cents: 15000 });
+  assert.deepEqual([partnerDue(q).part, partnerDue(q).amount_cents], ["balance", 6000]);
+  q.paid_at = "2026-11-28T10:00:00Z";
+  assert.equal(partnerDue(q).paid, true);
+});

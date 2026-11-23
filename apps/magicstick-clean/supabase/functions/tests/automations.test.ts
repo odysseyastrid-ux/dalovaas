@@ -67,3 +67,60 @@ Deno.test("unpaid: one reminder after 3 days with the pay link; cancelled orders
   if (mine.length) assert.ok(mine[0].html?.includes("pay.html?code=K7Q2MX9P4T"));
   assert.equal(emails.filter((e) => e.to === "bob@example.com").length, 0);
 });
+
+// ---------- Partner agencies: deposit before the job, invoice from actual hours ----------
+const partner = { id: "p1", name: "Care n Tidy", payment_terms_days: 7 };
+const pBase = { status: "booked", lang: "en", name: "Alex (Care n Tidy)", email: "alex@agency.example", service: "Standard Cleaning", partner_id: "p1", hourly_rate_cents: 3000, estimated_hours: 6, quoted_amount_cents: 18000, deposit_cents: 9000, quoted_at: ago(1), pay_code: "P7Q2MX9P4T", address: "1 Test Way, Ottawa", scheduled_window: "Morning (8am–11am)" };
+const daytime = () => { const { hour } = eastern(); return hour >= 9 && hour < 20; };
+const inDays = (n: number) => { const d = new Date(`${eastern().today}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+Deno.test("partner: confirmation asks for the deposit before the job, once; again if the date changes", async () => {
+  resetAll();
+  state.table("partners").push(partner);
+  const q: any = { id: "pq1", ...pBase, scheduled_date: inDays(5) };
+  state.table("quote_requests").push(q);
+  await run(); await run();
+  const conf = emails.filter((e) => /Booking confirmed/.test(e.subject));
+  assert.equal(conf.length, 1);
+  assert.ok(conf[0].html?.includes("Deposit due before the cleaning: $90.00"));
+  assert.ok(conf[0].html?.includes("P7Q2-MX9P-4T"));
+  assert.equal(emails.filter((e) => /price is waiting|prix vous attend/.test(e.subject)).length, 0, "partners never get the unpaid-price reminder");
+  q.scheduled_date = inDays(6);
+  await run();
+  assert.equal(emails.filter((e) => /Booking confirmed/.test(e.subject)).length, 2);
+});
+
+Deno.test("partner: deposit reminder 2 days before, owner alert the day before, deposit receipt once paid", async () => {
+  resetAll();
+  state.table("partners").push(partner);
+  const q: any = { id: "pq2", ...pBase, quoted_at: ago(48), scheduled_date: eastern().tomorrow, confirmation_date: eastern().tomorrow, reminder_sent_at: ago(1) };
+  state.table("quote_requests").push(q);
+  await run(); await run();
+  const { hour } = eastern();
+  assert.equal(emails.filter((e) => /deposit due before/i.test(e.subject)).length, daytime() ? 1 : 0);
+  assert.equal(emails.filter((e) => /Acompte NON reçu/.test(e.subject)).length, hour >= 9 ? 1 : 0);
+  q.deposit_paid_at = ago(0.1);
+  await run(); await run();
+  const rec = emails.filter((e) => /Deposit received/.test(e.subject));
+  assert.equal(rec.length, 1);
+  assert.ok(rec[0].html?.includes("$90.00"));
+});
+
+Deno.test("partner: invoice from actual hours minus the deposit, then one balance reminder after the terms", async () => {
+  resetAll();
+  state.table("partners").push(partner);
+  const q: any = { id: "pq3", ...pBase, scheduled_date: inDays(-1), confirmation_date: inDays(-1), reminder_sent_at: ago(30), deposit_paid_at: ago(40), deposit_receipt_at: ago(40),
+    completed_at: ago(3), actual_hours: 5, final_amount_cents: 15000 };
+  state.table("quote_requests").push(q);
+  await run(); await run();
+  const inv = emails.filter((e) => /Invoice/.test(e.subject));
+  assert.equal(inv.length, daytime() ? 1 : 0);
+  if (inv.length) {
+    assert.ok(inv[0].html?.includes("$150.00"));
+    assert.ok(inv[0].html?.includes("Balance due: $60.00"));
+  }
+  assert.equal(emails.filter((e) => /Thank you for trusting us/.test(e.subject)).length, 0, "no review request to an agency");
+  q.invoice_sent_at = ago(8 * 24); q.completed_at = ago(8 * 24);
+  await run(); await run();
+  assert.equal(emails.filter((e) => /Reminder: balance/.test(e.subject)).length, daytime() ? 1 : 0);
+});

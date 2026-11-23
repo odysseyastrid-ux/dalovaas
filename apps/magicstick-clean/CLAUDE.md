@@ -182,6 +182,11 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    public chatbot name) and appends the marketing plan to `ai_knowledge` id `owner` so Bulle follows it.
    **Marketing plan (Nov 23, 2026 → end of Feb 2027): `STRATEGIE-MARKETING.md`** — 0 clients at start, goal 10+
    recurring, <$100/month, 3–5 h/week; the owner never shows her face (videos of hands/work only).
+   **Mon plan (Home, migration 0038, `js/admin-plan.js`):** the plan as ~30 small tasks (5–30 min, precise steps)
+   in `plan_tasks`, shown ONE at a time (1–3 per day, `plan_settings.per_day`); buttons Done (recurring tasks come
+   back after `repeat_days`), Tomorrow, Later (3 days / 1 week / date), Not for me, a focus timer, and Pause until a
+   date (also pauses the `prospects` owner email, restored on resume). The owner studies, works and has ADHD: never
+   show tasks as "late", never guilt; keep tasks short and precise.
 
 ---
 

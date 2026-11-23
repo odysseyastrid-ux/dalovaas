@@ -728,10 +728,10 @@
     { key: 'post-fb-rockland-info', name: 'Rockland Community info', url: 'https://www.facebook.com/groups/721600330601837' },
   ];
   const GROWTH_PROFILE = [
-    ['English', 'Magicstick Clean — local, bilingual home & business cleaning\nOwner-operated cleaning business serving Clarence-Rockland, Orléans, Ottawa and Gatineau. Standard and deep cleaning, move-in/move-out, Airbnb turnovers, offices, and post-construction cleanup. I bring all supplies and equipment, reply the same day, and send you a clear price before anything is booked. English & French. 343-843-7761 · magicstickclean.ca'],
-    ['Français', 'Magicstick Clean — ménage résidentiel et commercial, local et bilingue\nEntreprise de ménage tenue par son propriétaire, à Clarence-Rockland, Orléans, Ottawa et Gatineau. Ménage régulier ou en profondeur, déménagement, roulement Airbnb, bureaux, après chantier. J’apporte tous les produits et l’équipement, je réponds le jour même et vous recevez un prix clair avant toute réservation. Français et anglais. 343-843-7761 · magicstickclean.ca'],
+    ['English', 'Magicstick Clean — local, bilingual home & business cleaning\nLocal cleaning team serving Clarence-Rockland, Orléans, Ottawa and Gatineau. Standard and deep cleaning, move-in/move-out, Airbnb turnovers, offices, and post-construction cleanup. We bring all supplies and equipment, reply the same day, and send you a clear price before anything is booked. English & French. 343-843-7761 · magicstickclean.ca'],
+    ['Français', 'Magicstick Clean — ménage résidentiel et commercial, local et bilingue\nÉquipe de ménage locale, à Clarence-Rockland, Orléans, Ottawa et Gatineau. Ménage régulier ou en profondeur, déménagement, roulement Airbnb, bureaux, après chantier. Nous apportons tous les produits et l’équipement, nous répondons le jour même et vous recevez un prix clair avant toute réservation. Français et anglais. 343-843-7761 · magicstickclean.ca'],
   ];
-  const GROWTH_POST = '👋 Hi Rockland! I’m Louis, owner of Magicstick Clean, a local cleaning business right here in Clarence-Rockland.\n🧽 Regular & deep cleaning · move-in/move-out · Airbnb turnovers · post-construction\n✅ All supplies included · same-day reply · clear price before you book · English & French\n📱 343-843-7761 · free quote at magicstickclean.ca\nThanks for supporting local! 🙏';
+  const GROWTH_POST = '👋 Hi Rockland! This is the Magicstick Clean team, a local cleaning business right here in Clarence-Rockland.\n🧽 Regular & deep cleaning · move-in/move-out · Airbnb turnovers · post-construction\n✅ All supplies included · same-day reply · clear price before you book · English & French\n📱 343-843-7761 · free quote at magicstickclean.ca\nThanks for supporting local! 🙏';
   let growthDone = null;
   async function loadGrowth() {
     const { data, error } = await supabase.from('growth_checklist').select('key, done_at');
@@ -2124,6 +2124,7 @@
     await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners(), loadProspects(), loadGrowth()]);
     openSection(start);
     renderHome(true);
+    document.dispatchEvent(new Event('magicstick:dashready'));
     if (loader) {
       // Keep the cubes on screen long enough to be seen, never longer than needed.
       setTimeout(hideLoader, Math.max(0, 700 - (performance.now() - shownAt)));

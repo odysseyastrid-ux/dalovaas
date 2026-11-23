@@ -138,6 +138,29 @@
     <div id="adminDashboard" hidden>
 
 
+      <div class="pw-modal" id="planPauseModal" hidden>
+        <div class="pw-modal-backdrop" data-plan-close></div>
+        <div class="pw-modal-card" role="dialog" aria-modal="true" aria-labelledby="planPauseTitle">
+          <h3 id="planPauseTitle" data-i18n="admin.plan.pauseTitle">Pause the plan</h3>
+          <p class="dash-card-sub" data-i18n="admin.plan.pauseSub">Exams, a busy week, a break: the plan waits. Nothing is lost and nothing will be “late”.</p>
+          <form id="planPauseForm">
+            <div class="plan-pause-opts">
+              <label class="plan-pause-opt"><input type="radio" name="planPause" value="7" checked> <span data-i18n="admin.plan.pause1w">1 week</span></label>
+              <label class="plan-pause-opt"><input type="radio" name="planPause" value="14"> <span data-i18n="admin.plan.pause2w">2 weeks</span></label>
+              <label class="plan-pause-opt"><input type="radio" name="planPause" value="date"> <span data-i18n="admin.plan.pauseDate">Until a date</span></label>
+            </div>
+            <div class="form-field">
+              <input type="date" id="planPauseDate" aria-labelledby="planPauseTitle">
+            </div>
+            <label class="plan-pause-digest"><input type="checkbox" id="planPauseDigest" checked> <span data-i18n="admin.plan.pauseDigest">Also pause the daily prospects email</span></label>
+            <p class="form-note" id="planPauseNote"></p>
+            <div class="pw-modal-actions">
+              <button type="button" class="btn btn-outline" data-plan-close data-i18n="admin.plan.cancel">Cancel</button>
+              <button type="submit" class="btn" data-i18n="admin.plan.pauseGo">Pause</button>
+            </div>
+          </form>
+        </div>
+      </div>
       <div class="pw-modal" id="adminPwModal" hidden>
         <div class="pw-modal-backdrop" id="adminPwBackdrop"></div>
         <div class="pw-modal-card" role="dialog" aria-modal="true" aria-labelledby="adminPwTitle">
@@ -229,6 +252,7 @@
             <p class="studio-sub" id="studioSub"></p>
           </div>
           <section class="dash-section active" id="dashSection-home">
+            <div class="dash-card plan-card" id="planCard" hidden aria-live="polite"></div>
             <div class="home-top">
               <div class="home-hello">
                 <p class="home-date" id="homeDate"></p>
@@ -970,6 +994,7 @@
 <script src="js/admin-fx.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/site-enhancements.js"></script>
+<script src="js/admin-plan.js"></script>
 <script src="js/admin-agent.js"></script>
 </body>
 </html>

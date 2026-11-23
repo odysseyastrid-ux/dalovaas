@@ -389,9 +389,9 @@ async function balanceReminders(rows: Q[], partners: Map<string, Q>, now: Date) 
 // Daily prospecting list for the owner (migration 0033): follow-ups that are
 // due first, then prospects never contacted, 10 at most. Once a day, claimed
 // in automation_log.
-const CATEGORY_ORDER = ["agency", "airbnb", "property", "realtor", "contractor", "channel"];
+const CATEGORY_ORDER = ["request", "agency", "airbnb", "property", "realtor", "contractor", "channel"];
 const CATEGORY_FR: Record<string, string> = {
-  agency: "Agence de ménage", airbnb: "Gestion Airbnb", property: "Gestion immobilière",
+  request: "Demande d’un particulier", agency: "Agence de ménage", airbnb: "Gestion Airbnb", property: "Gestion immobilière",
   realtor: "Courtier immobilier", contractor: "Entrepreneur", channel: "Où trouver des ménages",
 };
 export function pickProspects(rows: Q[], today: string, max = 10) {

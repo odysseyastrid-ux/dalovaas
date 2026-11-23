@@ -526,7 +526,7 @@
   // Buttons move a prospect forward and schedule the follow-up automatically.
   let lastProspects = null;
   let prospectFilter = 'today';
-  const PROSPECT_CATS = ['agency', 'airbnb', 'property', 'realtor', 'contractor', 'channel'];
+  const PROSPECT_CATS = ['request', 'agency', 'airbnb', 'property', 'realtor', 'contractor', 'channel'];
   const PROSPECT_OPEN = ['todo', 'contacted', 'interested'];
   const isoDay = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
   const inDaysIso = (n) => isoDay(Date.now() + n * 864e5);
@@ -626,7 +626,15 @@
           if (!p.intro_sent_at) updateProspect(p, { ...contacted(p, p.status === 'todo' ? 'contacted' : p.status, 5), intro_sent_at: new Date().toISOString() });
         });
       }
-      if (p.website) link(p.website, `🌐 ${t('admin.prospects.site')}`);
+      if (p.website) link(p.website, p.category === 'request' ? `👀 ${t('admin.prospects.openRequest')}` : `🌐 ${t('admin.prospects.site')}`);
+      // A public "looking for a cleaner" post: answer where they asked, with a ready reply.
+      if (p.category === 'request' && PROSPECT_OPEN.includes(p.status)) {
+        link('#', `📋 ${t('admin.prospects.copyReply')}`, async (ev) => {
+          ev.preventDefault();
+          await copyToClipboard(t(p.lang === 'fr' ? 'admin.prospects.replyFr' : 'admin.prospects.replyEn'));
+          ev.target.textContent = `✓ ${t('admin.prospects.copied')}`;
+        });
+      }
       if (!p.website && p.source) link(p.source, `🔎 ${t('admin.prospects.source')}`);
       const actions = card.querySelector('.order-actions');
       const add = (label, cls, fn) => {

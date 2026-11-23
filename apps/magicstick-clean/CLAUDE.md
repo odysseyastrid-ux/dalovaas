@@ -177,7 +177,11 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    `agent_messages` keeps the conversation.
    **Effects & sounds settings (Settings → Effets et sons):** game mode, sounds, volume, touch effects,
    win celebrations, level-up screen, 3D cards, vibrations; saved per device (`magicstick_admin_fx`).
-   Migration 0037 replaced the old public requests with November 2026 posts (Facebook groups, Reddit).
+   Migration 0037 replaces the old public requests with November 2026 posts (Facebook groups, Reddit),
+   signs ready replies "the Magicstick Clean team" (owner's decision: never "Louis" in outreach; Louis stays the
+   public chatbot name) and appends the marketing plan to `ai_knowledge` id `owner` so Bulle follows it.
+   **Marketing plan (Nov 23, 2026 → end of Feb 2027): `STRATEGIE-MARKETING.md`** — 0 clients at start, goal 10+
+   recurring, <$100/month, 3–5 h/week; the owner never shows her face (videos of hands/work only).
 
 ---
 

@@ -586,11 +586,11 @@
 }
 
 /* Site care (Entretien) */
-.care-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.care-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .care-grid .dash-card{margin:0;}
 .care-health{grid-column:1/-1;}
-.care-health .health-list{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));}
-@media (max-width:900px){.care-grid{grid-template-columns:1fr;}}
+.care-health .health-list{grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));}
+@media (max-width:900px){.care-grid{grid-template-columns:minmax(0,1fr);}}
 .care-sub{margin:18px 0 8px;font-size:14px;}
 .health-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
 .health-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--cream);font-size:14px;animation:rise .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms);}
@@ -836,3 +836,10 @@
   .fx-levelup-shine{display:none;}
   .fx-tilting::after{opacity:0;}
 }
+
+/* Inline forms (team, supplies): fields may shrink, never push the page sideways. */
+.care-form input,.care-form select,.care-form textarea{min-width:0;max-width:100%;box-sizing:border-box;}
+.care-form-row > *{min-width:0;}
+.staff-form{grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) minmax(0,1fr) auto;}
+@media (max-width:560px){.staff-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}}
+#dashSection-care li{min-width:0;flex-wrap:wrap;}

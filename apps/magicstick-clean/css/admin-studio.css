@@ -260,3 +260,11 @@
 :root:not([data-theme="dark"]) .studio-plus,:root:not([data-theme="dark"]) .studio-head,
 :root:not([data-theme="dark"]) .studio-crumb > span,:root:not([data-theme="dark"]) .studio-crumb > svg{display:none !important;}
 :root:not([data-theme="dark"]) .studio-crumb b{font-family:'Fraunces',serif;font-weight:600;font-size:24px;color:var(--charcoal);}
+
+/* Dark mode: text that stayed dark on dark surfaces (owner's report, Nov 23). */
+.studio[data-theme="dark"] .stage-pill{color:#0E1116;}
+.studio[data-theme="dark"] .todo-list li > b,.studio[data-theme="dark"] #homeTodo b{color:#06110B;}
+.studio[data-theme="dark"] .ai-notes summary,.studio[data-theme="dark"] .pw-modal-card .form-field label,
+.studio[data-theme="dark"] .pw-modal-card h3,.studio[data-theme="dark"] .dash-card-sub{color:var(--charcoal);}
+.studio[data-theme="dark"] .pw-modal-card .dash-card-sub{color:var(--gray);}
+.studio[data-theme="dark"] .stage-chip b,.studio[data-theme="dark"] .stage-chip span{color:#0E1116;}

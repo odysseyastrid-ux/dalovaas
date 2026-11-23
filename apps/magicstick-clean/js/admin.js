@@ -871,12 +871,12 @@
     drawChart('chartVisits', {
       type: 'line',
       data: { labels: days.map((d) => new Date(`${d}T12:00:00`).toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { day: 'numeric', month: 'short' })),
-        datasets: [{ data: perDay, borderColor: '#2E8BE6', backgroundColor: 'rgba(46,139,230,.14)', fill: true, tension: .35, pointRadius: 2 }] },
+        datasets: [{ data: perDay, borderColor: '#3CCBB4', backgroundColor: 'rgba(60,203,180,.14)', fill: true, tension: .35, pointRadius: 2 }] },
     });
     const pages = tally(v, (x) => pageName(x.path));
     drawChart('chartPages', {
       type: 'bar',
-      data: { labels: pages.map((p) => p[0]), datasets: [{ data: pages.map((p) => p[1]), backgroundColor: '#8B4DE6', borderRadius: 6 }] },
+      data: { labels: pages.map((p) => p[0]), datasets: [{ data: pages.map((p) => p[1]), backgroundColor: '#5FE3A1', borderRadius: 6 }] },
       options: { indexAxis: 'y' },
     });
     const firstHits = [...new Map(v.slice().reverse().map((x) => [x.session_id || x.at, x])).values()];
@@ -906,9 +906,73 @@
     try { sessionStorage.setItem('magicstick_admin_section', name); } catch (_) { /* private mode */ }
     if (name === 'home') renderHome(true);
     if (name === 'care') { renderActivity(); runHealth(); }
+    renderStudioHead(name);
     window.scrollTo({ top: document.getElementById('adminDashboard').offsetTop - 12, behavior: 'smooth' });
   }
   document.querySelectorAll('.dash-nav-btn').forEach((b) => b.addEventListener('click', () => openSection(b.dataset.section)));
+
+  // ---------- Studio shell: page title that types in, search, "+" button, collapsible menu ----------
+  let studioSection = 'home';
+  function renderStudioHead(name) {
+    studioSection = name;
+    const title = document.getElementById('studioTitle');
+    if (!title) return;
+    const now = new Date();
+    const hr = now.getHours();
+    const nav = document.querySelector(`.dash-nav-btn[data-section="${name}"] span[data-i18n]`);
+    const text = name === 'home'
+      ? t(hr < 12 ? 'admin.clock.morning' : hr < 18 ? 'admin.clock.afternoon' : 'admin.clock.evening')
+      : (nav ? nav.textContent.trim() : '');
+    title.textContent = '';
+    Array.from(text).forEach((ch, i) => {
+      const sp = document.createElement('span');
+      sp.className = 'studio-ch'; sp.textContent = ch; sp.style.setProperty('--i', String(i));
+      title.appendChild(sp);
+    });
+    title.setAttribute('aria-label', text);
+    const sub = document.getElementById('studioSub');
+    sub.textContent = t(`admin.studio.sub.${name}`);
+    sub.style.animation = 'none'; void sub.offsetWidth; sub.style.animation = '';
+    document.getElementById('studioDate').textContent = now.toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+    const crumb = document.getElementById('studioCrumb');
+    if (crumb) crumb.textContent = nav ? nav.textContent.trim() : t('admin.dash.title');
+  }
+  document.addEventListener('magicstick:langchange', () => renderStudioHead(studioSection));
+
+  const studioSearch = document.getElementById('studioSearch');
+  if (studioSearch) {
+    let searchTimer = 0;
+    const runSearch = () => {
+      const target = document.getElementById('ordersSearch');
+      if (!target) return;
+      if (studioSection !== 'orders') openSection('orders');
+      target.value = studioSearch.value;
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    studioSearch.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 250); });
+    studioSearch.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(searchTimer); runSearch(); } });
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && !dashboard.hidden) { e.preventDefault(); studioSearch.focus(); studioSearch.select(); }
+    });
+  }
+  document.getElementById('studioPlus')?.addEventListener('click', () => {
+    openSection('orders');
+    const card = document.getElementById('partnerJobCard');
+    if (card) { card.open = true; setTimeout(() => card.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' }), 120); }
+  });
+  const shell = document.getElementById('dashShell');
+  const collapseBtn = document.getElementById('studioCollapse');
+  if (shell && collapseBtn) {
+    const setCollapsed = (on) => {
+      shell.classList.toggle('studio-collapsed', on);
+      collapseBtn.setAttribute('aria-expanded', String(!on));
+      try { localStorage.setItem('magicstick_admin_menu', on ? 'collapsed' : 'open'); } catch (_) { /* private mode */ }
+    };
+    let saved = null;
+    try { saved = localStorage.getItem('magicstick_admin_menu'); } catch (_) { /* private mode */ }
+    setCollapsed(saved === 'collapsed');
+    collapseBtn.addEventListener('click', () => setCollapsed(!shell.classList.contains('studio-collapsed')));
+  }
 
   // ---------- Team & applicants ----------
   let lastJobs = null;
@@ -947,7 +1011,8 @@
   const charts = {};
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const PALETTE = ['#6B3FE6', '#2E8BE6', '#8B4DE6', '#22B8A6', '#F2A33A', '#E2557B', '#7DB8F4', '#B9A1F7'];
+  // Studio look (dark glass, mint accent).
+  const PALETTE = ['#5FE3A1', '#3CCBB4', '#B8F25A', '#5EB8FF', '#F5C451', '#F27C9A', '#A7F3CF', '#C4B5FD'];
 
   function countUp(el, to, fmt) {
     if (reduceMotion) { el.textContent = fmt(to); return; }
@@ -1178,7 +1243,7 @@
     });
 
     if (!document.getElementById('dashSection-home').classList.contains('active') && !replay) return;
-    const accent = css('--teal') || '#6B3FE6';
+    const accent = css('--teal') || '#5FE3A1';
     // Revenue per week, last 12 weeks.
     const w0 = weekStart(new Date(now - 11 * 7 * 864e5));
     const weeks = Array.from({ length: 12 }, (_, i) => new Date(w0.getTime() + i * 7 * 864e5));
@@ -1198,7 +1263,7 @@
     const f = [last90.length, last90.filter((x) => x.quoted_amount_cents).length, last90.filter((x) => x.paid_at).length, last90.filter((x) => x.completed_at).length];
     drawChart('chartFunnel', {
       type: 'bar',
-      data: { labels: [t('admin.funnel.requests'), t('admin.funnel.priced'), t('admin.funnel.paid'), t('admin.funnel.done')], datasets: [{ data: f, backgroundColor: ['#B9A1F7', '#8B4DE6', '#6B3FE6', '#22B8A6'], borderRadius: 8 }] },
+      data: { labels: [t('admin.funnel.requests'), t('admin.funnel.priced'), t('admin.funnel.paid'), t('admin.funnel.done')], datasets: [{ data: f, backgroundColor: ['#2F6F55', '#3FA877', '#5FE3A1', '#B8F25A'], borderRadius: 8 }] },
       options: { indexAxis: 'y' },
     });
     const tally = (arr, key) => {
@@ -1217,7 +1282,7 @@
     q.forEach((x) => { hours[new Date(x.created_at).getHours()] += 1; });
     drawChart('chartHours', {
       type: 'bar',
-      data: { labels: hours.map((_, h) => `${h}h`), datasets: [{ data: hours, backgroundColor: '#2E8BE6', borderRadius: 5 }] },
+      data: { labels: hours.map((_, h) => `${h}h`), datasets: [{ data: hours, backgroundColor: '#3CCBB4', borderRadius: 5 }] },
     });
     drawChart('chartLeads', {
       type: 'line',

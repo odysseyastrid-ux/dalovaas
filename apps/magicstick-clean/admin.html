@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" class="studio">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/admin-dashboard.css">
 <link rel="stylesheet" href="css/admin-widgets.css">
+<link rel="stylesheet" href="css/admin-studio.css">
 <script src="js/vendor/supabase-js-2.117.3.umd.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
@@ -23,6 +24,9 @@
 </head>
 <body>
 <script>(function(){try{var t=localStorage.getItem('magicstick_theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<!-- The owner dashboard always uses its dark "studio" look: <html data-theme="dark"> is set
+     statically above and the theme switch is hidden here (the public site keeps the visitor's choice). -->
+<div class="studio-ambient" aria-hidden="true"><i></i><i></i><i></i></div>
 
 
 <header>
@@ -40,7 +44,7 @@
   </nav>
 </header>
 
-<section style="padding:32px 0 20px;">
+<section class="admin-hero" style="padding:32px 0 20px;">
   <div class="wrap">
     <h1 style="font-size:28px;" data-i18n="admin.title">Owner dashboard</h1>
   </div>
@@ -133,20 +137,6 @@
 
     <div id="adminDashboard" hidden>
 
-      <div class="dash-topbar">
-        <h2 data-i18n="admin.dash.title">Dashboard</h2>
-        <div class="dash-topbar-actions">
-          <div class="fx-xp" id="fxXp" hidden title="XP">
-            <span class="fx-xp-badge fx-xp-level">1</span>
-            <span class="fx-xp-text"><span><span class="fx-xp-points">0</span> XP</span><small data-i18n="admin.fx.xpHint">earned by your real work</small><span class="fx-xp-bar"><span class="fx-xp-fill"></span></span></span>
-          </div>
-          <button type="button" class="fx-sound" id="fxSound" hidden aria-pressed="true" aria-label="Sound">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" fill-opacity=".15"/><path class="fx-wave" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/><path class="fx-x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
-          </button>
-          <button type="button" class="btn btn-outline" id="adminChangePwBtn" data-i18n="admin.changePw.btn">Change password</button>
-          <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
-        </div>
-      </div>
 
       <div class="pw-modal" id="adminPwModal" hidden>
         <div class="pw-modal-backdrop" id="adminPwBackdrop"></div>
@@ -173,6 +163,13 @@
 
       <div class="dash-shell" id="dashShell">
         <nav class="dash-sidebar" aria-label="Dashboard">
+          <div class="studio-brand">
+            <span class="studio-logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 3.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor"/></svg></span>
+            <span class="studio-brand-text"><b>Magicstick</b><small data-i18n="admin.studio.owner">Owner space</small></span>
+            <button type="button" class="studio-collapse" id="studioCollapse" data-i18n-aria-label="admin.studio.collapse" aria-label="Collapse the menu">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.8"/></svg>
+            </button>
+          </div>
           <button type="button" class="dash-nav-btn active" data-section="home" aria-label="Home">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span data-i18n="admin.nav.home">Home</span><span class="dash-nav-badge" id="navBadge-home" hidden></span>
           </button>
@@ -203,6 +200,34 @@
         </nav>
 
         <main class="dash-main">
+          <div class="dash-topbar">
+        <div class="studio-crumb"><span>Magicstick</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><b id="studioCrumb" data-i18n="admin.dash.title">Dashboard</b></div>
+          <label class="studio-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="search" id="studioSearch" autocomplete="off" data-i18n-placeholder="admin.studio.search" placeholder="Search an order, a client…" data-i18n-aria-label="admin.studio.search" aria-label="Search">
+            <kbd>⌘K</kbd>
+          </label>
+        <div class="dash-topbar-actions">
+          <button type="button" class="studio-plus" id="studioPlus" data-i18n-aria-label="admin.studio.plus" aria-label="New partner order" title="">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          </button>
+          <div class="fx-xp" id="fxXp" hidden title="XP">
+            <span class="fx-xp-badge fx-xp-level">1</span>
+            <span class="fx-xp-text"><span><span class="fx-xp-points">0</span> XP</span><small data-i18n="admin.fx.xpHint">earned by your real work</small><span class="fx-xp-bar"><span class="fx-xp-fill"></span></span></span>
+          </div>
+          <button type="button" class="fx-sound" id="fxSound" hidden aria-pressed="true" aria-label="Sound">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" fill-opacity=".15"/><path class="fx-wave" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/><path class="fx-x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+          </button>
+          <button type="button" class="btn btn-outline" id="adminChangePwBtn" data-i18n="admin.changePw.btn">Change password</button>
+          <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
+        </div>
+          </div>
+
+          <div class="studio-head">
+            <p class="studio-date" id="studioDate"></p>
+            <h1 class="studio-title" id="studioTitle" aria-live="polite"></h1>
+            <p class="studio-sub" id="studioSub"></p>
+          </div>
           <section class="dash-section active" id="dashSection-home">
             <div class="home-top">
               <div class="home-hello">

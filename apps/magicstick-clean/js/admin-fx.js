@@ -30,6 +30,11 @@
   };
   // "Mode jeu" (the controller on the home tab): master switch for effects + sounds.
   let game = store.get('magicstick_admin_game') !== 'off';
+  // Fine settings (Réglages > Effets et sons), remembered on this device.
+  const PREF_DEFAULTS = { volume: 70, tap: true, wins: true, levelup: true, tilt: true, vibrate: true };
+  let prefs = { ...PREF_DEFAULTS };
+  try { prefs = { ...PREF_DEFAULTS, ...JSON.parse(store.get('magicstick_admin_fx') || '{}') }; } catch (_) { /* defaults */ }
+  const savePrefs = () => store.set('magicstick_admin_fx', JSON.stringify(prefs));
 
   // ------------------------------------------------------------------ sound
   const Sound = (() => {
@@ -45,7 +50,7 @@
       const comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 4;
       comp.attack.value = 0.003; comp.release.value = 0.2;
-      master = ctx.createGain(); master.gain.value = 0.5;
+      master = ctx.createGain(); master.gain.value = 0.7 * (prefs.volume / 100);
       master.connect(comp); comp.connect(ctx.destination);
       // Small, soft room: decaying stereo noise as impulse response.
       const len = Math.floor(ctx.sampleRate * 1.4);
@@ -182,6 +187,7 @@
       play(name, arg, force) { if ((!game && !force) || !ready() || !S[name]) return; try { S[name](arg); } catch (_) { /* audio is optional */ } },
       get on() { return on; },
       set(v) { on = v; store.set('magicstick_admin_sound', v ? 'on' : 'off'); if (v) { this.play('toggleOn'); } },
+      volume(v) { if (master) master.gain.value = 0.7 * (v / 100); },
     };
   })();
 
@@ -210,7 +216,7 @@
 
   // Hit spark: one thin ring + short radial streaks, like a precise game hit.
   function hit(x, y, strong) {
-    if (calm || !game) return;
+    if (calm || !game || !prefs.tap) return;
     const ring = spawn('fx-ring', x, y);
     done(ring.animate([
       { transform: 'translate(-50%,-50%) scale(.25)', opacity: 0.95 },
@@ -287,7 +293,7 @@
     const level = Math.floor(target / LEVEL_XP) + 1;
     const seen = Number(store.get('magicstick_admin_level')) || null;
     store.set('magicstick_admin_level', String(level));
-    if (seen && level > seen) setTimeout(() => levelUp(seen, level), first ? 400 : 750);
+    if (seen && level > seen && game && prefs.levelup) setTimeout(() => levelUp(seen, level), first ? 400 : 750);
   }
   function setXP(xp) {
     target = xp;
@@ -385,13 +391,14 @@
   function win(points, kind) {
     const { x, y } = last;
     if (!game) { apply(); return; }
+    if (!prefs.wins) { Sound.play(WIN_SOUND[kind] || 'small'); apply(); return; }
     flying += 1;
     bloom(x, y, points >= 50);
     Sound.play(WIN_SOUND[kind] || 'small');
     tag(x, y - 18, points, kind ? t(`admin.fx.win.${kind}`) : '');
     const n = Math.max(4, Math.min(14, Math.round(points / 8)));
     orbs(x, y, n, () => { flying -= 1; apply(); hideHudSoon(); });
-    if (navigator.vibrate) { try { navigator.vibrate(points >= 100 ? [12, 40, 12, 40, 24] : points >= 30 ? [10, 30, 14] : 12); } catch (_) { /* not allowed */ } }
+    if (navigator.vibrate && prefs.vibrate) { try { navigator.vibrate(points >= 100 ? [12, 40, 12, 40, 24] : points >= 30 ? [10, 30, 14] : 12); } catch (_) { /* not allowed */ } }
   }
 
   // Level up: a short, cinematic moment that never blocks the work.
@@ -417,7 +424,7 @@
         ], { duration: 1200, delay, easing: 'cubic-bezier(.1,.8,.3,1)', fill: 'backwards' }), r);
       });
     }
-    try { if (navigator.vibrate) navigator.vibrate([20, 60, 20, 60, 40]); } catch (_) { /* not allowed */ }
+    try { if (navigator.vibrate && prefs.vibrate) navigator.vibrate([20, 60, 20, 60, 40]); } catch (_) { /* not allowed */ }
     const close = () => { stage.classList.add('is-out'); setTimeout(() => stage.remove(), 600); };
     const timer = setTimeout(close, 2800);
     stage.addEventListener('click', () => { clearTimeout(timer); close(); });
@@ -456,7 +463,7 @@
     if (s) Sound.play(s[0], s[1]);
     const strong = el.matches('.btn-mini-go, .btn-primary, [type="submit"]');
     hit(e.clientX, e.clientY, strong);
-    if (!calm && game && !el.matches('input')) {
+    if (!calm && game && prefs.tap && !el.matches('input')) {
       el.classList.remove('fx-squash'); void el.offsetWidth; el.classList.add('fx-squash');
     }
   }, { passive: true });
@@ -481,7 +488,7 @@
     };
     b.hidden = false;
     sync();
-    b.addEventListener('click', () => { Sound.set(!Sound.on); sync(); });
+    b.addEventListener('click', () => setSoundOn(!Sound.on));
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSoundButton); else initSoundButton();
 
@@ -495,7 +502,7 @@
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const el = game && ev.target instanceof Element ? ev.target.closest(TILT) : null;
+        const el = game && prefs.tilt && ev.target instanceof Element ? ev.target.closest(TILT) : null;
         if (current && current !== el) reset(current);
         current = el;
         if (!el) return;
@@ -523,12 +530,57 @@
     const hint = () => { if (device) device.dataset.hint = t('admin.game.hint'); };
     hint();
     document.addEventListener('magicstick:langchange', hint);
-    box.addEventListener('change', () => {
-      if (box.checked) { game = true; store.set('magicstick_admin_game', 'on'); Sound.play('powerOn'); }
-      else { Sound.play('powerOff', undefined, true); game = false; store.set('magicstick_admin_game', 'off'); }
-      document.documentElement.classList.toggle('ms-game-off', !game);
-    });
+    box.addEventListener('change', () => setGame(box.checked));
     document.documentElement.classList.toggle('ms-game-off', !game);
+  }
+
+  function setGame(on) {
+    if (on === game) return;
+    if (on) { game = true; store.set('magicstick_admin_game', 'on'); Sound.play('powerOn'); }
+    else { Sound.play('powerOff', undefined, true); game = false; store.set('magicstick_admin_game', 'off'); }
+    document.documentElement.classList.toggle('ms-game-off', !game);
+    const box = document.getElementById('msGameMode'); if (box) box.checked = game;
+    syncPanel();
+  }
+  function setSoundOn(on) {
+    if (on !== Sound.on) Sound.set(on);
+    const b = document.getElementById('fxSound');
+    if (b) {
+      b.setAttribute('aria-pressed', String(Sound.on)); b.classList.toggle('is-muted', !Sound.on);
+      const label = t(Sound.on ? 'admin.fx.soundOn' : 'admin.fx.soundOff'); b.setAttribute('aria-label', label); b.title = label;
+    }
+    syncPanel();
+  }
+  // Réglages > Effets et sons: every [data-fx-pref] control.
+  function syncPanel() {
+    document.querySelectorAll('[data-fx-pref]').forEach((el) => {
+      const k = el.dataset.fxPref;
+      const v = k === 'game' ? game : k === 'sound' ? Sound.on : prefs[k];
+      if (el.type === 'checkbox') el.checked = !!v; else el.value = String(v);
+      if (el.type === 'range') { const out = document.querySelector(`[data-fx-out="${k}"]`); if (out) out.textContent = `${v} %`; }
+    });
+  }
+  function initPanel() {
+    document.querySelectorAll('[data-fx-pref]').forEach((el) => {
+      el.addEventListener(el.type === 'range' ? 'input' : 'change', () => {
+        const k = el.dataset.fxPref;
+        if (k === 'game') return setGame(el.checked);
+        if (k === 'sound') return setSoundOn(el.checked);
+        prefs[k] = el.type === 'checkbox' ? el.checked : Number(el.value);
+        if (k === 'volume') Sound.volume(prefs.volume);
+        savePrefs(); syncPanel();
+      });
+      if (el.type === 'range') el.addEventListener('change', () => Sound.play('small'));
+    });
+    document.querySelector('[data-fx-test="sound"]')?.addEventListener('click', () => Sound.play('done'));
+    document.querySelector('[data-fx-test="win"]')?.addEventListener('click', (e) => {
+      const r = e.currentTarget.getBoundingClientRect(); last = { x: r.left + r.width / 2, y: r.top };
+      win(30, 'paid');
+    });
+    document.querySelector('[data-fx-reset]')?.addEventListener('click', () => {
+      prefs = { ...PREF_DEFAULTS }; savePrefs(); Sound.volume(prefs.volume); setGame(true); setSoundOn(true); syncPanel();
+    });
+    syncPanel();
   }
 
   // Clock: smooth sweeping second hand, digital time, greeting.
@@ -604,7 +656,7 @@
     dash.querySelectorAll('.admin-table').forEach((tb) => mo.observe(tb, { childList: true, subtree: true }));
   }
 
-  const boot = () => { initGameSwitch(); initClock(); buildJoin(); initStagger(); };
+  const boot = () => { initGameSwitch(); initClock(); buildJoin(); initStagger(); initPanel(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   document.addEventListener('magicstick:langchange', buildJoin);
 

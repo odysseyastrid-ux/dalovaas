@@ -175,6 +175,9 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    status, growth tick, pause/intro of an automatic email, ready SMS/email); each runs only when the owner
    clicks Confirm. `automation_settings` (pause per email kind + intro FR/EN) is read by `automations`;
    `agent_messages` keeps the conversation.
+   **Effects & sounds settings (Settings → Effets et sons):** game mode, sounds, volume, touch effects,
+   win celebrations, level-up screen, 3D cards, vibrations; saved per device (`magicstick_admin_fx`).
+   Migration 0037 replaced the old public requests with November 2026 posts (Facebook groups, Reddit).
 
 ---
 

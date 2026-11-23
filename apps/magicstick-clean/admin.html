@@ -650,6 +650,7 @@
               <button type="button" class="auth-tab active" data-tab="services" data-i18n="admin.tab.services">Services</button>
               <button type="button" class="auth-tab" data-tab="extras" data-i18n="admin.tab.extras">Extras</button>
               <button type="button" class="auth-tab" data-tab="louis" data-i18n="admin.tab.louis">Louis (site chatbot)</button>
+              <button type="button" class="auth-tab" data-tab="fx" data-i18n="admin.tab.fx">Effects &amp; sounds</button>
             </div>
             <div id="servicesPanel" class="admin-panel">
               <div class="table-scroll">
@@ -749,6 +750,24 @@
                 <button type="submit" class="btn" data-i18n="admin.extras.add">Add extra</button>
                 <p class="form-note" id="addAddonNote"></p>
               </form>
+            </div>
+            <div id="fxPanel" class="admin-panel" hidden>
+              <div class="dash-card fx-settings">
+                <div class="dash-card-head"><div><h3 data-i18n="admin.fxset.title">Effects &amp; sounds</h3><p class="dash-card-sub" data-i18n="admin.fxset.sub">Choose what moves and what sounds in your dashboard. Saved on this device.</p></div></div>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.game">Game mode</b><small data-i18n="admin.fxset.gameSub">Master switch for every effect and sound (same as the controller on the home page).</small></span><input type="checkbox" class="fx-switch" data-fx-pref="game"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.sound">Sounds</b><small data-i18n="admin.fxset.soundSub">A different sound for each button, tab and win.</small></span><input type="checkbox" class="fx-switch" data-fx-pref="sound"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.volume">Volume</b><small data-fx-out="volume">70 %</small></span><input type="range" min="0" max="100" step="5" class="fx-range" data-fx-pref="volume"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.tap">Touch effects</b><small data-i18n="admin.fxset.tapSub">Sparks where you tap and the bounce of the buttons.</small></span><input type="checkbox" class="fx-switch" data-fx-pref="tap"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.wins">Win celebrations</b><small data-i18n="admin.fxset.winsSub">XP orbs and the "+XP" tag when you finish something.</small></span><input type="checkbox" class="fx-switch" data-fx-pref="wins"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.levelup">"Level up" screen</b><small data-i18n="admin.fxset.levelupSub">The full-screen moment every 250 XP.</small></span><input type="checkbox" class="fx-switch" data-fx-pref="levelup"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.tilt">3D cards</b><small data-i18n="admin.fxset.tiltSub">Cards tilt under the mouse (computer only).</small></span><input type="checkbox" class="fx-switch" data-fx-pref="tilt"></label>
+                <label class="fx-set-row"><span><b data-i18n="admin.fxset.vibrate">Vibrations</b><small data-i18n="admin.fxset.vibrateSub">Small vibrations on phones that allow it.</small></span><input type="checkbox" class="fx-switch" data-fx-pref="vibrate"></label>
+                <div class="fx-set-actions">
+                  <button type="button" class="btn-mini" data-fx-test="sound" data-i18n="admin.fxset.testSound">Test the sound</button>
+                  <button type="button" class="btn-mini btn-mini-go" data-fx-test="win" data-i18n="admin.fxset.testWin">Test a win</button>
+                  <button type="button" class="btn-mini btn-mini-ghost" data-fx-reset data-i18n="admin.fxset.reset">Back to defaults</button>
+                </div>
+              </div>
             </div>
             <div id="louisPanel" class="admin-panel" hidden>
               <div class="dash-card">

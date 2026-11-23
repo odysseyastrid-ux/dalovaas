@@ -668,3 +668,15 @@
 .prospect-add{margin-top:14px}
 .prospect-add > summary{cursor:pointer;font-weight:700}
 .stage-chip.stage-today{border-color:#b45309}
+
+/* Growth tab */
+.growth-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:10px}
+.growth-list li{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:14px}
+.growth-list li.is-done{opacity:.6}
+.growth-list li.is-done b{text-decoration:line-through}
+.growth-list .growth-what{flex:1 1 240px;font-size:14px;line-height:1.5}
+.growth-list .growth-what span{display:block;color:var(--gray)}
+.growth-text{white-space:pre-line;margin:8px 0;padding:12px 14px;border-radius:12px;background:rgba(107,63,230,.06);font-size:14px;line-height:1.55}
+[data-theme="dark"] .growth-text{background:rgba(167,139,250,.1)}
+.growth-text-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+.growth-text-head b{font-size:14px}

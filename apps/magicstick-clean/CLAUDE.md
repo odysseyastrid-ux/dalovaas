@@ -160,6 +160,12 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    Interested (+2), Later (+7), Not interested, "They said yes → client" (pre-fills the partner
    form). `automations` emails the OWNER a daily "À contacter aujourd'hui" list from 8 a.m.
    (claimed in `automation_log`). Nothing is ever sent to prospects automatically (CASL).
+   Prospect category `request` (migration 0034): public "looking for a cleaner" posts (link +
+   summary only, no personal data) with a personal reply in `reply_text` (0035).
+   **Growth tab (Croissance, migration 0035):** sign-up checklist (TaskRabbit, HomeStars, Bark:
+   the owner creates these accounts; never create accounts or handle passwords for them),
+   profile texts EN/FR, Facebook post for the Rockland groups, and the public requests with
+   their reply + copy/contacted buttons. Ticks are stored in `growth_checklist`.
 
 ---
 

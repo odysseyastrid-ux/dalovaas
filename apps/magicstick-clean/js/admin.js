@@ -545,6 +545,7 @@
     if (error || !data) return;
     lastProspects = data;
     renderProspects();
+    renderGrowth();
     renderHome();
   }
   async function updateProspect(p, patch) {
@@ -552,6 +553,7 @@
     if (error) { alert(t('admin.orders.saveError')); return; }
     Object.assign(p, patch);
     renderProspects();
+    renderGrowth();
     renderHome();
   }
   const contacted = (p, status, days) => ({
@@ -631,7 +633,7 @@
       if (p.category === 'request' && PROSPECT_OPEN.includes(p.status)) {
         link('#', `📋 ${t('admin.prospects.copyReply')}`, async (ev) => {
           ev.preventDefault();
-          await copyToClipboard(t(p.lang === 'fr' ? 'admin.prospects.replyFr' : 'admin.prospects.replyEn'));
+          await copyToClipboard(p.reply_text || t(p.lang === 'fr' ? 'admin.prospects.replyFr' : 'admin.prospects.replyEn'));
           ev.target.textContent = `✓ ${t('admin.prospects.copied')}`;
         });
       }
@@ -688,6 +690,119 @@
     ev.target.reset();
     loadProspects();
   });
+
+  // ---------- Growth tab (migration 0035): sign-ups, texts, replies ----------
+  const GROWTH_SIGNUPS = [
+    { key: 'signup-taskrabbit', name: 'TaskRabbit', url: 'https://www.taskrabbit.ca/', what: 'admin.growth.taskrabbit' },
+    { key: 'signup-homestars', name: 'HomeStars', url: 'https://homestars.com/', what: 'admin.growth.homestars' },
+    { key: 'signup-bark', name: 'Bark', url: 'https://www.bark.com/', what: 'admin.growth.bark' },
+  ];
+  const GROWTH_GROUPS = [
+    { key: 'post-fb-rockland', name: 'Groupe Facebook de Rockland', url: 'https://www.facebook.com/groups/777450978950234' },
+    { key: 'post-fb-rockland-info', name: 'Rockland Community info', url: 'https://www.facebook.com/groups/721600330601837' },
+  ];
+  const GROWTH_PROFILE = [
+    ['English', 'Magicstick Clean — local, bilingual home & business cleaning\nOwner-operated cleaning business serving Clarence-Rockland, Orléans, Ottawa and Gatineau. Standard and deep cleaning, move-in/move-out, Airbnb turnovers, offices, and post-construction cleanup. I bring all supplies and equipment, reply the same day, and send you a clear price before anything is booked. English & French. 343-843-7761 · magicstickclean.ca'],
+    ['Français', 'Magicstick Clean — ménage résidentiel et commercial, local et bilingue\nEntreprise de ménage tenue par son propriétaire, à Clarence-Rockland, Orléans, Ottawa et Gatineau. Ménage régulier ou en profondeur, déménagement, roulement Airbnb, bureaux, après chantier. J’apporte tous les produits et l’équipement, je réponds le jour même et vous recevez un prix clair avant toute réservation. Français et anglais. 343-843-7761 · magicstickclean.ca'],
+  ];
+  const GROWTH_POST = '👋 Hi Rockland! I’m Louis, owner of Magicstick Clean, a local cleaning business right here in Clarence-Rockland.\n🧽 Regular & deep cleaning · move-in/move-out · Airbnb turnovers · post-construction\n✅ All supplies included · same-day reply · clear price before you book · English & French\n📱 343-843-7761 · free quote at magicstickclean.ca\nThanks for supporting local! 🙏';
+  let growthDone = null;
+  async function loadGrowth() {
+    const { data, error } = await supabase.from('growth_checklist').select('key, done_at');
+    if (error || !data) return;
+    growthDone = new Set(data.map((r) => r.key));
+    renderGrowth();
+  }
+  async function toggleGrowth(key, on) {
+    const q = on ? supabase.from('growth_checklist').insert({ key }) : supabase.from('growth_checklist').delete().eq('key', key);
+    const { error } = await q;
+    if (error) { alert(t('admin.orders.saveError')); return; }
+    if (on) growthDone.add(key); else growthDone.delete(key);
+    renderGrowth();
+  }
+  function copyButton(text) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn-mini'; b.textContent = t('admin.growth.copy');
+    b.addEventListener('click', async () => {
+      await copyToClipboard(text);
+      b.textContent = `✓ ${t('admin.growth.copied')}`;
+      setTimeout(() => { b.textContent = t('admin.growth.copy'); }, 2500);
+    });
+    return b;
+  }
+  function textBlock(box, label, text) {
+    const head = document.createElement('div');
+    head.className = 'growth-text-head';
+    head.innerHTML = `<b>${esc(label)}</b>`;
+    head.appendChild(copyButton(text));
+    const p = document.createElement('p');
+    p.className = 'growth-text'; p.textContent = text;
+    box.append(head, p);
+  }
+  function checklist(ul, items, doneLabel) {
+    ul.innerHTML = '';
+    items.forEach((it) => {
+      const done = growthDone && growthDone.has(it.key);
+      const li = document.createElement('li');
+      li.className = done ? 'is-done' : '';
+      li.innerHTML = `<div class="growth-what"><b>${esc(it.name)}</b>${it.what ? `<span>${esc(t(it.what))}</span>` : ''}</div>
+        <a class="btn-mini btn-mini-ghost" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(t('admin.growth.open'))} ↗</a>
+        <label class="care-switch"><input type="checkbox" ${done ? 'checked' : ''}><span class="fine">${esc(t(doneLabel))}</span></label>`;
+      li.querySelector('input').addEventListener('change', (ev) => toggleGrowth(it.key, ev.target.checked));
+      ul.appendChild(li);
+    });
+  }
+  function renderGrowth() {
+    const signups = document.getElementById('growthSignups');
+    if (!signups) return;
+    checklist(signups, GROWTH_SIGNUPS, 'admin.growth.doneSignup');
+    checklist(document.getElementById('growthGroups'), GROWTH_GROUPS, 'admin.growth.donePost');
+    const prof = document.getElementById('growthProfile');
+    if (!prof.childElementCount) GROWTH_PROFILE.forEach(([label, text]) => textBlock(prof, label, text));
+    const post = document.getElementById('growthPost');
+    if (!post.childElementCount) textBlock(post, t('admin.growth.postLabel'), GROWTH_POST);
+    const requests = (lastProspects || []).filter((p) => p.category === 'request');
+    const box = document.getElementById('growthReplies');
+    box.innerHTML = '';
+    document.getElementById('growthRepliesEmpty').hidden = requests.length > 0;
+    requests.forEach((p, i) => {
+      const card = document.createElement('article');
+      card.className = 'order-card prospect-card';
+      card.style.setProperty('--i', String(Math.min(i, 12)));
+      card.innerHTML = `<div class="order-head"><div><h4>${esc(p.name)}</h4><span class="fine">${esc(p.area || '')}</span></div>
+          <span class="stage-pill">${esc(t(`admin.prospects.status.${p.status}`))}</span></div>
+        ${p.notes ? `<p class="order-msg">${esc(p.notes)}</p>` : ''}
+        <p class="growth-text"></p><div class="order-actions"></div>`;
+      const reply = p.reply_text || t(p.lang === 'fr' ? 'admin.prospects.replyFr' : 'admin.prospects.replyEn');
+      card.querySelector('.growth-text').textContent = reply;
+      const actions = card.querySelector('.order-actions');
+      if (p.website) {
+        const a = document.createElement('a');
+        a.className = 'btn-mini btn-mini-ghost'; a.href = p.website; a.target = '_blank'; a.rel = 'noopener';
+        a.textContent = `${t('admin.prospects.openRequest')} ↗`;
+        actions.appendChild(a);
+      }
+      actions.appendChild(copyButton(reply));
+      if (PROSPECT_OPEN.includes(p.status)) {
+        const add = (label, cls, patch) => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = cls; b.textContent = label;
+          b.addEventListener('click', () => updateProspect(p, patch()));
+          actions.appendChild(b);
+        };
+        if (p.status === 'todo') add(t('admin.prospects.act.contacted'), 'btn-mini btn-mini-go', () => contacted(p, 'contacted', 5));
+        add(t('admin.prospects.act.interested'), 'btn-mini btn-mini-go', () => contacted(p, 'interested', 2));
+        add(t('admin.prospects.act.no'), 'btn-mini btn-mini-ghost', () => ({ status: 'not_interested', next_action_on: null }));
+      }
+      box.appendChild(card);
+    });
+    const done = GROWTH_SIGNUPS.concat(GROWTH_GROUPS).filter((it) => growthDone && growthDone.has(it.key)).length;
+    const replied = requests.filter((p) => p.status !== 'todo').length;
+    document.getElementById('growthProgress').innerHTML =
+      `<span><b>${done}/${GROWTH_SIGNUPS.length + GROWTH_GROUPS.length}</b> ${esc(t('admin.growth.progressSteps'))}</span>` +
+      `<span><b>${replied}/${requests.length}</b> ${esc(t('admin.growth.progressReplies'))}</span>`;
+    setBadge('growth', GROWTH_SIGNUPS.length + GROWTH_GROUPS.length - done + requests.filter((p) => p.status === 'todo').length);
+  }
 
   // ---------- Website visits (page_views, anonymous) ----------
   let lastVisits = null;
@@ -1773,7 +1888,7 @@
     let start = 'home';
     try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
     if (!document.getElementById(`dashSection-${start}`)) start = 'home';
-    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners(), loadProspects()]);
+    await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners(), loadProspects(), loadGrowth()]);
     openSection(start);
     renderHome(true);
     await loadCategories();

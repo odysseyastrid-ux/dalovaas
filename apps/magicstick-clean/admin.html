@@ -133,6 +133,9 @@
           <button type="button" class="dash-nav-btn" data-section="clients" aria-label="Clients & leads">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg><span data-i18n="admin.nav.clients">Clients & leads</span><span class="dash-nav-badge" id="navBadge-clients" hidden></span>
           </button>
+          <button type="button" class="dash-nav-btn" data-section="growth" aria-label="Growth">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span data-i18n="admin.nav.growth">Growth</span><span class="dash-nav-badge" id="navBadge-growth" hidden></span>
+          </button>
           <button type="button" class="dash-nav-btn" data-section="gifts" aria-label="Gift cards">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M7.5 8a2.5 2.5 0 1 1 4.5-1.5A2.5 2.5 0 1 1 16.5 8"/></svg><span data-i18n="admin.nav.gifts">Gift cards</span><span class="dash-nav-badge" id="navBadge-gifts" hidden></span>
           </button>
@@ -287,6 +290,36 @@
                   <tbody></tbody>
                 </table>
               </div>
+            </div>
+          </section>
+
+          <section class="dash-section" id="dashSection-growth">
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.growth.title">Grow my business</h3>
+                <p class="dash-card-sub" data-i18n="admin.growth.sub">Everything ready to find your first clients: the sites to join, your profile text, the Facebook post and a personal reply for each public request. Tap “Copy”, paste, then tick it off.</p></div></div>
+              <div class="prospect-stats" id="growthProgress"></div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.growth.signupsTitle">1. Join these sites</h3>
+                <p class="dash-card-sub" data-i18n="admin.growth.signupsSub">Create these accounts yourself: they verify your identity by phone or email, and your passwords must stay yours (a different one for each site, with two-step verification when offered). Use magicstickclean@gmail.com.</p></div></div>
+              <ul class="growth-list" id="growthSignups"></ul>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.growth.profileTitle">2. Your profile text</h3>
+                <p class="dash-card-sub" data-i18n="admin.growth.profileSub">Paste it in the description of each site, then add your before/after photos.</p></div></div>
+              <div id="growthProfile"></div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.growth.groupsTitle">3. Facebook post for the Rockland groups</h3>
+                <p class="dash-card-sub" data-i18n="admin.growth.groupsSub">Publish it once in each group with 2 or 3 before/after photos. Read the group rules first: some don’t allow ads.</p></div></div>
+              <div id="growthPost"></div>
+              <ul class="growth-list" id="growthGroups"></ul>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-head"><div><h3 data-i18n="admin.growth.repliesTitle">4. Reply to people who are looking for a cleaner</h3>
+                <p class="dash-card-sub" data-i18n="admin.growth.repliesSub">Open the request, copy your personal reply and paste it under the post (on Kijiji: “Send message”). Then tap “Contacted”: the follow-up comes back in your morning email.</p></div></div>
+              <div class="orders-list" id="growthReplies"></div>
+              <p class="fine" id="growthRepliesEmpty" data-i18n="admin.orders.empty" hidden>Nothing here.</p>
             </div>
           </section>
 

@@ -59,12 +59,17 @@
     },
     {
       "source": "/concours",
-      "destination": "/concours.html",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/concours.html",
+      "destination": "/",
       "permanent": false
     },
     {
       "source": "/contest",
-      "destination": "/concours.html",
+      "destination": "/",
       "permanent": false
     },
     {
@@ -76,7 +81,7 @@
           "value": "tirage-50"
         }
       ],
-      "destination": "/concours.html",
+      "destination": "/",
       "permanent": false
     }
   ]

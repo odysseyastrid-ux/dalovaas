@@ -54,7 +54,7 @@ demandes et vos prix. Demandez-lui par exemple « À qui dois-je demander un avi
 | Service | Sert à | Où |
 |---|---|---|
 | **Gmail** magicstickclean@gmail.com | recevoir les demandes, connexion admin | gmail.com |
-| **Tableau de bord** | voir et gérer les demandes, le concours, les avis, l'IA | magicstickclean.ca/admin.html |
+| **Tableau de bord** | voir et gérer les commandes, les partenaires, les avis, l'IA | magicstickclean.ca/admin.html |
 | **Vercel** | héberge le site (le met en ligne) | vercel.com, projet « magicstickclean » |
 | **Supabase** | base de données, envoi des courriels, IA | supabase.com, projet `siqpcnhfpseorjuwfrop` |
 | **GitHub** | le « code » du site (l'historique de chaque changement) | github.com/odysseyastrid-ux/dalovaas |
@@ -89,12 +89,8 @@ vous les demande, refusez : il n'en a pas besoin.
    Elles sont dans le tableau de bord. Rappelez ces gens, même en retard.
 2. **3 demandes « TEST »** dans le tableau de bord, créées par mes tests finaux. Vous pouvez
    les supprimer, ou dire à l'agent « supprime les 3 demandes TEST ».
-3. **Tirage du concours le 5 janvier 2027.** Le concours est fermé, mais les **3 personnes
-   inscrites** gardent leur chance (le règlement ne permet pas de l'annuler).
-   - Le 5 janvier : tableau de bord → *Concours* → **« Tirer les gagnants »**.
-   - Puis contactez-les et posez-leur la **question d'habileté** (c'est obligatoire au
-     Canada pour un concours, et c'est dans le règlement).
-   - N'envoyez des offres qu'à ceux qui ont coché « j'accepte de recevoir les offres » (c'est la loi canadienne anti-pourriel).
+3. **Concours annulé (23 nov. 2026).** À votre demande : plus de tirage, la page du concours
+   est retirée et les anciens liens (et le QR des affiches) mènent à l'accueil.
 4. **Stripe (paiement en ligne).** Il est éteint, car votre compte Stripe n'est pas activé.
    - Si vous voulez les paiements un jour : activez votre compte Stripe (pièces d'identité,
      compte bancaire), puis demandez à l'agent de les rallumer et de faire un vrai test.

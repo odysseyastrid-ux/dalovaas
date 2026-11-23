@@ -36,13 +36,8 @@ This file covers *how* to change, test and deploy the site safely.
 6. **Never offer anything in exchange for a review** (Google policy).
    - Ask for a review only after a real completed job, with at most one reminder.
    - Never write or suggest fake reviews.
-7. **The contest ("50 ménages gratuits") is closed.** Never promote it again.
-   - `concours.html` stays only as a "closed" notice plus the rules: noindex, not in the
-     menus or sitemap, still reachable because printed flyers point to it.
-   - The 3 entries received stay valid and the draw (Jan 5, 2027) must still be honoured.
-     The owner runs it from the dashboard.
-   - Marketing offers may only go to entrants who ticked the consent box
-     (`marketing_consent_at` not null), because of the CASL law.
+7. **The contest ("50 ménages gratuits") was cancelled by the owner (Nov 23, 2026).** Its page
+   and print files are deleted and its links redirect to the homepage. Never promote or relaunch it.
 8. **Don't promise "the same cleaner every visit"** (the owner plans to hire). There is no
    first-booking discount. The services list "Not yet available" in CLAUDE.md must not
    be promised.
@@ -70,8 +65,7 @@ apps/magicstick-clean/
 │   ├── account.html    client login / own bookings
 │   ├── admin.html      owner dashboard (login + admin_users)
 │   ├── services.html, service-*.html, locations.html, location-*.html (SEO pages)
-│   ├── about, learn-more, careers, terms, privacy, 404
-│   └── concours.html   contest CLOSED notice + rules (noindex)
+│   └── about, learn-more, careers, terms, privacy, 404
 ├── css/styles.css      one stylesheet for every page (motion "fluid layer" at the end)
 ├── js/
 │   ├── config.js       public config: Supabase URL + publishable key, Stripe pk, ONLINE_PAYMENTS

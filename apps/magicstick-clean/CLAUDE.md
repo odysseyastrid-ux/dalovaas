@@ -143,7 +143,6 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
      privacy.cookies.p1). Home shows visitors/day, pages, sources, devices, hours, time zones.
    - Site care section (migration 0029): health checks, top-bar message (`site_settings`),
      supplies inventory, JSON/CSV backup, tool links.
-   The contest draw (Jan 5, 2027) must now be done by hand (data is in the JSON backup).
    **Partner agencies (Nov 23, 2026, migration 0031):** `partners` table (rate, deposit %, days
    to pay the balance; managed in Clients). The owner creates a partner job from Orders ("New
    partner order": date, address, estimated hours, deposit % per job). Owner's rule: partners
@@ -225,39 +224,15 @@ globally; size-specific heading tracking, `text-wrap: balance`, body size in `re
 
 ---
 
-## Contest "50 free cleanings to win" (tirage-50-2026) — CLOSED EARLY (Nov 3, 2026)
+## Contest "50 free cleanings to win" (tirage-50-2026) — CANCELLED (Nov 23, 2026)
 
-**Owner's decision (Nov 3, 2026): the contest is removed from the site.** All promotion
-is gone (home band, menu and footer links, sitemap). `concours.html` now only says
-"entries are closed early on Nov 3, 2026; entries received before then remain valid" and
-keeps the rules (noindex; still reachable because printed flyers carry its QR code).
-`submit-form` refuses new entries (410, `CONTEST_CLOSES_AT` = 2026-11-03T05:00Z). The 3
-entries received stay valid: the rules have no cancellation clause, so the draw still
-has to be honoured (the dashboard's draw still works). Never promote the contest again.
-The notes below describe how it worked.
-
-- **Page:** `concours.html` (FR/EN, short URLs `/concours` and `/contest`), entry form +
-  official rules (`#reglement`). Home promo band `#concours` on `index.html`; link in every
-  mobile menu and in the footers. The 4K banners' QR codes point to
-  `concours.html?utm_source=banner&utm_medium=social&utm_campaign=tirage-50`; the older QR
-  (`quote.html?utm_campaign=tirage-50`) is redirected there by `vercel.json`.
-- **Terms:** 50 prizes, each a standard 3-hour cleaning (value $90, $4,500 total), free entry,
-  Clarence-Rockland residents 18+, one entry per person/address, entries Oct 13 → Dec 31, 2026
-  23:59 ET, random draw Jan 5, 2027 12 p.m. ET, skill-testing question, prize usable until
-  June 30, 2027. Never change these on the site without updating the rules section too.
-- **Backend:** `submit-form` form `contest` → table `contest_entries` (migration
-  `0018_contest_entries.sql`; unique per normalized phone/email; refuses after the deadline
-  with 410). Owner gets an email per entry; email entrants get a confirmation.
-- **Offers consent (CASL):** an optional, unticked box on the form ("j'accepte de recevoir les
-  offres…"). Ticked → `marketing_consent_at` + `marketing_consent_version` (migration
-  `0020_contest_marketing_consent.sql`). **Only those entrants may receive offers by email/text**;
-  the others gave their details for the contest only. The dashboard shows the "Offers" column,
-  the opt-in count, an "Unsubscribe" button (records a withdrawal) and the CSV column
-  `accepts_offers_since`. Changing the box's wording means bumping `CONTEST_CONSENT_VERSION`
-  in `submit-form`.
-- **Dashboard:** `admin.html` → "Contest / Concours": count, search, CSV export, statuses
-  (entered / winner / disqualified) and a "Draw the winners" button (crypto-random, fills up to
-  50; disqualify someone and click again to draw a replacement).
+Closed early on Nov 3, 2026, then **cancelled by the owner on Nov 23, 2026**: no draw, the
+contest page (`concours.html`, `js/concours.js`) and the contest print files were deleted,
+`/concours`, `/contest`, `/concours.html` and the old `utm_campaign=tirage-50` QR now
+redirect to the homepage, and the owner asked for the 3 entries in `contest_entries` to be
+deleted (they were told twice that the published rules had no cancellation clause and that
+the entrants would not receive the promised prize). `submit-form` still refuses entries (410).
+Never promote or relaunch this contest.
 
 ## Google review requests (owner dashboard)
 

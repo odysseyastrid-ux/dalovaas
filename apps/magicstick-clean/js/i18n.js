@@ -872,7 +872,7 @@
     'admin.visits.device.tablet': { en: 'Tablet', fr: 'Tablette' },
     'admin.visits.device.desktop': { en: 'Computer', fr: 'Ordinateur' },
     'admin.care.backupTitle': { en: 'Back up my data', fr: 'Sauvegarder mes données' },
-    'admin.care.backupSub': { en: 'Download everything (orders, clients, leads, applications, gift cards, services, inventory, contest entries) to keep a copy on your computer. Do it once a month.', fr: 'Téléchargez tout (commandes, clients, prospects, candidatures, cartes-cadeaux, services, inventaire, participants du concours) pour garder une copie sur votre ordinateur. Faites-le une fois par mois.' },
+    'admin.care.backupSub': { en: 'Download everything (orders, clients, leads, partners, team, applications, gift cards, services, inventory) to keep a copy on your computer. Do it once a month.', fr: 'Téléchargez tout (commandes, clients, prospects, partenaires, équipe, candidatures, cartes-cadeaux, services, inventaire) pour garder une copie sur votre ordinateur. Faites-le une fois par mois.' },
     'admin.care.backupAll': { en: 'Download everything (JSON)', fr: 'Tout télécharger (JSON)' },
     'admin.care.backupOrders': { en: 'Orders in Excel (CSV)', fr: 'Commandes pour Excel (CSV)' },
     'admin.care.backupWorking': { en: 'Preparing your file…', fr: 'Préparation du fichier…' },

@@ -1758,7 +1758,7 @@
   document.getElementById('careBackupJson')?.addEventListener('click', async () => {
     const note = document.getElementById('careBackupNote');
     note.textContent = t('admin.care.backupWorking');
-    const tables = ['quote_requests', 'newsletter_subscribers', 'job_applications', 'gift_cards', 'gift_card_requests', 'gift_card_transactions', 'services', 'service_addons', 'supplies', 'site_settings', 'contest_entries', 'bookings'];
+    const tables = ['quote_requests', 'newsletter_subscribers', 'job_applications', 'gift_cards', 'gift_card_requests', 'gift_card_transactions', 'services', 'service_addons', 'supplies', 'site_settings', 'bookings', 'partners', 'employees'];
     const out = { exported_at: new Date().toISOString(), site: 'magicstickclean.ca' };
     for (const tb of tables) {
       const { data, error } = await supabase.from(tb).select('*');

@@ -935,7 +935,9 @@
     sub.style.animation = 'none'; void sub.offsetWidth; sub.style.animation = '';
     document.getElementById('studioDate').textContent = now.toLocaleDateString(lang() === 'fr' ? 'fr-CA' : 'en-CA', { weekday: 'long', day: 'numeric', month: 'long' });
     const crumb = document.getElementById('studioCrumb');
-    if (crumb) crumb.textContent = nav ? nav.textContent.trim() : t('admin.dash.title');
+    // Light mode keeps the original "Dashboard" title; the dark studio shows the section.
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (crumb) crumb.textContent = dark && nav ? nav.textContent.trim() : t('admin.dash.title');
   }
   document.addEventListener('magicstick:langchange', () => renderStudioHead(studioSection));
 
@@ -1019,7 +1021,7 @@
     a: '#5FE3A1', b: '#3CCBB4', bFill: 'rgba(60,203,180,.14)', funnel: ['#2F6F55', '#3FA877', '#5FE3A1', '#B8F25A'] };
   const COLORS = () => (isDark() ? DARK : LIGHT);
   // Redraw the charts in the right colors when the owner switches the mode.
-  new MutationObserver(() => { if (lastQuotes) renderHome(true); })
+  new MutationObserver(() => { if (lastQuotes) renderHome(true); renderStudioHead(studioSection); })
     .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   function countUp(el, to, fmt) {

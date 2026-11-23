@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/admin-dashboard.css">
+<link rel="stylesheet" href="css/admin-widgets.css">
 <script src="js/vendor/supabase-js-2.117.3.umd.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabaseClient.js"></script>
@@ -61,7 +62,36 @@
         <label for="adminPassword" data-i18n="account.password">Password</label>
         <input type="password" id="adminPassword" required>
       </div>
-      <button type="submit" class="btn" data-i18n="account.login.submit">Log in</button>
+      <!-- From Uiverse.io by marcelodolza - https://uiverse.io/marcelodolza/stupid-vampirebat-24
+           MIT License, Copyright (c) marcelodolza (Marcelo Dolza) -->
+      <button type="submit" class="ms-join" data-i18n-aria-label="account.login.submit" aria-label="Log in">
+        <div class="ms-join-bg"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 342 208" height="208" width="342" class="ms-join-splash" aria-hidden="true">
+          <path stroke-linecap="round" stroke-width="3" d="M54.1054 99.7837C54.1054 99.7837 40.0984 90.7874 26.6893 97.6362C13.2802 104.485 1.5 97.6362 1.5 97.6362"></path>
+          <path stroke-linecap="round" stroke-width="3" d="M285.273 99.7841C285.273 99.7841 299.28 90.7879 312.689 97.6367C326.098 104.486 340.105 95.4893 340.105 95.4893"></path>
+          <path stroke-linecap="round" stroke-width="3" stroke-opacity="0.3" d="M281.133 64.9917C281.133 64.9917 287.96 49.8089 302.934 48.2295C317.908 46.6501 319.712 36.5272 319.712 36.5272"></path>
+          <path stroke-linecap="round" stroke-width="3" stroke-opacity="0.3" d="M281.133 138.984C281.133 138.984 287.96 154.167 302.934 155.746C317.908 157.326 319.712 167.449 319.712 167.449"></path>
+          <path stroke-linecap="round" stroke-width="3" d="M230.578 57.4476C230.578 57.4476 225.785 41.5051 236.061 30.4998C246.337 19.4945 244.686 12.9998 244.686 12.9998"></path>
+          <path stroke-linecap="round" stroke-width="3" d="M230.578 150.528C230.578 150.528 225.785 166.471 236.061 177.476C246.337 188.481 244.686 194.976 244.686 194.976"></path>
+          <path stroke-linecap="round" stroke-width="3" stroke-opacity="0.3" d="M170.392 57.0278C170.392 57.0278 173.89 42.1322 169.571 29.54C165.252 16.9478 168.751 2.05227 168.751 2.05227"></path>
+          <path stroke-linecap="round" stroke-width="3" stroke-opacity="0.3" d="M170.392 150.948C170.392 150.948 173.89 165.844 169.571 178.436C165.252 191.028 168.751 205.924 168.751 205.924"></path>
+          <path stroke-linecap="round" stroke-width="3" d="M112.609 57.4476C112.609 57.4476 117.401 41.5051 107.125 30.4998C96.8492 19.4945 98.5 12.9998 98.5 12.9998"></path>
+          <path stroke-linecap="round" stroke-width="3" d="M112.609 150.528C112.609 150.528 117.401 166.471 107.125 177.476C96.8492 188.481 98.5 194.976 98.5 194.976"></path>
+          <path stroke-linecap="round" stroke-width="3" stroke-opacity="0.3" d="M62.2941 64.9917C62.2941 64.9917 55.4671 49.8089 40.4932 48.2295C25.5194 46.6501 23.7159 36.5272 23.7159 36.5272"></path>
+          <path stroke-linecap="round" stroke-width="3" stroke-opacity="0.3" d="M62.2941 145.984C62.2941 145.984 55.4671 161.167 40.4932 162.746C25.5194 164.326 23.7159 174.449 23.7159 174.449"></path>
+        </svg>
+        <div class="ms-join-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 221 42" height="42" width="221" class="ms-join-path" aria-hidden="true">
+            <path stroke-linecap="round" stroke-width="3" d="M182.674 2H203C211.837 2 219 9.16344 219 18V24C219 32.8366 211.837 40 203 40H18C9.16345 40 2 32.8366 2 24V18C2 9.16344 9.16344 2 18 2H47.8855"></path>
+          </svg>
+          <div class="ms-join-outline"></div>
+          <div class="ms-join-content" aria-hidden="true">
+            <span class="ms-join-char state-1" data-chars="admin.login.go1">Sign in</span>
+            <div class="ms-join-icon"><div></div></div>
+            <span class="ms-join-char state-2" data-chars="admin.login.go2">Let's go</span>
+          </div>
+        </div>
+      </button>
       <p class="form-note" id="adminLoginNote"></p>
     </form>
 
@@ -87,6 +117,18 @@
 
     <div id="notAdminNotice" class="notice-box" hidden>
       <p data-i18n-html="admin.notAdmin">This account isn’t set up as an admin. Add it to <code>admin_users</code> in Supabase, see SETUP.md.</p>
+    </div>
+
+    <!-- From Uiverse.io by gsperandio - https://uiverse.io/gsperandio/shaggy-kangaroo-12
+         MIT License, Copyright (c) gsperandio (Gustavo Sperandio) -->
+    <div class="ms-loader" id="dashLoader" hidden role="status">
+      <div class="ms-loader-stage" aria-hidden="true">
+        <div class="ms-cubes ms-cubes-loop">
+          <div class="ms-cubes ms-cubes-item"></div><div class="ms-cubes ms-cubes-item"></div><div class="ms-cubes ms-cubes-item"></div>
+          <div class="ms-cubes ms-cubes-item"></div><div class="ms-cubes ms-cubes-item"></div><div class="ms-cubes ms-cubes-item"></div>
+        </div>
+      </div>
+      <p class="ms-loader-text" data-i18n="admin.loading">Loading your dashboard…</p>
     </div>
 
     <div id="adminDashboard" hidden>
@@ -162,14 +204,138 @@
 
         <main class="dash-main">
           <section class="dash-section active" id="dashSection-home">
-            <div class="home-hello">
-              <p class="home-date" id="homeDate"></p>
-              <h3 class="home-title" data-i18n="admin.home.title">Your business at a glance</h3>
+            <div class="home-top">
+              <div class="home-hello">
+                <p class="home-date" id="homeDate"></p>
+                <h3 class="home-title" data-i18n="admin.home.title">Your business at a glance</h3>
+              </div>
+              <div class="ms-clock" id="msClock">
+                <svg class="ms-clock-face" viewBox="0 0 120 120" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="msClockBg" cx="35%" cy="30%" r="80%"><stop offset="0" class="ms-clock-stop-hi"/><stop offset="1" class="ms-clock-stop-lo"/></radialGradient>
+                    <linearGradient id="msClockSec" gradientUnits="userSpaceOnUse" x1="60" y1="12" x2="60" y2="72"><stop offset="0" stop-color="#FF5DA2"/><stop offset="1" stop-color="#7C4DFF"/></linearGradient>
+                  </defs>
+                  <circle cx="60" cy="60" r="57" fill="url(#msClockBg)" class="ms-clock-rim"/>
+                  <g class="ms-clock-ticks"></g>
+                  <g class="ms-clock-hand ms-clock-h"><line x1="60" y1="66" x2="60" y2="34"/></g>
+                  <g class="ms-clock-hand ms-clock-m"><line x1="60" y1="68" x2="60" y2="18"/></g>
+                  <g class="ms-clock-hand ms-clock-s"><line x1="60" y1="72" x2="60" y2="12" stroke="url(#msClockSec)"/><circle cx="60" cy="72" r="3"/></g>
+                  <circle cx="60" cy="60" r="4.2" class="ms-clock-cap"/><circle cx="60" cy="60" r="1.6" fill="#fff"/>
+                </svg>
+                <div class="ms-clock-text">
+                  <span class="ms-clock-hello" id="msClockHello"></span>
+                  <span class="ms-clock-time"><b id="msClockHM">--:--</b><i id="msClockS">--</i></span>
+                  <span class="ms-clock-date" id="msClockDate"></span>
+                </div>
+              </div>
+              <div class="ms-game">
+                <div class="ms-game-head">
+                  <b data-i18n="admin.game.title">Game mode</b>
+                  <small data-i18n="admin.game.sub">Effects and sounds while you work</small>
+                </div>
+                <!-- From Uiverse.io by byllzz - https://uiverse.io/byllzz/smooth-bird-47
+                     MIT License, Copyright (c) byllzz (Bilal Malik) -->
+                <div class="ms-pad-stage">
+                  <input type="checkbox" id="msGameMode" class="ms-pad-input" checked>
+                  <div class="ms-pad-device" data-hint="Tap the big pad to turn on">
+                    <div class="ms-pad-bumper ms-pad-top-bumper"></div>
+                    <div class="ms-pad-bumper ms-pad-bot-bumper"></div>
+                    <div class="ms-pad-dpad">
+                      <div class="ms-pad-btn ms-pad-btn-top"><div class="ms-pad-icon-power"></div></div>
+                      <div class="ms-pad-btn ms-pad-btn-left"><div class="ms-pad-icon-arrow"></div></div>
+                      <div class="ms-pad-btn ms-pad-btn-right"><div class="ms-pad-icon-trident ms-pad-green"></div></div>
+                      <div class="ms-pad-btn ms-pad-btn-bottom"><div class="ms-pad-icon-bars"></div></div>
+                    </div>
+                    <div class="ms-pad-mid">
+                      <div class="ms-pad-left-icons"><div class="ms-pad-bt"></div><div class="ms-pad-icon-trident ms-pad-gray"></div></div>
+                      <div class="ms-pad-right-icons"><span class="ms-pad-start-label">START</span><div class="ms-pad-start"></div></div>
+                    </div>
+                    <label for="msGameMode" class="ms-pad-big" data-i18n-aria-label="admin.game.title" aria-label="Game mode">
+                      <div class="ms-pad-status"></div>
+                      <div class="ms-pad-notch ms-pad-n-top"></div><div class="ms-pad-notch ms-pad-n-right"></div>
+                      <div class="ms-pad-notch ms-pad-n-bottom"></div><div class="ms-pad-notch ms-pad-n-left"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="dash-kpi-grid" id="homeKpis"></div>
-            <div class="dash-card home-todo">
-              <div class="dash-card-head"><h3 data-i18n="admin.home.todoTitle">To do</h3></div>
-              <ul class="todo-list" id="homeTodo"></ul>
+            <div class="home-stats">
+              <!-- From Uiverse.io by NK2552003 - https://uiverse.io/NK2552003/silly-moth-73
+                   MIT License, Copyright (c) NK2552003 (Nitish) -->
+              <div class="ms-week" id="msWeek">
+                <div class="ms-week-header">
+                  <span class="ms-week-title" data-i18n="admin.week.title">Requests per day</span>
+                  <button type="button" class="ms-week-full" id="msWeekFull" data-i18n="admin.week.full">Full stats-&gt;</button>
+                </div>
+                <div class="ms-week-range"><span class="ms-week-range-value" id="msWeekRange">0-0</span><span class="ms-week-range-unit" data-i18n="admin.week.unit">/ day</span></div>
+                <div class="ms-week-dates" id="msWeekDates"></div>
+                <div class="ms-week-chart-box">
+                  <div class="ms-week-avg-line" id="msWeekAvgLine"></div>
+                  <div class="ms-week-avg-label" id="msWeekAvg"></div>
+                  <div class="ms-week-chart" id="msWeekChart"></div>
+                </div>
+                <div class="ms-week-readings" id="msWeekReadings"></div>
+              </div>
+              <!-- From Uiverse.io by Gidarx - https://uiverse.io/Gidarx/clever-panther-6
+                   MIT License, Copyright (c) Gidarx (Gidarx) -->
+              <div class="ms-bal" id="msBal">
+                <div class="ms-bal-aurora"></div>
+                <div class="ms-bal-inner">
+                  <div class="ms-bal-head">
+                    <div class="ms-bal-brand">
+                      <div class="ms-bal-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M3 12m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                          <path d="M9 8m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                          <path d="M15 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                          <path d="M4 20l14 0"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="ms-bal-title" data-i18n="admin.bal.title">Monthly balance</p>
+                        <p class="ms-bal-updated" id="msBalUpdated"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ms-bal-split">
+                    <div class="ms-bal-col">
+                      <p class="ms-bal-label" data-i18n="admin.bal.revenue">Collected</p>
+                      <p class="ms-bal-value" id="msBalRev">0 $</p>
+                      <p class="ms-bal-delta" id="msBalRevDelta"></p>
+                    </div>
+                    <div class="ms-bal-col">
+                      <p class="ms-bal-label" data-i18n="admin.bal.pending">To collect</p>
+                      <p class="ms-bal-value" id="msBalPend">0 $</p>
+                      <p class="ms-bal-delta is-down" id="msBalPendNote"></p>
+                    </div>
+                  </div>
+                  <div class="ms-bal-chart">
+                    <svg viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="msBalGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#a3e635" stop-opacity="0.2"></stop>
+                          <stop offset="100%" stop-color="#a3e635" stop-opacity="0"></stop>
+                        </linearGradient>
+                      </defs>
+                      <path id="msBalLine" class="ms-bal-line" d="M0,65 C50,20 80,80 150,70 S250,50 300,85" fill="none" stroke="#a3e635" stroke-width="2" pathLength="1"></path>
+                      <path id="msBalArea" d="M0,100 L0,65 C50,20 80,80 150,70 S250,50 300,85 L300,100 Z" fill="url(#msBalGradient)"></path>
+                    </svg>
+                    <div class="ms-bal-point" id="msBalPoint">
+                      <div class="ms-bal-dot"></div>
+                      <div class="ms-bal-pulse"></div>
+                    </div>
+                  </div>
+                  <div class="ms-bal-foot">
+                    <button type="button" class="ms-bal-btn" id="msBalReport" data-i18n="admin.bal.report">View all orders</button>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-card home-todo">
+                <div class="dash-card-head"><h3 data-i18n="admin.home.todoTitle">To do</h3></div>
+                <ul class="todo-list" id="homeTodo"></ul>
+              </div>
             </div>
             <div class="home-charts">
               <div class="dash-card chart-card chart-wide"><div class="dash-card-head"><h3 data-i18n="admin.home.chart.revenue">Money collected (last 12 weeks)</h3></div><div class="chart-box"><canvas id="chartRevenue"></canvas></div></div>

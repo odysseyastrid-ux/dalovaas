@@ -956,6 +956,7 @@
       const p = Math.min(1, (now - start) / dur);
       el.textContent = fmt(to * (1 - Math.pow(1 - p, 3)));
       if (p < 1) requestAnimationFrame(step);
+      else { el.classList.remove('ms-settle'); void el.offsetWidth; el.classList.add('ms-settle'); }
     };
     requestAnimationFrame(step);
   }
@@ -974,7 +975,13 @@
     const grid = css('--line') || '#E6E1D7';
     config.options = Object.assign({
       responsive: true, maintainAspectRatio: false,
-      animation: reduceMotion ? false : { duration: 1100, easing: 'easeOutQuart' },
+      // Bars and points arrive one after the other (staggered), like a game HUD filling up.
+      animation: reduceMotion ? false : {
+        duration: 1000, easing: 'easeOutQuart',
+        delay: (c) => (c.type === 'data' && c.mode === 'default' ? c.dataIndex * 45 + c.datasetIndex * 140 : 0),
+      },
+      // A tap on a bar/slice plays a note (pitch follows the position).
+      onClick: (_e, els) => { if (els && els.length && window.MagicFX) window.MagicFX.sound('select', els[0].index); },
       plugins: { legend: { display: false, labels: { color: text } }, tooltip: { padding: 10, cornerRadius: 10 } },
     }, config.options || {});
     if (config.type === 'bar' || config.type === 'line') {
@@ -986,10 +993,127 @@
     charts[id] = new window.Chart(el, config);
   }
 
+  // ---------- Home widgets: requests per day + monthly balance (real data only) ----------
+  const hhmm = (d) => d.toLocaleTimeString(lang() === 'fr' ? 'fr-CA' : 'en-CA', { hour: '2-digit', minute: '2-digit', hour12: false });
+  function renderWeekCard() {
+    const chart = document.getElementById('msWeekChart');
+    if (!chart || !lastQuotes) return;
+    const loc = lang() === 'fr' ? 'fr-CA' : 'en-CA';
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const days = Array.from({ length: 7 }, (_, i) => new Date(today.getTime() - (6 - i) * 864e5));
+    const counts = days.map((d) => lastQuotes.filter((x) => new Date(x.created_at).toDateString() === d.toDateString()).length);
+    const max = Math.max(1, ...counts);
+    const avg = counts.reduce((a, b) => a + b, 0) / 7;
+    const MB = [8, 14, 12, 10, 14, 12, 13]; // the card's floating offsets, kept from the original design
+    const h = (c) => Math.round(8 + (c / max) * 36);
+    document.getElementById('msWeekRange').textContent = `${Math.min(...counts)}-${Math.max(...counts)}`;
+    const short = (d, o) => d.toLocaleDateString(loc, o);
+    document.getElementById('msWeekDates').textContent = `${short(days[0], { day: 'numeric', month: 'short' })} - ${short(days[6], { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    const busiest = counts.indexOf(Math.max(...counts));
+    chart.innerHTML = '';
+    days.forEach((d, i) => {
+      const w = document.createElement('div');
+      w.className = 'ms-week-bar-wrapper';
+      const label = d.toLocaleDateString(loc, { weekday: 'short' }).replace('.', '');
+      w.innerHTML = `<div class="ms-week-bar-container"><div class="ms-week-bar${counts[i] ? '' : ' is-empty'}" style="--i:${i};height:${h(counts[i])}px;margin-bottom:${MB[i]}px"></div></div>`
+        + `<div class="ms-week-day${i === 6 ? ' is-today' : ''}"></div>`;
+      w.querySelector('.ms-week-day').textContent = label.charAt(0).toUpperCase() + label.slice(1, 2);
+      const bar = w.querySelector('.ms-week-bar');
+      bar.title = t('admin.week.barTip', { n: counts[i], day: short(d, { weekday: 'long', day: 'numeric', month: 'long' }) });
+      if (i === busiest && counts[i]) bar.insertAdjacentHTML('beforeend', '<div class="ms-week-dot ms-week-dot-top"></div>');
+      if (i === 6) bar.insertAdjacentHTML('beforeend', '<div class="ms-week-dot ms-week-dot-bottom"></div>');
+      chart.appendChild(w);
+    });
+    // Average line at the height an average bar would reach (90px box, 17px of day label + gap).
+    const avgTop = 90 - (17 + 12 + 8 + (avg / max) * 36);
+    document.getElementById('msWeekAvgLine').style.top = `${Math.max(4, Math.min(80, avgTop))}px`;
+    document.getElementById('msWeekAvg').textContent = t('admin.week.avg', { n: avg.toLocaleString(loc, { maximumFractionDigits: 1 }) });
+    // Latest money in (or latest requests when nothing was paid yet).
+    const paid = lastQuotes.filter((x) => x.paid_at).sort((a, b) => String(b.paid_at).localeCompare(String(a.paid_at))).slice(0, 2);
+    const rows = paid.length
+      ? paid.map((x) => [new Date(x.paid_at), cad(amountOf(x), lang()).replace(/[.,]00(?=\D*$)/, '')])
+      : lastQuotes.slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 2).map((x) => [new Date(x.created_at), t('admin.week.request')]);
+    const box = document.getElementById('msWeekReadings');
+    box.innerHTML = '';
+    rows.forEach(([d, v]) => {
+      const sameDay = d.toDateString() === new Date().toDateString();
+      const r = document.createElement('div');
+      r.className = 'ms-week-reading';
+      r.innerHTML = '<span class="ms-week-reading-time"></span><span class="ms-week-reading-value"></span>';
+      r.firstChild.textContent = sameDay ? t('admin.week.today', { t: hhmm(d) }) : `${short(d, { day: 'numeric', month: 'short' })} (${hhmm(d)})`;
+      r.lastChild.textContent = v;
+      box.appendChild(r);
+    });
+    if (!rows.length) box.innerHTML = `<div class="ms-week-reading"><span class="ms-week-reading-time">${esc(t('admin.week.none'))}</span><span class="ms-week-reading-value">—</span></div>`;
+  }
+  function smoothPath(pts) {
+    // Catmull-Rom → cubic Bézier, so the curve stays soft like the original card.
+    let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    return d;
+  }
+  function renderBalanceCard(replay) {
+    const line = document.getElementById('msBalLine');
+    if (!line || !lastQuotes) return;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const sameDayPrev = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate(), 23, 59, 59);
+    const paidBetween = (a, b) => lastQuotes.filter((x) => x.paid_at && new Date(x.paid_at) >= a && new Date(x.paid_at) <= b);
+    const sum = (arr) => arr.reduce((s, x) => s + amountOf(x), 0);
+    const rev = sum(paidBetween(monthStart, now));
+    const prev = sum(paidBetween(prevStart, sameDayPrev)); // same point last month: a fair comparison
+    const pending = lastQuotes.filter((x) => !x.paid_at && x.quoted_amount_cents && stageOf(x) !== 'cancelled');
+    const money = (c) => cad(Math.round(c), lang()).replace(/[.,]00(?=\D*$)/, '');
+    document.getElementById('msBalRev').textContent = money(rev);
+    const delta = document.getElementById('msBalRevDelta');
+    if (prev) {
+      const pct = Math.round(((rev - prev) / prev) * 100);
+      delta.textContent = t('admin.bal.vs', { pct: `${pct >= 0 ? '+' : ''}${pct}` });
+      delta.classList.toggle('is-down', pct < 0);
+    } else { delta.textContent = t('admin.bal.vsNone'); delta.classList.remove('is-down'); }
+    document.getElementById('msBalPend').textContent = money(sum(pending));
+    document.getElementById('msBalPendNote').textContent = t('admin.bal.pendingN', { n: pending.length });
+    document.getElementById('msBalUpdated').textContent = t('admin.bal.updated', { t: hhmm(now) });
+    // Curve: money collected so far this month, day by day.
+    const daysSoFar = now.getDate();
+    const cum = [];
+    let run = 0;
+    for (let d = 1; d <= daysSoFar; d++) {
+      const a = new Date(now.getFullYear(), now.getMonth(), d), b = new Date(now.getFullYear(), now.getMonth(), d, 23, 59, 59, 999);
+      run += sum(paidBetween(a, b));
+      cum.push(run);
+    }
+    if (cum.length === 1) cum.unshift(0);
+    const top = Math.max(1, ...cum);
+    const pts = cum.map((v, i) => [(i / (cum.length - 1)) * 300, 88 - (v / top) * 62]);
+    const d = smoothPath(pts);
+    line.setAttribute('d', d);
+    document.getElementById('msBalArea').setAttribute('d', `M0,100 L${d.slice(1)} L300,100 Z`);
+    document.getElementById('msBalPoint').style.top = `${(pts[pts.length - 1][1] * 0.96).toFixed(1)}px`;
+    if (replay && !reduceMotion) {
+      const box = line.closest('.ms-bal-chart');
+      [line, box].forEach((el) => el.classList.remove('is-drawing'));
+      void line.getBoundingClientRect();
+      line.classList.add('is-drawing'); box.classList.add('is-drawing');
+    }
+  }
+  document.getElementById('msWeekFull')?.addEventListener('click', () => {
+    document.querySelector('#dashSection-home .home-charts')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+  document.getElementById('msBalReport')?.addEventListener('click', () => openSection('orders'));
+
   function renderHome(replay) {
     const kpiBox = document.getElementById('homeKpis');
     if (!kpiBox || !lastQuotes) return;
     refreshXP();
+    renderWeekCard();
+    renderBalanceCard(replay);
     const fr = lang() === 'fr';
     const now = new Date();
     document.getElementById('homeDate').textContent = now.toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -1914,6 +2038,10 @@
   });
 
   async function showDashboard() {
+    const loader = document.getElementById('dashLoader');
+    const shownAt = performance.now();
+    const hideLoader = () => { if (!loader || loader.hidden) return; loader.classList.add('is-out'); setTimeout(() => { loader.hidden = true; }, 450); };
+    if (loader) { loader.hidden = false; loader.classList.remove('is-out'); setTimeout(hideLoader, 8000); }
     dashboard.hidden = false;
     let start = 'home';
     try { start = sessionStorage.getItem('magicstick_admin_section') || 'home'; } catch (_) { /* private mode */ }
@@ -1921,6 +2049,10 @@
     await Promise.all([loadQuotes(), loadGiftCards(), loadGiftRequests(), loadLeads(), loadJobs(), loadSupplies(), loadSiteSettingsAdmin(), loadStaff(), loadVisits(), loadPartners(), loadProspects(), loadGrowth()]);
     openSection(start);
     renderHome(true);
+    if (loader) {
+      // Keep the cubes on screen long enough to be seen, never longer than needed.
+      setTimeout(hideLoader, Math.max(0, 700 - (performance.now() - shownAt)));
+    }
     await loadCategories();
     loadServices();
     loadAddons();

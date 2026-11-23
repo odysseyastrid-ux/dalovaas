@@ -28,6 +28,8 @@
     get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* private mode */ } },
   };
+  // "Mode jeu" (the controller on the home tab): master switch for effects + sounds.
+  let game = store.get('magicstick_admin_game') !== 'off';
 
   // ------------------------------------------------------------------ sound
   const Sound = (() => {
@@ -160,6 +162,15 @@
         pad([55, 59, 62, 67], { at: 0.05, dur: 1.9, vol: 0.026 });
         noise({ at: 0.3, dur: 0.9, vol: 0.018, from: 10000, to: 7000, type: 'highpass', rev: 0.6 });
       },
+      powerOn() {
+        noise({ dur: 0.45, vol: 0.04, from: 200, to: 5000, q: 0.7, rev: 0.3 });
+        tone({ f: 110, f2: 440, dur: 0.45, vol: 0.06, type: 'triangle', rev: 0.2 });
+        [72, 79, 84].forEach((n, i) => bell(NOTE(n + 12), { at: 0.32 + i * 0.07, vol: 0.06, dur: 0.9 }));
+      },
+      powerOff() {
+        tone({ f: 660, f2: 90, dur: 0.5, vol: 0.06, type: 'triangle', rev: 0.25 });
+        noise({ dur: 0.35, vol: 0.03, from: 3000, to: 200, q: 0.7, rev: 0.2 });
+      },
       levelUp() {
         noise({ dur: 0.7, vol: 0.05, from: 250, to: 7000, q: 0.6, rev: 0.4 });
         [60, 64, 67, 72, 76, 79, 84].forEach((n, i) => bell(NOTE(n + 12), { at: 0.35 + i * 0.055, vol: 0.075, dur: 1.5, pan: (i - 3) * 0.12 }));
@@ -168,7 +179,7 @@
       },
     };
     return {
-      play(name, arg) { if (!ready() || !S[name]) return; try { S[name](arg); } catch (_) { /* audio is optional */ } },
+      play(name, arg, force) { if ((!game && !force) || !ready() || !S[name]) return; try { S[name](arg); } catch (_) { /* audio is optional */ } },
       get on() { return on; },
       set(v) { on = v; store.set('magicstick_admin_sound', v ? 'on' : 'off'); if (v) { this.play('toggleOn'); } },
     };
@@ -199,7 +210,7 @@
 
   // Hit spark: one thin ring + short radial streaks, like a precise game hit.
   function hit(x, y, strong) {
-    if (calm) return;
+    if (calm || !game) return;
     const ring = spawn('fx-ring', x, y);
     done(ring.animate([
       { transform: 'translate(-50%,-50%) scale(.25)', opacity: 0.95 },
@@ -301,6 +312,7 @@
       const top = header ? header.getBoundingClientRect().bottom : 0;
       if (r.top < top || r.bottom > window.innerHeight) badge = null;
     }
+    if (!game) { onAllLanded(); return; }
     if (!badge) badge = showHud();
     const r = badge.getBoundingClientRect();
     // The HUD is still sliding in: aim where it will settle.
@@ -372,6 +384,7 @@
   // A real win (called by admin.js after the save succeeded).
   function win(points, kind) {
     const { x, y } = last;
+    if (!game) { apply(); return; }
     flying += 1;
     bloom(x, y, points >= 50);
     Sound.play(WIN_SOUND[kind] || 'small');
@@ -424,7 +437,7 @@
     if (el.matches('summary')) return ['open'];
     if (el.matches('input[type="checkbox"]')) return [el.checked ? 'toggleOff' : 'toggleOn']; // state before the change
     if (el.matches('.care-switch, .care-switch *')) return ['tap'];
-    if (el.matches('#fxSound')) return null;
+    if (el.matches('#fxSound, #msGameMode')) return null;
     if (el.matches('.btn-mini-go, .btn-primary, [type="submit"]')) return ['confirm'];
     if (el.matches('.btn-mini-ghost, .btn-outline, .btn-ghost')) return ['soft'];
     return ['tap'];
@@ -443,7 +456,7 @@
     if (s) Sound.play(s[0], s[1]);
     const strong = el.matches('.btn-mini-go, .btn-primary, [type="submit"]');
     hit(e.clientX, e.clientY, strong);
-    if (!calm && !el.matches('input')) {
+    if (!calm && game && !el.matches('input')) {
       el.classList.remove('fx-squash'); void el.offsetWidth; el.classList.add('fx-squash');
     }
   }, { passive: true });
@@ -482,7 +495,7 @@
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const el = ev.target instanceof Element ? ev.target.closest(TILT) : null;
+        const el = game && ev.target instanceof Element ? ev.target.closest(TILT) : null;
         if (current && current !== el) reset(current);
         current = el;
         if (!el) return;
@@ -500,6 +513,100 @@
     }, { passive: true });
     document.addEventListener('pointerleave', () => { if (current) reset(current); current = null; });
   }
+
+  // ------------------------------------------------------------------ widgets
+  function initGameSwitch() {
+    const box = document.getElementById('msGameMode');
+    if (!box) return;
+    box.checked = game;
+    const device = box.nextElementSibling;
+    const hint = () => { if (device) device.dataset.hint = t('admin.game.hint'); };
+    hint();
+    document.addEventListener('magicstick:langchange', hint);
+    box.addEventListener('change', () => {
+      if (box.checked) { game = true; store.set('magicstick_admin_game', 'on'); Sound.play('powerOn'); }
+      else { Sound.play('powerOff', undefined, true); game = false; store.set('magicstick_admin_game', 'off'); }
+      document.documentElement.classList.toggle('ms-game-off', !game);
+    });
+    document.documentElement.classList.toggle('ms-game-off', !game);
+  }
+
+  // Clock: smooth sweeping second hand, digital time, greeting.
+  function initClock() {
+    const root = document.getElementById('msClock');
+    if (!root) return;
+    const ticks = root.querySelector('.ms-clock-ticks');
+    for (let i = 0; i < 60; i++) {
+      const hour = i % 5 === 0;
+      const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l.setAttribute('x1', '60'); l.setAttribute('x2', '60');
+      l.setAttribute('y1', hour ? '7' : '8'); l.setAttribute('y2', hour ? '15' : '11');
+      l.setAttribute('transform', `rotate(${i * 6} 60 60)`);
+      if (hour) l.classList.add('is-hour');
+      ticks.appendChild(l);
+    }
+    const H = root.querySelector('.ms-clock-h'), M = root.querySelector('.ms-clock-m'), Sg = root.querySelector('.ms-clock-s');
+    const hm = document.getElementById('msClockHM'), sec = document.getElementById('msClockS');
+    const date = document.getElementById('msClockDate'), hello = document.getElementById('msClockHello');
+    let lastSec = -1;
+    const frame = () => {
+      const now = new Date();
+      const s = now.getSeconds() + (calm ? 0 : now.getMilliseconds() / 1000);
+      const m = now.getMinutes() + s / 60;
+      const h = (now.getHours() % 12) + m / 60;
+      Sg.setAttribute('transform', `rotate(${s * 6} 60 60)`);
+      M.setAttribute('transform', `rotate(${m * 6} 60 60)`);
+      H.setAttribute('transform', `rotate(${h * 30} 60 60)`);
+      if (now.getSeconds() !== lastSec) {
+        lastSec = now.getSeconds();
+        const fr = document.documentElement.lang === 'fr';
+        const p2 = (n) => String(n).padStart(2, '0');
+        hm.innerHTML = `${p2(now.getHours())}<span class="ms-colon">:</span>${p2(now.getMinutes())}`;
+        sec.textContent = p2(now.getSeconds());
+        date.textContent = now.toLocaleDateString(fr ? 'fr-CA' : 'en-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+        const hr = now.getHours();
+        hello.textContent = t(hr < 12 ? 'admin.clock.morning' : hr < 18 ? 'admin.clock.afternoon' : 'admin.clock.evening');
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  // Sign-in button: one span per letter (the animation staggers them), in the current language.
+  function buildJoin() {
+    document.querySelectorAll('.ms-join-char[data-chars]').forEach((box) => {
+      const text = t(box.dataset.chars);
+      box.innerHTML = '';
+      Array.from(text).forEach((ch, i) => {
+        const sp = document.createElement('span');
+        const c = ch === ' ' ? '\u00a0' : ch;
+        sp.dataset.label = c; sp.textContent = c; sp.style.setProperty('--i', String(i + 1));
+        box.appendChild(sp);
+      });
+    });
+  }
+
+  // Tables and chart cards: give each row/card its place in the cascade.
+  function stagger() {
+    document.querySelectorAll('#adminDashboard .admin-table tbody').forEach((tb) => {
+      Array.from(tb.children).forEach((tr, i) => tr.style.setProperty('--i', String(Math.min(i, 14))));
+    });
+    document.querySelectorAll('#adminDashboard .home-charts').forEach((g) => {
+      Array.from(g.children).forEach((c, i) => c.style.setProperty('--i', String(i)));
+    });
+  }
+  function initStagger() {
+    const dash = document.getElementById('adminDashboard');
+    if (!dash) return;
+    stagger();
+    let pending = 0;
+    const mo = new MutationObserver(() => { cancelAnimationFrame(pending); pending = requestAnimationFrame(stagger); });
+    dash.querySelectorAll('.admin-table').forEach((tb) => mo.observe(tb, { childList: true, subtree: true }));
+  }
+
+  const boot = () => { initGameSwitch(); initClock(); buildJoin(); initStagger(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  document.addEventListener('magicstick:langchange', buildJoin);
 
   window.MagicFX = { win, setXP, hit, sound: (name, arg) => Sound.play(name, arg) };
 })();

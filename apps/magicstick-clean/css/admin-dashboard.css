@@ -511,7 +511,7 @@
 .dash-kpi:first-child{background:linear-gradient(135deg,#6B3FE6,#2E8BE6);border:none;color:#fff;}
 .dash-kpi:first-child .dash-kpi-label,.dash-kpi:first-child .dash-kpi-delta{color:rgba(255,255,255,.85);}
 .dash-kpi-value{font-variant-numeric:tabular-nums;font-size:28px;}
-.kpi-anim,.todo-list li,.order-card{animation:rise .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 55ms);}
+.kpi-anim,.todo-list li,.order-card{animation:rise .5s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0) * 55ms);}
 @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 .todo-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
 .todo-list button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--cream);color:var(--charcoal);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;transition:transform .15s,border-color .15s;}
@@ -680,3 +680,86 @@
 [data-theme="dark"] .growth-text{background:rgba(167,139,250,.1)}
 .growth-text-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
 .growth-text-head b{font-size:14px}
+
+
+/* =====================================================================
+   Game feel (owner dashboard only, Nov 23, 2026) — js/admin-fx.js
+   Sparks + shockwave on every tap, springy squash, confetti and "+XP" on
+   real wins, XP/level chip, 3D tilt with moving light, popping menu icons.
+   Uses the `scale` property so it stacks with existing transforms.
+   ===================================================================== */
+.fx-layer{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.fx-spark{position:absolute;width:7px;height:7px;border-radius:50%;box-shadow:0 0 10px 2px currentColor;color:rgba(139,77,230,.55);will-change:transform,opacity;}
+.fx-ring{position:absolute;width:70px;height:70px;border-radius:50%;border:2px solid rgba(139,77,230,.75);box-shadow:0 0 18px rgba(46,139,230,.45),inset 0 0 12px rgba(139,77,230,.35);will-change:transform,opacity;}
+.fx-confetti{position:absolute;border-radius:2px;will-change:transform,opacity;}
+.fx-float{position:absolute;white-space:nowrap;font:800 22px/1 'Inter',system-ui,sans-serif;letter-spacing:-.01em;
+  background:linear-gradient(90deg,#F5B83D,#FF5DA2,#8B4DE6,#2E8BE6);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 10px rgba(107,63,230,.45));will-change:transform,opacity;}
+
+/* Springy squash on press (bounces back past 1, like a game button). */
+.fx-squash{animation:fxSquash .42s cubic-bezier(.3,1.6,.5,1) 1;}
+@keyframes fxSquash{0%{scale:1}25%{scale:.9}60%{scale:1.06}100%{scale:1}}
+#adminDashboard button, #adminDashboard .btn-mini, #adminDashboard .stage-chip{transition:filter .2s ease, box-shadow .25s ease, background-color .2s ease, color .2s ease, border-color .2s ease;}
+@media (hover:hover) and (pointer:fine){
+  #adminDashboard .btn-mini:hover, #adminDashboard .stage-chip:hover{filter:brightness(1.06) saturate(1.1);box-shadow:0 8px 20px -10px rgba(107,63,230,.7);}
+  #adminDashboard .btn-mini-go:hover{box-shadow:0 0 0 3px rgba(34,195,166,.18),0 10px 24px -10px rgba(34,195,166,.9);}
+}
+
+/* Menu: the icon pops when its tab opens; the active tab glows softly. */
+.dash-nav-btn.fx-pop svg{animation:fxPop .55s cubic-bezier(.3,1.7,.5,1) 1;}
+@keyframes fxPop{0%{scale:1;rotate:0deg}35%{scale:1.35;rotate:-10deg}70%{scale:.92;rotate:4deg}100%{scale:1;rotate:0deg}}
+.dash-nav-btn.active{background-image:linear-gradient(120deg,#6B3FE6,#8B4DE6 45%,#2E8BE6);background-size:200% 100%;animation:fxFlow 6s ease-in-out infinite alternate;}
+@keyframes fxFlow{from{background-position:0% 50%}to{background-position:100% 50%}}
+
+/* 3D tilt with a light that follows the pointer (set by admin-fx.js). */
+.order-card,.dash-card{position:relative;}
+.order-card,.dash-kpi,.dash-card{transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease;}
+.order-card.fx-tilting,.dash-kpi.fx-tilting,.dash-card.fx-tilting{transition:transform .08s linear, box-shadow .3s ease;box-shadow:0 26px 50px -30px rgba(43,20,110,.55);}
+.order-card::after,.dash-kpi::after,.dash-card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s ease;
+  background:radial-gradient(360px circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,.22), rgba(139,77,230,.06) 40%, transparent 65%);}
+.fx-tilting::after{opacity:1;}
+
+/* XP chip in the top bar. */
+.fx-xp{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;position:relative;isolation:isolate;
+  background:var(--paper,#fff);box-shadow:0 8px 24px -14px rgba(107,63,230,.8);font-size:13px;font-weight:700;color:var(--charcoal);}
+.fx-xp::before{content:"";position:absolute;inset:-2px;border-radius:inherit;z-index:-1;
+  background:conic-gradient(from var(--fx-a,0deg),#6B3FE6,#2E8BE6,#22C3A6,#F5B83D,#FF5DA2,#6B3FE6);animation:fxSpinBorder 5s linear infinite;}
+.fx-xp::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:var(--paper,#fff);}
+@property --fx-a{syntax:'<angle>';inherits:false;initial-value:0deg;}
+@keyframes fxSpinBorder{to{--fx-a:360deg}}
+.fx-xp-badge{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#fff;font-size:14px;
+  background:linear-gradient(135deg,#6B3FE6,#2E8BE6);box-shadow:0 0 14px rgba(107,63,230,.6);}
+.fx-xp-bar{display:block;width:90px;height:7px;border-radius:99px;background:rgba(107,63,230,.14);overflow:hidden;margin-top:3px;}
+.fx-xp-fill{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#22C3A6,#2E8BE6,#8B4DE6);background-size:200% 100%;
+  animation:fxFlow 2.5s linear infinite alternate;transition:width .9s cubic-bezier(.3,1.4,.5,1);}
+.fx-xp-text{display:grid;line-height:1.1;}
+.fx-xp-text small{font-weight:600;color:var(--gray);font-size:11px;}
+.fx-xp.fx-gain{animation:fxGain .7s cubic-bezier(.3,1.6,.5,1) 1;}
+@keyframes fxGain{0%{scale:1}30%{scale:1.14}100%{scale:1}}
+:root[data-theme="dark"] .fx-xp,:root[data-theme="dark"] .fx-xp::after{background:#1b2027;color:#f3f4f6;}
+
+/* Level up: full-screen moment, then it gets out of the way. */
+.fx-levelup{position:fixed;inset:0;z-index:9998;display:grid;place-items:center;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, rgba(107,63,230,.35), rgba(10,8,25,.55) 70%);animation:fxFade .35s ease both;}
+.fx-levelup.is-out{animation:fxFadeOut .5s ease both;}
+.fx-levelup-card{display:grid;gap:6px;text-align:center;padding:26px 40px;margin:0 16px;max-width:460px;border-radius:26px;color:#fff;
+  background:linear-gradient(135deg,rgba(107,63,230,.92),rgba(46,139,230,.92));box-shadow:0 30px 80px -20px rgba(43,20,110,.9),inset 0 1px 0 rgba(255,255,255,.35);
+  animation:fxBoom .7s cubic-bezier(.3,1.6,.5,1) both;}
+.fx-levelup-card b{font:800 44px/1 'Fraunces',serif;letter-spacing:-.02em;}
+.fx-levelup-kicker{font-weight:800;letter-spacing:.18em;text-transform:uppercase;font-size:12px;opacity:.9;}
+.fx-levelup-sub{font-size:14px;opacity:.9;}
+@keyframes fxBoom{0%{scale:.4;opacity:0;rotate:-6deg}60%{scale:1.08;opacity:1;rotate:2deg}100%{scale:1;rotate:0deg}}
+@keyframes fxFade{from{opacity:0}to{opacity:1}}
+@keyframes fxFadeOut{to{opacity:0}}
+
+@media (prefers-reduced-motion:reduce){
+  .fx-squash,.dash-nav-btn.fx-pop svg,.fx-xp.fx-gain,.dash-nav-btn.active,.fx-xp::before,.fx-xp-fill,.fx-levelup-card{animation:none;}
+  .fx-tilting::after{opacity:0;}
+}
+@media (max-width:700px){
+  .dash-topbar-actions{flex-wrap:wrap;}
+  .fx-xp{flex-basis:100%;justify-content:flex-start;}
+  .fx-xp-text{grid-template-columns:auto 1fr;column-gap:10px;align-items:center;flex:1;}
+  .fx-xp-text small{grid-column:1 / -1;order:3;}
+  .fx-xp-bar{width:auto;margin-top:0;}
+}

@@ -94,6 +94,10 @@
       <div class="dash-topbar">
         <h2 data-i18n="admin.dash.title">Dashboard</h2>
         <div class="dash-topbar-actions">
+          <div class="fx-xp" id="fxXp" hidden title="XP">
+            <span class="fx-xp-badge fx-xp-level">1</span>
+            <span class="fx-xp-text"><span><span class="fx-xp-points">0</span> XP</span><small data-i18n="admin.fx.xpHint">earned by your real work</small><span class="fx-xp-bar"><span class="fx-xp-fill"></span></span></span>
+          </div>
           <button type="button" class="btn btn-outline" id="adminChangePwBtn" data-i18n="admin.changePw.btn">Change password</button>
           <button type="button" class="btn btn-outline" id="adminLogoutBtn" data-i18n="admin.logout">Log out</button>
         </div>
@@ -748,6 +752,7 @@
   </form>
 </dialog>
 
+<script src="js/admin-fx.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/site-enhancements.js"></script>
 <script src="js/ai-chat.js"></script>

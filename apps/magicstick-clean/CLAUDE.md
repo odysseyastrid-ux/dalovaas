@@ -191,6 +191,8 @@ All bookings have a **3-hour minimum**. Prices below are hourly; the site shows 
    API), Google Business Profile, GA4 + Search Console + Calendar (service account), Facebook/Instagram; plus
    morning summary, review alerts, expenses & profit, PDF receipts. Bulle prepares, the owner confirms.
    Google setup waits until after the owner's exams; Phase 0 (no Google needed) can be built first.
+   **Reports and plans (Growth tab, migration 0039, `js/admin-docs.js`):** `owner_docs` holds FR/EN reports
+   (markdown, rendered safely); first one: `reports/` best Canadian cleaning companies, with 14 actions.
 
 ---
 
